@@ -19,9 +19,9 @@ A SaaS for solo / small California plaintiff personal-injury law firms. The core
 
 End users are non-technical law-firm staff, so UX and copy should assume no technical knowledge.
 
-## Two build tracks
+## Three build tracks
 
-There are two implementations of the same product. Do not confuse their rules:
+There are three implementations of the same product. Do not confuse their rules:
 
 1. **Concierge pipeline (local CLI)** — what currently exists in THIS repo. A plain
    Node.js command-line tool that turns one MP3 into an HTML report on the founder's Mac.
@@ -30,6 +30,9 @@ There are two implementations of the same product. Do not confuse their rules:
    about the SaaS track and does NOT apply here.
 2. **SaaS (30-day track)** — the hosted web app described under "Stack" and "Architecture"
    below. Not built yet.
+3. **Outcome Reconciliation Dashboard (`web/`)** — a shareable demo/prototype that proves
+   the scorer's flags match real-world outcomes. Real Next.js app (the SaaS foundation) but
+   backed by LOCAL JSON, no auth, no DB. See the section below.
 
 ## Commands
 
@@ -107,6 +110,49 @@ Layout:
 Keys live in `.env` (git-ignored): `ASSEMBLYAI_API_KEY`, `ANTHROPIC_API_KEY`. There is no
 build step and no lint/test config yet — the "Commands" above (`npm run dev` etc.) belong to
 the SaaS track and do not exist in this repo.
+
+## Outcome Reconciliation Dashboard (`web/` — demo/prototype)
+
+A shareable, phone-friendly Next.js app for design-partner sales conversations. It proves
+the intake scorer's flags line up with what really happened (did the flagged "lost signable"
+call actually sign elsewhere?). It is the SaaS foundation, but for the demo it runs on LOCAL
+JSON with **no auth and no database**. Lives entirely in `web/` — the root CLI is untouched.
+
+Run it: `npm --prefix web run dev` (or `cd web && npm run dev`), then open `localhost:3000`.
+Regenerate demo data: `node web/scripts/generate-seed.mjs`. Deploys to Vercel with the seed
+committed (data ships in git; only `.next/`/`node_modules` are ignored).
+
+**Data-access seam (ports-and-adapters — the important part):**
+- `web/src/lib/repository.ts` — the `Repository` interface (`getScoredCalls`, `getCallMeta`,
+  `getOutcomes`, `upsertOutcome`). UI and pages ONLY touch this interface, never `fs`.
+- `web/src/lib/json-repository.ts` — the one impl today, `JsonFileRepository` (`server-only`).
+  Reads scored calls from `web/data/scored-calls/*.json` (seed) plus the CLI's real
+  `output/*.score.json` (local only); reads/writes outcomes to `web/data/outcomes.json`
+  (best-effort write, so a read-only serverless fs never breaks the demo).
+- A future `SupabaseRepository` implements the same interface and swaps in with **zero UI
+  changes** — that is the whole point of the seam.
+
+**Data model:**
+- `ScoredCall` (`web/src/lib/schema.ts`) is the EXISTING `.score.json` — a lenient Zod
+  passthrough schema. Do NOT redesign it; real scored calls must drop in unchanged.
+- `Outcome` is a sibling record keyed by `call_id` (8-value `outcome_code` enum,
+  `callback_made`, timing, `realized_fee_recovered`, `outcome_version`++ with an `edits[]`
+  audit trail). Missing outcome → default `"unknown"`.
+- `CallMeta` is a sidecar (`web/data/call-meta.json`) holding call date/rep/source, which the
+  score.json deliberately does NOT carry — keeps score files pristine.
+
+**Pure logic** lives in `web/src/lib/reconcile.ts` (verdict table: correct_flag /
+false_alarm / missed_catch / correct_pass / excluded) and `web/src/lib/metrics.ts` (flag
+precision, catch rate, recovered fees, sign-rate-by-band, etc.) — no I/O, identical for JSON
+now and Supabase later. Every formula is surfaced in a methodology tooltip.
+
+**Seed generator** (`web/scripts/generate-seed.mjs`) uses a fixed `MASTER_SEED` + mulberry32
+PRNG, so reruns are bit-identical. ~200 calls, 8 reps, ~90 days, with sign rate correlated to
+score band and deliberate scorer mistakes so the calibration story is honest.
+
+Screens: `/` Executive Summary, `/calibration` (incl. "Our Misses"), `/funnel`, `/triage`
+(single-key outcome entry), `/statement` (printable reconciliation statement). This is a
+DEMO: no auth/CRM/realtime/DB, no tests beyond a smoke check, no changes to the CLI.
 
 ## Hard rules
 

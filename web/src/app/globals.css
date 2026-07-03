@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Editorial / legal-financial design system.
+   Palette lifted from lib/report.js so the dashboard and the printed call
+   report speak the same visual language: navy + red on near-white, serif
+   headings, tabular numerals. Deliberately NOT the default "AI dashboard" look
+   — no purple, no gradients, no glassmorphism, no neon.
+--------------------------------------------------------------------------- */
+
+@theme {
+  --color-canvas: #f4f4f5; /* page background */
+  --color-paper: #ffffff; /* card / sheet surface */
+  --color-ink: #1a1a1a; /* primary text */
+  --color-muted: #6b6b6b; /* secondary text */
+  --color-faint: #9a9a9a; /* tertiary / captions */
+  --color-line: #e2e2e2; /* hairline borders */
+  --color-line-strong: #cfcfcf;
+
+  --color-navy: #1a4d8f; /* primary accent */
+  --color-navy-deep: #143a6b; /* nav / dark headers */
+  --color-navy-tint: #eaf0f8; /* wash behind navy elements */
+
+  --color-red: #b00020; /* loss / risk / lost signable */
+  --color-red-tint: #fbeaed;
+  --color-amber: #b26a00; /* caution / needs attention */
+  --color-amber-tint: #fbf1e2;
+  --color-green: #1a7f37; /* recovered / correct */
+  --color-green-tint: #e8f3ec;
+
+  /* Score-band colors — identical to BAND_COLORS in lib/report.js */
+  --color-band-exemplary: #1a7f37;
+  --color-band-strong: #1a4d8f;
+  --color-band-developing: #b26a00;
+  --color-band-coaching: #c05621;
+  --color-band-intervention: #b00020;
+
+  --font-serif: var(--font-serif), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+}
+
+html {
+  color-scheme: light; /* this is a document, not a themeable app */
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Serif display headings. */
+.font-display {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+/* Tabular figures for every number in the product. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* A quiet uppercase section eyebrow, matching the report's <h2> treatment. */
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+/* Print stylesheet — Executive Summary and the Statement print clean. */
+@media print {
+  body {
+    background: #fff;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-plain {
+    box-shadow: none !important;
+    border: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "call_id": "call-0010",
+  "transcript_quality": {
+    "scoreable": true,
+    "issues": []
+  },
+  "call_type": "new_pi_inquiry",
+  "language": "en",
+  "scored": "full",
+  "duration_assessed_sec": 329,
+  "classification_confidence": "high",
+  "critical_fails": [],
+  "review_recommended": [],
+  "case_signability": "not_signable",
+  "signability_basis": "Did not meet firm intake criteria on liability, injury, or coverage.",
+  "high_value_indicators": [],
+  "escalation_handled": "not_applicable",
+  "conversion": {
+    "retainer_asked": false,
+    "retainer_outcome": "no_ask",
+    "next_step_specificity": "vague",
+    "contact_info_captured": "partial"
+  },
+  "alerts": {
+    "lost_signable_case": false,
+    "missed_development_opportunity": false,
+    "after_hours_leak": false,
+    "revenue_at_risk": {
+      "amount_usd": null,
+      "case_type_matched": null,
+      "basis": null,
+      "evidence_quotes": []
+    }
+  },
+  "scores": {
+    "overall": 45,
+    "band": "needs_coaching",
+    "confidence": "medium",
+    "categories": {
+      "qualification": {
+        "score": 46
+      },
+      "conversion": {
+        "score": 56
+      },
+      "connection": {
+        "score": 54
+      },
+      "risk_compliance": {
+        "score": 43
+      },
+      "process": {
+        "score": 25
+      }
+    }
+  },
+  "coaching": {
+    "top_strength": {
+      "behavior": "Opened with genuine, non-scripted empathy tied to the caller's situation.",
+      "quote": "I'm so sorry that happened — are you okay right now?",
+      "timestamp": "00:12"
+    },
+    "one_thing": {
+      "behavior": "Tighten the next-step commitment so the caller knows exactly what happens next.",
+      "missed_moment_timestamp": "01:20",
+      "model_utterance": "I'm scheduling your attorney call for tomorrow at 10am — you'll get a text confirmation in two minutes.",
+      "why_it_matters": "A specific, owned next step keeps a qualified caller from shopping around."
+    }
+  },
+  "summary": "An intake handled with gaps in qualification and next-step commitment."
+}

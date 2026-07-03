@@ -1,0 +1,74 @@
+{
+  "call_id": "call-0157",
+  "transcript_quality": {
+    "scoreable": true,
+    "issues": []
+  },
+  "call_type": "new_pi_inquiry",
+  "language": "en",
+  "scored": "full",
+  "duration_assessed_sec": 284,
+  "classification_confidence": "high",
+  "critical_fails": [],
+  "review_recommended": [],
+  "case_signability": "likely_signable",
+  "signability_basis": "Meets firm criteria: identifiable at-fault party, treated injury, and coverage indicated.",
+  "high_value_indicators": [],
+  "escalation_handled": "not_applicable",
+  "conversion": {
+    "retainer_asked": false,
+    "retainer_outcome": "no_ask",
+    "next_step_specificity": "vague",
+    "contact_info_captured": "complete"
+  },
+  "alerts": {
+    "lost_signable_case": true,
+    "missed_development_opportunity": false,
+    "after_hours_leak": false,
+    "revenue_at_risk": {
+      "amount_usd": 4140,
+      "case_type_matched": "mva_standard",
+      "basis": "firm_average_fee_for_case_type",
+      "evidence_quotes": [
+        "The other driver admitted fault and I have the police report number.",
+        "They gave me their insurance information at the scene."
+      ]
+    }
+  },
+  "scores": {
+    "overall": 80,
+    "band": "strong",
+    "confidence": "high",
+    "categories": {
+      "qualification": {
+        "score": 83
+      },
+      "conversion": {
+        "score": 46
+      },
+      "connection": {
+        "score": 82
+      },
+      "risk_compliance": {
+        "score": 88
+      },
+      "process": {
+        "score": 68
+      }
+    }
+  },
+  "coaching": {
+    "top_strength": {
+      "behavior": "Opened with genuine, non-scripted empathy tied to the caller's situation.",
+      "quote": "I'm so sorry that happened — are you okay right now?",
+      "timestamp": "00:12"
+    },
+    "one_thing": {
+      "behavior": "Make the retainer ask before ending the call — every sign criterion was met.",
+      "missed_moment_timestamp": "01:14",
+      "model_utterance": "This is exactly the kind of case we handle. I can text you our agreement right now — you sign on your phone in about a minute — and from then on the insurer deals with us, not you.",
+      "why_it_matters": "A warm, signable lead cools fast; the next firm they call gets this case and the fee walks."
+    }
+  },
+  "summary": "A signable intake that ended without a retainer ask — liability, injury, and coverage were all present. Estimated fee at risk to the first-responding competitor."
+}
