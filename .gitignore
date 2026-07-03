@@ -1,0 +1,15 @@
+# Secrets — never commit
+.env
+
+# Dependencies
+node_modules/
+
+# Confidential recordings and generated output
+calls/
+output/
+
+# macOS
+.DS_Store
+
+# Claude Code local settings
+.claude/settings.local.json
