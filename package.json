@@ -1,0 +1,16 @@
+{
+  "name": "intake-qa-concierge",
+  "version": "0.1.0",
+  "description": "Local CLI: intake-call MP3 -> transcript -> Claude scoring -> HTML report",
+  "type": "module",
+  "bin": {
+    "score": "score.js"
+  },
+  "scripts": {
+    "fake-test": "node fake-test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "assemblyai": "^4.9.0"
+  }
+}
