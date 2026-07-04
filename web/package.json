@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/vendor-engine.mjs",
-    "build": "next build",
+    "postinstall": "node scripts/vendor-engine.mjs",
+    "build": "node scripts/vendor-engine.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "node --no-warnings db/migrate.mjs",
