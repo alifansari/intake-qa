@@ -8,13 +8,11 @@
 // call the real AssemblyAI + frozen Claude scoring engine + compliant drafter.
 
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 
-import { scoreCall } from "../../lib/score-call.js";
-import { transcribeFile } from "../../lib/transcribe.js";
 import { evaluateFlag, signabilityScore } from "../messaging/flag-logic.mjs";
 import { draftFirstMessage } from "../messaging/draft.mjs";
 import { getTemplate } from "../messaging/templates.mjs";
@@ -29,8 +27,20 @@ import {
   purgeExpiredDemoCalls,
 } from "./store.mjs";
 
-const REPO_ROOT = fileURLToPath(new URL("../..", import.meta.url));
-const DEFAULT_CONFIG_PATH = fileURLToPath(new URL("../demo-config.json", import.meta.url));
+// NB: build these paths with dirname(fileURLToPath(...)) rather than
+// `new URL("../..", import.meta.url)` — Turbopack treats the latter as a static
+// asset reference and tries (and fails) to bundle "../.." at build time.
+const HERE = dirname(fileURLToPath(import.meta.url)); // web/ingest
+const REPO_ROOT = join(HERE, "..", "..");             // repo root
+const DEFAULT_CONFIG_PATH = join(HERE, "..", "demo-config.json");
+
+// Import a root-level engine module (lib/*.js) by an ABSOLUTE file:// URL built
+// at runtime. The specifier is computed (not a string literal), so Next/Turbopack
+// cannot pull lib/ into the /api/demo route's static bundle graph — it stays a
+// pure runtime import on the Node server. See defaultTranscriber/defaultScorer.
+function importEngine(fileName) {
+  return import(pathToFileURL(join(REPO_ROOT, "lib", fileName)).href);
+}
 
 const WATERMARK = "DRAFT PREVIEW — nothing is sent from demo mode.";
 
@@ -151,13 +161,20 @@ export function buildDemoResult({ score, mapped, config, callerName, firmName })
 // --- Default (production) transcriber ---------------------------------------
 // Accepts a local audio path or URL; returns transcript text. Deletes nothing
 // itself (the pipeline handles audio cleanup after this returns).
+//
+// The root-level engine (lib/transcribe.js, lib/score-call.js) lives OUTSIDE the
+// web app dir, so it is imported LAZILY — this keeps it out of the Next/Turbopack
+// static graph (the /api/demo route would otherwise fail to bundle it). Same
+// runtime path; only ever loaded on the Node server when the real defaults run.
 async function defaultTranscriber({ audioPath }) {
+  const { transcribeFile } = await importEngine("transcribe.js");
   const outDir = mkdtempSync(join(tmpdir(), "intakeqa-demo-transcribe-"));
   const record = await transcribeFile(audioPath, join(outDir, "demo.transcript.json"));
   return record.formatted_transcript;
 }
 
 async function defaultScorer({ transcript, callId, firmConfigPath }) {
+  const { scoreCall } = await importEngine("score-call.js");
   const outDir = mkdtempSync(join(tmpdir(), "intakeqa-demo-score-"));
   return scoreCall({
     transcript,
@@ -172,6 +189,19 @@ async function defaultScorer({ transcript, callId, firmConfigPath }) {
 // Drives one demo_calls row through transcribe -> score -> result. Deletes the
 // audio immediately after transcription. Records errors on the row (no throw to
 // the caller by default so the status endpoint can surface a clean message).
+/**
+ * @param {{
+ *   db?: unknown,
+ *   demoCallId?: unknown,
+ *   audioPath?: string,
+ *   onAudioProcessed?: (p: string) => unknown,
+ *   transcriber?: Function,
+ *   scorer?: Function,
+ *   drafter?: Function,
+ *   config?: unknown,
+ *   now?: Date,
+ * }} [opts]
+ */
 export async function runDemoPipeline({
   db,
   demoCallId,
@@ -240,6 +270,7 @@ export async function runDemoPipeline({
 // --- Retention purge ---------------------------------------------------------
 // Null out transcript + result for demo rows older than retentionHours. Safe to
 // run opportunistically on each upload and as a scheduled cron. Returns count.
+/** @param {{ db?: unknown, now?: Date, retentionHours?: number }} [opts] */
 export async function purgeDemo({ db, now = new Date(), retentionHours } = {}) {
   const hours = retentionHours ?? loadDemoConfig().retentionHours ?? 72;
   const beforeIso = new Date(new Date(now).getTime() - hours * 3600 * 1000).toISOString();
