@@ -1,0 +1,16 @@
+{
+  "_comment": "Demo Mode fee estimates ONLY. Conservative California PI averages used to show a 'fee at risk' figure in the public demo. These are ESTIMATES — replaced by your firm's real numbers at onboarding. Not a valuation of any real case.",
+  "disclaimer": "Estimates — replaced by your firm's real numbers.",
+  "firmConfigPath": "config/demo-firm.md",
+  "defaultFeeEstimate": 12000,
+  "feeEstimatesByCaseType": {
+    "mva_standard": 12000,
+    "mva_commercial": 45000,
+    "motorcycle": 25000,
+    "premises": 18000,
+    "dog_bite": 15000,
+    "wrongful_death": 150000,
+    "other_pi": 12000
+  },
+  "retentionHours": 72
+}

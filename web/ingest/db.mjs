@@ -464,3 +464,93 @@ export function sumRecoveredMonthToDate(db, firmId, monthStartDate, throughWeekO
     .get(firmId, monthStartDate, throughWeekOf);
   return row.total;
 }
+
+// --- Demo Mode (public, no-auth, hard-isolated from the firm pipeline) --------
+// These never touch calls/conversations/messages; a demo upload can never send.
+
+// Create a demo call row (status 'queued'). Returns the new id.
+export function createDemoCall(db, { client_ip = null, filename = null } = {}) {
+  const info = db
+    .prepare(`INSERT INTO demo_calls (client_ip, filename) VALUES (?, ?)`)
+    .run(client_ip, filename);
+  return Number(info.lastInsertRowid);
+}
+
+export function getDemoCall(db, id) {
+  return db.prepare("SELECT * FROM demo_calls WHERE id = ?").get(id);
+}
+
+// Advance the lifecycle status ('queued'->'transcribing'->'scoring'->'done'|'error').
+export function setDemoCallStatus(db, id, status, now) {
+  db.prepare(
+    `UPDATE demo_calls SET status = ?, updated_at = ? WHERE id = ?`
+  ).run(status, now ?? new Date().toISOString(), id);
+}
+
+export function setDemoCallTranscript(db, id, transcript, now) {
+  db.prepare(
+    `UPDATE demo_calls SET transcript = ?, updated_at = ? WHERE id = ?`
+  ).run(transcript, now ?? new Date().toISOString(), id);
+}
+
+// Store the computed result and mark done. `resultJson` is a JSON string.
+export function setDemoCallResult(db, id, resultJson, now) {
+  db.prepare(
+    `UPDATE demo_calls SET result_json = ?, status = 'done', updated_at = ? WHERE id = ?`
+  ).run(resultJson, now ?? new Date().toISOString(), id);
+}
+
+export function setDemoCallError(db, id, error, now) {
+  db.prepare(
+    `UPDATE demo_calls SET error = ?, status = 'error', updated_at = ? WHERE id = ?`
+  ).run(String(error ?? "unknown error"), now ?? new Date().toISOString(), id);
+}
+
+// Record that the uploaded audio bytes have been deleted (retention selling point).
+export function markDemoAudioDeleted(db, id, now) {
+  db.prepare(
+    `UPDATE demo_calls SET audio_deleted = 1, updated_at = ? WHERE id = ?`
+  ).run(now ?? new Date().toISOString(), id);
+}
+
+// Rate limiting: uploads by this IP since `sinceIso` (trailing-hour count).
+export function countRecentDemoUploadsByIp(db, ip, sinceIso) {
+  const row = db
+    .prepare(
+      `SELECT COUNT(*) AS n FROM demo_calls WHERE client_ip = ? AND created_at >= ?`
+    )
+    .get(ip, sinceIso);
+  return row.n;
+}
+
+// Concurrency: uploads by this IP still in an active (non-terminal) status.
+export function countActiveDemoUploadsByIp(db, ip) {
+  const row = db
+    .prepare(
+      `SELECT COUNT(*) AS n FROM demo_calls
+        WHERE client_ip = ? AND status IN ('queued','transcribing','scoring')`
+    )
+    .get(ip);
+  return row.n;
+}
+
+// Retention purge: null out transcript + result for demo rows older than
+// `beforeIso` (keeps the row so demo_leads FK survives). Returns rows purged.
+export function purgeExpiredDemoCalls(db, beforeIso) {
+  const info = db
+    .prepare(
+      `UPDATE demo_calls
+          SET transcript = NULL, result_json = NULL, status = 'done'
+        WHERE created_at < ? AND (transcript IS NOT NULL OR result_json IS NOT NULL)`
+    )
+    .run(beforeIso);
+  return Number(info.changes ?? 0);
+}
+
+// Lead capture ("email me this report"). Returns the new lead id.
+export function createDemoLead(db, { demo_call_id = null, email }) {
+  const info = db
+    .prepare(`INSERT INTO demo_leads (demo_call_id, email) VALUES (?, ?)`)
+    .run(demo_call_id, email);
+  return Number(info.lastInsertRowid);
+}

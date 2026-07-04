@@ -60,6 +60,19 @@ export const countRepliedInWeek = wrap("countRepliedInWeek");
 export const getSignedRecoveries = wrap("getSignedRecoveries");
 export const sumRecoveredMonthToDate = wrap("sumRecoveredMonthToDate");
 
+// Demo Mode (public, no-auth, hard-isolated).
+export const createDemoCall = wrap("createDemoCall");
+export const getDemoCall = wrap("getDemoCall");
+export const setDemoCallStatus = wrap("setDemoCallStatus");
+export const setDemoCallTranscript = wrap("setDemoCallTranscript");
+export const setDemoCallResult = wrap("setDemoCallResult");
+export const setDemoCallError = wrap("setDemoCallError");
+export const markDemoAudioDeleted = wrap("markDemoAudioDeleted");
+export const countRecentDemoUploadsByIp = wrap("countRecentDemoUploadsByIp");
+export const countActiveDemoUploadsByIp = wrap("countActiveDemoUploadsByIp");
+export const purgeExpiredDemoCalls = wrap("purgeExpiredDemoCalls");
+export const createDemoLead = wrap("createDemoLead");
+
 // --- Connection selection for the hosted pipeline ----------------------------
 
 // True when a Postgres connection is configured (hosted product).

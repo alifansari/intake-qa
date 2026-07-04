@@ -401,3 +401,88 @@ export async function sumRecoveredMonthToDate(db, firmId, monthStartDate, throug
   );
   return Number(r.rows[0].total);
 }
+
+// --- Demo Mode (public, no-auth, hard-isolated from the firm pipeline) --------
+
+export async function createDemoCall(db, { client_ip = null, filename = null } = {}) {
+  const info = await db.query(
+    `INSERT INTO demo_calls (client_ip, filename) VALUES ($1, $2) RETURNING id`,
+    [client_ip, filename]
+  );
+  return info.rows[0].id;
+}
+
+export async function getDemoCall(db, id) {
+  const r = await db.query("SELECT * FROM demo_calls WHERE id = $1", [id]);
+  return r.rows[0];
+}
+
+export async function setDemoCallStatus(db, id, status, now) {
+  await db.query(
+    `UPDATE demo_calls SET status = $1, updated_at = $2 WHERE id = $3`,
+    [status, now ?? new Date().toISOString(), id]
+  );
+}
+
+export async function setDemoCallTranscript(db, id, transcript, now) {
+  await db.query(
+    `UPDATE demo_calls SET transcript = $1, updated_at = $2 WHERE id = $3`,
+    [transcript, now ?? new Date().toISOString(), id]
+  );
+}
+
+export async function setDemoCallResult(db, id, resultJson, now) {
+  await db.query(
+    `UPDATE demo_calls SET result_json = $1, status = 'done', updated_at = $2 WHERE id = $3`,
+    [resultJson, now ?? new Date().toISOString(), id]
+  );
+}
+
+export async function setDemoCallError(db, id, error, now) {
+  await db.query(
+    `UPDATE demo_calls SET error = $1, status = 'error', updated_at = $2 WHERE id = $3`,
+    [String(error ?? "unknown error"), now ?? new Date().toISOString(), id]
+  );
+}
+
+export async function markDemoAudioDeleted(db, id, now) {
+  await db.query(
+    `UPDATE demo_calls SET audio_deleted = true, updated_at = $1 WHERE id = $2`,
+    [now ?? new Date().toISOString(), id]
+  );
+}
+
+export async function countRecentDemoUploadsByIp(db, ip, sinceIso) {
+  const r = await db.query(
+    `SELECT COUNT(*) AS n FROM demo_calls WHERE client_ip = $1 AND created_at >= $2`,
+    [ip, sinceIso]
+  );
+  return Number(r.rows[0].n);
+}
+
+export async function countActiveDemoUploadsByIp(db, ip) {
+  const r = await db.query(
+    `SELECT COUNT(*) AS n FROM demo_calls
+      WHERE client_ip = $1 AND status IN ('queued','transcribing','scoring')`,
+    [ip]
+  );
+  return Number(r.rows[0].n);
+}
+
+export async function purgeExpiredDemoCalls(db, beforeIso) {
+  const r = await db.query(
+    `UPDATE demo_calls
+        SET transcript = NULL, result_json = NULL, status = 'done'
+      WHERE created_at < $1 AND (transcript IS NOT NULL OR result_json IS NOT NULL)`,
+    [beforeIso]
+  );
+  return r.rowCount ?? 0;
+}
+
+export async function createDemoLead(db, { demo_call_id = null, email }) {
+  const info = await db.query(
+    `INSERT INTO demo_leads (demo_call_id, email) VALUES ($1, $2) RETURNING id`,
+    [demo_call_id, email]
+  );
+  return info.rows[0].id;
+}
