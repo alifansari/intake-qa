@@ -73,6 +73,12 @@ export const countActiveDemoUploadsByIp = wrap("countActiveDemoUploadsByIp");
 export const purgeExpiredDemoCalls = wrap("purgeExpiredDemoCalls");
 export const createDemoLead = wrap("createDemoLead");
 
+// Firm onboarding (wizard).
+export const createFirm = wrap("createFirm");
+export const saveTemplateVersion = wrap("saveTemplateVersion");
+export const getLatestTemplateVersion = wrap("getLatestTemplateVersion");
+export const listTemplateVersions = wrap("listTemplateVersions");
+
 // --- Connection selection for the hosted pipeline ----------------------------
 
 // True when a Postgres connection is configured (hosted product).

@@ -554,3 +554,63 @@ export function createDemoLead(db, { demo_call_id = null, email }) {
     .run(demo_call_id, email);
   return Number(info.lastInsertRowid);
 }
+
+// --- Firm onboarding ---------------------------------------------------------
+// kill_switch defaults to 1 (ON): a newly onboarded firm can send NOTHING until
+// an operator explicitly clears the switch after A2P approval. Safe by default.
+
+// Create a firm from the onboarding wizard. Returns the new firm id.
+export function createFirm(db, firm) {
+  const {
+    name,
+    avg_case_fee = 0,
+    timezone = "America/Los_Angeles",
+    subscription_price = null,
+  } = firm;
+  const info = db
+    .prepare(
+      `INSERT INTO firms (name, avg_case_fee, timezone, subscription_price)
+       VALUES (?, ?, ?, ?)`
+    )
+    .run(name, avg_case_fee, timezone, subscription_price);
+  return Number(info.lastInsertRowid);
+}
+
+// Save a new approved template pack version for a firm. The version is monotonic
+// per firm (previous max + 1). `pack` is an array of { id, name, body }.
+// Returns { id, version }.
+export function saveTemplateVersion(db, { firm_id, pack, approved_by = null }) {
+  const row = db
+    .prepare("SELECT MAX(version) AS v FROM template_versions WHERE firm_id = ?")
+    .get(firm_id);
+  const version = (row?.v ?? 0) + 1;
+  const info = db
+    .prepare(
+      `INSERT INTO template_versions (firm_id, version, pack_json, approved_by)
+       VALUES (?, ?, ?, ?)`
+    )
+    .run(firm_id, version, JSON.stringify(pack), approved_by);
+  return { id: Number(info.lastInsertRowid), version };
+}
+
+// The current (highest-version) template pack for a firm, or null.
+export function getLatestTemplateVersion(db, firmId) {
+  const row = db
+    .prepare(
+      `SELECT * FROM template_versions
+        WHERE firm_id = ? ORDER BY version DESC LIMIT 1`
+    )
+    .get(firmId);
+  if (!row) return null;
+  return { ...row, pack: JSON.parse(row.pack_json) };
+}
+
+// All template pack versions for a firm, newest first (audit trail).
+export function listTemplateVersions(db, firmId) {
+  return db
+    .prepare(
+      `SELECT id, firm_id, version, approved_by, created_at
+         FROM template_versions WHERE firm_id = ? ORDER BY version DESC`
+    )
+    .all(firmId);
+}

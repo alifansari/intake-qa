@@ -79,3 +79,34 @@ Each entry: the ambiguity, the choice, one line of reasoning. Newest at top per 
 - **D3.5 Both passes are best-effort in the demo pipeline.** `runDemoPipeline` wraps each in
   try/catch so a failed SOL/summary pass never sinks the core score result. Both are
   injectable (fake extractor/summarizer in tests) so demo tests stay network-free.
+
+## Phase 4 — Onboarding wizard + template pack
+
+- **D4.1 Template-pack validation reuses the send guard.** `onboarding/template-pack.mjs`
+  validates a pack by filling placeholders and running the SAME `validateDraft` from
+  `messaging/draft.mjs` (opt-out required, firm named, ≤320 chars, no legal advice/guarantees).
+  The wizard therefore can only accept a pack that would pass the send chokepoint — compliance
+  is enforced in code, not left to the operator's memory.
+- **D4.2 Template packs are versioned + attributed.** New table `template_versions` (both
+  tracks, migration 0006) stores each approved pack as an immutable JSON snapshot with a
+  monotonic per-firm version and `approved_by`. `saveTemplateVersion` computes MAX(version)+1.
+  This is the audit trail: who approved which wording, when.
+- **D4.3 Firm-config markdown COPIES the calibrated layout.** `buildFirmConfigMarkdown` emits
+  the same field layout as `config/demo-firm.md` (itself a copy of the frozen
+  `scoring/firm-config-template.md`), with `fee_values_estimated: true`. The scorer template in
+  `scoring/` is never edited — we only replicate its field shape so a real firm's config drops
+  into the scorer unchanged.
+- **D4.4 New firms are born SAFE.** `createFirm` relies on the schema default `kill_switch = 1`
+  (ON) — a newly onboarded firm can send nothing until an operator clears the switch after A2P
+  approval. Autonomy stays 'manual'. The wizard also requires an explicit compliance
+  acknowledgement before it will submit.
+- **D4.5 Onboarding persistence is best-effort; the config always returns.** `/api/onboard`
+  validates authoritatively, then tries to persist (firm + pack version). If persistence fails
+  (e.g. a read-only serverless fs, or — as seen in dev against Supabase — the hosted Postgres
+  is still missing migration 0006), it returns `persisted:false` but still hands back the
+  generated firm-config markdown so onboarding is never a dead end. ACTION for go-live: apply
+  `supabase/migrations/0006_template_versions.sql` to the hosted DB (tracked in P5 GO_LIVE).
+- **D4.6 Wizard imports only PURE onboarding modules on the client.** The client wizard imports
+  `CASE_TYPE_CATALOG` from `firm-config.mjs` (no external deps) and does its own lightweight
+  live validation; the authoritative pack validation (which pulls in `draft.mjs`) runs only in
+  the server API route, so the Anthropic SDK is never bundled into the browser.

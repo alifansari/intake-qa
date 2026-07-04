@@ -486,3 +486,55 @@ export async function createDemoLead(db, { demo_call_id = null, email }) {
   );
   return info.rows[0].id;
 }
+
+// --- Firm onboarding ---------------------------------------------------------
+// kill_switch defaults to true (ON): a new firm can send nothing until cleared.
+
+export async function createFirm(db, firm) {
+  const {
+    name,
+    avg_case_fee = 0,
+    timezone = "America/Los_Angeles",
+    subscription_price = null,
+  } = firm;
+  const info = await db.query(
+    `INSERT INTO firms (name, avg_case_fee, timezone, subscription_price)
+     VALUES ($1, $2, $3, $4) RETURNING id`,
+    [name, avg_case_fee, timezone, subscription_price]
+  );
+  return info.rows[0].id;
+}
+
+export async function saveTemplateVersion(db, { firm_id, pack, approved_by = null }) {
+  const r = await db.query(
+    "SELECT MAX(version) AS v FROM template_versions WHERE firm_id = $1",
+    [firm_id]
+  );
+  const version = (Number(r.rows[0]?.v) || 0) + 1;
+  const info = await db.query(
+    `INSERT INTO template_versions (firm_id, version, pack_json, approved_by)
+     VALUES ($1, $2, $3, $4) RETURNING id`,
+    [firm_id, version, JSON.stringify(pack), approved_by]
+  );
+  return { id: info.rows[0].id, version };
+}
+
+export async function getLatestTemplateVersion(db, firmId) {
+  const r = await db.query(
+    `SELECT * FROM template_versions
+      WHERE firm_id = $1 ORDER BY version DESC LIMIT 1`,
+    [firmId]
+  );
+  const row = r.rows[0];
+  if (!row) return null;
+  return { ...row, pack: JSON.parse(row.pack_json) };
+}
+
+export async function listTemplateVersions(db, firmId) {
+  const r = await db.query(
+    `SELECT id, firm_id, version, approved_by, created_at
+       FROM template_versions WHERE firm_id = $1 ORDER BY version DESC`,
+    [firmId]
+  );
+  return r.rows;
+}
