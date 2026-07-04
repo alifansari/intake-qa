@@ -11,7 +11,11 @@ const nextConfig: NextConfig = {
   // those files are traced into the serverless bundle so the demo has data on
   // Vercel (where the CLI's ../output folder does NOT ship).
   outputFileTracingIncludes: {
-    "/**": ["./data/**/*.json"],
+    // Seed JSON read at request time by the JsonFileRepository, the demo fee
+    // config, and the vendored scoring engine + its data files (see
+    // scripts/vendor-engine.mjs). Without these the /api/demo pipeline can't find
+    // the prompt/config/example files on Vercel and every demo stalls at "queued".
+    "/**": ["./data/**/*.json", "./demo-config.json", "./.engine/**/*"],
   },
 };
 

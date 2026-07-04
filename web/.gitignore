@@ -41,6 +41,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# generated at build time by scripts/vendor-engine.mjs (copy of the repo-root
+# scoring engine + data so the web-rooted Vercel bundle can find them)
+/.engine
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

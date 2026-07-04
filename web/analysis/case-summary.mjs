@@ -5,12 +5,11 @@
 // normalizer shapes/validates the memo and attaches the mandatory disclaimer.
 
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
+import { engineRoot } from "../engine-root.mjs";
 
-const HERE = dirname(fileURLToPath(import.meta.url)); // web/analysis
-const REPO_ROOT = join(HERE, "..", "..");
-const PROMPT_PATH = join(REPO_ROOT, "analysis", "case-summary.md");
+// analysis/ lives at the repo root locally, vendored into web/.engine on Vercel.
+const PROMPT_PATH = join(engineRoot(), "analysis", "case-summary.md");
 
 export const SUMMARY_DISCLAIMER =
   "Auto-generated from the call transcript for triage only — not legal advice and not a " +

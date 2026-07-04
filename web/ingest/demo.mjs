@@ -13,6 +13,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 
+import { engineRoot } from "../engine-root.mjs";
 import { evaluateFlag, signabilityScore } from "../messaging/flag-logic.mjs";
 import { draftFirstMessage } from "../messaging/draft.mjs";
 import { getTemplate } from "../messaging/templates.mjs";
@@ -33,7 +34,10 @@ import {
 // `new URL("../..", import.meta.url)` — Turbopack treats the latter as a static
 // asset reference and tries (and fails) to bundle "../.." at build time.
 const HERE = dirname(fileURLToPath(import.meta.url)); // web/ingest
-const REPO_ROOT = join(HERE, "..", "..");             // repo root
+// The scoring engine + its data (lib/, scoring/, config/) live at the repo root
+// locally, but are vendored into web/.engine for the web-rooted Vercel bundle.
+// engineRoot() resolves to whichever is present. See ../engine-root.mjs.
+const REPO_ROOT = engineRoot();
 const DEFAULT_CONFIG_PATH = join(HERE, "..", "demo-config.json");
 
 // Import a root-level engine module (lib/*.js) by an ABSOLUTE file:// URL built

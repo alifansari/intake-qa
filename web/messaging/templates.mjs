@@ -4,15 +4,17 @@
 // it documents rules for humans; the code enforces them in draft.mjs.
 
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
+import { engineRoot } from "../engine-root.mjs";
 
-// Resolve via dirname+join (NOT `new URL(<literal>, import.meta.url)`) so the
-// Next/Turbopack bundler doesn't try to treat the .md file as a bundled asset
-// when this module is pulled into the inbound webhook route. Same path at runtime.
+// config/ lives at the repo root locally, vendored into web/.engine on Vercel
+// (engineRoot resolves to whichever is present). Building the path via join (NOT
+// `new URL(<literal>, import.meta.url)`) keeps Turbopack from trying to bundle the
+// .md file as a static asset when this module is pulled into a route.
 export const DEFAULT_TEMPLATES_PATH = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../config/message-templates.md"
+  engineRoot(),
+  "config",
+  "message-templates.md"
 );
 
 const HEADER = /^===\s*TEMPLATE\s+id=([^\s|]+)\s*\|\s*name=(.+?)\s*===$/;

@@ -15,12 +15,11 @@
 // disclaimer and the UI must show it. An attorney must verify every deadline.
 
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
+import { engineRoot } from "../engine-root.mjs";
 
-const HERE = dirname(fileURLToPath(import.meta.url)); // web/analysis
-const REPO_ROOT = join(HERE, "..", "..");
-const PROMPT_PATH = join(REPO_ROOT, "analysis", "sol-guardian.md");
+// analysis/ lives at the repo root locally, vendored into web/.engine on Vercel.
+const PROMPT_PATH = join(engineRoot(), "analysis", "sol-guardian.md");
 
 export const SOL_DISCLAIMER =
   "Estimated deadline only — not legal advice. An attorney must independently verify " +
