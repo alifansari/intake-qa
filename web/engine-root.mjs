@@ -1,21 +1,31 @@
 // Resolve the base directory that holds the root scoring engine + its data files
-// (lib/, scoring/, config/, analysis/). These live at the REPO ROOT, one level
-// ABOVE this web/ app. Locally that repo root is reachable, so we use it directly.
+// (lib/, scoring/, config/, analysis/).
 //
-// On Vercel the project deploys ONLY web/ (Root Directory = web), so there is
-// nothing above web/ in the serverless bundle — the repo-root dirs would resolve
-// to a non-existent path. To fix that, `scripts/vendor-engine.mjs` copies those
-// dirs into web/.engine at build time, and this resolver returns that vendored
-// copy when it is present. The originals stay the single source of truth; the
-// copy is generated (git-ignored) and never edited.
+// IMPORTANT: we must NOT derive this from `import.meta.url`. On Vercel this module
+// gets bundled into .next/server/chunks/*, so import.meta.url points at the chunk,
+// not at web/ — any path math off it is wrong. Instead we anchor on the process
+// working directory (the serverless function root = /var/task on Vercel, where
+// next.config's outputFileTracingIncludes drops ./.engine) and probe a small set
+// of candidate roots for a sentinel file. The vendored copy (web/.engine, built by
+// scripts/vendor-engine.mjs) wins when present; locally we fall back to the
+// repo-root originals. The originals stay the single source of truth.
 import { existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 
-const WEB_ROOT = dirname(fileURLToPath(import.meta.url)); // web/
-const VENDORED = join(WEB_ROOT, ".engine");               // web/.engine (Vercel)
-const REPO_ROOT = join(WEB_ROOT, "..");                   // repo root (local dev)
+// A file that only exists at a real engine root, used to validate a candidate.
+const SENTINEL = join("scoring", "system-prompt.md");
 
 export function engineRoot() {
-  return existsSync(VENDORED) ? VENDORED : REPO_ROOT;
+  const cwd = process.cwd();
+  const candidates = [
+    join(cwd, ".engine"),        // Vercel: traced into /var/task/.engine
+    join(cwd, "web", ".engine"), // repo-root cwd with a built web/.engine
+    cwd,                         // cwd is itself an engine root
+    join(cwd, ".."),             // local `next dev` with cwd = web/
+  ];
+  for (const c of candidates) {
+    if (existsSync(join(c, SENTINEL))) return c;
+  }
+  // Sensible default (the Vercel layout) if nothing matched.
+  return join(cwd, ".engine");
 }
