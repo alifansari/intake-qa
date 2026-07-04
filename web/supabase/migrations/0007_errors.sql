@@ -15,7 +15,7 @@ create table if not exists errors (
   source     text        not null,
   message    text        not null,
   context    text,
-  firm_id    bigint      references firms(id),
+  firm_id    uuid        references firms(id),
   alerted    boolean     not null default false,
   created_at timestamptz not null default now()
 );

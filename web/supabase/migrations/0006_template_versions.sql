@@ -7,7 +7,7 @@
 
 create table if not exists template_versions (
   id          bigint generated always as identity primary key,
-  firm_id     bigint not null references firms(id),
+  firm_id     uuid not null references firms(id),
   version     integer not null,
   pack_json   text not null,
   approved_by text,
