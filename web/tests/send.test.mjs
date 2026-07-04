@@ -293,6 +293,18 @@ test("kill switch (per-firm): nothing sends", async (t) => {
   assert.equal(getMessage(db, messageId).status, "approved");
 });
 
+test("autonomy lock: firms default to 'manual' (schema refuses any other value)", (t) => {
+  const db = makeDb(t);
+  const { firmId } = seed(db);
+  const firm = db.prepare("SELECT autonomy_level FROM firms WHERE id = ?").get(firmId);
+  assert.equal(firm.autonomy_level, "manual", "graduated autonomy is scaffolding, locked OFF");
+  // The DB CHECK allows nothing but 'manual' — an autonomous mode cannot be stored.
+  assert.throws(
+    () => db.prepare("UPDATE firms SET autonomy_level = 'auto' WHERE id = ?").run(firmId),
+    /CHECK|constraint/i
+  );
+});
+
 test("guard: an unapproved (drafted) message can never send", async (t) => {
   const db = makeDb(t);
   const { messageId } = seed(db);

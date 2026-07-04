@@ -33,3 +33,27 @@ Each entry: the ambiguity, the choice, one line of reasoning. Newest at top per 
   processed from a temp path and deleted immediately after transcription. Transcript +
   score are purged after 72h by `purgeExpiredDemoCalls` (invoked opportunistically on
   each upload, and runnable as a cron). Stated on the results page as a selling point.
+- **D1.8 Turbopack cannot bundle the root `lib/` engine.** The demo pipeline is imported
+  by a Next route, so a static `import "../../lib/*.js"` (and `new URL("../..", import.meta.url)`)
+  breaks the build. Fix: compute the engine path at runtime (`pathToFileURL(join(REPO_ROOT,...))`)
+  and import it via that computed specifier; derive `REPO_ROOT` with `dirname(fileURLToPath(...))`.
+  `resend` in the lead route is imported via a computed specifier too (optional dep, warning only).
+
+## Phase 2 — Approval Queue Labor Fix
+
+- **D2.1 Graduated autonomy is scaffolding, locked OFF at the DB.** `firms.autonomy_level`
+  (migration 0005, both tracks) has a CHECK allowing ONLY `'manual'` — the database itself
+  refuses to store an autonomous mode. The send chokepoint adds a defensive gate (skip
+  `autonomy_not_manual`) so even a corrupted row cannot bypass human approval. Approval
+  (gate 1) is always required regardless.
+- **D2.2 Batch approve = N individual approvals.** `approveManyAction` loops the existing
+  per-message `approveMessage`, stamping the same reviewer on each. No new "bulk" DB path,
+  so every message still carries an explicit human approver (the compliance promise). Nothing
+  sends from the queue — approved messages stay behind the chokepoint.
+- **D2.3 SLA logic is pure + shared.** `messaging/sla.mjs` (no I/O) is imported by BOTH the
+  queue client (browser) and the digest (Node) so "overdue" means the same everywhere.
+  Stale threshold = 12h. The client computes `now` post-mount (and ticks it) to avoid a
+  hydration mismatch.
+- **D2.4 Daily digest mirrors the weekly-report pattern.** Pure `buildDigest` + TEST_MODE-gated
+  `sendDailyDigest` with an injectable Resend mailer (lazy-imported). In TEST_MODE it writes
+  `web/output/digest-<firm>-<date>.html` and transmits nothing. Recipient from `DIGEST_TO`.

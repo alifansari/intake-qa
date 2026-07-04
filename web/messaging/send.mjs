@@ -5,9 +5,10 @@
 //   1. PILOT MODE      — only 'approved' (human-approved) messages may send.
 //   2. Opt-out         — never send to an opted_out conversation.
 //   3. Global kill      — env.KILL_SWITCH halts ALL sends instantly.
-//   4. Per-firm kill    — firm.kill_switch halts that firm's sends.
-//   5. Quiet hours      — no sends 8pm–8am in the recipient's local time.
-//   6. TEST_MODE        — sends are SIMULATED (logged, never transmitted).
+//   4. Autonomy lock    — the firm must be 'manual'; no autonomous mode may send.
+//   5. Per-firm kill    — firm.kill_switch halts that firm's sends.
+//   6. Quiet hours      — no sends 8pm–8am in the recipient's local time.
+//   7. TEST_MODE        — sends are SIMULATED (logged, never transmitted).
 //
 // The first failing gate stops the send, LEAVES the status as-is (so it can be
 // retried later once conditions change), logs a reason, and returns it. Only a
@@ -89,19 +90,27 @@ export async function sendMessage({
 
   const firm = await getFirm(db, conversation.firm_id);
 
-  // 4. Per-firm kill switch (persistent operator halt). SQLite stores 0/1,
+  // 4. Autonomy lock — graduated autonomy is scaffolding only and stays OFF.
+  // The firm must be 'manual' (the schema CHECK allows nothing else). If a firm
+  // row somehow carries any other value, refuse to send. Approval (gate 1) is
+  // still required regardless; this is a defensive second lock on that promise.
+  if (firm && firm.autonomy_level != null && firm.autonomy_level !== "manual") {
+    return logAndReturn(messageId, skip("autonomy_not_manual", { autonomyLevel: firm.autonomy_level }));
+  }
+
+  // 5. Per-firm kill switch (persistent operator halt). SQLite stores 0/1,
   // Postgres stores a real boolean — treat either truthy form as engaged.
   if (firm?.kill_switch === 1 || firm?.kill_switch === true) {
     return logAndReturn(messageId, skip("kill_switch_firm"));
   }
 
-  // 5. Quiet hours in the recipient's local time.
+  // 6. Quiet hours in the recipient's local time.
   const { startHour, endHour } = quietHoursFromEnv(env);
   if (isQuietHours(now, firm?.timezone, startHour, endHour)) {
     return logAndReturn(messageId, skip("quiet_hours"));
   }
 
-  // 6. TEST_MODE — simulate the send (log only), never transmit.
+  // 7. TEST_MODE — simulate the send (log only), never transmit.
   if (isTestMode(env)) {
     const sentAt = now.toISOString();
     await markMessageSent(db, messageId, sentAt);

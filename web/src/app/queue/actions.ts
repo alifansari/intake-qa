@@ -46,3 +46,33 @@ export async function editMessageAction(messageId: string, body: string) {
   revalidatePath("/queue");
   return { ok: true as const, errors: [] as string[] };
 }
+
+const Ids = z.array(z.string().min(1)).min(1);
+
+// Batch approve — the labor fix. Still one human decision per message under the
+// hood (each is individually approved and stamped with the reviewer), but the
+// reviewer acts on many at once. Nothing sends here; approved messages remain
+// behind the send chokepoint (messaging/send.mjs).
+export async function approveManyAction(messageIds: string[]) {
+  const ids = Ids.parse(messageIds);
+  const approvedBy = await requireUserEmail();
+  let approved = 0;
+  for (const id of ids) {
+    await pilotRepo.approveMessage(id, approvedBy);
+    approved += 1;
+  }
+  revalidatePath("/queue");
+  return { ok: true as const, approved };
+}
+
+export async function rejectManyAction(messageIds: string[]) {
+  const ids = Ids.parse(messageIds);
+  await requireUserEmail();
+  let rejected = 0;
+  for (const id of ids) {
+    await pilotRepo.rejectMessage(id);
+    rejected += 1;
+  }
+  revalidatePath("/queue");
+  return { ok: true as const, rejected };
+}

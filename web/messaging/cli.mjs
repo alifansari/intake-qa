@@ -37,6 +37,10 @@
 //   node messaging/cli.mjs report <firmId> [ISO date]
 //     Generate the weekly reconciliation report for a firm (week defaults to
 //     today). In TEST_MODE it renders to an HTML file; otherwise it emails.
+//
+//   node messaging/cli.mjs digest <firmId>
+//     Generate the daily approval-queue digest for a firm (drafts awaiting
+//     approval, overdue ones first). In TEST_MODE it renders to an HTML file.
 
 import { openPipelineDb, closePipelineDb } from "../ingest/store.mjs";
 import {
@@ -53,6 +57,7 @@ import { validateDraft } from "./draft.mjs";
 import { initiateHandoff } from "./handoff.mjs";
 import { recordOutcome } from "./outcome.mjs";
 import { sendWeeklyReport } from "./weekly-report.mjs";
+import { sendDailyDigest } from "./digest.mjs";
 
 const [cmd, ...args] = process.argv.slice(2);
 let db;
@@ -179,6 +184,17 @@ async function main() {
     } else {
       console.log(`Weekly report for firm #${firmId} emailed (id ${res.id}).`);
     }
+  } else if (cmd === "digest") {
+    const [firmId] = args;
+    requireId(firmId, "digest <firmId>");
+    const res = await sendDailyDigest({ db, firmId });
+    if (res.mode === "test") {
+      console.log(
+        `Daily digest for firm #${firmId}: ${res.data.pendingCount} pending (${res.data.staleCount} overdue). Rendered to ${res.file}`
+      );
+    } else {
+      console.log(`Daily digest for firm #${firmId} emailed (id ${res.id}).`);
+    }
   } else {
     console.log(
       [
@@ -194,6 +210,7 @@ async function main() {
         "  node messaging/cli.mjs signed <conversationId>",
         "  node messaging/cli.mjs outcome <conversationId> <no_response|lost|booked_callback|opted_out>",
         "  node messaging/cli.mjs report <firmId> [ISO date]",
+        "  node messaging/cli.mjs digest <firmId>",
       ].join("\n")
     );
     process.exitCode = 1;
