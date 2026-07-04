@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/funnel", label: "Recovery Funnel" },
   { href: "/triage", label: "Triage Queue" },
   { href: "/statement", label: "Statement" },
+  { href: "/queue", label: "Approval Queue" },
 ];
 
 export function Nav() {
