@@ -9,12 +9,13 @@
 // Plain-Node .mjs modules shared with the CLI/tests; types are inferred via
 // allowJs + bundler resolution, so no explicit d.ts is needed.
 import { ingestInbound, verifyTwilioSignature } from "../../../../messaging/inbound.mjs";
-import { openMigratedDb } from "../../../../db/connection.mjs";
+import { openPipelineDb, closePipelineDb } from "../../../../ingest/store.mjs";
 
 export const runtime = "nodejs";
 
 // Which firm this webhook belongs to (single-firm pilot; matches CallRail route).
-const FIRM_ID = Number(process.env.CALLRAIL_FIRM_ID ?? "1");
+// Kept as a string: numeric on local SQLite, a UUID on Supabase/Postgres.
+const FIRM_ID = process.env.CALLRAIL_FIRM_ID ?? "1";
 
 export async function POST(req: Request) {
   const rawBody = await req.text();
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
   const from = params.From ?? params.from ?? "";
   const body = params.Body ?? params.body ?? "";
 
-  const db = openMigratedDb();
+  const db = await openPipelineDb();
   try {
     const result = await ingestInbound({ db, firmId: FIRM_ID, from, body });
     return Response.json({ ok: true, ...result }, { status: 200 });
@@ -47,6 +48,6 @@ export async function POST(req: Request) {
     const message = err instanceof Error ? err.message : "inbound failed";
     return Response.json({ error: message }, { status: 400 });
   } finally {
-    db.close();
+    await closePipelineDb(db);
   }
 }

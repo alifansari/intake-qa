@@ -7,7 +7,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { transcribeFile } from "../../lib/transcribe.js";
-import { setTranscript } from "./db.mjs";
+import { setTranscript } from "./store.mjs";
 
 // Returns the transcript text for a call, transcribing on demand if needed.
 // `call` is a row from the calls table.
@@ -28,6 +28,6 @@ export async function ensureTranscript({ db, call }) {
   const record = await transcribeFile(call.recording_url, outPath);
   const text = record.formatted_transcript;
 
-  setTranscript(db, call.id, text);
+  await setTranscript(db, call.id, text);
   return text;
 }

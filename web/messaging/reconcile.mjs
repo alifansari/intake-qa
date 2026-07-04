@@ -16,7 +16,7 @@ import {
   countRepliedInWeek,
   getSignedRecoveries,
   sumRecoveredMonthToDate,
-} from "../ingest/db.mjs";
+} from "../ingest/store.mjs";
 import { weekOf } from "./outcome.mjs";
 
 // The [start, end) UTC instants of the week containing `weekOfMonday` (a Monday
@@ -36,18 +36,18 @@ export function roundMultiple(recovered, subscriptionPrice) {
 }
 
 // Build the reconciliation data object for one firm + week.
-export function reconcileWeek({ db, firmId, weekDate = new Date() }) {
-  const firm = getFirm(db, firmId);
+export async function reconcileWeek({ db, firmId, weekDate = new Date() }) {
+  const firm = await getFirm(db, firmId);
   if (!firm) throw new Error(`Firm not found: ${firmId}`);
 
   const mondayIso = weekOf(weekDate); // YYYY-MM-DD (Monday, UTC)
   const { startIso, endIso } = weekWindow(mondayIso);
 
-  const flaggedCount = countFlaggedInWeek(db, firmId, startIso, endIso);
-  const reEngagedCount = countConversationsInWeek(db, firmId, startIso, endIso);
-  const repliedCount = countRepliedInWeek(db, firmId, startIso, endIso);
+  const flaggedCount = await countFlaggedInWeek(db, firmId, startIso, endIso);
+  const reEngagedCount = await countConversationsInWeek(db, firmId, startIso, endIso);
+  const repliedCount = await countRepliedInWeek(db, firmId, startIso, endIso);
 
-  const signed = getSignedRecoveries(db, firmId, mondayIso);
+  const signed = await getSignedRecoveries(db, firmId, mondayIso);
   const signedCases = signed.map((r) => ({
     conversationId: r.conversation_id,
     name: r.name ?? "Unknown caller",
@@ -62,7 +62,7 @@ export function reconcileWeek({ db, firmId, weekDate = new Date() }) {
 
   // Month-to-date: from the first of the report week's month through this week.
   const monthStartDate = `${mondayIso.slice(0, 7)}-01`;
-  const monthToDateRecovered = sumRecoveredMonthToDate(
+  const monthToDateRecovered = await sumRecoveredMonthToDate(
     db,
     firmId,
     monthStartDate,

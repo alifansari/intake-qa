@@ -2,7 +2,7 @@
 // `calls` row. Handles both the post-call and call-modified webhook shapes.
 
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { upsertCall } from "./db.mjs";
+import { upsertCall } from "./store.mjs";
 
 // Verify the webhook signature. CallRail signs the raw request body with a
 // shared secret; we recompute the HMAC-SHA256 and compare in constant time.
@@ -50,7 +50,7 @@ export function parseCallRailPayload(payload) {
 
 // Full ingest: verify → parse → upsert. Throws on a bad signature so callers
 // can return 401. Returns the upsertCall result ({ id, created }).
-export function ingestCallRail({ db, rawBody, signature, secret, firmId }) {
+export async function ingestCallRail({ db, rawBody, signature, secret, firmId }) {
   if (!verifyCallRailSignature(rawBody, signature, secret)) {
     const err = new Error("Invalid CallRail signature");
     err.code = "BAD_SIGNATURE";

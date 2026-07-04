@@ -38,7 +38,7 @@
 //     Generate the weekly reconciliation report for a firm (week defaults to
 //     today). In TEST_MODE it renders to an HTML file; otherwise it emails.
 
-import { openMigratedDb } from "../db/connection.mjs";
+import { openPipelineDb, closePipelineDb } from "../ingest/store.mjs";
 import {
   getDraftedMessages,
   getApprovedMessages,
@@ -47,7 +47,7 @@ import {
   editDraftMessage,
   getMessage,
   setFirmKillSwitch,
-} from "../ingest/db.mjs";
+} from "../ingest/store.mjs";
 import { sendMessage } from "./send.mjs";
 import { validateDraft } from "./draft.mjs";
 import { initiateHandoff } from "./handoff.mjs";
@@ -55,11 +55,12 @@ import { recordOutcome } from "./outcome.mjs";
 import { sendWeeklyReport } from "./weekly-report.mjs";
 
 const [cmd, ...args] = process.argv.slice(2);
-const db = openMigratedDb();
+let db;
 
 async function main() {
+  db = await openPipelineDb();
   if (cmd === "list") {
-    const rows = getDraftedMessages(db);
+    const rows = await getDraftedMessages(db);
     if (!rows.length) {
       console.log("No drafted messages awaiting approval.");
       return;
@@ -76,12 +77,12 @@ async function main() {
   } else if (cmd === "approve") {
     const [id, approvedBy] = args;
     requireId(id, "approve <messageId> [approvedBy]");
-    approveMessage(db, Number(id), approvedBy);
+    await approveMessage(db, id, approvedBy);
     console.log(`Approved msg #${id}. Run "send ${id}" to send (mocked in TEST_MODE).`);
   } else if (cmd === "reject") {
     const [id] = args;
     requireId(id, "reject <messageId>");
-    rejectMessage(db, Number(id));
+    await rejectMessage(db, id);
     console.log(`Rejected msg #${id}.`);
   } else if (cmd === "edit") {
     const [id, ...rest] = args;
@@ -92,14 +93,14 @@ async function main() {
     if (errors.length) {
       throw new Error(`Edited text violates constraints: ${errors.join("; ")}`);
     }
-    editDraftMessage(db, Number(id), body);
+    await editDraftMessage(db, id, body);
     console.log(`Updated msg #${id}.`);
   } else if (cmd === "send") {
     const target = args[0] ?? "all";
     const messages =
       target === "all"
-        ? getApprovedMessages(db)
-        : [getMessage(db, Number(target))].filter(Boolean);
+        ? await getApprovedMessages(db)
+        : [await getMessage(db, target)].filter(Boolean);
     if (!messages.length) {
       console.log("No approved messages to send.");
       return;
@@ -114,8 +115,8 @@ async function main() {
     if (state !== "on" && state !== "off") {
       throw new Error("usage: kill on|off [firmId]");
     }
-    const firmId = firmIdArg ? Number(firmIdArg) : null;
-    setFirmKillSwitch(db, firmId, state === "on");
+    const firmId = firmIdArg ?? null;
+    await setFirmKillSwitch(db, firmId, state === "on");
     console.log(
       `Kill switch ${state.toUpperCase()} for ${firmId ? `firm #${firmId}` : "ALL firms"}.`
     );
@@ -125,7 +126,7 @@ async function main() {
     if (kind === "esign") {
       const res = await initiateHandoff({
         db,
-        conversationId: Number(id),
+        conversationId: id,
         kind: "esign",
       });
       console.log(
@@ -139,7 +140,7 @@ async function main() {
       if (!callbackAt) throw new Error('usage: handoff <conversationId> callback "<ISO time>"');
       const res = await initiateHandoff({
         db,
-        conversationId: Number(id),
+        conversationId: id,
         kind: "callback",
         callbackAt,
       });
@@ -152,7 +153,7 @@ async function main() {
   } else if (cmd === "signed") {
     const [id] = args;
     requireId(id, "signed <conversationId>");
-    const res = recordOutcome({ db, conversationId: Number(id), result: "signed" });
+    const res = await recordOutcome({ db, conversationId: id, result: "signed" });
     console.log(
       `Recorded SIGNED for conversation #${id}: outcome #${res.outcomeId}, recovery #${res.recoveryId}.`
     );
@@ -163,14 +164,14 @@ async function main() {
     if (!allowed.includes(result)) {
       throw new Error(`usage: outcome <conversationId> <${allowed.join("|")}>`);
     }
-    const res = recordOutcome({ db, conversationId: Number(id), result });
+    const res = await recordOutcome({ db, conversationId: id, result });
     console.log(`Recorded ${result} for conversation #${id}: outcome #${res.outcomeId}.`);
   } else if (cmd === "report") {
     const [firmId, dateArg] = args;
     requireId(firmId, "report <firmId> [ISO date]");
     const weekDate = dateArg ? new Date(dateArg) : new Date();
     if (Number.isNaN(weekDate.getTime())) throw new Error(`Invalid date: ${dateArg}`);
-    const res = await sendWeeklyReport({ db, firmId: Number(firmId), weekDate });
+    const res = await sendWeeklyReport({ db, firmId, weekDate });
     if (res.mode === "test") {
       console.log(
         `Weekly report for firm #${firmId} (week of ${res.data.weekOf}): ${res.data.recoveredFees} recovered. Rendered to ${res.file}`
@@ -200,7 +201,8 @@ async function main() {
 }
 
 function requireId(id, usage) {
-  if (!id || Number.isNaN(Number(id))) {
+  // IDs are numeric on local SQLite and UUID strings on Postgres — accept both.
+  if (!id) {
     throw new Error(`usage: ${usage}`);
   }
 }
@@ -210,4 +212,4 @@ main()
     console.error(err.message);
     process.exitCode = 1;
   })
-  .finally(() => db.close());
+  .finally(() => closePipelineDb(db));

@@ -23,7 +23,7 @@ import {
   getFirm,
   markMessageSent,
   markMessageFailed,
-} from "../ingest/db.mjs";
+} from "../ingest/store.mjs";
 import {
   killSwitchEngaged,
   isTestMode,
@@ -66,7 +66,7 @@ export async function sendMessage({
   env = process.env,
   now = new Date(),
 } = {}) {
-  const message = getMessage(db, messageId);
+  const message = await getMessage(db, messageId);
   if (!message) return skip("message_not_found");
 
   // 1. PILOT MODE — only human-approved messages may send.
@@ -74,7 +74,7 @@ export async function sendMessage({
     return logAndReturn(messageId, skip("not_approved", { status: message.status }));
   }
 
-  const conversation = getConversation(db, message.conversation_id);
+  const conversation = await getConversation(db, message.conversation_id);
   if (!conversation) return logAndReturn(messageId, skip("conversation_not_found"));
 
   // 2. Opt-out — never text an opted-out conversation.
@@ -87,10 +87,11 @@ export async function sendMessage({
     return logAndReturn(messageId, skip("kill_switch_global"));
   }
 
-  const firm = getFirm(db, conversation.firm_id);
+  const firm = await getFirm(db, conversation.firm_id);
 
-  // 4. Per-firm kill switch (persistent operator halt).
-  if (firm?.kill_switch === 1) {
+  // 4. Per-firm kill switch (persistent operator halt). SQLite stores 0/1,
+  // Postgres stores a real boolean — treat either truthy form as engaged.
+  if (firm?.kill_switch === 1 || firm?.kill_switch === true) {
     return logAndReturn(messageId, skip("kill_switch_firm"));
   }
 
@@ -103,7 +104,7 @@ export async function sendMessage({
   // 6. TEST_MODE — simulate the send (log only), never transmit.
   if (isTestMode(env)) {
     const sentAt = now.toISOString();
-    markMessageSent(db, messageId, sentAt);
+    await markMessageSent(db, messageId, sentAt);
     console.log(
       `[TEST_MODE] simulated send msg #${messageId} -> ${conversation.caller_phone} (not transmitted)`
     );
@@ -118,10 +119,10 @@ export async function sendMessage({
       messagingServiceSid: firm?.messaging_service_sid,
       env,
     });
-    markMessageSent(db, messageId, now.toISOString());
+    await markMessageSent(db, messageId, now.toISOString());
     return { sent: true, skipped: false, reason: "sent", mode: "live", provider: res };
   } catch (err) {
-    markMessageFailed(db, messageId);
+    await markMessageFailed(db, messageId);
     console.error(`Send failed for msg #${messageId}: ${err.message}`);
     return { sent: false, skipped: false, reason: "send_error", error: err.message };
   }

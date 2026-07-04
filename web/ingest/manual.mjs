@@ -3,11 +3,11 @@
 // rest of the pipeline (scoring worker → flag) treats it identically.
 
 import { readFileSync } from "node:fs";
-import { upsertCall } from "./db.mjs";
+import { upsertCall } from "./store.mjs";
 
 // Provide EITHER transcriptPath (a .txt/.md transcript) OR audioPath (an MP3
 // to be transcribed later by the scoring worker). Returns { id, created }.
-export function ingestManual({
+export async function ingestManual({
   db,
   firmId,
   audioPath = null,

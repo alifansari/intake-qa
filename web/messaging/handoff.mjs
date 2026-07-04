@@ -23,7 +23,7 @@ import {
   getFirm,
   createHandoff,
   setConversationStatus,
-} from "../ingest/db.mjs";
+} from "../ingest/store.mjs";
 import { recordOutcome } from "./outcome.mjs";
 
 // Default (production) signature-request provider: real Dropbox Sign. Lazy-
@@ -116,9 +116,9 @@ export async function initiateHandoff({
   env = process.env,
   now = new Date(),
 }) {
-  const conversation = getConversation(db, conversationId);
+  const conversation = await getConversation(db, conversationId);
   if (!conversation) throw new Error(`Conversation not found: ${conversationId}`);
-  const firm = getFirm(db, conversation.firm_id);
+  const firm = await getFirm(db, conversation.firm_id);
   const nowIso = now.toISOString();
 
   if (kind === "esign") {
@@ -134,7 +134,7 @@ export async function initiateHandoff({
       }
     }
 
-    const handoffId = createHandoff(db, {
+    const handoffId = await createHandoff(db, {
       conversation_id: conversationId,
       firm_id: conversation.firm_id,
       kind: "esign",
@@ -144,7 +144,7 @@ export async function initiateHandoff({
       embedded: result.embedded ? 1 : 0,
       status: "pending",
     });
-    setConversationStatus(db, conversationId, "handed_off", nowIso);
+    await setConversationStatus(db, conversationId, "handed_off", nowIso);
 
     return {
       handoffId,
@@ -157,16 +157,16 @@ export async function initiateHandoff({
 
   if (kind === "callback") {
     if (!callbackAt) throw new Error("callbackAt is required for a callback handoff");
-    const handoffId = createHandoff(db, {
+    const handoffId = await createHandoff(db, {
       conversation_id: conversationId,
       firm_id: conversation.firm_id,
       kind: "callback",
       callback_requested_at: callbackAt,
       status: "pending",
     });
-    setConversationStatus(db, conversationId, "handed_off", nowIso);
+    await setConversationStatus(db, conversationId, "handed_off", nowIso);
     // Record the non-signed outcome for reconciliation (no recovery row).
-    const { outcomeId } = recordOutcome({
+    const { outcomeId } = await recordOutcome({
       db,
       conversationId,
       result: "booked_callback",

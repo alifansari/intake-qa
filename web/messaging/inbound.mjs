@@ -13,10 +13,11 @@ import {
   getFirm,
   findConversationByPhone,
   getConversationMessages,
+  getCallerNameForConversation,
   addInboundMessage,
   setConversationOptedOut,
   createDraftMessage,
-} from "../ingest/db.mjs";
+} from "../ingest/store.mjs";
 import { detectOptOut } from "./compliance.mjs";
 import { draftReply } from "./draft.mjs";
 import { getTemplate } from "./templates.mjs";
@@ -52,21 +53,21 @@ export async function ingestInbound({
   templateId = null,
   now = new Date(),
 }) {
-  const conversation = findConversationByPhone(db, firmId, from);
+  const conversation = await findConversationByPhone(db, firmId, from);
   if (!conversation) {
     // No active re-engagement for this number — nothing to attach the reply to.
     return { handled: false, reason: "no_conversation" };
   }
 
   // Always log the inbound message first; its created_at is the audit timestamp.
-  const inboundId = addInboundMessage(db, {
+  const inboundId = await addInboundMessage(db, {
     conversation_id: conversation.id,
     body,
   });
 
   // OPT-OUT: honor immediately, log, send nothing further.
   if (detectOptOut(body)) {
-    setConversationOptedOut(db, conversation.id, now.toISOString());
+    await setConversationOptedOut(db, conversation.id, now.toISOString());
     console.log(
       `Opt-out honored: conversation #${conversation.id} (${from}) at ${now.toISOString()}`
     );
@@ -89,9 +90,9 @@ export async function ingestInbound({
   }
 
   // REPLY: draft a compliant follow-up into the approval queue (human-approved).
-  const firm = getFirm(db, conversation.firm_id);
-  const callerName = callerNameFor(db, conversation.id);
-  const history = getConversationMessages(db, conversation.id)
+  const firm = await getFirm(db, conversation.firm_id);
+  const callerName = await getCallerNameForConversation(db, conversation.id);
+  const history = (await getConversationMessages(db, conversation.id))
     .filter((m) => m.id !== inboundId && m.body)
     .map((m) => ({ direction: m.direction, body: m.body }));
 
@@ -104,7 +105,7 @@ export async function ingestInbound({
     ...(drafter ? { drafter } : {}),
   });
 
-  const messageId = createDraftMessage(db, {
+  const messageId = await createDraftMessage(db, {
     conversation_id: conversation.id,
     body: reply,
   });
@@ -116,18 +117,4 @@ export async function ingestInbound({
     inboundMessageId: inboundId,
     messageId,
   };
-}
-
-// Resolve the caller's name via the conversation's flag -> call, for greeting.
-function callerNameFor(db, conversationId) {
-  const row = db
-    .prepare(
-      `SELECT c.caller_name
-         FROM conversations cv
-         JOIN flags f ON f.id = cv.flag_id
-         JOIN calls c ON c.id = f.call_id
-        WHERE cv.id = ?`
-    )
-    .get(conversationId);
-  return row?.caller_name ?? null;
 }

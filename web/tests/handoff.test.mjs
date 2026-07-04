@@ -123,7 +123,7 @@ test("e-sign handoff -> completion records a signed outcome + recovery", async (
   assert.equal(getConversation(db, conversationId).status, "handed_off");
 
   // Now the completion webhook fires.
-  const done = completeSignatureRequest({
+  const done = await completeSignatureRequest({
     db,
     signatureRequestId: "sig_test_1",
     now: NOW,
@@ -219,9 +219,9 @@ test("non-signed outcomes create outcomes only, never a recovery", async (t) => 
   const db = makeDb(t);
   const { conversationId } = seed(db);
 
-  const a = recordOutcome({ db, conversationId, result: "no_response", now: NOW });
+  const a = await recordOutcome({ db, conversationId, result: "no_response", now: NOW });
   assert.equal(a.recoveryId, null);
-  const b = recordOutcome({ db, conversationId, result: "lost", now: NOW });
+  const b = await recordOutcome({ db, conversationId, result: "lost", now: NOW });
   assert.equal(b.recoveryId, null);
 
   const outcomes = getOutcomesForConversation(db, conversationId);
@@ -236,7 +236,7 @@ test("non-signed outcomes create outcomes only, never a recovery", async (t) => 
 test("unknown signature request is a no-op", async (t) => {
   const db = makeDb(t);
   seed(db);
-  const res = completeSignatureRequest({ db, signatureRequestId: "nope", now: NOW });
+  const res = await completeSignatureRequest({ db, signatureRequestId: "nope", now: NOW });
   assert.equal(res.handled, false);
   assert.equal(res.reason, "unknown_signature_request");
 });

@@ -98,25 +98,25 @@ test("ingest -> score -> flag -> draft over 10 synthetic calls", async (t) => {
       const signature = createHmac("sha256", SECRET)
         .update(payload, "utf8")
         .digest("hex");
-      callId = ingestCallRail({ db, rawBody: payload, signature, secret: SECRET, firmId }).id;
+      callId = (await ingestCallRail({ db, rawBody: payload, signature, secret: SECRET, firmId })).id;
     } else {
       const tPath = join(dir, `${c.name.replace(/\s/g, "_")}.txt`);
       writeFileSync(tPath, transcript);
-      callId = ingestManual({
+      callId = (await ingestManual({
         db,
         firmId,
         transcriptPath: tPath,
         callerName: c.name,
         callerPhone: c.phone,
         receivedAt: recent,
-      }).id;
+      })).id;
     }
     expectationByCallId.set(String(callId), c);
   }
 
   // Rejects a tampered signature (guardrail check).
-  assert.throws(
-    () => ingestCallRail({ db, rawBody: "{}", signature: "deadbeef", secret: SECRET, firmId }),
+  await assert.rejects(
+    ingestCallRail({ db, rawBody: "{}", signature: "deadbeef", secret: SECRET, firmId }),
     /Invalid CallRail signature/
   );
 

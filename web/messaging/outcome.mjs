@@ -19,7 +19,7 @@ import {
   setConversationOptedOut,
   findHandoffBySignatureRequest,
   setHandoffStatus,
-} from "../ingest/db.mjs";
+} from "../ingest/store.mjs";
 
 // ISO date (YYYY-MM-DD) of the Monday of the week containing `date`, in UTC.
 // Weeks start Monday; Sunday belongs to the week that just ended.
@@ -36,16 +36,16 @@ export function weekOf(date) {
 // Record a business outcome for a conversation. A 'signed' result also creates a
 // recovery (valued at the firm's avg_case_fee unless an explicit fee is given)
 // and closes the conversation. Returns { outcomeId, recoveryId }.
-export function recordOutcome({
+export async function recordOutcome({
   db,
   conversationId,
   result,
   recoveredFee = null,
   now = new Date(),
 }) {
-  const conversation = getConversation(db, conversationId);
+  const conversation = await getConversation(db, conversationId);
   if (!conversation) throw new Error(`Conversation not found: ${conversationId}`);
-  const firm = getFirm(db, conversation.firm_id);
+  const firm = await getFirm(db, conversation.firm_id);
 
   const nowIso = now.toISOString();
   let recoveredFeeEstimate = recoveredFee;
@@ -56,7 +56,7 @@ export function recordOutcome({
     if (recoveredFeeEstimate == null) recoveredFeeEstimate = firm?.avg_case_fee ?? 0;
   }
 
-  const outcomeId = createOutcome(db, {
+  const outcomeId = await createOutcome(db, {
     conversation_id: conversationId,
     result,
     recovered_fee_estimate: recoveredFeeEstimate,
@@ -64,16 +64,16 @@ export function recordOutcome({
   });
 
   if (result === "signed") {
-    recoveryId = createRecovery(db, {
+    recoveryId = await createRecovery(db, {
       firm_id: conversation.firm_id,
       conversation_id: conversationId,
       signed: 1,
       fee_amount: recoveredFeeEstimate,
       week_of: weekOf(now),
     });
-    setConversationStatus(db, conversationId, "closed", nowIso);
+    await setConversationStatus(db, conversationId, "closed", nowIso);
   } else if (result === "opted_out") {
-    setConversationOptedOut(db, conversationId, nowIso);
+    await setConversationOptedOut(db, conversationId, nowIso);
   }
 
   return { outcomeId, recoveryId };
@@ -83,12 +83,12 @@ export function recordOutcome({
 // request back to its handoff/conversation, marks the handoff completed, and
 // records the signed outcome + recovery. Returns the recordOutcome result plus
 // the resolved ids (or { handled:false } if the id is unknown).
-export function completeSignatureRequest({ db, signatureRequestId, now = new Date() }) {
-  const handoff = findHandoffBySignatureRequest(db, signatureRequestId);
+export async function completeSignatureRequest({ db, signatureRequestId, now = new Date() }) {
+  const handoff = await findHandoffBySignatureRequest(db, signatureRequestId);
   if (!handoff) return { handled: false, reason: "unknown_signature_request" };
 
-  setHandoffStatus(db, handoff.id, "completed", now.toISOString());
-  const res = recordOutcome({
+  await setHandoffStatus(db, handoff.id, "completed", now.toISOString());
+  const res = await recordOutcome({
     db,
     conversationId: handoff.conversation_id,
     result: "signed",

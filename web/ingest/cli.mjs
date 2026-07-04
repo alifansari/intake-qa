@@ -9,16 +9,17 @@
 //
 // TEST_MODE stays on: this pipeline never sends SMS or hits any send path.
 
-import { openMigratedDb } from "../db/connection.mjs";
+import { openPipelineDb, closePipelineDb } from "./store.mjs";
 import { ingestManual } from "./manual.mjs";
 import { scoreUnscored } from "./score-worker.mjs";
 
 const [cmd, ...args] = process.argv.slice(2);
-const db = openMigratedDb();
+let db;
 
 async function main() {
+  db = await openPipelineDb();
   if (cmd === "score") {
-    const firmId = args[0] ? Number(args[0]) : null;
+    const firmId = args[0] ?? null;
     const flags = await scoreUnscored({ db, firmId });
     if (!flags.length) {
       console.log("No un-scored calls — nothing to do.");
@@ -33,9 +34,9 @@ async function main() {
         "usage: node ingest/cli.mjs manual <transcript.txt> <firmId> [callerName] [callerPhone]"
       );
     }
-    const { id, created } = ingestManual({
+    const { id, created } = await ingestManual({
       db,
-      firmId: Number(firmIdArg),
+      firmId: firmIdArg,
       transcriptPath,
       callerName: callerName ?? null,
       callerPhone: callerPhone ?? null,
@@ -67,4 +68,4 @@ main()
     console.error(err.message);
     process.exitCode = 1;
   })
-  .finally(() => db.close());
+  .finally(() => closePipelineDb(db));

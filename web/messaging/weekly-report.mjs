@@ -192,7 +192,7 @@ export async function sendWeeklyReport({
   outDir = DEFAULT_OUT_DIR,
   now = new Date(),
 }) {
-  const data = reconcileWeek({ db, firmId, weekDate });
+  const data = await reconcileWeek({ db, firmId, weekDate });
   const html = renderWeeklyReport(data);
   const subject = `Intake QA — ${money(data.recoveredFees)} recovered this week (${data.weekOf})`;
 

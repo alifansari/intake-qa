@@ -243,6 +243,20 @@ export function getConversationMessages(db, convId) {
     .all(convId);
 }
 
+// Resolve the caller's name via the conversation's flag -> call, for greeting.
+export function getCallerNameForConversation(db, convId) {
+  const row = db
+    .prepare(
+      `SELECT c.caller_name
+         FROM conversations cv
+         JOIN flags f ON f.id = cv.flag_id
+         JOIN calls c ON c.id = f.call_id
+        WHERE cv.id = ?`
+    )
+    .get(convId);
+  return row?.caller_name ?? null;
+}
+
 // Honor an opt-out: flag the conversation opted_out and stamp updated_at. Once
 // opted out, the sender will never transmit to it again.
 export function setConversationOptedOut(db, convId, now) {

@@ -118,12 +118,12 @@ test("reconcileWeek counts signed-only dollars and the full funnel", async (t) =
   makeLead(db, firmId, { name: "Clean Cyd", phone: "+15550100206", leaked: 0, reason: "declined, out of scope" });
 
   // Outcomes: two signed (8500 default + 12000 explicit), two unsigned ($0).
-  recordOutcome({ db, conversationId: signedA.convId, result: "signed", now: NOW }); // -> avg 8500
-  recordOutcome({ db, conversationId: signedB.convId, result: "signed", recoveredFee: 12000, now: NOW });
-  recordOutcome({ db, conversationId: lost.convId, result: "lost", now: NOW });
-  recordOutcome({ db, conversationId: noResp.convId, result: "no_response", now: NOW });
+  await recordOutcome({ db, conversationId: signedA.convId, result: "signed", now: NOW }); // -> avg 8500
+  await recordOutcome({ db, conversationId: signedB.convId, result: "signed", recoveredFee: 12000, now: NOW });
+  await recordOutcome({ db, conversationId: lost.convId, result: "lost", now: NOW });
+  await recordOutcome({ db, conversationId: noResp.convId, result: "no_response", now: NOW });
 
-  const data = reconcileWeek({ db, firmId, weekDate: NOW });
+  const data = await reconcileWeek({ db, firmId, weekDate: NOW });
 
   assert.equal(data.weekOf, weekOf(NOW));
   assert.equal(data.flaggedCount, 4); // leaked only
@@ -152,9 +152,9 @@ test("reconcileWeek reports $0 / 0x when nothing is signed", async (t) => {
     name: "Unsigned Only", phone: "+15550100301", leaked: 1,
     reason: "mva", conversation: true, replied: true,
   });
-  recordOutcome({ db, conversationId: lead.convId, result: "lost", now: NOW });
+  await recordOutcome({ db, conversationId: lead.convId, result: "lost", now: NOW });
 
-  const data = reconcileWeek({ db, firmId, weekDate: NOW });
+  const data = await reconcileWeek({ db, firmId, weekDate: NOW });
   assert.equal(data.flaggedCount, 1);
   assert.equal(data.recoveredFees, 0);
   assert.equal(data.signedCount, 0);
@@ -178,9 +178,9 @@ test("sendWeeklyReport renders to an HTML file in TEST_MODE and never emails", a
     name: "Unsigned Uma", phone: "+15550100403", leaked: 1,
     reason: "slip and fall", conversation: true,
   });
-  recordOutcome({ db, conversationId: signedA.convId, result: "signed", now: NOW });
-  recordOutcome({ db, conversationId: signedB.convId, result: "signed", recoveredFee: 12000, now: NOW });
-  recordOutcome({ db, conversationId: lost.convId, result: "lost", now: NOW });
+  await recordOutcome({ db, conversationId: signedA.convId, result: "signed", now: NOW });
+  await recordOutcome({ db, conversationId: signedB.convId, result: "signed", recoveredFee: 12000, now: NOW });
+  await recordOutcome({ db, conversationId: lost.convId, result: "lost", now: NOW });
 
   const outDir = mkdtempSync(join(tmpdir(), "intakeqa-report-out-"));
   t.after(() => rmSync(outDir, { recursive: true, force: true }));

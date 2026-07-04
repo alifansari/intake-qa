@@ -21,7 +21,7 @@ import {
   getFirm,
   createConversation,
   createDraftMessage,
-} from "./db.mjs";
+} from "./store.mjs";
 import { evaluateFlag } from "../messaging/flag-logic.mjs";
 import { draftFirstMessage } from "../messaging/draft.mjs";
 import { getTemplate } from "../messaging/templates.mjs";
@@ -61,11 +61,11 @@ export async function scoreUnscored({
   templateId = null, // null => first template in config/message-templates.md
   now = new Date(),
 } = {}) {
-  const calls = getUnscoredCalls(db, firmId);
+  const calls = await getUnscoredCalls(db, firmId);
   const results = [];
 
   for (const call of calls) {
-    const firm = getFirm(db, call.firm_id);
+    const firm = await getFirm(db, call.firm_id);
     const windowHours = firm?.reengage_window_hours ?? 72;
 
     const transcript = await ensureTranscript({ db, call });
@@ -83,7 +83,7 @@ export async function scoreUnscored({
       now,
     });
 
-    const flagId = insertFlag(db, {
+    const flagId = await insertFlag(db, {
       call_id: call.id,
       firm_id: call.firm_id,
       qualification_score: mapped.qualification_score,
@@ -105,14 +105,14 @@ export async function scoreUnscored({
         ...(drafter ? { drafter } : {}),
       });
 
-      conversationId = createConversation(db, {
+      conversationId = await createConversation(db, {
         flag_id: flagId,
         firm_id: call.firm_id,
         caller_phone: call.caller_phone,
         status: "pending_approval",
         consent_basis: CONSENT_BASIS,
       });
-      messageId = createDraftMessage(db, {
+      messageId = await createDraftMessage(db, {
         conversation_id: conversationId,
         body: draft,
       });

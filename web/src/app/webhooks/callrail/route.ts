@@ -8,13 +8,14 @@
 // Plain-Node .mjs modules shared with the CLI/tests; types are inferred via
 // allowJs + bundler resolution, so no explicit d.ts is needed.
 import { ingestCallRail } from "../../../../ingest/callrail.mjs";
-import { openMigratedDb } from "../../../../db/connection.mjs";
+import { openPipelineDb, closePipelineDb } from "../../../../ingest/store.mjs";
 
 export const runtime = "nodejs";
 
 // Which firm this webhook endpoint belongs to. In the pilot this is a single
 // firm; a multi-tenant setup would resolve it from the URL or an account map.
-const FIRM_ID = Number(process.env.CALLRAIL_FIRM_ID ?? "1");
+// Kept as a string: numeric on local SQLite, a UUID on Supabase/Postgres.
+const FIRM_ID = process.env.CALLRAIL_FIRM_ID ?? "1";
 
 export async function POST(req: Request) {
   const secret = process.env.CALLRAIL_WEBHOOK_SECRET;
@@ -31,9 +32,9 @@ export async function POST(req: Request) {
     req.headers.get("signature") ??
     "";
 
-  const db = openMigratedDb();
+  const db = await openPipelineDb();
   try {
-    const result = ingestCallRail({
+    const result = await ingestCallRail({
       db,
       rawBody,
       signature,
@@ -51,6 +52,6 @@ export async function POST(req: Request) {
     const message = err instanceof Error ? err.message : "ingest failed";
     return Response.json({ error: message }, { status: 400 });
   } finally {
-    db.close();
+    await closePipelineDb(db);
   }
 }

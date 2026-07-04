@@ -165,14 +165,14 @@ async function main() {
           start_time: receivedAt,
         });
         const signature = createHmac("sha256", SECRET).update(payload, "utf8").digest("hex");
-        callId = ingestCallRail({ db, rawBody: payload, signature, secret: SECRET, firmId }).id;
+        callId = (await ingestCallRail({ db, rawBody: payload, signature, secret: SECRET, firmId })).id;
       } else {
         const tPath = join(dir, `${c.name.replace(/\s/g, "_")}.txt`);
         writeFileSync(tPath, transcript);
-        callId = ingestManual({
+        callId = (await ingestManual({
           db, firmId, transcriptPath: tPath,
           callerName: c.name, callerPhone: c.phone, receivedAt,
-        }).id;
+        })).id;
       }
       expByCallId.set(String(callId), c);
     }
@@ -250,7 +250,7 @@ async function main() {
       db, conversationId: priyaConv.id, kind: "esign",
       esignProvider: fakeEsignProvider, env: ENV, now,
     });
-    const complete = completeSignatureRequest({
+    const complete = await completeSignatureRequest({
       db, signatureRequestId: handoff.signatureRequestId, now,
     });
     const recovery = db

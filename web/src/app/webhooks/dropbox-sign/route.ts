@@ -14,7 +14,7 @@
 // allowJs + bundler resolution, so no explicit d.ts is needed.
 import { completeSignatureRequest } from "../../../../messaging/outcome.mjs";
 import { verifyDropboxSignEvent } from "../../../../messaging/dropbox-sign-verify.mjs";
-import { openMigratedDb } from "../../../../db/connection.mjs";
+import { openPipelineDb, closePipelineDb } from "../../../../ingest/store.mjs";
 
 export const runtime = "nodejs";
 
@@ -43,11 +43,11 @@ export async function POST(req: Request) {
   if (event.event?.event_type === "signature_request_all_signed") {
     const signatureRequestId = event.signature_request?.signature_request_id;
     if (signatureRequestId) {
-      const db = openMigratedDb();
+      const db = await openPipelineDb();
       try {
-        completeSignatureRequest({ db, signatureRequestId });
+        await completeSignatureRequest({ db, signatureRequestId });
       } finally {
-        db.close();
+        await closePipelineDb(db);
       }
     }
   }
