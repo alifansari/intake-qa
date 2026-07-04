@@ -76,6 +76,20 @@ const declinableScore = async () => ({
 const fakeDrafter = async () =>
   "Hi there, this is the intake team at Demo Personal Injury Firm following up on your call. Is now a good time for a quick callback? No obligation. Reply STOP to opt out.";
 
+// Fakes for the separate SOL + summary analysis passes (no network, no key).
+const fakeSolExtractor = async () => ({
+  incident_date: "2026-01-15",
+  case_type: "motor_vehicle",
+  government_defendant: true,
+  plaintiff_is_minor: false,
+});
+const fakeSummarizer = async () => ({
+  caller_name: "Demo Caller",
+  incident_summary: "Rear-ended at a red light.",
+  injuries: ["Neck and back pain"],
+  open_questions: ["No incident photos mentioned"],
+});
+
 test("pure: scoreBand / estimateFeeAtRisk / pickEvidenceQuotes", () => {
   assert.equal(scoreBand(85), "strong");
   assert.equal(scoreBand(65), "moderate");
@@ -104,6 +118,8 @@ test("leaked-signable demo call -> fee-at-risk + watermarked draft preview", asy
     transcriber: fakeTranscriber,
     scorer: leakedScore,
     drafter: fakeDrafter,
+    solExtractor: fakeSolExtractor,
+    summarizer: fakeSummarizer,
     config: CONFIG,
     now: NOW,
   });
@@ -117,6 +133,13 @@ test("leaked-signable demo call -> fee-at-risk + watermarked draft preview", asy
   assert.ok(res.result.draftPreview && /stop/i.test(res.result.draftPreview));
   assert.match(res.result.draftWatermark, /nothing is sent/i);
   assert.equal(deletedPath, "/tmp/fake-call.mp3"); // audio deletion hook fired
+
+  // Separate analysis passes are attached to the result.
+  assert.equal(res.result.sol.applicable, "government_claim");
+  assert.ok(res.result.sol.deadlineDate);
+  assert.ok(/not legal advice/i.test(res.result.sol.disclaimer));
+  assert.equal(res.result.caseSummary.caller_name, "Demo Caller");
+  assert.ok(res.result.caseSummary.open_questions.length >= 1);
 
   const row = getDemoCall(db, id);
   assert.equal(row.status, "done");
@@ -138,6 +161,8 @@ test("non-signable demo call -> honest 'no leak', no preview, $0 at risk", async
     transcriber: fakeTranscriber,
     scorer: declinableScore,
     drafter: fakeDrafter,
+    solExtractor: fakeSolExtractor,
+    summarizer: fakeSummarizer,
     config: CONFIG,
     now: NOW,
   });

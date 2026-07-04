@@ -57,3 +57,25 @@ Each entry: the ambiguity, the choice, one line of reasoning. Newest at top per 
 - **D2.4 Daily digest mirrors the weekly-report pattern.** Pure `buildDigest` + TEST_MODE-gated
   `sendDailyDigest` with an injectable Resend mailer (lazy-imported). In TEST_MODE it writes
   `web/output/digest-<firm>-<date>.html` and transmits nothing. Recipient from `DIGEST_TO`.
+
+## Phase 3 — SOL Guardian + Case-Ready Summary
+
+- **D3.1 SOL Guardian is two layers, LLM only for facts.** An injectable LLM extractor
+  (`analysis/sol-guardian.md`) reports FACTS only (incident date, case type, government
+  defendant, minor). The deadline is then computed by PURE deterministic date math
+  (`computeSol`) that never calls a model — so the date is exactly testable and cannot be
+  hallucinated. This is the whole point: an attorney-verifiable estimate, not an LLM guess.
+- **D3.2 California rule priority: government > MICRA > general PI.** `selectRule` picks the
+  6-month government-claim deadline (Gov Code §911.2) first because it is the shortest and
+  most-often-missed, then 1-year MICRA (CCP §340.5), else the 2-year general statute
+  (CCP §335.1). Month-end overflow clamps (Aug 31 + 6mo → Feb 28). Edge cases (delayed
+  discovery, tolling variants) are exactly why the disclaimer + attorney verification exist.
+- **D3.3 Minor tolling never reported as "expired".** A minor on a non-government matter sets
+  `minorTollingMayApply` and bumps an otherwise-"expired" urgency to "critical" (tolling under
+  CCP §352 likely extends it). A minor on a GOVERNMENT claim is NOT tolled — stays urgent.
+- **D3.4 Mandatory disclaimer on every result.** Both passes attach a disclaimer string
+  (`SOL_DISCLAIMER` / `SUMMARY_DISCLAIMER`) that the UI always renders. The summary carries
+  no fees and no legal conclusions — it is a triage memo, not advice.
+- **D3.5 Both passes are best-effort in the demo pipeline.** `runDemoPipeline` wraps each in
+  try/catch so a failed SOL/summary pass never sinks the core score result. Both are
+  injectable (fake extractor/summarizer in tests) so demo tests stay network-free.

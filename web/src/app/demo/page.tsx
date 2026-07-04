@@ -7,6 +7,34 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+type SolResult = {
+  applicable: string | null;
+  statute: string | null;
+  ruleLabel?: string | null;
+  periodLabel: string | null;
+  incidentDate: string | null;
+  deadlineDate: string | null;
+  daysRemaining: number | null;
+  urgency: "expired" | "critical" | "soon" | "ok" | "unknown";
+  minorTollingMayApply: boolean;
+  notes: string[];
+  disclaimer: string;
+};
+
+type CaseSummary = {
+  caller_name: string | null;
+  callback_number: string | null;
+  case_type: string | null;
+  incident_summary: string | null;
+  injuries: string[];
+  treatment: string[];
+  liability_notes: string[];
+  key_facts: string[];
+  open_questions: string[];
+  urgency_flags: string[];
+  disclaimer: string;
+};
+
 type DemoResult = {
   overallScore: number | null;
   scoreBand: string;
@@ -22,6 +50,8 @@ type DemoResult = {
   summary: string | null;
   draftPreview: string | null;
   draftWatermark: string;
+  sol: SolResult | null;
+  caseSummary: CaseSummary | null;
 };
 
 type Status = {
@@ -321,8 +351,137 @@ function Results({
         </div>
       )}
 
+      {result.sol && <DeadlineWatch sol={result.sol} />}
+      {result.caseSummary && <CaseReadySummary summary={result.caseSummary} />}
+
       <RetentionNote audioDeleted={audioDeleted} />
       <EmailCapture demoCallId={demoCallId} />
+    </div>
+  );
+}
+
+const URGENCY_STYLE: Record<string, { box: string; text: string; label: string }> = {
+  expired: { box: "border-2 border-red bg-red-tint", text: "text-red", label: "Deadline may have passed" },
+  critical: { box: "border-2 border-red bg-red-tint", text: "text-red", label: "Critical — act now" },
+  soon: { box: "border-2 border-amber bg-amber-tint", text: "text-amber", label: "Approaching" },
+  ok: { box: "border border-line bg-green-tint", text: "text-green", label: "On track" },
+  unknown: { box: "border border-line bg-paper", text: "text-muted", label: "Not enough info" },
+};
+
+function DeadlineWatch({ sol }: { sol: SolResult }) {
+  const style = URGENCY_STYLE[sol.urgency] ?? URGENCY_STYLE.unknown;
+  return (
+    <div className={`rounded-lg p-6 ${style.box}`}>
+      <div className="flex items-baseline justify-between">
+        <p className="eyebrow">Deadline watch — statute of limitations</p>
+        <span className={`text-xs font-semibold uppercase tracking-wide ${style.text}`}>{style.label}</span>
+      </div>
+      {sol.deadlineDate ? (
+        <div className="mt-3 grid gap-4 sm:grid-cols-3">
+          <div>
+            <p className="eyebrow">Estimated deadline</p>
+            <p className={`font-display text-2xl font-bold tnum ${style.text}`}>{sol.deadlineDate}</p>
+          </div>
+          <div>
+            <p className="eyebrow">Days remaining</p>
+            <p className={`font-display text-2xl font-bold tnum ${style.text}`}>
+              {sol.daysRemaining == null ? "—" : sol.daysRemaining}
+            </p>
+          </div>
+          <div>
+            <p className="eyebrow">Applicable rule</p>
+            <p className="text-sm text-ink">{sol.ruleLabel ?? sol.applicable ?? "—"}</p>
+            {sol.statute && <p className="mt-0.5 text-xs text-muted">{sol.statute}</p>}
+          </div>
+        </div>
+      ) : (
+        <p className="mt-3 text-sm text-muted">
+          We couldn&apos;t compute a deadline — no incident date was clear on the call.
+        </p>
+      )}
+      {sol.notes.length > 0 && (
+        <ul className="mt-4 space-y-1">
+          {sol.notes.map((n, i) => (
+            <li key={i} className="text-sm text-ink">• {n}</li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-4 text-xs italic text-faint">{sol.disclaimer}</p>
+    </div>
+  );
+}
+
+function CaseReadySummary({ summary }: { summary: CaseSummary }) {
+  const [copied, setCopied] = useState(false);
+  const lines: string[] = [];
+  const add = (label: string, val: string | null) => { if (val) lines.push(`${label}: ${val}`); };
+  const addList = (label: string, items: string[]) => {
+    if (items.length) { lines.push(`${label}:`); items.forEach((x) => lines.push(`  - ${x}`)); }
+  };
+  add("Caller", summary.caller_name);
+  add("Callback", summary.callback_number);
+  add("Case type", summary.case_type);
+  add("Incident", summary.incident_summary);
+  addList("Injuries", summary.injuries);
+  addList("Treatment", summary.treatment);
+  addList("Liability notes", summary.liability_notes);
+  addList("Key facts", summary.key_facts);
+  addList("Open questions", summary.open_questions);
+  addList("Urgency flags", summary.urgency_flags);
+  const memoText = `INTAKE MEMO\n\n${lines.join("\n")}\n\n${summary.disclaimer}`;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(memoText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* clipboard unavailable */ }
+  };
+
+  const Field = ({ label, value }: { label: string; value: string | null }) =>
+    value ? (
+      <div>
+        <p className="eyebrow">{label}</p>
+        <p className="text-sm text-ink">{value}</p>
+      </div>
+    ) : null;
+
+  const ListField = ({ label, items }: { label: string; items: string[] }) =>
+    items.length ? (
+      <div>
+        <p className="eyebrow">{label}</p>
+        <ul className="mt-1 space-y-0.5">
+          {items.map((x, i) => (
+            <li key={i} className="text-sm text-ink">• {x}</li>
+          ))}
+        </ul>
+      </div>
+    ) : null;
+
+  return (
+    <div className="rounded-lg border border-line bg-paper p-6">
+      <div className="no-print flex items-center justify-between">
+        <p className="eyebrow">Case-ready summary</p>
+        <button
+          onClick={copy}
+          className="rounded-md border border-line-strong px-3 py-1.5 text-xs text-ink hover:bg-canvas"
+        >
+          {copied ? "Copied ✓" : "Copy memo"}
+        </button>
+      </div>
+      <div className="mt-3 space-y-3">
+        <Field label="Caller" value={summary.caller_name} />
+        <Field label="Callback number" value={summary.callback_number} />
+        <Field label="Case type" value={summary.case_type} />
+        <Field label="Incident" value={summary.incident_summary} />
+        <ListField label="Injuries" items={summary.injuries} />
+        <ListField label="Treatment" items={summary.treatment} />
+        <ListField label="Liability notes" items={summary.liability_notes} />
+        <ListField label="Key facts" items={summary.key_facts} />
+        <ListField label="Open questions" items={summary.open_questions} />
+        <ListField label="Urgency flags" items={summary.urgency_flags} />
+      </div>
+      <p className="mt-4 text-xs italic text-faint">{summary.disclaimer}</p>
     </div>
   );
 }

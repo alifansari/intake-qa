@@ -16,6 +16,8 @@ import { join, dirname } from "node:path";
 import { evaluateFlag, signabilityScore } from "../messaging/flag-logic.mjs";
 import { draftFirstMessage } from "../messaging/draft.mjs";
 import { getTemplate } from "../messaging/templates.mjs";
+import { runSolGuardian } from "../analysis/sol.mjs";
+import { runCaseSummary } from "../analysis/case-summary.mjs";
 import {
   setDemoCallStatus,
   setDemoCallTranscript,
@@ -154,6 +156,8 @@ export function buildDemoResult({ score, mapped, config, callerName, firmName })
     callerName: callerName ?? null,
     draftPreview: null,
     draftWatermark: WATERMARK,
+    sol: null,
+    caseSummary: null,
     generatedAt: new Date().toISOString(),
   };
 }
@@ -198,6 +202,8 @@ async function defaultScorer({ transcript, callId, firmConfigPath }) {
  *   transcriber?: Function,
  *   scorer?: Function,
  *   drafter?: Function,
+ *   solExtractor?: Function,
+ *   summarizer?: Function,
  *   config?: unknown,
  *   now?: Date,
  * }} [opts]
@@ -210,6 +216,8 @@ export async function runDemoPipeline({
   transcriber = defaultTranscriber,
   scorer = defaultScorer,
   drafter, // undefined => real compliant drafter
+  solExtractor, // undefined => real Claude SOL extractor
+  summarizer, // undefined => real Claude case summarizer
   config = loadDemoConfig(),
   now = new Date(),
 } = {}) {
@@ -257,6 +265,26 @@ export async function runDemoPipeline({
       } catch {
         result.draftPreview = null; // never block the result on a preview failure
       }
+    }
+
+    // SOL Guardian + Case-Ready Summary — SEPARATE analysis passes (never touch
+    // the frozen scorer). Best-effort: a failure here must never sink the result.
+    try {
+      result.sol = await runSolGuardian({
+        transcript,
+        now: new Date(now),
+        ...(solExtractor ? { extractor: solExtractor } : {}),
+      });
+    } catch {
+      result.sol = null;
+    }
+    try {
+      result.caseSummary = await runCaseSummary({
+        transcript,
+        ...(summarizer ? { summarizer } : {}),
+      });
+    } catch {
+      result.caseSummary = null;
     }
 
     await setDemoCallResult(db, demoCallId, JSON.stringify(result), nowIso);
