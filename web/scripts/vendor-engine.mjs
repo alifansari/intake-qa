@@ -11,7 +11,7 @@
 // CRITICAL: never delete .engine unless we can fully repopulate it. On Vercel the
 // repo-root dirs may not be reachable from where this runs; deleting the committed
 // copy there would leave .engine empty and break the deploy. So we check first.
-import { cpSync, mkdirSync, rmSync, existsSync } from "node:fs";
+import { cpSync, mkdirSync, rmSync, existsSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -42,5 +42,13 @@ for (const d of DIRS) {
   cpSync(join(REPO_ROOT, d), join(ENGINE, d), { recursive: true });
   console.log(`[vendor-engine] copied ${d} -> .engine/${d}`);
 }
+
+// The engine .js files use ESM `import`. The repo root is "type":"module", but
+// web/package.json is not — so without this marker the vendored .js under web/
+// would be treated as CommonJS and throw "Cannot use import statement outside a
+// module". This package.json makes everything under .engine ESM. Node reads it at
+// runtime to resolve module type, so it MUST ship in the traced bundle.
+writeFileSync(join(ENGINE, "package.json"), JSON.stringify({ type: "module" }, null, 2) + "\n");
+console.log(`[vendor-engine] wrote .engine/package.json ({"type":"module"})`);
 
 console.log(`[vendor-engine] engine refreshed into ${ENGINE}`);
