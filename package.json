@@ -7,7 +7,8 @@
     "score": "score.js"
   },
   "scripts": {
-    "fake-test": "node fake-test.js"
+    "fake-test": "node fake-test.js",
+    "e2e-synthetic": "node --no-warnings web/scripts/e2e-synthetic.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

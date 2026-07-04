@@ -20,6 +20,9 @@
 # production
 /build
 
+# generated weekly reconciliation reports (TEST_MODE renders here)
+/output
+
 # misc
 .DS_Store
 *.pem
@@ -32,6 +35,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but the example (no real values) MUST be committed so the required vars are visible
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +44,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local dev database (SQLite) — generated, may contain data
+*.db
+*.db-wal
+*.db-shm

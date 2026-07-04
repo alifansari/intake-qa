@@ -1,163 +1,151 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file guides Claude Code when working in this repository. Instructions here
+OVERRIDE default behavior — follow them exactly.
 
 ## Working with the founder
 
-The owner is a non-coder founder. Before making changes, explain in plain English what you're about to do and why. After a set of changes, run the build and then tell them exactly what to click to verify it works.
+The owner is a non-coder founder. Before making changes, explain in plain English what
+you're about to do and why. After a set of changes, run the build and then tell them
+exactly what to click to verify it works.
 
-**NEVER run destructive commands** (`rm -rf`, `DROP TABLE`, force push, resetting the database) without stopping first and asking for confirmation in **bold**.
+**NEVER run destructive commands** (`rm -rf`, `DROP TABLE`, force push, resetting the
+database) without stopping first and asking for confirmation in **bold**.
 
-## What this product is
+## What this is
 
-A SaaS for solo / small California plaintiff personal-injury law firms. The core pipeline:
+**Intake QA** — a SaaS for solo / small California plaintiff personal-injury firms that
+scores intake calls AND recovers leaked signable cases via compliant, human-approved SMS
+re-engagement.
 
-1. Firm uploads intake-call MP3s
-2. We transcribe them (AssemblyAI, via webhooks — not polling)
-3. We score the transcript against an LLM rubric (Anthropic Claude Sonnet 4.6)
-4. We email a weekly report with scores, alerts, and revenue-at-risk
+One line: *catch the signable calls your intake team let slip, then win them back — with a
+human approving every text.*
 
-End users are non-technical law-firm staff, so UX and copy should assume no technical knowledge.
+End users are non-technical law-firm staff, so UX and copy assume no technical knowledge.
 
-## Three build tracks
+## v1 scope
 
-There are three implementations of the same product. Do not confuse their rules:
+1. **Ingestion** — CallRail webhook + manual MP3 upload fallback.
+2. **Scoring pass** — reuse the existing calibrated engine (AssemblyAI transcribe → Claude
+   score against `scoring/system-prompt.md` + firm config + 3 gold examples; prompt caching).
+3. **Flag logic** — leaked-signable = `alerts.lost_signable_case === true`.
+4. **SMS re-engagement (Twilio)** — PILOT MODE: every outbound message requires human
+   approval before send. Claude drafts messages from attorney-approved templates. Approval
+   happens in an in-app queue (Approve / Edit / Reject per message).
+5. **E-sign handoff** — Dropbox Sign (test mode) signature link + booked-callback option.
+6. **Weekly reconciliation email** — recovered fees, sends, opt-outs, still-open.
 
-1. **Concierge pipeline (local CLI)** — what currently exists in THIS repo. A plain
-   Node.js command-line tool that turns one MP3 into an HTML report on the founder's Mac.
-   Deliberately simple: polling (not webhooks), local files (not a database), plain Node
-   (not Next.js). See the section below. The "do not introduce alternatives" stack list is
-   about the SaaS track and does NOT apply here.
-2. **SaaS (30-day track)** — the hosted web app described under "Stack" and "Architecture"
-   below. Not built yet.
-3. **Outcome Reconciliation Dashboard (`web/`)** — a shareable demo/prototype that proves
-   the scorer's flags match real-world outcomes. Real Next.js app (the SaaS foundation) but
-   backed by LOCAL JSON, no auth, no DB. See the section below.
+v1 runs inside `web/` (Next.js App Router, TypeScript, Tailwind), persisted via the
+Repository seam backed by LOCAL JSON for the pilot (Supabase later, with **zero UI change**).
+The 5 existing dashboard views are the reporting layer. The root CLI + scoring engine stay
+usable.
 
-## Commands
+## COMPLIANCE GUARDRAILS (non-negotiable, enforce in code)
 
-- Dev server: `npm run dev`
-- Build: `npm run build`
-- Lint: `npm run lint`
-- Test: `npm test`
+These are legal requirements, not preferences. Enforce them in a **single send chokepoint**
+(`web/src/lib/messaging/send.ts`) — no code path may send around it.
 
-## Stack (do not introduce alternatives)
+(a) **PILOT MODE** — no autonomous sends. A human must approve every outbound message before
+    it can be sent.
+(b) **Quiet hours** — no sends 8:00pm–8:00am in the recipient's local time.
+(c) **Opt-out** — inbound `STOP / UNSUBSCRIBE / CANCEL / QUIT / END / REVOKE / OPT OUT`
+    triggers auto opt-out, honored immediately and logged, processed within 10 business days
+    per the FCC rule. Once opted out, that number is never texted again.
+(d) **Consent logging** — every message is logged with its consent basis.
+(e) **Kill switch** — a global `KILL_SWITCH` env flag halts ALL sends instantly.
+(f) **No real numbers until compliant** — never text a real number until A2P 10DLC is
+    approved AND `TEST_MODE` is off. While `TEST_MODE=true`, sends are simulated / logged
+    only.
+(g) **Secrets** — only in env vars, never in code, never committed.
+(h) **Data retention** — purge transcripts and messages after `DATA_RETENTION_DAYS`
+    (configurable). Recordings/transcripts are confidential.
 
-- Next.js 16 (App Router), TypeScript, Tailwind
-- Supabase — Postgres + Auth (magic links) + Storage + Row Level Security
-- Vercel (Pro plan) for hosting
-- Upstash QStash for background job queueing
-- AssemblyAI for transcription (webhooks, not polling)
-- Anthropic API (Claude Sonnet 4.6) for scoring; prompt caching ON
-- Resend for weekly report emails
+## Scoring pipeline contract (fixed — do NOT edit)
 
-**Do NOT introduce:** Redux, Prisma, a different DB, or a different auth system.
+`scoring/` is a calibrated scoring engine. Assemble the Anthropic request exactly this way:
 
-## Architecture & conventions
+- Load `scoring/system-prompt.md` **verbatim** as the system prompt.
+- **Prepend the firm's config** to it.
+- Include the **three gold examples** (order 2, 1, 3) as few-shot anchors.
+- Model `claude-sonnet-4-6`, temperature 0, **prompt caching ON** for the stable parts.
 
-The processing flow is asynchronous and event-driven. An upload does not block on transcription or scoring — work is handed off to QStash and completed via webhook callbacks:
+**Treat the prompt text as fixed.** Do NOT rewrite, reword, or "improve" `system-prompt.md`,
+`firm-config-template.md`, or the gold examples — they are calibrated, and changing them
+changes scoring behavior. Never edit the template; make a real firm's config by copying
+`scoring/firm-config-template.md` into `config/` and filling it in.
 
-- Upload lands in Supabase Storage → a job is enqueued on QStash
-- AssemblyAI transcribes and calls back via **webhook** (never poll for results)
-- The transcript is scored with the Anthropic rubric, then persisted
-- A separate weekly process aggregates scores into a Resend email report
+## The three tracks in this repo
 
-Code layout and where things go:
+Do not confuse their rules:
 
-- `app/` — routes and pages (App Router)
-- `lib/` — helpers and clients (Supabase client, Anthropic client, AssemblyAI client). **All business logic lives here, not inside UI components.**
-- `scoring/` — the calibrated scoring engine, as plain text: `system-prompt.md`,
-  `firm-config-template.md` (the blank template), and `gold-example-1.md` / `-2` / `-3`
-  (the worked gold examples). The original Word `.docx` versions are archived in
-  `source-docx/` as a backup — do not use those at runtime.
-- `config/` — filled firm configs used at runtime (e.g. `config/test-firm.md`). Make a
-  real firm's config by copying `scoring/firm-config-template.md` here and filling it in;
-  never edit the template itself.
+1. **Concierge CLI (root)** — the current engine: MP3 → AssemblyAI (diarized, **polling**) →
+   Claude scoring → JSON → one-page HTML report. Plain Node, local files, no build step.
+   Run: `node score.js calls/x.mp3` | `node score.js calls/` | `npm run fake-test` (no audio,
+   needs only `ANTHROPIC_API_KEY`) | `node lib/report.js <score.json> <out.html> "Firm"`.
+   Layout: `score.js` (orchestrator), `lib/transcribe.js` (AssemblyAI + INTAKE/CALLER
+   heuristic), `lib/score-call.js` (Claude request), `lib/report.js` (HTML), `lib/examples.js`
+   (few-shot parser). `output/` and `calls/` are git-ignored.
+2. **Intake QA v1 SaaS (`web/`)** — the product described under "v1 scope", built on the demo
+   foundation. JSON-backed via the Repository seam for the pilot.
+3. **Outcome Reconciliation Dashboard (`web/` demo views)** — the 5 shareable views that prove
+   the scorer's flags match real outcomes; now v1's reporting layer.
 
-### Scoring pipeline contract (fixed)
+## Data access seam (ports-and-adapters — the important part)
 
-`scoring/` is a calibrated scoring engine. When building the scoring pipeline, assemble the Anthropic request exactly this way:
-
-- Load `scoring/system-prompt.md` verbatim as the **system prompt**
-- **Prepend the firm's config** to the system prompt
-- Include the **three gold examples** as few-shot anchors
-
-**Treat the prompt text as fixed.** Do NOT rewrite, reword, or "improve" `system-prompt.md`, the config template, or the gold examples. They are calibrated — changing them changes scoring behavior.
-
-## Concierge pipeline (local CLI — current implementation)
-
-A local Node.js CLI: MP3 → AssemblyAI transcription (diarized, **polling** not webhooks) →
-Claude scoring against `scoring/system-prompt.md` → JSON result → one-page HTML report.
-
-Run it:
-- One call: `node score.js calls/test1.mp3`
-- A folder: `node score.js calls/` (also writes `output/summary.html` with a total
-  "found money" revenue-at-risk row)
-- No-audio smoke test: `node fake-test.js` (scores a canned transcript; needs only
-  `ANTHROPIC_API_KEY`)
-- Report only, no API/cost: `node lib/report.js <score.json> <out.html> "Firm Name"`
-
-Layout:
-- `score.js` — orchestrator (transcribe → score → report)
-- `lib/transcribe.js` — AssemblyAI + INTAKE/CALLER role heuristic
-- `lib/score-call.js` — builds the Claude request (system prompt + firm config + 3 examples
-  in order 2,1,3), model `claude-sonnet-4-6`, temp 0, prompt caching on the stable parts
-- `lib/report.js` — HTML report + batch summary renderer
-- `lib/examples.js` — parses gold-example files into few-shot blocks
-- `output/` — generated transcripts/scores/reports (git-ignored)
-- `calls/` — input audio (git-ignored, confidential)
-
-Keys live in `.env` (git-ignored): `ASSEMBLYAI_API_KEY`, `ANTHROPIC_API_KEY`. There is no
-build step and no lint/test config yet — the "Commands" above (`npm run dev` etc.) belong to
-the SaaS track and do not exist in this repo.
-
-## Outcome Reconciliation Dashboard (`web/` — demo/prototype)
-
-A shareable, phone-friendly Next.js app for design-partner sales conversations. It proves
-the intake scorer's flags line up with what really happened (did the flagged "lost signable"
-call actually sign elsewhere?). It is the SaaS foundation, but for the demo it runs on LOCAL
-JSON with **no auth and no database**. Lives entirely in `web/` — the root CLI is untouched.
-
-Run it: `npm --prefix web run dev` (or `cd web && npm run dev`), then open `localhost:3000`.
-Regenerate demo data: `node web/scripts/generate-seed.mjs`. Deploys to Vercel with the seed
-committed (data ships in git; only `.next/`/`node_modules` are ignored).
-
-**Data-access seam (ports-and-adapters — the important part):**
-- `web/src/lib/repository.ts` — the `Repository` interface (`getScoredCalls`, `getCallMeta`,
-  `getOutcomes`, `upsertOutcome`). UI and pages ONLY touch this interface, never `fs`.
+- `web/src/lib/repository.ts` — the `Repository` interface. UI and pages ONLY touch this
+  interface, never `fs` or SQL.
 - `web/src/lib/json-repository.ts` — the one impl today, `JsonFileRepository` (`server-only`).
   Reads scored calls from `web/data/scored-calls/*.json` (seed) plus the CLI's real
-  `output/*.score.json` (local only); reads/writes outcomes to `web/data/outcomes.json`
-  (best-effort write, so a read-only serverless fs never breaks the demo).
+  `output/*.score.json` (local only); reads/writes sibling records to `web/data/*.json`
+  (best-effort writes so a read-only serverless fs never breaks the demo).
 - A future `SupabaseRepository` implements the same interface and swaps in with **zero UI
   changes** — that is the whole point of the seam.
 
-**Data model:**
+## Data model
+
 - `ScoredCall` (`web/src/lib/schema.ts`) is the EXISTING `.score.json` — a lenient Zod
-  passthrough schema. Do NOT redesign it; real scored calls must drop in unchanged.
-- `Outcome` is a sibling record keyed by `call_id` (8-value `outcome_code` enum,
+  passthrough schema. **Do NOT redesign it**; real scored calls must drop in unchanged.
+  Extend the model with *sibling* records (`Outcome`, `Contact`, `Message`, `ConsentEvent`),
+  never by editing `ScoredCall`.
+- `Outcome` — reconciliation record keyed by `call_id` (8-value `outcome_code` enum,
   `callback_made`, timing, `realized_fee_recovered`, `outcome_version`++ with an `edits[]`
   audit trail). Missing outcome → default `"unknown"`.
-- `CallMeta` is a sidecar (`web/data/call-meta.json`) holding call date/rep/source, which the
-  score.json deliberately does NOT carry — keeps score files pristine.
+- `CallMeta` — sidecar (`web/data/call-meta.json`) holding call date/rep/source, kept separate
+  so score files stay pristine.
 
-**Pure logic** lives in `web/src/lib/reconcile.ts` (verdict table: correct_flag /
-false_alarm / missed_catch / correct_pass / excluded) and `web/src/lib/metrics.ts` (flag
-precision, catch rate, recovered fees, sign-rate-by-band, etc.) — no I/O, identical for JSON
-now and Supabase later. Every formula is surfaced in a methodology tooltip.
+## Future SaaS stack (do not introduce alternatives)
 
-**Seed generator** (`web/scripts/generate-seed.mjs`) uses a fixed `MASTER_SEED` + mulberry32
-PRNG, so reruns are bit-identical. ~200 calls, 8 reps, ~90 days, with sign rate correlated to
-score band and deliberate scorer mistakes so the calibration story is honest.
+When the pilot graduates to the hosted product: Next.js 16 (App Router), TypeScript, Tailwind;
+Supabase (Postgres + Auth magic links + Storage + Row Level Security); Vercel; AssemblyAI
+(webhooks, not polling); Anthropic (Claude Sonnet 4.6, prompt caching ON); Twilio (SMS);
+Dropbox Sign (e-sign); Resend (email). **Do NOT introduce** Redux, Prisma, a different DB, or
+a different auth system. When Supabase lands, **every table with firm data MUST have RLS
+enabled with a policy** — this is a hard requirement, not optional.
 
-Screens: `/` Executive Summary, `/calibration` (incl. "Our Misses"), `/funnel`, `/triage`
-(single-key outcome entry), `/statement` (printable reconciliation statement). This is a
-DEMO: no auth/CRM/realtime/DB, no tests beyond a smoke check, no changes to the CLI.
+## Coding conventions
+
+- All business logic in `lib/` (root engine) or `web/src/lib/` — never in UI components.
+- Data access ONLY through the `Repository` interface; UI/pages never touch `fs`/SQL directly.
+- Pure logic (reconcile, metrics, compliance helpers) has no I/O so it is testable and
+  storage-agnostic (identical for JSON now and Supabase later).
+- Zod-validate at every boundary (webhooks, uploads, API bodies).
+- TypeScript strict; secrets from `process.env` only.
 
 ## Hard rules
 
-- **Secrets** (API keys) live ONLY in `.env.local` and Vercel env vars. NEVER in code, NEVER committed to git.
-- For the local CLI, secrets live in `.env` (git-ignored). Same rule: never printed, never committed.
-- **Row Level Security:** every table containing firm data MUST have RLS enabled with a policy. This is a hard requirement, not optional.
-- **Confidentiality & retention:** recordings and transcripts are confidential. Recordings must auto-delete after 30 days.
-- Enable Anthropic **prompt caching** on scoring calls.
+- **Secrets** live ONLY in `.env` / `.env.local` and host env vars — NEVER in code, NEVER
+  committed. Root CLI uses `.env` (git-ignored); `web/` uses `.env.local` (git-ignored).
+- **Compliance guardrails above are non-negotiable** and enforced in the single send
+  chokepoint.
+- **Prompt caching** is always ON for scoring calls.
+- **Confidentiality & retention:** recordings and transcripts are confidential; purge after
+  `DATA_RETENTION_DAYS` (recordings within 30 days).
+
+## Commands / how to run tests
+
+- CLI engine smoke test (no audio, needs `ANTHROPIC_API_KEY`): `npm run fake-test`
+- CLI on a call / folder: `node score.js calls/test1.mp3` | `node score.js calls/`
+- Web app dev: `npm --prefix web run dev` (http://localhost:3000)
+- Web build / lint: `npm --prefix web run build` | `npm --prefix web run lint`
+- Regenerate demo data: `node web/scripts/generate-seed.mjs`
+- Compliance / reconcile unit checks (added under `web/`): `npm --prefix web test`
