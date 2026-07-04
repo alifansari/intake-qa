@@ -41,11 +41,14 @@ const REPO_ROOT = engineRoot();
 const DEFAULT_CONFIG_PATH = join(HERE, "..", "demo-config.json");
 
 // Import a root-level engine module (lib/*.js) by an ABSOLUTE file:// URL built
-// at runtime. The specifier is computed (not a string literal), so Next/Turbopack
-// cannot pull lib/ into the /api/demo route's static bundle graph — it stays a
-// pure runtime import on the Node server. See defaultTranscriber/defaultScorer.
+// at runtime. The webpackIgnore/turbopackIgnore hints tell the production bundler
+// to leave this as a NATIVE runtime import instead of trying (and failing) to
+// resolve the computed specifier — without them the serverless build throws
+// "Cannot find module as expression is too dynamic". The vendored file is on disk
+// (traced into the bundle via next.config), so Node imports it directly.
 function importEngine(fileName) {
-  return import(pathToFileURL(join(REPO_ROOT, "lib", fileName)).href);
+  const href = pathToFileURL(join(REPO_ROOT, "lib", fileName)).href;
+  return import(/* webpackIgnore: true */ /* turbopackIgnore: true */ href);
 }
 
 const WATERMARK = "DRAFT PREVIEW — nothing is sent from demo mode.";

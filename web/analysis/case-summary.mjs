@@ -75,8 +75,10 @@ export function renderCaseSummaryText(memo) {
 async function defaultSummarizer({ transcript }) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is missing");
-  const sdk = "@anthropic-ai/sdk";
-  const { default: Anthropic } = await import(sdk);
+  // Literal specifier so the file tracer includes the SDK + its deps in the
+  // serverless bundle; kept external (not bundled) via next.config
+  // `serverExternalPackages`, so it loads from node_modules at runtime.
+  const { default: Anthropic } = await import("@anthropic-ai/sdk");
   const client = new Anthropic({ apiKey });
   const system = readFileSync(PROMPT_PATH, "utf8");
   const resp = await client.messages.create({
