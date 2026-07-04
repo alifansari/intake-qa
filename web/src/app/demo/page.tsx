@@ -6,6 +6,7 @@
 // Nothing is ever sent from demo mode; the draft is a WATERMARKED preview only.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getSupabaseBrowser } from "../../lib/supabase/client";
 
 type SolResult = {
   applicable: string | null;
@@ -129,28 +130,66 @@ export default function DemoPage() {
     return stopPolling;
   }, [poll]);
 
+  // Legacy path (local dev / no Supabase Storage): stream the bytes through the
+  // server. Fine on a long-lived Node server; fails on Vercel (4.5MB body cap).
+  const uploadDirect = useCallback(
+    async (file: File) => {
+      const body = new FormData();
+      body.append("file", file);
+      const r = await fetch("/api/demo/upload", { method: "POST", body });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error ?? "Upload failed.");
+      return String(data.id);
+    },
+    [],
+  );
+
   const upload = useCallback(
     async (file: File) => {
       setErrorMsg(null);
       setPhase("processing");
       setStatus({ id: "", status: "queued", error: null, audioDeleted: false, result: null });
-      const body = new FormData();
-      body.append("file", file);
       try {
-        const r = await fetch("/api/demo/upload", { method: "POST", body });
+        // Step 1: create the demo row + decide upload mode.
+        const r = await fetch("/api/demo/upload-url", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ filename: file.name, size: file.size }),
+        });
         const data = await r.json();
         if (!r.ok) {
           setErrorMsg(data.error ?? "Upload failed.");
           setPhase("error");
           return;
         }
-        poll(data.id);
-      } catch {
-        setErrorMsg("Upload failed — check your connection.");
+
+        if (data.mode === "storage") {
+          // Step 2: upload the file DIRECTLY to Supabase Storage (bypasses the
+          // Vercel body limit), then kick off server-side processing.
+          const supabase = getSupabaseBrowser();
+          if (!supabase) throw new Error("Storage client unavailable.");
+          const { error: upErr } = await supabase.storage
+            .from(data.bucket)
+            .uploadToSignedUrl(data.path, data.token, file);
+          if (upErr) throw new Error(upErr.message);
+          // Fire processing; no need to await its body — the poll surfaces result.
+          void fetch("/api/demo/process", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ id: data.id }),
+          }).catch(() => {});
+          poll(data.id);
+        } else {
+          // Local / direct fallback.
+          const id = await uploadDirect(file);
+          poll(id);
+        }
+      } catch (err) {
+        setErrorMsg(err instanceof Error ? err.message : "Upload failed — check your connection.");
         setPhase("error");
       }
     },
-    [poll],
+    [poll, uploadDirect],
   );
 
   const onDrop = (e: React.DragEvent) => {
