@@ -12,8 +12,9 @@ const nextConfig: NextConfig = {
   // module (see ingest/demo.mjs importEngine) and does `import "@anthropic-ai/sdk"`
   // itself, so it must resolve the SDK from node_modules — this ensures the SDK
   // (and its deps) ship in the serverless bundle for both the engine and the
-  // analysis passes to share.
-  serverExternalPackages: ["@anthropic-ai/sdk"],
+  // analysis passes to share. Same reasoning for `assemblyai`, which the engine's
+  // transcribe.js imports ("import { AssemblyAI } from 'assemblyai'").
+  serverExternalPackages: ["@anthropic-ai/sdk", "assemblyai"],
   // The JsonFileRepository reads seed JSON from ./data at request time. Ensure
   // those files are traced into the serverless bundle so the demo has data on
   // Vercel (where the CLI's ../output folder does NOT ship).

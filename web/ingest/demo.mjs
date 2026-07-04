@@ -51,6 +51,17 @@ function importEngine(fileName) {
   return import(/* webpackIgnore: true */ /* turbopackIgnore: true */ href);
 }
 
+// Force the production file-tracer to bundle `assemblyai` (+ its `ws` dep) into
+// the serverless function. The engine's transcribe.js imports it, but only via
+// the webpackIgnore'd dynamic import above — which the tracer cannot see — so
+// without a literal, statically-analyzable reference here the package is never
+// included and the engine throws "Cannot find package 'assemblyai'" at runtime.
+// This is never executed; it exists purely so node-file-trace picks it up.
+// (assemblyai is kept external via serverExternalPackages in next.config.ts.)
+export async function __forceTraceEngineDeps() {
+  return import("assemblyai");
+}
+
 const WATERMARK = "DRAFT PREVIEW — nothing is sent from demo mode.";
 
 // Load the demo fee config (labeled estimates). Cached after first read.
