@@ -12,6 +12,7 @@ import {
   closePipelineDb,
   createFirm,
   saveTemplateVersion,
+  logError,
 } from "../../../../ingest/store.mjs";
 import {
   normalizeFirmInput,
@@ -100,8 +101,19 @@ export async function POST(req: Request) {
     });
     version = saved.version;
     persisted = true;
-  } catch {
-    // Swallow — persistence is best-effort in the pilot.
+  } catch (e) {
+    // Persistence is best-effort in the pilot — never block onboarding. But do
+    // record it so an operator can see it on /admin/status (logging is itself
+    // best-effort and must never throw).
+    try {
+      await logError(db, {
+        source: "api.onboard",
+        message: `onboarding persistence failed: ${(e as Error)?.message ?? e}`,
+        firm_id: typeof firmId === "number" ? firmId : null,
+      });
+    } catch {
+      // ignore — a logging failure can't be allowed to break the response
+    }
   } finally {
     await closePipelineDb(db);
   }

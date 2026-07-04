@@ -110,3 +110,32 @@ Each entry: the ambiguity, the choice, one line of reasoning. Newest at top per 
   `CASE_TYPE_CATALOG` from `firm-config.mjs` (no external deps) and does its own lightweight
   live validation; the authoritative pack validation (which pulls in `draft.mjs`) runs only in
   the server API route, so the Anthropic SDK is never bundled into the browser.
+
+## Phase 5 — Go-Live Readiness
+
+- **D5.1 Error log is best-effort and NEVER throws into the caller.** New `errors` table
+  (migration 0007, both tracks) is written by `logError` wrapped in try/catch at each failure
+  site (e.g. onboarding persistence). A logging failure can't be allowed to break the pipeline,
+  so every write path swallows its own errors. `context` accepts a string or object (JSON-stringified).
+- **D5.2 Postgres `errors` gets RLS on, NO policy — service-role only.** Same convention as
+  `demo_*` and `template_versions`: `alter table errors enable row level security;` with no
+  policy means only the trusted service role (which bypasses RLS) reads/writes; no end user ever
+  sees the raw error log. Satisfies the hard "every firm-data table has RLS" rule.
+- **D5.3 Operator alert reuses the TEST_MODE-gated mailer pattern.** `messaging/alerts.mjs`
+  mirrors digest.mjs / weekly-report.mjs: pure `buildAlert`/`renderAlert`, then `sendErrorAlert`
+  that (in TEST_MODE or without `RESEND_API_KEY`) writes HTML to `web/output/` and transmits
+  nothing. Rows are marked `alerted` even in test mode so each error fires exactly once. It is an
+  OPERATOR email (recipient `ALERT_TO`), never an SMS or client-facing path.
+- **D5.4 `/admin/status` is READ-ONLY and best-effort.** A server component with no controls that
+  send or mutate state; it reads env compliance flags (pure helpers) directly and wraps all DB
+  reads in a single try/catch that degrades to a friendly "not connected" note. It can never
+  crash on a missing DB/env — verified: with hosted Postgres missing 0007 the DB panels show the
+  fallback while the compliance panel still renders correctly.
+- **D5.5 Two complementary preflights.** `scripts/smoke.mjs` (`npm run smoke`) is a fast, no-network
+  config check (migration tracks aligned, schema builds with all 12 pilot tables, compliance flags
+  correct, key presence as WARN not FAIL); the existing `scripts/e2e-synthetic.mjs`
+  (`npm run e2e-synthetic`) is the full functional loop. Smoke FAILs (non-zero exit) only on hard
+  problems; missing keys are WARN because they're expected in offline dev/tests.
+- **D5.6 GO_LIVE gains a 10th gate: apply hosted migrations.** Local SQLite self-migrates; hosted
+  Postgres does not. Added an explicit gate to apply every `supabase/migrations/*.sql` (calling out
+  0006 + 0007) before go-live, since onboarding/error-log silently degrade without them.

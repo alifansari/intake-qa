@@ -614,3 +614,68 @@ export function listTemplateVersions(db, firmId) {
     )
     .all(firmId);
 }
+
+// All firms, for the operator status page + per-firm kill-switch controls.
+export function listFirms(db) {
+  return db
+    .prepare(
+      `SELECT id, name, kill_switch, autonomy_level, timezone
+         FROM firms ORDER BY id`
+    )
+    .all();
+}
+
+// --- Operator error log (migration 0007) -------------------------------------
+// Best-effort observability: pipeline/webhook/API failures land here so an
+// operator can see what broke without server logs. `context` is a JSON string.
+
+// Record an error. Returns the new error id. Callers wrap this in try/catch so a
+// logging failure can NEVER break the pipeline.
+export function logError(db, { source, message, context = null, firm_id = null }) {
+  const info = db
+    .prepare(
+      `INSERT INTO errors (source, message, context, firm_id)
+       VALUES (?, ?, ?, ?)`
+    )
+    .run(
+      String(source ?? "unknown"),
+      String(message ?? ""),
+      context == null ? null : typeof context === "string" ? context : JSON.stringify(context),
+      firm_id
+    );
+  return Number(info.lastInsertRowid);
+}
+
+// Most recent errors (newest first) for the status page.
+export function getRecentErrors(db, limit = 20) {
+  return db
+    .prepare(`SELECT * FROM errors ORDER BY id DESC LIMIT ?`)
+    .all(Math.max(1, Math.floor(limit)));
+}
+
+// Count errors since an ISO timestamp (for the digest / alert threshold).
+export function countRecentErrors(db, sinceIso) {
+  const row = db
+    .prepare(`SELECT COUNT(*) AS n FROM errors WHERE created_at >= ?`)
+    .get(sinceIso);
+  return row.n;
+}
+
+// Mark a set of error ids as alerted (so an operator alert fires once per row).
+export function markErrorsAlerted(db, ids = []) {
+  if (!ids.length) return 0;
+  const placeholders = ids.map(() => "?").join(",");
+  const info = db
+    .prepare(`UPDATE errors SET alerted = 1 WHERE id IN (${placeholders})`)
+    .run(...ids);
+  return Number(info.changes ?? 0);
+}
+
+// Un-alerted errors since an ISO timestamp (the alert module's work queue).
+export function getUnalertedErrors(db, sinceIso) {
+  return db
+    .prepare(
+      `SELECT * FROM errors WHERE alerted = 0 AND created_at >= ? ORDER BY id`
+    )
+    .all(sinceIso);
+}

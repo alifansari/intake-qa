@@ -10,12 +10,18 @@ This is the checklist a non-coder must finish **before** flipping `TEST_MODE` to
 about any item, **stop and ask** — do not guess.
 
 > Prove the whole pipeline still works end-to-end at any time (safely, nothing sent):
-> from the project folder run **`npm run e2e-synthetic`**. Every stage should print
-> `PASS`. That command uses fake data with `TEST_MODE=true` and never contacts anyone.
+> from `web/` run **`npm run e2e-synthetic`**. Every stage should print `PASS`. That
+> command uses fake data with `TEST_MODE=true` and never contacts anyone.
+>
+> For a fast readiness check (no pipeline run, no network), run **`npm run smoke`** from
+> `web/`: it confirms the two migration tracks match, the schema builds, and your
+> compliance flags are set correctly. You can also open **`/admin/status`** in the app for
+> a live, read-only board of the guardrails, per-firm kill switches, pending approvals, and
+> recent errors.
 
 ---
 
-## The nine gates (all must be checked)
+## The ten gates (all must be checked)
 
 ### [ ] 1. A2P 10DLC brand + campaign APPROVED
 Your business ("brand") and your texting use-case ("campaign") must be **registered and
@@ -67,6 +73,15 @@ correct document, signer fields, and firm details.
 Get **written sign-off from ethics counsel** on the flat-SaaS fee arrangement **and** the
 inbound-lead **TCPA** posture (consent basis: the caller's own inbound inquiry / existing
 business relationship). This must be **on file** before real leads are contacted.
+
+---
+
+### [ ] 10. Hosted database migrations applied
+Apply **every** file in `web/supabase/migrations/` to your hosted Supabase database (in
+order). Local SQLite migrates itself; the hosted Postgres does not. In particular confirm
+`0006_template_versions.sql` and `0007_errors.sql` are applied, or onboarding will save a
+firm but not its template pack, and the error log will be missing. `npm run smoke` checks
+that the two tracks are aligned in the repo; you must still run the SQL on the hosted DB.
 
 ---
 

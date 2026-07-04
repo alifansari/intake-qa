@@ -78,6 +78,14 @@ export const createFirm = wrap("createFirm");
 export const saveTemplateVersion = wrap("saveTemplateVersion");
 export const getLatestTemplateVersion = wrap("getLatestTemplateVersion");
 export const listTemplateVersions = wrap("listTemplateVersions");
+export const listFirms = wrap("listFirms");
+
+// Operator error log + status page.
+export const logError = wrap("logError");
+export const getRecentErrors = wrap("getRecentErrors");
+export const countRecentErrors = wrap("countRecentErrors");
+export const markErrorsAlerted = wrap("markErrorsAlerted");
+export const getUnalertedErrors = wrap("getUnalertedErrors");
 
 // --- Connection selection for the hosted pipeline ----------------------------
 

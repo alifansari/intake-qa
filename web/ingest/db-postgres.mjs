@@ -538,3 +538,62 @@ export async function listTemplateVersions(db, firmId) {
   );
   return r.rows;
 }
+
+// All firms, for the operator status page + per-firm kill-switch controls.
+export async function listFirms(db) {
+  const r = await db.query(
+    `SELECT id, name, kill_switch, autonomy_level, timezone
+       FROM firms ORDER BY id`
+  );
+  return r.rows;
+}
+
+// --- Operator error log (migration 0007) -------------------------------------
+
+export async function logError(db, { source, message, context = null, firm_id = null }) {
+  const info = await db.query(
+    `INSERT INTO errors (source, message, context, firm_id)
+     VALUES ($1, $2, $3, $4) RETURNING id`,
+    [
+      String(source ?? "unknown"),
+      String(message ?? ""),
+      context == null ? null : typeof context === "string" ? context : JSON.stringify(context),
+      firm_id,
+    ]
+  );
+  return info.rows[0].id;
+}
+
+export async function getRecentErrors(db, limit = 20) {
+  const r = await db.query(
+    `SELECT * FROM errors ORDER BY id DESC LIMIT $1`,
+    [Math.max(1, Math.floor(limit))]
+  );
+  return r.rows;
+}
+
+export async function countRecentErrors(db, sinceIso) {
+  const r = await db.query(
+    `SELECT COUNT(*) AS n FROM errors WHERE created_at >= $1`,
+    [sinceIso]
+  );
+  return Number(r.rows[0].n);
+}
+
+export async function markErrorsAlerted(db, ids = []) {
+  if (!ids.length) return 0;
+  const placeholders = ids.map((_, i) => `$${i + 1}`).join(",");
+  const r = await db.query(
+    `UPDATE errors SET alerted = true WHERE id IN (${placeholders})`,
+    ids
+  );
+  return r.rowCount ?? 0;
+}
+
+export async function getUnalertedErrors(db, sinceIso) {
+  const r = await db.query(
+    `SELECT * FROM errors WHERE alerted = false AND created_at >= $1 ORDER BY id`,
+    [sinceIso]
+  );
+  return r.rows;
+}
