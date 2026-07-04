@@ -2,9 +2,15 @@
 // web/.engine so the Vercel serverless bundle (which is rooted at web/ and cannot
 // see anything above it) can find them at runtime. See engine-root.mjs.
 //
-// This is a COPY, regenerated on every build. The originals in the repo root stay
-// the single source of truth — the calibrated scoring prompts/examples are never
-// edited or forked here. web/.engine is git-ignored.
+// web/.engine is a COMMITTED copy (see web/.gitignore note): it must always be
+// present in the checkout because Vercel's Root Directory is web/ and the deploy
+// cannot see the repo-root originals, and build/install scripts are not
+// guaranteed to run. This script REFRESHES that copy from the repo-root source
+// (the single source of truth) — but ONLY when the full source is reachable.
+//
+// CRITICAL: never delete .engine unless we can fully repopulate it. On Vercel the
+// repo-root dirs may not be reachable from where this runs; deleting the committed
+// copy there would leave .engine empty and break the deploy. So we check first.
 import { cpSync, mkdirSync, rmSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -17,17 +23,24 @@ const ENGINE = join(WEB_ROOT, ".engine");
 // Everything the demo + analysis passes read at runtime, by directory.
 const DIRS = ["lib", "scoring", "config", "analysis"];
 
+const missing = DIRS.filter((d) => !existsSync(join(REPO_ROOT, d)));
+if (missing.length > 0) {
+  // Source not reachable (e.g. web-only deploy context). Do NOT touch the
+  // committed .engine — it already holds a good copy. Leave it exactly as-is.
+  console.warn(
+    `[vendor-engine] repo-root source not reachable (missing: ${missing.join(", ")}); ` +
+      `keeping committed web/.engine as-is (no delete, no refresh).`,
+  );
+  process.exit(0);
+}
+
+// Full source present — safe to delete and refresh the committed copy.
 rmSync(ENGINE, { recursive: true, force: true });
 mkdirSync(ENGINE, { recursive: true });
 
 for (const d of DIRS) {
-  const src = join(REPO_ROOT, d);
-  if (!existsSync(src)) {
-    console.warn(`[vendor-engine] WARNING: source dir missing, skipped: ${d}`);
-    continue;
-  }
-  cpSync(src, join(ENGINE, d), { recursive: true });
+  cpSync(join(REPO_ROOT, d), join(ENGINE, d), { recursive: true });
   console.log(`[vendor-engine] copied ${d} -> .engine/${d}`);
 }
 
-console.log(`[vendor-engine] engine vendored into ${ENGINE}`);
+console.log(`[vendor-engine] engine refreshed into ${ENGINE}`);
