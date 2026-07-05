@@ -43,7 +43,6 @@ export default function FounderPage() {
         <p className="font-display text-base font-semibold text-ink">
           — Ali, Founder, Intake QA · Orange County, CA
         </p>
-        {/* TODO(Ali): confirm you want the "Stanford Philosophy, Honors, June 2025" and "24" specifics stated explicitly here; kept implicit for a skeptic-first read. */}
       </div>
 
       <div className="mt-10">

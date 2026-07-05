@@ -45,12 +45,13 @@ logic, gate logic, or the 132 tests were touched. `next build` passes; 132/132 t
 | `honesty/page.tsx` | Add anonymized real miss / false-flag examples (with $) once corpus documented. |
 | ~~`security` / `privacy` / `audit` — retention/deletion timeline~~ | ✅ RESOLVED: "deleted within 7 days of audit readout, or immediately on written request; carries over under the pilot agreement." |
 | ~~`security` — Ali's direct contact~~ | ✅ RESOLVED: ali@plaintiffops.com (security page + audit de-risk block). |
-| `security/page.tsx`, `audit/page.tsx` | Whether a **DPA/NDA template** exists or the firm's paper is used. |
+| ~~`security` / `audit` — DPA/NDA~~ | ✅ RESOLVED: "we have a DPA ready to sign and we'll sign your NDA — or work from your firm's paper." |
+| ~~`founder` — state 24 / Stanford specifics?~~ | ✅ RESOLVED: keep implicit (Ali's call); TODO removed. |
+| ~~Repo-wide — live pricing current?~~ | ✅ CONFIRMED current (Ali). |
+| `components/marketing/FounderNote.tsx` | Headshot received — **upload to `web/public/founder.jpg`**, then swap the monogram for `<Image>` (not wired yet, to avoid a broken link). |
+| `honesty/page.tsx`, homepage teaser | **Test corpus** (N + composition + date) — still pending (Ali doesn't have it yet); publish precision/recall only with the corpus label. |
 | `security/page.tsx` | Intake QA's **own attestations**, if any (else keep "certs belong to subprocessors"). |
-| `compliance/page.tsx` | The firm's **§632 consent/disclosure process**; and the exact **CCPA "service provider"** contract language in the DPA. |
-| `founder/page.tsx` | Whether to state "Stanford Philosophy, Honors, June 2025" and "24" explicitly (kept implicit for a skeptic-first read). |
-| `components/marketing/FounderNote.tsx` | Drop a real headshot at `/public/founder.jpg`. |
-| Repo-wide | Live pricing figures ($1,500 / $500-case, etc.) and A2P registration status still current. |
+| `compliance/page.tsx` | The firm's **§632 consent/disclosure process**; and the exact **CCPA "service provider"** language in the DPA. |
 
 ## Notes
 - `ScoreBandChart` / `DecayCurve` components remain in the repo but are **no longer used** (removed from Honesty because their numbers were unprovenanced). Safe to delete later.
