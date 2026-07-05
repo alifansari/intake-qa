@@ -31,6 +31,11 @@ export const AUDIT_PRICE_NUM = 500;
 export const CTA_PRIMARY = "Book your $500 Leak Audit";
 export const AUDIT_CREDIT_LINE =
   "The $500 Leak Audit fee is credited in full against your first subscription invoice. Subscribe, and the audit is effectively free. Don't subscribe, and you keep the full report — no pitch, no obligation.";
+// Stripe Payment Link for the one-time $500 Leak Audit fee (Option A: no-code).
+// TODO(Ali): paste the Payment Link URL from Stripe here — Products → "Leak Audit"
+// → $500 one-time → Create payment link. Until it's set, the pay button falls back
+// to booking by email, so the page is never broken.
+export const AUDIT_PAYMENT_URL: string = "";
 export const AUDIT_WHY_PAID =
   "The audit costs $500 because it's real diagnostic work with real deliverables — not a sales call. A serious firm and a serious analysis both put something on the table. And because the $500 is credited in full to your first invoice, it costs a subscribing firm nothing on net. If we don't find enough to justify moving forward, you keep the report and we part as friends.";
 // TODO(Ali): wire the actual $500 collection/booking step — presented as an offer
