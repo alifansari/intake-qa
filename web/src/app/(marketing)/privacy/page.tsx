@@ -13,10 +13,11 @@ export default function PrivacyPage() {
       <p className="eyebrow">Legal</p>
       <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink">Privacy</h1>
       <p className="mt-6 text-ink-muted">
-        We minimize what we hold: call audio is deleted at transcription, transcripts are purged on
-        a rolling 72-hour window, and data is encrypted in transit and at rest with per-firm
-        isolation. Our AI subprocessor does not train on your data, and zero-data-retention terms are
-        available. A BAA/DPA is available on request.
+        We minimize what we hold. We delete audio and transcripts on a set schedule
+        {/* TODO(Ali): confirm exact audio + transcript retention/deletion timeline. */}
+        {" "}<span className="text-faint">[exact timeline: to be confirmed]</span>, and data is
+        encrypted in transit and at rest with per-firm isolation. Our scoring runs on Anthropic&apos;s
+        commercial API, whose terms don&apos;t use your data to train models. A DPA is available.
       </p>
       <p className="mt-4 text-ink-muted">
         For the full subprocessor list and data-handling posture, see{" "}

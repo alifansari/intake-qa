@@ -9,21 +9,22 @@ export function FounderNote({ full = false }: { full?: boolean }) {
         className="flex h-20 w-20 flex-none items-center justify-center rounded-full bg-navy font-display text-2xl font-semibold text-white"
         aria-hidden="true"
       >
-        IQ
+        A
       </div>
+      {/* TODO(Ali): drop a real headshot at /public/founder.jpg and swap the monogram for <Image>. */}
       <div className="text-sm leading-relaxed text-ink-muted">
         <p>
           {full
-            ? "I handled intake myself. I watched signable cases — real injured people who called ready to hire us — slip away because a call went to voicemail, or a rep fumbled it, or nobody followed up. The marketing money was already spent; the case just walked to the next firm on Google."
-            : "I handled intake myself, and watched signable cases slip away because a call went to voicemail or the follow-up never happened. The marketing was already paid for — the case just walked to the firm across the street."}
+            ? "I'm Ali. I ran intake at a personal-injury firm before I built this. I watched signable cases walk out the door — real injured people who called ready to hire us — because a call went to voicemail, or the follow-up never happened, or the caller reached the next firm on Google before we called back. The marketing money was already spent. The case just went across the street."
+            : "I'm Ali. I ran intake at a PI firm before I built this, and I watched signable cases walk because a call went to voicemail or the follow-up never happened. The marketing money was already spent — the case just went across the street."}
         </p>
         <p className="mt-3">
-          I built Intake QA to be the quality-control and recovery system I wished I&apos;d had:
-          score every call, catch the leaks, and hand the team a compliant way to win them back —
-          with a human approving every step.
+          Intake QA is the quality-control and recovery system I wanted when I had the job: score
+          every call, catch the ones worth a callback, and draft a follow-up your team approves
+          before it sends.
         </p>
         <p className="mt-4 font-display text-base font-semibold text-ink">
-          — Founder, Intake QA
+          — Ali, Founder, Intake QA · Orange County, CA
         </p>
       </div>
     </div>

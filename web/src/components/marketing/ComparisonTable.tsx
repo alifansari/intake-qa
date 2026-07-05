@@ -9,7 +9,7 @@ const ROWS: [string, [boolean, boolean, boolean, boolean]][] = [
   ["Detects signable cases your team let slip", [false, false, false, true]],
   ["Compliant win-back message drafting", [false, false, true, true]],
   ["A human approves every send", [false, true, false, true]],
-  ["Flat per-case pricing (Rule 5.4-safe)", [false, false, false, true]],
+  ["Flat per-case pricing (not fee-sharing, not per-lead)", [false, false, false, true]],
   ["Dollar-quantified leak audit report", [false, false, false, true]],
   ["Answers the phone live", [false, true, false, false]],
 ];
