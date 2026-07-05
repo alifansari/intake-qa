@@ -50,12 +50,23 @@ export default function PricingPage() {
             <p className="tnum mt-2 font-display text-2xl font-semibold text-ink">{p.price}</p>
             <p className="mt-1 text-xs font-medium uppercase tracking-wide text-faint">{p.volume}</p>
             <p className="mt-3 flex-1 text-sm text-ink-muted">{p.sub}</p>
-            <Link
-              href="/audit"
-              className={`mt-6 inline-flex justify-center rounded-pill px-5 py-2.5 text-sm font-semibold ${p.featured ? "bg-accent text-white hover:bg-accent-hover" : "border border-hairline text-ink hover:border-accent"}`}
-            >
-              {CTA_PRIMARY}
-            </Link>
+            {p.checkoutUrl ? (
+              <a
+                href={p.checkoutUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`mt-6 inline-flex justify-center rounded-pill px-5 py-2.5 text-sm font-semibold ${p.featured ? "bg-accent text-white hover:bg-accent-hover" : "border border-hairline text-ink hover:border-accent"}`}
+              >
+                Subscribe · {p.price}
+              </a>
+            ) : (
+              <Link
+                href="/audit"
+                className={`mt-6 inline-flex justify-center rounded-pill px-5 py-2.5 text-sm font-semibold ${p.featured ? "bg-accent text-white hover:bg-accent-hover" : "border border-hairline text-ink hover:border-accent"}`}
+              >
+                {CTA_PRIMARY}
+              </Link>
+            )}
           </div>
         ))}
       </div>
