@@ -17,7 +17,7 @@ const STEPS: [string, string, string][] = [
   ["Compliant win-back drafted", "Claude drafts a ≤320-char message that names your firm and includes “Reply STOP”.", "A banned-content guard blocks guarantees, legal advice, and fee claims."],
   ["A human approves", "Someone on your team approves, edits, or rejects every message before anything sends.", "No autonomous sends — ever, in pilot."],
   ["7 compliance gates", "Each approved message passes seven gates, in order, before it can leave.", "Shown in full below — the first failed gate stops the message."],
-  ["Outcome tracked → billed flat", "Signed, booked, lost — the outcome is recorded, and you're billed a flat fee per recovered case.", "Never a percentage of your fee, never per lead (Cal. B&P §6152)."],
+  ["Outcome tracked", "Signed, booked, or lost — the outcome is recorded so you can see what the workflow returned.", "You pay a flat monthly subscription for the analysis — never per case, per client, or per recovered dollar (Cal. B&P §§6151–6152)."],
 ];
 
 export default function HowItWorksPage() {
@@ -48,14 +48,21 @@ export default function HowItWorksPage() {
         ))}
       </ol>
 
-      {/* Staff-facing reassurance (Change 10) */}
+      {/* Staff-facing reassurance — the intake manager is the champion, not the target */}
       <section className="mt-14 rounded-card border border-hairline bg-surface p-6">
-        <h2 className="font-display text-xl font-semibold text-ink">What your intake team sees</h2>
+        <h2 className="font-display text-xl font-semibold text-ink">For the intake team: this is on your side</h2>
         <p className="mt-2 max-w-[70ch] text-ink-muted">
-          We score the call, not the person. Every flag is tied to a specific moment and a coaching
-          note, not a verdict on your staff. Your intake team sees their own numbers first, before
-          anyone else does. There are no punitive defaults — the point is to get good cases back and
-          make the next call better.
+          We score the call and the process, not the individual&apos;s job security. When the phones
+          spike after a campaign, even a great intake team can&apos;t catch every callback — that&apos;s
+          a staffing-and-timing problem, not a people problem, and the report says so. Scoring 100% of
+          calls replaces the unfair 2% spot-check with an even standard for everyone.
+        </p>
+        <p className="mt-3 max-w-[70ch] text-ink-muted">
+          It&apos;s also proof of workload. The report documents how many PNCs the team is actually
+          handling and where the volume justifies another hire — the case an office manager usually
+          has to make from memory. Every flag ties to a specific moment with a coaching note, the
+          team sees its own numbers first, and a person on staff approves every callback. It protects
+          careers; it doesn&apos;t threaten them.
         </p>
       </section>
 

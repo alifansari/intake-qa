@@ -6,25 +6,35 @@ import { ComparisonTable } from "@/components/marketing/ComparisonTable";
 import { GuaranteeBadge } from "@/components/marketing/GuaranteeBadge";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 import { FounderNote } from "@/components/marketing/FounderNote";
+import {
+  STAT_ANSWERED_LIVE,
+  STAT_UNREACHABLE,
+  STAT_SPEED_TO_LEAD,
+  STAT_PI_CLICK_COST,
+  ACCOUNTABLE_PARTY_LINE,
+  COHORT_MIN,
+  COHORT_MAX,
+  GUARANTEE_THRESHOLD,
+} from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "Intake QA — Recover the signable cases your intake let walk",
+  title: "Intake QA — The cases you already paid to get, and didn't sign",
   description:
-    "Score 100% of your intake calls against a calibrated PI rubric, see the signable cases that walked, and win them back. Free audit for Southern California PI firms.",
+    "Intake QA scores every recorded intake call on a calibrated PI rubric, shows you the signable callers who didn't convert, and drafts a compliant win-back your team approves. Free audit for Southern California PI firms.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "You already paid for these cases. Go get them back.",
+    title: "The cases you already paid to get — and didn't sign.",
     description:
-      "Score every intake call, see the signable cases that walked, and win them back. Free Intake Quality Audit.",
-    images: ["/og?title=You+already+paid+for+these+cases"],
+      "Score every intake call, see the signable cases that didn't convert, and win them back. Free Intake Quality Audit.",
+    images: ["/og?title=The+cases+you+already+paid+to+get"],
   },
 };
 
 const STATS = [
-  { value: "40%", label: "of firms answered the phone when a prospective client called — down from 56% in 2019", source: "Clio 2024 Legal Trends Report (Lux secret-shopper study of 500 US firms)" },
-  { value: "21×", label: "better odds of qualifying a lead if you respond in 5 minutes instead of 30", source: "2007 MIT / InsideSales.com Lead Response study, Dr. James Oldroyd" },
-  { value: "$2,500–$3,000", label: "what PI firms typically pay in ad spend to sign a single case through paid search", source: "National Law Review, 2025" },
-  { value: "$26,501", label: "average auto bodily-injury liability claim (2023)", source: "Insurance Information Institute (NAIC data)" },
+  STAT_ANSWERED_LIVE,
+  STAT_UNREACHABLE,
+  STAT_SPEED_TO_LEAD,
+  STAT_PI_CLICK_COST,
 ];
 
 const STEPS = [
@@ -36,7 +46,7 @@ const STEPS = [
   "A human on your team approves every send",
   "7 compliance gates enforced in order",
   "Outcome tracked",
-  "You’re billed a flat fee per case — never a slice of the fee",
+  "You pay a flat monthly subscription — never per case, per client, or per recovered dollar",
 ];
 
 function CTA({ children = "Run your free Intake Quality Audit", href = "/audit" }: { children?: string; href?: string }) {
@@ -61,13 +71,13 @@ export default function HomePage() {
       <Section className="pt-16 pb-14 sm:pt-24">
         <p className="eyebrow">Revenue recovery for personal injury firms</p>
         <h1 className="mt-3 max-w-[18ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
-          You already paid for these cases. Go get them back.
+          The cases you already paid to get, and didn&apos;t sign.
         </h1>
         <p className="mt-6 max-w-[64ch] text-lg text-ink-muted">
-          Intake QA scores every recorded intake call against a fixed rubric, flags the signable
-          callers your team didn&apos;t sign, and hands you a follow-up your staff approves before
-          anything goes out. You spent the marketing money to make the phone ring. This is how you
-          stop paying for calls you never closed.
+          Intake QA scores every recorded intake call on a calibrated PI rubric, shows you the
+          signable PNCs that didn&apos;t convert, and drafts a compliant win-back your team approves
+          before anything sends. You pay a flat monthly subscription — never a share of a fee, never
+          per signed case.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-5">
           <CTA />
@@ -76,8 +86,8 @@ export default function HomePage() {
           </Link>
         </div>
         <p className="mt-4 text-sm text-faint">
-          Upload 10 recent calls. Get a dollar figure in minutes. No texts sent, ever, without your
-          approval.
+          Upload up to 10 recorded calls. Get a dollar figure in minutes. Nothing is ever texted
+          without your written approval.
         </p>
       </Section>
 
@@ -86,19 +96,20 @@ export default function HomePage() {
         <StatBar stats={STATS} />
       </Section>
 
-      {/* PROBLEM */}
+      {/* PROBLEM — population-level, never an accusation about this firm */}
       <Section className="py-14">
         <div className="max-w-[68ch]">
           <h2 className="font-display text-3xl font-semibold text-ink text-balance">
-            The phone rang. Nobody signed. You still paid for it.
+            Every firm has calls that don&apos;t turn into cases.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
-            You spend a fortune to make an injured person dial your office. Then the call goes to
-            voicemail, or the intake team misses the moment, or the follow-up never happens.
-            Clio&apos;s secret shoppers reached a live person at only 40% of firms. The caller dials
-            the next name on Google, and once they&apos;ve talked to another firm your odds of
-            signing them fall off a cliff. You&apos;re not short on leads. You&apos;re losing good
-            cases after the phone rings — and those are the ones worth going back for.
+            You spend real money to make an injured person dial your office. Some of those callers
+            don&apos;t sign on the first call, and that&apos;s true at every firm. A call lands during
+            a lunch rush. A voicemail doesn&apos;t get returned before the caller reaches the next
+            name on Google. Clio&apos;s secret shoppers found 48% of firms were essentially
+            unreachable by phone. When the phones spike after a campaign, even a great intake team
+            can&apos;t catch every callback — that&apos;s a staffing-and-timing problem, not a people
+            problem. The signable cases that slip through are the ones worth going back for.
           </p>
         </div>
       </Section>
@@ -120,7 +131,7 @@ export default function HomePage() {
         <p className="mt-5 max-w-[68ch] text-sm text-ink-muted">
           Texting goes live the moment your A2P 10DLC registration clears — and nothing sends
           without your approval even then. Until then, the audit and callback workflow already
-          recover cases — no texting required.
+          recover cases, no texting required.
         </p>
       </Section>
 
@@ -132,9 +143,9 @@ export default function HomePage() {
           </h2>
           <p className="mt-4 max-w-[64ch] text-white/75">
             Upload up to 10 recent intake calls. We&apos;ll show you, in dollars, how much signable
-            fee revenue walked — with a per-call breakdown, the evidence behind each flag, and a
-            watermarked sample of the win-back message we&apos;d send. You get a shareable report.
-            You decide what to do with it.
+            fee revenue didn&apos;t convert — with a per-call breakdown, the evidence behind each
+            flag, and a watermarked sample of the win-back message we&apos;d send. You get a shareable
+            report. You decide what to do with it.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-5">
             <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
@@ -159,7 +170,7 @@ export default function HomePage() {
             scores above the threshold, wasn&apos;t converted, and is still inside the callback
             window. On the calibration page we describe that method and publish the model&apos;s
             failure modes — the calls it missed and the ones it wrongly flagged.
-            {/* TODO(Ali): confirm test-corpus size/composition and current precision/recall before publishing any accuracy percentage. Until then, method only — no naked precision/recall figure. */}
+            {/* TODO(Ali): publish precision/recall only with the test-corpus label (see site-constants TEST_CORPUS_*). No naked percentage. */}
           </p>
           <Link href="/honesty" className="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-hover">
             See the calibration data →
@@ -187,15 +198,17 @@ export default function HomePage() {
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <p className="max-w-[60ch] rounded-card border border-hairline bg-surface p-5 text-sm leading-relaxed text-ink-muted">
             This isn&apos;t call tracking and it isn&apos;t a CRM feature. Tools like CallRail and
-            Filevine&apos;s Lead Docket score and route leads at the moment of capture. Intake QA is
+            Filevine&apos;s Lead Docket score and route callers at the moment of capture. Intake QA is
             post-call recovery: it scores 100% of your calls against a calibrated PI rubric, flags
             the signable ones that didn&apos;t convert, and runs the callback/win-back workflow with
-            proof of what came back — priced flat per recovered case, never a share of the fee.
+            proof of what came back — on a flat monthly subscription, never a share of the fee, never
+            per signed case.
           </p>
           <p className="max-w-[60ch] rounded-card border border-hairline bg-surface p-5 text-sm leading-relaxed text-ink-muted">
-            Why not have your best person spot-check calls? Spot-checking 10% of calls means about
-            90% of the fumbles are never seen. Scoring 100% misses none — and your reviewer&apos;s
-            time goes to the flagged calls worth a callback.
+            Why not have your best person spot-check calls? Reviewing 10% of calls means about 90% of
+            the misses are never seen — and spot-checking singles out whoever gets sampled. Scoring
+            100% is fairer and misses none, and your reviewer&apos;s time goes to the flagged calls
+            worth a callback.
           </p>
         </div>
       </Section>
@@ -207,9 +220,10 @@ export default function HomePage() {
             If we don&apos;t find it, you don&apos;t pay.
           </h2>
           <p className="mt-5 mb-6 text-lg leading-relaxed text-ink-muted">
-            The find-it-free guarantee: if your Intake Quality Audit doesn&apos;t identify at least
-            $25,000 in recoverable signable fees, the audit costs you nothing and there&apos;s no
-            pitch. We only want firms we can actually make money for.
+            The find-it-free guarantee: if your Intake Quality Audit doesn&apos;t identify at least{" "}
+            {GUARANTEE_THRESHOLD} in recoverable signable fees, the audit costs you nothing and
+            there&apos;s no pitch. We only want firms we can actually make money for.
+            {/* TODO(Ali): confirm the guarantee threshold and terms. */}
           </p>
           <GuaranteeBadge />
         </div>
@@ -222,9 +236,9 @@ export default function HomePage() {
         </h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {[
-            ["Flat fee per recovered case", "Never a percentage of the recovery, never a per-lead fee — so it isn't fee-sharing and it isn't a runner/capper arrangement (Cal. Bus. & Prof. Code §6152). It fits the flat-fee carve-out in California's AB 931 (2025)."],
-            ["We only help you answer your own callers", "Responding to someone who already called your firm is not solicitation under California Rule 7.3. We never contact strangers on your behalf."],
-            ["Your staff approves every send", "The AI drafts; a person at your firm sends. Nothing goes out on its own (Cal. Rule 5.3; ABA Formal Op. 512). Your callers' words stay confidential prospective-client information (Rule 1.18) and are never used to train AI."],
+            ["Flat monthly fee — never a share of a fee, never per signed case", "Our compensation doesn't change whether you sign zero cases or fifty, so it can't be characterized as paying an agent to procure or recover business under Cal. B&P §§6151–6152 — now backed by SB 37's private right of action. You pay for analysis, like your CRM or answering service."],
+            ["We only help you answer your own callers", "Responding to someone who already called your firm is treated differently from soliciting a stranger under California Rule 7.3. We never contact strangers on your behalf."],
+            ["Your staff approves every send", "The AI drafts; a person at your firm sends. Nothing goes out on its own (Cal. Rule 5.3; CA State Bar GenAI guidance). Your callers' words stay confidential prospective-client information (Rule 1.18) and are never used to train AI."],
           ].map(([t, d]) => (
             <Link key={t} href="/compliance" className="rounded-card border border-hairline bg-surface p-6 hover:border-accent">
               <p className="font-display text-lg font-semibold text-ink">{t}</p>
@@ -233,6 +247,12 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
+        <p className="mt-6 max-w-[80ch] text-sm text-ink-muted">
+          {ACCOUNTABLE_PARTY_LINE}{" "}
+          <Link href="/security" className="font-semibold text-accent hover:text-accent-hover">
+            See how your data is handled →
+          </Link>
+        </p>
       </Section>
 
       {/* FOUNDER */}
@@ -250,7 +270,7 @@ export default function HomePage() {
         <PilotCohortBanner />
         <div className="mt-10 max-w-[68ch]">
           <h2 className="font-display text-3xl font-semibold text-ink text-balance">
-            Founding cohort: 5 Southern California PI firms.
+            A founding cohort of {COHORT_MIN}–{COHORT_MAX} Southern California PI firms.
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">
             Free 30-day pilot. Find-it-free guarantee. Cancel anytime. We&apos;ll even work your first

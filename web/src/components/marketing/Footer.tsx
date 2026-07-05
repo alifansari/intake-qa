@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { COPYRIGHT_YEAR } from "@/lib/site-constants";
 
 const LINKS = [
   { href: "/security", label: "Security" },
@@ -18,8 +19,8 @@ export function Footer() {
           <div>
             <p className="font-display text-lg font-semibold text-ink">Intake&nbsp;QA</p>
             <p className="mt-1 max-w-md text-sm text-ink-muted">
-              Revenue recovery for personal-injury firms. Score every intake call, recover the
-              signable cases your team let slip.
+              Revenue recovery for personal-injury firms. Score every intake call, and win back the
+              signable cases that didn&apos;t convert.
             </p>
           </div>
           <Link
@@ -41,7 +42,7 @@ export function Footer() {
         </nav>
         <p className="mt-6 max-w-[80ch] text-xs text-faint">
           This is not legal advice. Intake QA gives PI firms tools to run their own compliant
-          follow-up; your firm and its counsel make the final call on ethics and consent. © {new Date().getFullYear()} Intake QA.
+          follow-up; your firm and its counsel make the final call on ethics and consent. © {COPYRIGHT_YEAR} Intake QA.
         </p>
       </div>
     </footer>

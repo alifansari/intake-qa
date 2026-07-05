@@ -5,17 +5,17 @@
 // side by side. Client-only, no network, no email gate.
 
 import { useState } from "react";
+import { REF_MONTHLY_USD } from "@/lib/site-constants";
 
 const usd = (n: number) =>
   "$" + Math.round(n).toLocaleString("en-US");
 
-// Conservative vs optimistic: what share of leaked signable cases the workflow
-// realistically wins back. Shown to the user as captions.
+// Conservative vs optimistic: what share of the signable cases that didn't
+// convert the workflow realistically wins back. Shown to the user as captions.
 const CONSERVATIVE = 0.2;
 const OPTIMISTIC = 0.4;
-// Core plan reference cost.
-const BASE_YR = 1500 * 12;
-const PER_CASE = 500;
+// Reference cost is a FLAT monthly subscription — never per recovered case.
+const BASE_YR = REF_MONTHLY_USD * 12;
 
 function Field({
   label,
@@ -51,13 +51,13 @@ function Field({
 function Result({ tone, rate, casesLost, avgFee }: { tone: string; rate: number; casesLost: number; avgFee: number }) {
   const recoveredCases = casesLost * rate;
   const recoveredFees = recoveredCases * avgFee;
-  const cost = BASE_YR + PER_CASE * recoveredCases;
+  const cost = BASE_YR; // flat annual subscription, independent of recoveries
   const net = recoveredFees - cost;
   const paysInDays = recoveredFees > 0 ? Math.max(1, Math.round((cost / recoveredFees) * 365)) : null;
   return (
     <div className="flex flex-col gap-2 rounded-card border border-hairline bg-canvas p-5">
       <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{tone}</p>
-      <p className="text-xs text-faint">Recovers {Math.round(rate * 100)}% of leaked signable cases</p>
+      <p className="text-xs text-faint">Wins back {Math.round(rate * 100)}% of the signable cases that didn&apos;t convert</p>
       <dl className="mt-1 flex flex-col gap-1.5 text-sm">
         <div className="flex justify-between"><dt className="text-ink-muted">Cases won back / yr</dt><dd className="tnum font-semibold text-ink">{recoveredCases.toFixed(1)}</dd></div>
         <div className="flex justify-between"><dt className="text-ink-muted">Fees recovered / yr</dt><dd className="tnum font-semibold text-accent">{usd(recoveredFees)}</dd></div>
@@ -99,8 +99,9 @@ export function ROICalculator() {
         <Result tone="Optimistic" rate={OPTIMISTIC} casesLost={casesLost} avgFee={avgFee} />
       </div>
       <p className="mt-3 text-xs text-faint">
-        Estimates on your own inputs, at illustrative 20% / 40% recovery rates. Reference cost: Core
-        plan ($1,500/mo + $500 per recovered case). Not a guarantee.
+        Estimates on your own inputs, at illustrative 20% / 40% recovery rates. Reference cost: a
+        flat monthly subscription (illustrative ${REF_MONTHLY_USD.toLocaleString("en-US")}/mo), never
+        a share of any recovery. Not a guarantee.
       </p>
     </div>
   );
