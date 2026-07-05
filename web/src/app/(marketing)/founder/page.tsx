@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
+import { CTA_PRIMARY } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "Why I built Intake QA | Plaintiff Ops",
@@ -41,15 +42,19 @@ export default function FounderPage() {
           your team should have signed.
         </p>
         <p>
-          Intake QA is the quality-control and recovery system I wanted when I had the job. It scores
-          every call, catches the ones worth a callback, and drafts a follow-up your team approves
-          before it sends.
+          Here&apos;s what I kept coming back to: the enemy was never the intake team. It was the
+          silence after the call — the voicemail nobody returned, the &ldquo;let me talk to my
+          spouse&rdquo; that never got a follow-up. Firms obsess over generating the next lead and
+          stay blind to the ones they already paid for and let walk. Nobody was measuring what
+          happened after the phone rang. So I built the category that does: Case Acquisition
+          Intelligence — read every call, detect the signable ones that didn&apos;t sign, put a
+          dollar figure on what walked, and hand your staff a compliant play to win it back.
         </p>
         <p>
-          It&apos;s free for the first few firms because I need three to five Southern California PI
-          firms to use it on real calls and tell me where it&apos;s wrong. You&apos;d get direct
-          access to me and a say in what it becomes. That&apos;s the whole deal. No sales team, no
-          logos to show you yet — just the work.
+          The founding cohort is small on purpose — three to five Southern California PI firms who
+          use it on real calls and tell me where it&apos;s wrong. You&apos;d get direct access to me
+          and a say in what the category becomes. No sales team, no logos to show you yet — just the
+          work.
         </p>
         <p className="font-display text-base font-semibold text-ink">
           — Ali, Founder, Intake QA · Orange County, CA
@@ -64,7 +69,7 @@ export default function FounderPage() {
           href="/audit"
           className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
         >
-          Run your free Intake Quality Audit
+          {CTA_PRIMARY}
         </Link>
       </div>
     </div>

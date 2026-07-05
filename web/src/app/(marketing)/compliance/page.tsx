@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ComplianceGateDiagram } from "@/components/marketing/ComplianceGateDiagram";
-import { ACCOUNTABLE_PARTY_LINE } from "@/lib/site-constants";
+import { ACCOUNTABLE_PARTY_LINE, CTA_PRIMARY } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "The compliance case for Intake QA (California)",
@@ -63,6 +63,12 @@ export default function CompliancePage() {
           capping framework, now backed by this private right of action. Flat monthly pricing keeps
           the question from arising.
         </p>
+        <p>
+          The same logic governs our $50,000 Find-It Guarantee and the $500 audit fee. Both attach to
+          a <em>deliverable</em> — what the analysis identifies in your own calls — and never to any
+          recovery. The guarantee triggers on estimated value found in your calls, not on fees you
+          win back, so it creates no outcome-fee arrangement and no earnings claim.
+        </p>
       </Sec>
 
       <Sec rule="B&P §§6151–6152 · runner / capper" title="We don't find you clients. We help you answer the ones who already called.">
@@ -84,11 +90,11 @@ export default function CompliancePage() {
         <p>
           Rule 7.3 governs solicitation. The nuance that matters: a communication made in response to
           the prospective client&apos;s own inquiry is treated differently from an unsolicited
-          approach to a stranger. Win-back texts go only to people who already called your firm — you
-          are responding to an inbound inquiry, not soliciting a stranger. Written communications must
-          still honor a recipient&apos;s stated wish not to be contacted and must avoid intrusion,
+          approach to a stranger. Save-protocol texts go only to people who already called your firm —
+          you are responding to an inbound inquiry, not soliciting a stranger. Written communications
+          must still honor a recipient&apos;s stated wish not to be contacted and must avoid intrusion,
           coercion, or harassment; every draft includes an opt-out (&ldquo;Reply STOP&rdquo;) and human
-          approval. We don&apos;t claim win-back SMS is categorically outside 7.3 — we give you the
+          approval. We don&apos;t claim the save protocol is categorically outside 7.3 — we give you the
           controls, and your counsel makes the call.
         </p>
         <p className="text-sm text-faint">
@@ -162,10 +168,12 @@ export default function CompliancePage() {
           express consent,&rsquo;&rdquo; and the FCC declined to challenge it and reinstated the prior
           rules. That heightened lead-gen consent regime is not in force, and bundled consent is again
           permissible. The TCPA still requires prior express written consent for marketing autodialed
-          or prerecorded texts, and revocation must be honored — which is exactly why win-back SMS is
-          compliance-gated and human-approved. Win-back texts go to your firm&apos;s own prior
-          callers, include an opt-out, and send only after A2P 10DLC registration clears and a person
-          at your firm approves. Your counsel should confirm your consent basis.
+          or prerecorded texts, and revocation must be honored — which is exactly why the same-day
+          save protocol is compliance-gated and human-approved. Save-protocol texts go to your
+          firm&apos;s own prior callers, include an opt-out, and send only after A2P 10DLC
+          registration clears and a person at your firm approves. Your counsel should confirm your
+          consent basis.
+          {/* TODO(Ali): confirm current A2P 10DLC registration status/date. */}
         </p>
       </Sec>
 
@@ -195,7 +203,7 @@ export default function CompliancePage() {
 
       <div className="mt-8 flex flex-wrap gap-4">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Run your free Intake Quality Audit
+          {CTA_PRIMARY}
         </Link>
         <Link href="/security" className="inline-flex rounded-pill border border-hairline px-6 py-3 text-sm font-semibold text-ink hover:border-accent">
           See how your data is handled

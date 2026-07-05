@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ComplianceGateDiagram } from "@/components/marketing/ComplianceGateDiagram";
+import {
+  CTA_PRIMARY,
+  STAT_SPEED_CONTACT,
+  STAT_SPEED_TO_LEAD,
+  STAT_RESPONSE_TIME,
+  STAT_LA_SPANISH,
+} from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "How it works — from recording to recovered case | Intake QA",
+  title: "How it works — what lands on your desk | Intake QA",
   description:
-    "Upload your intake calls, get a scored report of the signable cases that walked, then run the callback workflow with human approval on every send.",
+    "Case Acquisition Intelligence in practice: signable-case detection on every call, a staff-sent same-day save protocol, and a monthly missed-revenue statement that reads like a P&L for your intake.",
   alternates: { canonical: "/how-it-works" },
 };
 
@@ -13,19 +20,20 @@ const STEPS: [string, string, string][] = [
   ["Call arrives", "Every intake call comes in through your existing phone system or a manual upload.", "Nothing changes about how your clients reach you."],
   ["Transcribed", "AssemblyAI produces a speaker-separated transcript.", "The audio is deleted the moment the transcript exists."],
   ["Scored 0–100", "Claude scores the call against a frozen, calibrated rubric with gold-standard examples.", "The rubric is version-locked — scores don't drift under you."],
-  ["Signable, not converted — flagged", "A case is flagged when signability ≥60, it wasn't converted, and it's within 72 hours.", "Pure, inspectable logic — not a black box."],
-  ["Compliant win-back drafted", "Claude drafts a ≤320-char message that names your firm and includes “Reply STOP”.", "A banned-content guard blocks guarantees, legal advice, and fee claims."],
+  ["Signable-case detection", "A case is flagged when signability ≥60, it wasn't converted, and it's within 72 hours.", "Pure, inspectable logic — not a black box."],
+  ["Same-day save protocol drafted", "We draft a ≤320-char follow-up that names your firm and includes “Reply STOP” — a follow-up your staff reviews and sends, never automated.", "A banned-content guard blocks guarantees, legal advice, and fee claims."],
   ["A human approves", "Someone on your team approves, edits, or rejects every message before anything sends.", "No autonomous sends — ever, in pilot."],
   ["7 compliance gates", "Each approved message passes seven gates, in order, before it can leave.", "Shown in full below — the first failed gate stops the message."],
-  ["Outcome tracked", "Signed, booked, or lost — the outcome is recorded so you can see what the workflow returned.", "You pay a flat monthly subscription for the analysis — never per case, per client, or per recovered dollar (Cal. B&P §§6151–6152)."],
+  ["Missed-revenue statement updates", "Your monthly statement records signable calls analyzed, cases that signed, cases that walked, estimated missed fee value, and saves recovered.", "One artifact that reads like a P&L for your intake — not another dashboard to log into."],
+  ["Flat monthly subscription", "You pay a flat monthly fee tiered by call volume — the same whether you sign zero cases or fifty.", "Never per case, per client, or per recovered dollar (Cal. B&P §§6151–6152)."],
 ];
 
 export default function HowItWorksPage() {
   return (
     <div className="mx-auto max-w-[1120px] px-5 py-16">
       <p className="eyebrow">How it works</p>
-      <h1 className="mt-3 max-w-[20ch] font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink text-balance sm:text-5xl">
-        How Intake QA recovers cases — all 8 steps.
+      <h1 className="mt-3 max-w-[22ch] font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink text-balance sm:text-5xl">
+        What lands on your desk — all 8 steps.
       </h1>
 
       <ol className="mt-12 flex flex-col gap-4">
@@ -77,14 +85,29 @@ export default function HowItWorksPage() {
         <p className="mt-2 text-sm text-faint">That&apos;s the whole lift.</p>
       </section>
 
+      {/* Speed-to-lead measurement (from your own recordings) */}
+      <section className="mt-6 rounded-card border border-hairline bg-surface p-6">
+        <h2 className="font-display text-xl font-semibold text-ink">We measure speed, from your own recordings</h2>
+        <p className="mt-2 max-w-[72ch] text-ink-muted">
+          We measure time-to-answer and time-to-callback on your own calls. The research is blunt:
+          contacting a web lead within 5 minutes vs. 30 makes you{" "}
+          <b className="text-ink">{STAT_SPEED_CONTACT.value}</b> more likely to reach them and{" "}
+          <b className="text-ink">{STAT_SPEED_TO_LEAD.value}</b> more likely to qualify them
+          ({STAT_SPEED_CONTACT.source}), yet the average business takes{" "}
+          <b className="text-ink">{STAT_RESPONSE_TIME.value}</b> to respond and 23% never do
+          ({STAT_RESPONSE_TIME.source}).
+        </p>
+      </section>
+
       {/* Spanish-language intake (SoCal edge) */}
       <section className="mt-6 rounded-card border border-hairline bg-surface p-6">
-        <h2 className="font-display text-xl font-semibold text-ink">Spanish-language calls, scored too</h2>
-        <p className="mt-2 max-w-[70ch] text-ink-muted">
-          Intake QA scores and drafts in English and Spanish. In Southern California that&apos;s not
-          a nice-to-have: Latinos were 41% of California&apos;s population by 2024 (Public Policy
-          Institute of California; Pew Research Center, 2025), and Spanish-speaking callers are easy
-          to lose at intake. Ali built the scoring against real calls in both languages.
+        <h2 className="font-display text-xl font-semibold text-ink">Spanish-language calls, analyzed natively</h2>
+        <p className="mt-2 max-w-[72ch] text-ink-muted">
+          We analyze Spanish-language intake calls natively — not translated afterward. In Los
+          Angeles County, roughly {STAT_LA_SPANISH.value} of residents speak Spanish at home
+          ({STAT_LA_SPANISH.source}), and a signable Spanish-speaking caller is worth exactly as much
+          as any other. Ali is bilingual and built the scoring against real calls in both languages.
+          {/* TODO(Ali): confirm the exact LA-County Spanish-at-home percentage and vintage. */}
         </p>
       </section>
 
@@ -92,10 +115,10 @@ export default function HowItWorksPage() {
         <h2 className="font-display text-2xl font-semibold">See it on your own calls.</h2>
         <p className="mt-3 max-w-[60ch] text-white/75">
           Upload up to 10 recent intake calls and get a dollar-quantified report of the signable
-          cases that walked — in minutes.
+          cases that didn&apos;t sign — with the evidence behind every flag.
         </p>
         <Link href="/audit" className="mt-6 inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Run your free Intake Quality Audit
+          {CTA_PRIMARY}
         </Link>
       </div>
     </div>

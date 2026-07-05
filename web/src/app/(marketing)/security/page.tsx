@@ -7,6 +7,7 @@ import {
   BREACH_NOTICE_HOURS,
   FOUNDER_NAME,
   FOUNDER_EMAIL,
+  CTA_PRIMARY,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
@@ -144,7 +145,7 @@ export default function SecurityPage() {
 
       <div className="mt-10">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Run your free Intake Quality Audit
+          {CTA_PRIMARY}
         </Link>
       </div>
 

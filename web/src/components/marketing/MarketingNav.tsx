@@ -1,12 +1,13 @@
 import Link from "next/link";
+import { CTA_PRIMARY } from "@/lib/site-constants";
 
 // Marketing top nav — max 5 items, emerald CTA pill. No JS: middle links hide on
 // mobile, brand + CTA always visible.
 const LINKS = [
+  { href: "/manifesto", label: "Manifesto" },
   { href: "/how-it-works", label: "How it works" },
-  { href: "/compliance", label: "Compliance" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/honesty", label: "Honesty" },
+  { href: "/compliance", label: "Compliance" },
 ];
 
 export function MarketingNav() {
@@ -31,7 +32,7 @@ export function MarketingNav() {
           href="/audit"
           className="rounded-pill bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
         >
-          Run your free Intake Quality Audit
+          {CTA_PRIMARY}
         </Link>
       </div>
     </header>

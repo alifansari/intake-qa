@@ -6,6 +6,8 @@ import {
   PRICING_TIERS,
   PRICING_COMPLIANCE_ARGUMENT,
   PRICING_ANCHOR_LINE,
+  AUDIT_CREDIT_LINE,
+  CTA_PRIMARY,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
@@ -52,7 +54,7 @@ export default function PricingPage() {
               href="/audit"
               className={`mt-6 inline-flex justify-center rounded-pill px-5 py-2.5 text-sm font-semibold ${p.featured ? "bg-accent text-white hover:bg-accent-hover" : "border border-hairline text-ink hover:border-accent"}`}
             >
-              Run your free audit
+              {CTA_PRIMARY}
             </Link>
           </div>
         ))}
@@ -61,6 +63,12 @@ export default function PricingPage() {
       <p className="mt-6 max-w-[72ch] text-sm text-faint">
         Founding-cohort firms start free for 30 days, then lock in a founding rate.
       </p>
+
+      {/* Audit credit mechanics */}
+      <section className="mt-8 rounded-card border border-hairline bg-surface p-6">
+        <h2 className="font-display text-xl font-semibold text-ink">Your $500 Leak Audit is credited back</h2>
+        <p className="mt-3 max-w-[72ch] text-ink-muted">{AUDIT_CREDIT_LINE}</p>
+      </section>
 
       {/* The why — the compliance argument, in lawyer-grade language */}
       <section className="mt-10 rounded-card border border-hairline bg-canvas p-6">

@@ -1,17 +1,37 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FAQAccordion, type QA } from "@/components/marketing/FAQAccordion";
-import { COHORT_MIN, COHORT_MAX, PILOT_DAYS, DELETION_DAYS } from "@/lib/site-constants";
+import { COHORT_MIN, COHORT_MAX, PILOT_DAYS, DELETION_DAYS, CTA_PRIMARY } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "FAQ | Intake QA",
   description:
-    "Whether the AI is accurate, whether it risks a bar complaint, why the pilot is free, what happens to your data, what your intake manager will think, and whether we'll be here next year.",
+    "Why the audit costs $500, how the $50,000 Find-It Guarantee works, what counts as a leaked signable case, whether we replace your answering service, and whether your marketing agency will hate this.",
   alternates: { canonical: "/faq" },
 };
 
-// Ordered by objection severity — the questions a skeptical partner asks first.
+// Ordered by the questions a skeptical partner asks first.
 const ITEMS: QA[] = [
+  {
+    q: "Why does the Leak Audit cost $500?",
+    a: "Because it's real diagnostic work with real deliverables — a leaked-case list with an estimated fee value on each, an intake performance readout from your own recordings, and sample save-protocol drafts — not a sales call. A serious firm and a serious analysis both put something on the table. And the $500 is credited in full against your first subscription invoice, so a subscribing firm pays nothing on net. Don't subscribe, and you keep the full report — no pitch, no obligation.",
+  },
+  {
+    q: "How does the $50,000 Find-It Guarantee work?",
+    a: "If your Leak Audit doesn't identify at least $50,000 in estimated missed signable-case value in your firm's own recent intake calls, we refund your $500 audit fee in full. Read the conditions plainly: the guarantee is on what the audit FINDS in your calls — not on any revenue you recover. We don't promise you'll win cases back; we promise the audit will show you at least $50,000 worth looking at, or you don't pay for it. Exactly how we estimate that value is on the calibration page.",
+  },
+  {
+    q: "What counts as a leaked signable case?",
+    a: "A recorded intake call our model scores at or above the signability threshold (≥60 on a fixed rubric) where the caller didn't sign and the call is still inside the callback window. Every flag carries the transcript evidence behind it, so you can check the call yourself. Estimated value = the count of those flagged cases multiplied by your firm's own average fee per signed case for that case type (or a conservative, labeled benchmark where you haven't given us your average).",
+  },
+  {
+    q: "Do you replace my answering service or AI receptionist?",
+    a: "No. Tools like Smith.ai and AI receptionists optimize answering the next call. Case Acquisition Intelligence works after the call: it proves which signable cases didn't sign and helps your staff recover them. Keep your receptionist — we tell you what it produced.",
+  },
+  {
+    q: "Will my marketing agency hate this?",
+    a: "It shouldn't — but it will make everyone more accountable. Your agency reports clicks, calls, and cost-per-lead. We report what happened after the phone rang: how many callers were actually signable, how many signed, and what the misses were worth. One legal-marketing agency (WEBRIS) reports that after auditing 500+ PI firms, fewer than 10% could state their true client-acquisition cost with confidence. A good agency uses that to prove its leads convert; only an agency hiding weak lead quality has something to fear.",
+  },
   {
     q: "The AI could be wrong — won't it embarrass me?",
     a: "You check its work before anything happens. Every call is scored against a fixed rubric, and every flag shows the transcript evidence behind it, so you can verify the call yourself. A person on your team approves every callback before it goes out — the AI drafts, it never sends. We won't print a precision or recall number until we can name the exact test corpus it came from; the calibration page explains the method and the two ways a model like this gets it wrong.",
@@ -21,8 +41,8 @@ const ITEMS: QA[] = [
     a: "The design is built to avoid one, on California authority. Our fee is a flat monthly subscription to analyze your calls — never per case, per signed client, or per recovered dollar — so it can't be characterized as paying an agent to procure or recover business under B&P §§6151–6152 (the capping framework, now backed by SB 37's private right of action). We only help you re-contact people who already called your firm, so responding to their own inquiry isn't soliciting a stranger (Rule 7.3). A person at your firm approves every message (Rule 5.3). The full analysis, with citations, is on the compliance page — and your counsel makes the final call.",
   },
   {
-    q: "Why is it free? What's the catch?",
-    a: `There isn't a hidden one. We're taking a founding cohort of ${COHORT_MIN}–${COHORT_MAX} Southern California PI firms onto free ${PILOT_DAYS}-day pilots because I need a handful of firms to use it on real calls and tell me where it's wrong — and, only with your written permission, the right to publish an anonymized case study. You get direct access to me and a say in what it becomes. That's the whole trade. — Ali`,
+    q: "The audit is $500 — but the pilot is free? What's the catch?",
+    a: `Two different things. The $500 Leak Audit is the diagnostic, and it's credited back against your first invoice if you subscribe. The pilot is the subscription itself: we're taking a founding cohort of ${COHORT_MIN}–${COHORT_MAX} Southern California PI firms onto free ${PILOT_DAYS}-day pilots because I need a handful of firms to use it on real calls and tell me where it's wrong — and, only with your written permission, the right to publish an anonymized case study. You get direct access to me and a say in what it becomes. That's the whole trade. — Ali`,
   },
   {
     q: "What happens to my prospective clients' data?",
@@ -79,7 +99,7 @@ export default function FaqPage() {
       </div>
       <div className="mt-10">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Run your free Intake Quality Audit
+          {CTA_PRIMARY}
         </Link>
       </div>
     </div>

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
+import { CTA_PRIMARY } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "Concierge pilot setup | Intake QA",
   description:
-    "We handle setup so your team barely lifts a finger. Start the founding-cohort pilot with a free Intake Quality Audit.",
+    "We handle setup so your team barely lifts a finger. Start with a $500 Leak Audit, credited to your first invoice, then a founding-cohort pilot.",
   alternates: { canonical: "/concierge" },
 };
 
@@ -26,7 +27,7 @@ export default function ConciergePage() {
       </div>
       <div className="mt-8">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Run your free Intake Quality Audit
+          {CTA_PRIMARY}
         </Link>
       </div>
     </div>

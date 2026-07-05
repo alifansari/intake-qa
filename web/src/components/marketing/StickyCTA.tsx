@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { CTA_PRIMARY } from "@/lib/site-constants";
 
 // Persistent primary CTA — appears after 600px of scroll on mobile + desktop.
 // No animation beyond a fade; respects reduced-motion via the global CSS rule.
@@ -27,7 +28,7 @@ export function StickyCTA() {
         tabIndex={shown ? 0 : -1}
         className="rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-accent-hover"
       >
-        Run your free Intake Quality Audit
+        {CTA_PRIMARY}
       </Link>
     </div>
   );
