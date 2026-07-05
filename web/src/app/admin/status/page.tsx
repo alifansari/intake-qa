@@ -39,11 +39,44 @@ async function loadState() {
         store.getRecentErrors(db, 15),
         store.getDraftedMessages(db),
       ]);
+      // Enhancement subsystems query the 0008–0012 tables. Isolate them so that
+      // if those migrations haven't been applied yet, the core status page still
+      // renders (graceful degradation) instead of failing to "not connected".
+      let subsystems = null;
+      try {
+        const [simLog, consenting, benchmark, audits] = await Promise.all([
+          store.countStripeSimLog(db),
+          store.countConsentingFirms(db),
+          store.getLatestBenchmarkSnapshot(db),
+          store.listRecentAuditSessions(db, 200),
+        ]);
+        let firmsWithFeatures = 0;
+        let integrationsConfigured = 0;
+        for (const f of firms as FirmRow[]) {
+          const [feats, integs] = await Promise.all([
+            store.getFirmFeatures(db, f.id),
+            store.listFirmIntegrations(db, f.id),
+          ]);
+          if (Object.values(feats as Record<string, boolean>).some(Boolean)) firmsWithFeatures += 1;
+          integrationsConfigured += (integs as unknown[]).length;
+        }
+        subsystems = {
+          firmsWithFeatures,
+          simLogCount: simLog as number,
+          benchmarkConsent: consenting as number,
+          benchmarkAvailable: Boolean(benchmark),
+          auditCount: (audits as unknown[]).length,
+          integrationsConfigured,
+        };
+      } catch {
+        subsystems = null; // migrations not applied yet — hide the card, don't crash
+      }
       return {
         connected: true as const,
         firms: firms as FirmRow[],
         errors: errors as ErrorRow[],
         pendingCount: (drafted as unknown[]).length,
+        subsystems,
       };
     } finally {
       await store.closePipelineDb(db);
@@ -165,6 +198,36 @@ export default async function AdminStatusPage() {
         </CardContent>
       </Card>
 
+      {state.connected && state.subsystems ? (
+        <Card className="mb-6">
+          <CardContent className="pt-5">
+            <SectionTitle>Enhancement subsystems</SectionTitle>
+            <div className="mt-1 grid gap-3 sm:grid-cols-3">
+              {[
+                { label: "Firms with a feature flag on", value: state.subsystems.firmsWithFeatures },
+                { label: "Leak Audits run", value: state.subsystems.auditCount },
+                { label: "Benchmark-consenting firms", value: state.subsystems.benchmarkConsent },
+                {
+                  label: "Peer benchmark",
+                  value: state.subsystems.benchmarkAvailable ? "available" : "withheld (k<5)",
+                },
+                { label: "Stripe sim-log entries", value: state.subsystems.simLogCount },
+                { label: "Integrations configured", value: state.subsystems.integrationsConfigured },
+              ].map((s) => (
+                <div key={s.label} className="rounded-sm border border-line bg-canvas p-3">
+                  <p className="font-display text-xl font-bold text-ink tabular-nums">{s.value}</p>
+                  <p className="mt-0.5 text-xs text-muted">{s.label}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-faint">
+              All enhancements ship behind per-firm flags (default off). Billing Stripe calls are
+              simulated in test mode; benchmarks stay withheld until 5 firms consent.
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
+
       <Card>
         <CardContent className="pt-5">
           <SectionTitle>Recent errors</SectionTitle>
@@ -195,7 +258,20 @@ export default async function AdminStatusPage() {
             </div>
           )}
           <p className="mt-4 text-xs text-faint">
-            Full go-live checklist lives in GO_LIVE.md. This page is read-only.
+            Full go-live checklist lives in GO_LIVE.md. This page is read-only —
+            roll features out per firm on the{" "}
+            <a className="text-navy underline" href="/admin/features">
+              feature-flags console
+            </a>{" "}
+            · follow up on{" "}
+            <a className="text-navy underline" href="/admin/audits">
+              Leak Audits
+            </a>{" "}
+            · manage{" "}
+            <a className="text-navy underline" href="/admin/billing">
+              billing
+            </a>
+            .
           </p>
         </CardContent>
       </Card>

@@ -17,6 +17,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { engineRoot } from "../engine-root.mjs";
+import { rulesForState, stateVerified, stateName, DEFAULT_STATE } from "./sol-rules.mjs";
 
 // analysis/ lives at the repo root locally, vendored into web/.engine on Vercel.
 const PROMPT_PATH = join(engineRoot(), "analysis", "sol-guardian.md");
@@ -24,27 +25,6 @@ const PROMPT_PATH = join(engineRoot(), "analysis", "sol-guardian.md");
 export const SOL_DISCLAIMER =
   "Estimated deadline only — not legal advice. An attorney must independently verify " +
   "every statute of limitations and government-claim date before relying on it.";
-
-// California limitation periods used for the ESTIMATE. These are the common PI
-// rules; edge cases (delayed discovery, tolling variants, specific MICRA minor
-// rules) are exactly why the disclaimer + attorney verification are mandatory.
-const RULES = {
-  government_claim: {
-    statute: "Cal. Gov. Code §911.2",
-    label: "Government tort claim",
-    months: 6,
-  },
-  medical_malpractice: {
-    statute: "Cal. Code Civ. Proc. §340.5 (MICRA)",
-    label: "Medical malpractice (MICRA)",
-    years: 1,
-  },
-  general_pi: {
-    statute: "Cal. Code Civ. Proc. §335.1",
-    label: "General personal injury",
-    years: 2,
-  },
-};
 
 // --- date helpers (UTC, calendar-correct month/year addition) ----------------
 function addMonths(iso, months) {
@@ -89,9 +69,31 @@ export function computeSol({
   caseType = "unknown",
   governmentDefendant = false,
   minor = false,
+  state = DEFAULT_STATE,
   now = new Date(),
 } = {}) {
   const notes = [];
+
+  // Multi-state groundwork: only California is verified in the pilot. For any
+  // other state we refuse to guess a deadline and say so explicitly.
+  if (!stateVerified(state)) {
+    return {
+      applicable: null,
+      state,
+      statute: null,
+      periodLabel: null,
+      incidentDate: incidentDate ?? null,
+      deadlineDate: null,
+      daysRemaining: null,
+      urgency: "unknown",
+      minorTollingMayApply: Boolean(minor),
+      notes: [
+        `${stateName(state)} rules are not yet verified — California only in pilot. An attorney must establish the deadline.`,
+      ],
+      disclaimer: SOL_DISCLAIMER,
+    };
+  }
+  const RULES = rulesForState(state);
   if (minor) {
     notes.push(
       governmentDefendant
@@ -103,6 +105,7 @@ export function computeSol({
   if (!incidentDate) {
     return {
       applicable: null,
+      state,
       statute: null,
       periodLabel: null,
       incidentDate: null,
@@ -129,6 +132,7 @@ export function computeSol({
 
   return {
     applicable: key,
+    state,
     statute: rule.statute,
     ruleLabel: rule.label,
     periodLabel,

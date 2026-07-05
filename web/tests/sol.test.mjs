@@ -106,3 +106,20 @@ test("runSolGuardian: fake extractor -> computed estimate + echoed facts", async
   assert.deepEqual(r.facts, facts);
   assert.equal(r.disclaimer, SOL_DISCLAIMER);
 });
+
+test("computeSol: an unverified state refuses to guess a deadline", () => {
+  const r = computeSol({ incidentDate: "2025-01-01", caseType: "motor_vehicle", state: "TX", now: NOW });
+  assert.equal(r.deadlineDate, null);
+  assert.equal(r.urgency, "unknown");
+  assert.equal(r.applicable, null);
+  assert.match(r.notes.join(" "), /not yet verified|California only/i);
+  assert.equal(r.disclaimer, SOL_DISCLAIMER);
+});
+
+test("computeSol: California remains the verified default (byte-identical)", () => {
+  const withState = computeSol({ incidentDate: "2025-01-01", caseType: "motor_vehicle", state: "CA", now: NOW });
+  const noState = computeSol({ incidentDate: "2025-01-01", caseType: "motor_vehicle", now: NOW });
+  assert.equal(withState.deadlineDate, "2027-01-01");
+  assert.equal(withState.deadlineDate, noState.deadlineDate);
+  assert.equal(withState.statute, noState.statute);
+});

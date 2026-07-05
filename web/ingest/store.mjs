@@ -87,6 +87,60 @@ export const countRecentErrors = wrap("countRecentErrors");
 export const markErrorsAlerted = wrap("markErrorsAlerted");
 export const getUnalertedErrors = wrap("getUnalertedErrors");
 
+// Per-firm feature flags (migration 0008). Default OFF when a row is absent.
+export const getFirmFeatures = wrap("getFirmFeatures");
+export const isFeatureEnabled = wrap("isFeatureEnabled");
+export const setFirmFeature = wrap("setFirmFeature");
+
+// Leak Audit sessions (migration 0009). Demo-isolated; nothing here can send.
+export const createAuditSession = wrap("createAuditSession");
+export const getAuditSessionByToken = wrap("getAuditSessionByToken");
+export const updateAuditSession = wrap("updateAuditSession");
+export const attachDemoCallToSession = wrap("attachDemoCallToSession");
+export const getAuditSessionCalls = wrap("getAuditSessionCalls");
+export const countAuditSessionCalls = wrap("countAuditSessionCalls");
+export const countRecentAuditSessionsByFingerprint = wrap("countRecentAuditSessionsByFingerprint");
+export const listRecentAuditSessions = wrap("listRecentAuditSessions");
+export const purgeExpiredAuditSessions = wrap("purgeExpiredAuditSessions");
+
+// Per-recovered-case billing (migration 0010). FLAT fee per case; the recovered
+// fee is NEVER read by any of these — see billing/invoice.mjs.
+export const listBillingPlans = wrap("listBillingPlans");
+export const getBillingPlan = wrap("getBillingPlan");
+export const getBillingPlanByName = wrap("getBillingPlanByName");
+export const getFirmBilling = wrap("getFirmBilling");
+export const upsertFirmBilling = wrap("upsertFirmBilling");
+export const accrueBillableEvent = wrap("accrueBillableEvent");
+export const getBillableEvents = wrap("getBillableEvents");
+export const getAccruedBillableEvents = wrap("getAccruedBillableEvents");
+export const setBillableEventStatus = wrap("setBillableEventStatus");
+export const markBillableEventsInvoiced = wrap("markBillableEventsInvoiced");
+export const createInvoice = wrap("createInvoice");
+export const addInvoiceLine = wrap("addInvoiceLine");
+export const setInvoiceTotal = wrap("setInvoiceTotal");
+export const voidInvoice = wrap("voidInvoice");
+export const getInvoice = wrap("getInvoice");
+export const getInvoiceLines = wrap("getInvoiceLines");
+export const listInvoices = wrap("listInvoices");
+export const appendStripeSimLog = wrap("appendStripeSimLog");
+export const listStripeSimLog = wrap("listStripeSimLog");
+export const countStripeSimLog = wrap("countStripeSimLog");
+export const countLeakedFlags = wrap("countLeakedFlags");
+
+// Peer benchmarking (migration 0011). Snapshots hold only aggregates; the
+// k-anonymity gate lives in analytics/benchmarks.mjs.
+export const setBenchmarkConsent = wrap("setBenchmarkConsent");
+export const countConsentingFirms = wrap("countConsentingFirms");
+export const getConsentingFirmIds = wrap("getConsentingFirmIds");
+export const getBenchmarkRows = wrap("getBenchmarkRows");
+export const insertBenchmarkSnapshot = wrap("insertBenchmarkSnapshot");
+export const getLatestBenchmarkSnapshot = wrap("getLatestBenchmarkSnapshot");
+
+// CRM / webhook integrations (migration 0012). Credentials stored encrypted.
+export const upsertFirmIntegration = wrap("upsertFirmIntegration");
+export const getFirmIntegration = wrap("getFirmIntegration");
+export const listFirmIntegrations = wrap("listFirmIntegrations");
+
 // --- Connection selection for the hosted pipeline ----------------------------
 
 // True when a Postgres connection is configured (hosted product).

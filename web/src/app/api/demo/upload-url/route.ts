@@ -8,8 +8,16 @@
 // NOTHING here can send — it only writes demo_calls and never creates a message.
 
 import { z } from "zod";
-import { openPipelineDb, closePipelineDb, createDemoCall } from "../../../../../ingest/store.mjs";
+import {
+  openPipelineDb,
+  closePipelineDb,
+  createDemoCall,
+  countAuditSessionCalls,
+  attachDemoCallToSession,
+} from "../../../../../ingest/store.mjs";
 import { checkDemoRateLimit, purgeDemo } from "../../../../../ingest/demo.mjs";
+import { resolveSession, MAX_CALLS_PER_SESSION } from "../../../../../ingest/audit.mjs";
+import type { ResolveResult } from "@/lib/audit-types";
 import {
   isDemoStorageConfigured,
   createSignedDemoUpload,
@@ -25,6 +33,9 @@ const ALLOWED_EXT = new Set(["mp3", "m4a", "wav"]);
 const Body = z.object({
   filename: z.string().min(1).max(255),
   size: z.number().int().nonnegative(),
+  // Optional Leak Audit session token — when present, this upload joins that
+  // session (governed by the session's 10-call cap, not the 3/hour demo limit).
+  session: z.string().min(1).max(128).optional(),
 });
 
 function clientIp(req: Request): string {
@@ -57,21 +68,49 @@ export async function POST(req: Request) {
   try {
     await purgeDemo({ db }).catch(() => {});
 
-    const gate = await checkDemoRateLimit({ db, ip });
-    if (!gate.allowed) {
-      const msg =
-        gate.reason === "concurrent"
-          ? "A demo is still processing — please wait for it to finish."
-          : "You've reached the hourly demo limit (3). Please try again later.";
-      return Response.json({ error: msg, reason: gate.reason }, { status: 429 });
+    // Audit uploads are bounded by the session (10 calls, 1 session/7d/visitor),
+    // so they skip the single-call demo 3/hour gate. Everything else stays a demo.
+    let auditSessionId: unknown = null;
+    if (parsed.session) {
+      const resolved = (await resolveSession({ db, token: parsed.session })) as ResolveResult;
+      if (!resolved.ok || !resolved.session) {
+        const status = resolved.reason === "not_found" ? 404 : 410;
+        return Response.json(
+          { error: "audit session unavailable", reason: resolved.reason },
+          { status },
+        );
+      }
+      const count = await countAuditSessionCalls(db, resolved.session.id);
+      if (count >= MAX_CALLS_PER_SESSION) {
+        return Response.json(
+          { error: `An audit holds up to ${MAX_CALLS_PER_SESSION} calls.`, reason: "call_limit" },
+          { status: 429 },
+        );
+      }
+      auditSessionId = resolved.session.id;
+    } else {
+      const gate = await checkDemoRateLimit({ db, ip });
+      if (!gate.allowed) {
+        const msg =
+          gate.reason === "concurrent"
+            ? "A demo is still processing — please wait for it to finish."
+            : "You've reached the hourly demo limit (3). Please try again later.";
+        return Response.json({ error: msg, reason: gate.reason }, { status: 429 });
+      }
     }
 
     const id = await createDemoCall(db, { client_ip: ip, filename: parsed.filename });
 
     if (!isDemoStorageConfigured()) {
-      // Local / no-storage fallback: client re-uploads the bytes to /api/demo/upload.
+      // Local / no-storage fallback: the client re-uploads the bytes to
+      // /api/demo/upload (passing the session itself, which creates + attaches
+      // its own row there). This row is unused in direct mode; it purges at 72h.
       return Response.json({ mode: "direct", id: String(id) }, { status: 200 });
     }
+
+    // Storage mode: the row created here is the one that gets processed, so
+    // attach IT to the audit session.
+    if (auditSessionId != null) await attachDemoCallToSession(db, auditSessionId, id);
 
     const path = demoObjectPath(String(id), ext);
     const { signedUrl, token } = await createSignedDemoUpload(path);

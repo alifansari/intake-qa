@@ -679,3 +679,451 @@ export function getUnalertedErrors(db, sinceIso) {
     )
     .all(sinceIso);
 }
+
+// --- Per-firm feature flags (migration 0008) ---------------------------------
+
+// All explicitly-set flags for a firm as { feature: boolean }. Features with no
+// row are simply absent (callers treat absent as OFF — see isFeatureEnabled).
+export function getFirmFeatures(db, firmId) {
+  const rows = db
+    .prepare("SELECT feature, enabled FROM firm_features WHERE firm_id = ?")
+    .all(firmId);
+  const out = {};
+  for (const r of rows) out[r.feature] = r.enabled === 1;
+  return out;
+}
+
+// Is one feature enabled for a firm? DEFAULT OFF when the row is absent.
+export function isFeatureEnabled(db, firmId, feature) {
+  const row = db
+    .prepare(
+      "SELECT enabled FROM firm_features WHERE firm_id = ? AND feature = ?"
+    )
+    .get(firmId, feature);
+  return row ? row.enabled === 1 : false;
+}
+
+// Turn a feature on/off for a firm (idempotent upsert on (firm_id, feature)).
+export function setFirmFeature(db, firmId, feature, enabled, now) {
+  db.prepare(
+    `INSERT INTO firm_features (firm_id, feature, enabled, updated_at)
+     VALUES (?, ?, ?, ?)
+     ON CONFLICT (firm_id, feature)
+     DO UPDATE SET enabled = excluded.enabled, updated_at = excluded.updated_at`
+  ).run(firmId, feature, enabled ? 1 : 0, now ?? new Date().toISOString());
+}
+
+// --- Leak Audit sessions (migration 0009) ------------------------------------
+
+export function createAuditSession(
+  db,
+  { token, visitor_fingerprint = null, monthly_call_volume = null, expires_at }
+) {
+  const info = db
+    .prepare(
+      `INSERT INTO audit_sessions (token, visitor_fingerprint, monthly_call_volume, expires_at)
+       VALUES (?, ?, ?, ?)`
+    )
+    .run(token, visitor_fingerprint, monthly_call_volume, expires_at);
+  return Number(info.lastInsertRowid);
+}
+
+export function getAuditSessionByToken(db, token) {
+  return db.prepare("SELECT * FROM audit_sessions WHERE token = ?").get(token);
+}
+
+// Patch email / monthly_call_volume / status on a session (only provided fields).
+export function updateAuditSession(db, id, patch = {}) {
+  const sets = [];
+  const vals = [];
+  for (const k of ["email", "monthly_call_volume", "status"]) {
+    if (patch[k] !== undefined) {
+      sets.push(`${k} = ?`);
+      vals.push(patch[k]);
+    }
+  }
+  if (!sets.length) return;
+  vals.push(id);
+  db.prepare(`UPDATE audit_sessions SET ${sets.join(", ")} WHERE id = ?`).run(...vals);
+}
+
+export function attachDemoCallToSession(db, sessionId, demoCallId) {
+  db.prepare(
+    `INSERT OR IGNORE INTO audit_session_calls (session_id, demo_call_id) VALUES (?, ?)`
+  ).run(sessionId, demoCallId);
+}
+
+// The demo_calls rows belonging to a session, in upload order.
+export function getAuditSessionCalls(db, sessionId) {
+  return db
+    .prepare(
+      `SELECT dc.* FROM audit_session_calls asc_
+         JOIN demo_calls dc ON dc.id = asc_.demo_call_id
+        WHERE asc_.session_id = ?
+        ORDER BY asc_.id`
+    )
+    .all(sessionId);
+}
+
+export function countAuditSessionCalls(db, sessionId) {
+  const row = db
+    .prepare(`SELECT COUNT(*) AS n FROM audit_session_calls WHERE session_id = ?`)
+    .get(sessionId);
+  return row.n;
+}
+
+export function countRecentAuditSessionsByFingerprint(db, fingerprint, sinceIso) {
+  const row = db
+    .prepare(
+      `SELECT COUNT(*) AS n FROM audit_sessions
+        WHERE visitor_fingerprint = ? AND created_at >= ?`
+    )
+    .get(fingerprint, sinceIso);
+  return row.n;
+}
+
+// Operator console: recent sessions (newest first) with their call counts.
+export function listRecentAuditSessions(db, limit = 50) {
+  return db
+    .prepare(
+      `SELECT s.*, (SELECT COUNT(*) FROM audit_session_calls c WHERE c.session_id = s.id) AS call_count
+         FROM audit_sessions s
+        ORDER BY s.id DESC
+        LIMIT ?`
+    )
+    .all(Math.max(1, Math.floor(limit)));
+}
+
+// Expire sessions past their expires_at (report becomes unavailable). Returns count.
+export function purgeExpiredAuditSessions(db, nowIso) {
+  const info = db
+    .prepare(
+      `UPDATE audit_sessions SET status = 'expired'
+        WHERE status != 'expired' AND expires_at < ?`
+    )
+    .run(nowIso);
+  return Number(info.changes ?? 0);
+}
+
+// --- Per-recovered-case billing (migration 0010) -----------------------------
+// FLAT fee per case. NONE of these read a recovered-fee value — billing is
+// structurally independent of what the firm actually recovered (Rule 5.4).
+
+export function listBillingPlans(db) {
+  return db.prepare("SELECT * FROM billing_plans ORDER BY base_monthly_cents").all();
+}
+export function getBillingPlan(db, id) {
+  return db.prepare("SELECT * FROM billing_plans WHERE id = ?").get(id);
+}
+export function getBillingPlanByName(db, name) {
+  return db.prepare("SELECT * FROM billing_plans WHERE name = ?").get(name);
+}
+
+export function getFirmBilling(db, firmId) {
+  return db
+    .prepare(
+      `SELECT fb.*, p.name AS plan_name, p.base_monthly_cents, p.per_case_fee_cents,
+              p.per_case_fee_by_type, p.monthly_case_fee_cap_cents
+         FROM firm_billing fb JOIN billing_plans p ON p.id = fb.plan_id
+        WHERE fb.firm_id = ?`
+    )
+    .get(firmId);
+}
+
+// Create or update a firm's billing config (one row per firm).
+export function upsertFirmBilling(db, cfg) {
+  const {
+    firm_id,
+    plan_id,
+    status = "trialing",
+    billing_anchor_day = 1,
+    stripe_customer_id = null,
+    guarantee_type = "none",
+    guarantee_threshold_cents = null,
+    guarantee_deadline = null,
+  } = cfg;
+  db.prepare(
+    `INSERT INTO firm_billing
+       (firm_id, plan_id, status, billing_anchor_day, stripe_customer_id,
+        guarantee_type, guarantee_threshold_cents, guarantee_deadline)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT (firm_id) DO UPDATE SET
+       plan_id = excluded.plan_id,
+       status = excluded.status,
+       billing_anchor_day = excluded.billing_anchor_day,
+       stripe_customer_id = excluded.stripe_customer_id,
+       guarantee_type = excluded.guarantee_type,
+       guarantee_threshold_cents = excluded.guarantee_threshold_cents,
+       guarantee_deadline = excluded.guarantee_deadline`
+  ).run(
+    firm_id,
+    plan_id,
+    status,
+    billing_anchor_day,
+    stripe_customer_id,
+    guarantee_type,
+    guarantee_threshold_cents,
+    guarantee_deadline
+  );
+  return getFirmBilling(db, firm_id);
+}
+
+// Accrue ONE billable event for a signed outcome (idempotent on outcome_id).
+// The fee applied is passed in from the plan — never derived from a recovered
+// fee. Returns { id, created }.
+export function accrueBillableEvent(db, ev) {
+  const { firm_id, outcome_id, case_type = null, per_case_fee_cents_applied, period } = ev;
+  const info = db
+    .prepare(
+      `INSERT OR IGNORE INTO billable_events
+         (firm_id, outcome_id, case_type, per_case_fee_cents_applied, period)
+       VALUES (?, ?, ?, ?, ?)`
+    )
+    .run(firm_id, outcome_id, case_type, per_case_fee_cents_applied, period);
+  if (info.changes > 0) return { id: Number(info.lastInsertRowid), created: true };
+  const existing = db
+    .prepare("SELECT id FROM billable_events WHERE outcome_id = ?")
+    .get(outcome_id);
+  return { id: existing ? Number(existing.id) : null, created: false };
+}
+
+export function getBillableEvents(db, firmId, { period = null, status = null } = {}) {
+  let sql = "SELECT * FROM billable_events WHERE firm_id = ?";
+  const args = [firmId];
+  if (period) { sql += " AND period = ?"; args.push(period); }
+  if (status) { sql += " AND status = ?"; args.push(status); }
+  sql += " ORDER BY id";
+  return db.prepare(sql).all(...args);
+}
+
+export function getAccruedBillableEvents(db, firmId, period) {
+  return db
+    .prepare(
+      "SELECT * FROM billable_events WHERE firm_id = ? AND period = ? AND status = 'accrued' ORDER BY id"
+    )
+    .all(firmId, period);
+}
+
+export function setBillableEventStatus(db, id, status, { dispute_reason = null, invoice_id = null } = {}) {
+  db.prepare(
+    `UPDATE billable_events
+        SET status = ?, dispute_reason = ?, invoice_id = COALESCE(?, invoice_id)
+      WHERE id = ?`
+  ).run(status, dispute_reason, invoice_id, id);
+}
+
+export function markBillableEventsInvoiced(db, ids = [], invoiceId) {
+  if (!ids.length) return 0;
+  const ph = ids.map(() => "?").join(",");
+  const info = db
+    .prepare(
+      `UPDATE billable_events SET status = 'invoiced', invoice_id = ?
+        WHERE id IN (${ph}) AND status = 'accrued'`
+    )
+    .run(invoiceId, ...ids);
+  return Number(info.changes ?? 0);
+}
+
+export function createInvoice(db, { firm_id, period, total_cents = 0, status = "open" }) {
+  const info = db
+    .prepare(
+      "INSERT INTO invoices (firm_id, period, total_cents, status) VALUES (?, ?, ?, ?)"
+    )
+    .run(firm_id, period, total_cents, status);
+  return Number(info.lastInsertRowid);
+}
+
+export function addInvoiceLine(db, line) {
+  const { invoice_id, kind, description, amount_cents, outcome_id = null, snapshot = null } = line;
+  const info = db
+    .prepare(
+      `INSERT INTO invoice_lines (invoice_id, kind, description, amount_cents, outcome_id, snapshot)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    )
+    .run(
+      invoice_id,
+      kind,
+      description,
+      amount_cents,
+      outcome_id,
+      snapshot == null ? null : typeof snapshot === "string" ? snapshot : JSON.stringify(snapshot)
+    );
+  return Number(info.lastInsertRowid);
+}
+
+export function setInvoiceTotal(db, id, totalCents, status = null) {
+  if (status) {
+    db.prepare("UPDATE invoices SET total_cents = ?, status = ? WHERE id = ?").run(totalCents, status, id);
+  } else {
+    db.prepare("UPDATE invoices SET total_cents = ? WHERE id = ?").run(totalCents, id);
+  }
+}
+
+// Void (never delete) an invoice. Returns nothing.
+export function voidInvoice(db, id, reason, now) {
+  db.prepare(
+    "UPDATE invoices SET status = 'void', void_reason = ?, voided_at = ? WHERE id = ?"
+  ).run(reason ?? null, now ?? new Date().toISOString(), id);
+}
+
+export function getInvoice(db, id) {
+  return db.prepare("SELECT * FROM invoices WHERE id = ?").get(id);
+}
+export function getInvoiceLines(db, invoiceId) {
+  return db.prepare("SELECT * FROM invoice_lines WHERE invoice_id = ? ORDER BY id").all(invoiceId);
+}
+export function listInvoices(db, firmId) {
+  return db.prepare("SELECT * FROM invoices WHERE firm_id = ? ORDER BY id DESC").all(firmId);
+}
+
+export function appendStripeSimLog(db, { firm_id = null, action, payload = null }) {
+  const info = db
+    .prepare("INSERT INTO stripe_sim_log (firm_id, action, payload) VALUES (?, ?, ?)")
+    .run(
+      firm_id,
+      action,
+      payload == null ? null : typeof payload === "string" ? payload : JSON.stringify(payload)
+    );
+  return Number(info.lastInsertRowid);
+}
+export function listStripeSimLog(db, { firm_id = null, limit = 50 } = {}) {
+  if (firm_id != null) {
+    return db
+      .prepare("SELECT * FROM stripe_sim_log WHERE firm_id = ? ORDER BY id DESC LIMIT ?")
+      .all(firm_id, Math.max(1, Math.floor(limit)));
+  }
+  return db
+    .prepare("SELECT * FROM stripe_sim_log ORDER BY id DESC LIMIT ?")
+    .all(Math.max(1, Math.floor(limit)));
+}
+export function countStripeSimLog(db) {
+  return db.prepare("SELECT COUNT(*) AS n FROM stripe_sim_log").get().n;
+}
+
+// Count leaked-signable flags for a firm (guarantee "identified" tally). The
+// guarantee values these at the firm's avg_case_fee in guarantee.mjs.
+export function countLeakedFlags(db, firmId, sinceIso = null) {
+  if (sinceIso) {
+    return db
+      .prepare(
+        "SELECT COUNT(*) AS n FROM flags WHERE firm_id = ? AND is_leaked_signable = 1 AND created_at >= ?"
+      )
+      .get(firmId, sinceIso).n;
+  }
+  return db
+    .prepare("SELECT COUNT(*) AS n FROM flags WHERE firm_id = ? AND is_leaked_signable = 1")
+    .get(firmId).n;
+}
+
+// --- Peer benchmarking (migration 0011) --------------------------------------
+
+export function setBenchmarkConsent(db, firmId, on) {
+  db.prepare("UPDATE firms SET benchmark_data_sharing = ? WHERE id = ?").run(on ? 1 : 0, firmId);
+}
+export function countConsentingFirms(db) {
+  return db.prepare("SELECT COUNT(*) AS n FROM firms WHERE benchmark_data_sharing = 1").get().n;
+}
+export function getConsentingFirmIds(db) {
+  return db
+    .prepare("SELECT id FROM firms WHERE benchmark_data_sharing = 1 ORDER BY id")
+    .all()
+    .map((r) => r.id);
+}
+
+// Per-flag rows for consenting firms: score, leaked, and whether the flag's
+// conversation ended in a signed outcome. No firm identity leaves this layer —
+// the aggregator reduces these to distribution stats only.
+export function getBenchmarkRows(db, firmIds = []) {
+  if (!firmIds.length) return [];
+  const ph = firmIds.map(() => "?").join(",");
+  return db
+    .prepare(
+      `SELECT f.qualification_score AS score,
+              f.is_leaked_signable AS leaked,
+              CASE WHEN EXISTS (
+                SELECT 1 FROM conversations c JOIN outcomes o ON o.conversation_id = c.id
+                 WHERE c.flag_id = f.id AND o.result = 'signed'
+              ) THEN 1 ELSE 0 END AS signed
+         FROM flags f
+        WHERE f.firm_id IN (${ph})`
+    )
+    .all(...firmIds);
+}
+
+export function insertBenchmarkSnapshot(db, s) {
+  const info = db
+    .prepare(
+      `INSERT INTO benchmark_snapshots
+         (contributor_count, sample_size, median_handling_score, q1_handling_score,
+          q3_handling_score, leak_rate, sign_rate_by_band)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    )
+    .run(
+      s.contributor_count,
+      s.sample_size,
+      s.median_handling_score ?? null,
+      s.q1_handling_score ?? null,
+      s.q3_handling_score ?? null,
+      s.leak_rate ?? null,
+      s.sign_rate_by_band == null
+        ? null
+        : typeof s.sign_rate_by_band === "string"
+          ? s.sign_rate_by_band
+          : JSON.stringify(s.sign_rate_by_band)
+    );
+  return Number(info.lastInsertRowid);
+}
+
+export function getLatestBenchmarkSnapshot(db) {
+  return db.prepare("SELECT * FROM benchmark_snapshots ORDER BY id DESC LIMIT 1").get();
+}
+
+// --- CRM / webhook integrations (migration 0012) -----------------------------
+
+export function upsertFirmIntegration(db, cfg) {
+  const {
+    firm_id,
+    provider,
+    credentials_encrypted = null,
+    field_map = null,
+    webhook_url = null,
+    webhook_secret = null,
+    enabled = 0,
+  } = cfg;
+  const fm =
+    field_map == null ? null : typeof field_map === "string" ? field_map : JSON.stringify(field_map);
+  db.prepare(
+    `INSERT INTO firm_integrations
+       (firm_id, provider, credentials_encrypted, field_map, webhook_url, webhook_secret, enabled, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT (firm_id, provider) DO UPDATE SET
+       credentials_encrypted = excluded.credentials_encrypted,
+       field_map = excluded.field_map,
+       webhook_url = excluded.webhook_url,
+       webhook_secret = excluded.webhook_secret,
+       enabled = excluded.enabled,
+       updated_at = excluded.updated_at`
+  ).run(
+    firm_id,
+    provider,
+    credentials_encrypted,
+    fm,
+    webhook_url,
+    webhook_secret,
+    enabled ? 1 : 0,
+    new Date().toISOString()
+  );
+  return getFirmIntegration(db, firm_id, provider);
+}
+
+export function getFirmIntegration(db, firmId, provider) {
+  return db
+    .prepare("SELECT * FROM firm_integrations WHERE firm_id = ? AND provider = ?")
+    .get(firmId, provider);
+}
+
+export function listFirmIntegrations(db, firmId) {
+  return db
+    .prepare("SELECT * FROM firm_integrations WHERE firm_id = ? ORDER BY provider")
+    .all(firmId);
+}
