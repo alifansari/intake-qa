@@ -114,6 +114,18 @@ export const accrueBillableEvent = wrap("accrueBillableEvent");
 export const getBillableEvents = wrap("getBillableEvents");
 export const getAccruedBillableEvents = wrap("getAccruedBillableEvents");
 export const countCallsInPeriod = wrap("countCallsInPeriod");
+
+// Recovery-desk additive layer (migration 0014).
+export const setCallStatus = wrap("setCallStatus");
+export const getCallReconciliation = wrap("getCallReconciliation");
+export const insertTranscriptCitation = wrap("insertTranscriptCitation");
+export const getTranscriptCitations = wrap("getTranscriptCitations");
+export const setFlagConfidence = wrap("setFlagConfidence");
+export const getFlagConfidence = wrap("getFlagConfidence");
+export const insertAnalysisVersion = wrap("insertAnalysisVersion");
+export const logArtifactAccess = wrap("logArtifactAccess");
+export const insertCitationFailure = wrap("insertCitationFailure");
+export const getFeeValueRange = wrap("getFeeValueRange");
 export const setBillableEventStatus = wrap("setBillableEventStatus");
 export const markBillableEventsInvoiced = wrap("markBillableEventsInvoiced");
 export const createInvoice = wrap("createInvoice");

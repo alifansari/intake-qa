@@ -1037,3 +1037,88 @@ export async function listFirmIntegrations(db, firmId) {
   );
   return r.rows;
 }
+
+// ── Recovery-desk additive layer (migration 0014) — Postgres twins. ───────────
+
+export async function setCallStatus(db, callId, status, reason = null) {
+  await db.query("UPDATE calls SET status = $1, status_reason = $2 WHERE id = $3", [status, reason, callId]);
+}
+
+export async function getCallReconciliation(db, firmId) {
+  const r = await db.query("SELECT * FROM v_call_reconciliation WHERE firm_id = $1", [firmId]);
+  return r.rows[0] ?? { firm_id: firmId, received: 0, processed: 0, excluded: 0, failed: 0 };
+}
+
+export async function insertTranscriptCitation(db, c) {
+  const { flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score = null, status = "needs_review" } = c;
+  const r = await db.query(
+    `INSERT INTO transcript_citations
+       (flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score, status)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+    [flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score, status]
+  );
+  return r.rows[0].id;
+}
+
+export async function getTranscriptCitations(db, flagId, { status = null } = {}) {
+  const args = [flagId];
+  let sql = "SELECT * FROM transcript_citations WHERE flag_id = $1";
+  if (status) { args.push(status); sql += ` AND status = $${args.length}`; }
+  const r = await db.query(sql + " ORDER BY start_ms", args);
+  return r.rows;
+}
+
+export async function setFlagConfidence(db, { flag_id, confidence_tier, rubric_version }) {
+  await db.query(
+    `INSERT INTO flag_confidence (flag_id, confidence_tier, rubric_version)
+     VALUES ($1,$2,$3)
+     ON CONFLICT (flag_id) DO UPDATE SET
+       confidence_tier = excluded.confidence_tier, rubric_version = excluded.rubric_version`,
+    [flag_id, confidence_tier, rubric_version]
+  );
+}
+
+export async function getFlagConfidence(db, flagId) {
+  const r = await db.query("SELECT * FROM flag_confidence WHERE flag_id = $1", [flagId]);
+  return r.rows[0];
+}
+
+export async function insertAnalysisVersion(db, { flag_id, model_version, prompt_version, rubric_version }) {
+  const r = await db.query(
+    `INSERT INTO analysis_versions (flag_id, model_version, prompt_version, rubric_version)
+     VALUES ($1,$2,$3,$4) RETURNING id`,
+    [flag_id, model_version, prompt_version, rubric_version]
+  );
+  return r.rows[0].id;
+}
+
+export async function logArtifactAccess(db, { firm_id, actor, artifact_type, artifact_id, action }) {
+  await db.query(
+    `INSERT INTO artifact_access_log (firm_id, actor, artifact_type, artifact_id, action)
+     VALUES ($1,$2,$3,$4,$5)`,
+    [firm_id, actor, artifact_type, String(artifact_id), action]
+  );
+}
+
+export async function insertCitationFailure(db, { flag_id = null, snippet, nearest_text = null, score = null }) {
+  const r = await db.query(
+    "INSERT INTO citation_failures (flag_id, snippet, nearest_text, score) VALUES ($1,$2,$3,$4) RETURNING id",
+    [flag_id, snippet, nearest_text, score]
+  );
+  return r.rows[0].id;
+}
+
+export async function getFeeValueRange(db, caseType, firmId = null) {
+  if (firmId != null) {
+    const firmRow = await db.query(
+      "SELECT * FROM fee_value_ranges WHERE case_type = $1 AND firm_id = $2 ORDER BY updated_at DESC LIMIT 1",
+      [caseType, firmId]
+    );
+    if (firmRow.rows[0]) return firmRow.rows[0];
+  }
+  const r = await db.query(
+    "SELECT * FROM fee_value_ranges WHERE case_type = $1 AND firm_id IS NULL ORDER BY updated_at DESC LIMIT 1",
+    [caseType]
+  );
+  return r.rows[0];
+}

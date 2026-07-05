@@ -1137,3 +1137,84 @@ export function listFirmIntegrations(db, firmId) {
     .prepare("SELECT * FROM firm_integrations WHERE firm_id = ? ORDER BY provider")
     .all(firmId);
 }
+
+// ── Recovery-desk additive layer (migration 0014). All additive; no frozen-core
+//    behavior depends on these. ───────────────────────────────────────────────
+
+export function setCallStatus(db, callId, status, reason = null) {
+  db.prepare("UPDATE calls SET status = ?, status_reason = ? WHERE id = ?").run(status, reason, callId);
+}
+
+export function getCallReconciliation(db, firmId) {
+  const row = db.prepare("SELECT * FROM v_call_reconciliation WHERE firm_id = ?").get(firmId);
+  return row ?? { firm_id: firmId, received: 0, processed: 0, excluded: 0, failed: 0 };
+}
+
+export function insertTranscriptCitation(db, c) {
+  const { flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score = null, status = "needs_review" } = c;
+  const info = db
+    .prepare(
+      `INSERT INTO transcript_citations
+         (flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    )
+    .run(flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score, status);
+  return Number(info.lastInsertRowid);
+}
+
+export function getTranscriptCitations(db, flagId, { status = null } = {}) {
+  let sql = "SELECT * FROM transcript_citations WHERE flag_id = ?";
+  const args = [flagId];
+  if (status) { sql += " AND status = ?"; args.push(status); }
+  return db.prepare(sql + " ORDER BY start_ms").all(...args);
+}
+
+export function setFlagConfidence(db, { flag_id, confidence_tier, rubric_version }) {
+  db.prepare(
+    `INSERT INTO flag_confidence (flag_id, confidence_tier, rubric_version)
+     VALUES (?, ?, ?)
+     ON CONFLICT (flag_id) DO UPDATE SET
+       confidence_tier = excluded.confidence_tier, rubric_version = excluded.rubric_version`
+  ).run(flag_id, confidence_tier, rubric_version);
+}
+
+export function getFlagConfidence(db, flagId) {
+  return db.prepare("SELECT * FROM flag_confidence WHERE flag_id = ?").get(flagId);
+}
+
+export function insertAnalysisVersion(db, { flag_id, model_version, prompt_version, rubric_version }) {
+  const info = db
+    .prepare(
+      `INSERT INTO analysis_versions (flag_id, model_version, prompt_version, rubric_version)
+       VALUES (?, ?, ?, ?)`
+    )
+    .run(flag_id, model_version, prompt_version, rubric_version);
+  return Number(info.lastInsertRowid);
+}
+
+export function logArtifactAccess(db, { firm_id, actor, artifact_type, artifact_id, action }) {
+  db.prepare(
+    `INSERT INTO artifact_access_log (firm_id, actor, artifact_type, artifact_id, action)
+     VALUES (?, ?, ?, ?, ?)`
+  ).run(firm_id, actor, artifact_type, String(artifact_id), action);
+}
+
+export function insertCitationFailure(db, { flag_id = null, snippet, nearest_text = null, score = null }) {
+  const info = db
+    .prepare("INSERT INTO citation_failures (flag_id, snippet, nearest_text, score) VALUES (?, ?, ?, ?)")
+    .run(flag_id, snippet, nearest_text, score);
+  return Number(info.lastInsertRowid);
+}
+
+// Prefer the firm's own historical row; fall back to the global published row.
+export function getFeeValueRange(db, caseType, firmId = null) {
+  if (firmId != null) {
+    const firmRow = db
+      .prepare("SELECT * FROM fee_value_ranges WHERE case_type = ? AND firm_id = ? ORDER BY updated_at DESC LIMIT 1")
+      .get(caseType, firmId);
+    if (firmRow) return firmRow;
+  }
+  return db
+    .prepare("SELECT * FROM fee_value_ranges WHERE case_type = ? AND firm_id IS NULL ORDER BY updated_at DESC LIMIT 1")
+    .get(caseType);
+}
