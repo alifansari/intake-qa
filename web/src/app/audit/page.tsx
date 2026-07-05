@@ -18,6 +18,7 @@ import {
   GUARANTEE_CANONICAL,
   GUARANTEE_METHODOLOGY,
   CATEGORY_NAME,
+  AUDIT_PAYMENT_URL,
 } from "@/lib/site-constants";
 
 const MAX = 10;
@@ -170,6 +171,26 @@ export default function AuditUploaderPage() {
             Full methodology and our model&apos;s precision/recall are on the{" "}
             <a href="/honesty" className="font-semibold text-navy underline">calibration page</a>.
           </p>
+        </div>
+
+        {/* Primary action: pay + book. Falls back to booking by email until the
+            Stripe Payment Link is set in site-constants (AUDIT_PAYMENT_URL). */}
+        <div className="mt-6 rounded-sm border border-navy bg-navy-tint p-4">
+          <p className="text-sm font-semibold text-ink">Ready to book?</p>
+          <p className="mt-1 text-sm text-muted">
+            Pay {AUDIT_PRICE} to book your Leak Audit — credited in full to your first subscription
+            invoice, and covered by the $50,000 Find-It Guarantee.
+          </p>
+          <a
+            href={
+              AUDIT_PAYMENT_URL ||
+              `mailto:${FOUNDER_EMAIL}?subject=${encodeURIComponent("Book my $500 Leak Audit")}`
+            }
+            {...(AUDIT_PAYMENT_URL ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            className="mt-3 inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
+          >
+            {AUDIT_PAYMENT_URL ? `Pay ${AUDIT_PRICE} & book your Leak Audit` : "Email us to book your Leak Audit"}
+          </a>
         </div>
       </div>
 
