@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ComplianceGateDiagram } from "@/components/marketing/ComplianceGateDiagram";
+import { ACCOUNTABLE_PARTY_LINE } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "The compliance case for Intake QA (California)",
   description:
-    "Built on California authority: runner/capper (B&P §6151–6152), flat-fee pricing and AB 931, Rules 7.2/7.3, confidentiality (1.18/1.6), vendor supervision (5.3), GenAI ethics (Formal Op. 512 + CA State Bar guidance), §632 recording, and TCPA.",
+    "Built on California authority: runner/capper and outcome-decoupled pricing (B&P §§6151–6152, SB 37), Rules 7.2/7.3 solicitation, confidentiality (1.18/1.6), vendor supervision (5.3), GenAI ethics (CA State Bar guidance + ABA Formal Op. 512), §632 recording, and the current TCPA posture.",
   alternates: { canonical: "/compliance" },
 };
 
@@ -34,53 +35,68 @@ export default function CompliancePage() {
         its own.
       </p>
 
-      <Sec rule="B&P §6151–§6152 · runner / capper" title="We don't find you clients. We help you answer the ones who already called.">
+      <Sec rule="B&P §§6151–6152 · runner / capper · SB 37 (2026)" title="Our fee is flat and monthly. It is never tied to whether you sign or recover a case.">
         <p>
-          California Business &amp; Professions Code §6151–§6152 makes it unlawful to act as a
-          &ldquo;runner or capper&rdquo; — a person or entity paid to act as an agent in the
-          solicitation or procurement of business for a lawyer; §6154 voids any contract procured
-          through one.
+          This is the design decision that matters most. California Business &amp; Professions Code
+          §6151 defines a &ldquo;runner or capper&rdquo; as a person or entity acting{" "}
+          <em>for consideration</em> as an agent for a lawyer &ldquo;in the solicitation or
+          procurement of business.&rdquo; §6152 prohibits that arrangement. A fee paid to a
+          non-lawyer that rises or falls with whether a case is signed, recovered, or won can be
+          characterized as exactly that kind of payment.
         </p>
         <p>
-          Intake QA never solicits or procures new clients. It only helps your firm re-contact
-          people who already called your firm — your own inbound prospective clients. It is
-          quality control and internal follow-up, not an agent bringing you strangers.
-        </p>
-      </Sec>
-
-      <Sec rule="Flat fee · California AB 931 (2025)" title="A fixed fee per recovered case — not a percentage, not per lead.">
-        <p>
-          Intake QA is paid a fixed fee per recovered case, the same whether the case settles for
-          $10,000 or $1,000,000. It is not a percentage of any recovery and not a per-lead or
-          referral fee.
+          So we don&apos;t structure our fee that way. Intake QA charges a flat monthly subscription
+          to analyze your calls. It does not change whether you sign zero cases or fifty. Because
+          our compensation is not tied to procuring or recovering any case, it cannot fairly be
+          characterized as payment to an agent for soliciting or procuring clients under §§6151–6152.
+          You pay us for analysis, the same way you pay your answering service or your CRM.
         </p>
         <p>
-          California AB 931 (signed October 10, 2025; applies to contracts entered on or after
-          January 1, 2026) addresses fee-sharing and consumer legal funding, and carves out
-          contracts that (1) use a flat-fee structure, (2) don&apos;t pay for referrals or lead
-          generation, and (3) don&apos;t scale payment with the amount recovered (Holland &amp;
-          Knight analysis, Sept. 2025). Our pricing sits inside all three conditions. AB 931 is
-          under a constitutional challenge (Wisner Baum LLP v. Bonta, filed Nov. 2025); we frame
-          flat-fee pricing as aligned with the direction of California law, not as
-          &ldquo;AB 931 compliance.&rdquo;
+          The stakes here rose in 2026. §6153 makes capping a crime — &ldquo;punishable, upon a first
+          conviction, by imprisonment in a county jail for not more than one year or by a fine not
+          exceeding fifteen thousand dollars ($15,000), or by both.&rdquo; SB 37 (Umberg), Chapter
+          645, Statutes of 2025, effective January 1, 2026, added a civil private right of action:
+          &ldquo;statutory damages of a minimum of five thousand dollars ($5,000) up to a maximum of
+          one hundred thousand dollars ($100,000) per violation, or three times the amount of actual
+          damages, whichever is larger,&rdquo; plus attorney&apos;s fees. SB 37 does not contain a
+          stand-alone ban on per-case vendor pricing; that conduct is reached through the §§6151–6152
+          capping framework, now backed by this private right of action. Flat monthly pricing keeps
+          the question from arising.
         </p>
       </Sec>
 
-      <Sec rule="CA Rules of Professional Conduct 7.2 &amp; 7.3" title="Responding to someone's own inquiry is not solicitation.">
+      <Sec rule="B&P §§6151–6152 · runner / capper" title="We don't find you clients. We help you answer the ones who already called.">
+        <p>
+          The same statutes bar acting as an agent who brings a lawyer new business. Intake QA never
+          solicits or procures new clients. It only helps your firm re-contact people who already
+          called your firm — your own inbound prospective clients. It is quality control and internal
+          follow-up, not an agent bringing you strangers. §6154 voids any contract procured through a
+          runner or capper; we never procure a contract for you.
+        </p>
+      </Sec>
+
+      <Sec rule="CA Rules of Professional Conduct 7.2 &amp; 7.3 (2018)" title="Responding to someone's own inquiry is not solicitation.">
         <p>
           Rule 7.2 bars a lawyer from giving anything of value for recommending the lawyer&apos;s
           services. Intake QA doesn&apos;t recommend your firm to anyone and isn&apos;t paid to
           refer.
         </p>
         <p>
-          Rule 7.3 prohibits solicitation by live contact for pecuniary gain. The nuance that
-          matters: a communication made in response to the prospective client&apos;s own inquiry is
-          not a prohibited solicitation. Win-back texts go only to people who already called your
-          firm — you&apos;re responding to an inbound inquiry, not soliciting a stranger. Written
-          communications must honor a recipient&apos;s stated wish not to be contacted and must
-          avoid intrusion, coercion, or harassment (Rule 7.3(b)); every draft includes an opt-out
-          (&ldquo;Reply STOP&rdquo;) and human approval. We don&apos;t claim win-back SMS is
-          categorically outside 7.3 — we give you the controls, and your counsel makes the call.
+          Rule 7.3 governs solicitation. The nuance that matters: a communication made in response to
+          the prospective client&apos;s own inquiry is treated differently from an unsolicited
+          approach to a stranger. Win-back texts go only to people who already called your firm — you
+          are responding to an inbound inquiry, not soliciting a stranger. Written communications must
+          still honor a recipient&apos;s stated wish not to be contacted and must avoid intrusion,
+          coercion, or harassment; every draft includes an opt-out (&ldquo;Reply STOP&rdquo;) and human
+          approval. We don&apos;t claim win-back SMS is categorically outside 7.3 — we give you the
+          controls, and your counsel makes the call.
+        </p>
+        <p className="text-sm text-faint">
+          These are the Chapter 7 rules effective November 1, 2018, which remain the operative rules.
+          {" "}
+          {/* TODO(Ali): the second-round audit referenced "March 2025 amendments to Rules 7.1–7.3." This task could not confirm any such amendment is in force; a separate State Bar proposal on lawyer-referral-service rules had public comment close Jan. 10, 2026 but is not yet enacted. Do not cite a March 2025 amendment as live until confirmed. */}
+          A separate State Bar proposal on lawyer-referral-service rules is pending and not yet
+          enacted.
         </p>
         <div className="pt-2">
           <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-muted">
@@ -92,50 +108,62 @@ export default function CompliancePage() {
 
       <Sec rule="CA Rules 1.18 &amp; 1.6 · confidentiality" title="Your callers' words are confidential prospective-client information.">
         <p>
-          Intake calls are prospective-client information under Rule 1.18. We treat every uploaded
-          call as confidential and process it only to provide the service. Your firm remains the
-          party that owes the duty; we&apos;re built to help you keep it.
+          Intake calls are prospective-client information under Rule 1.18, and the duty of
+          confidentiality under Rule 1.6 attaches. We treat every uploaded call as confidential and
+          process it only to provide the service. Your firm remains the party that owes the duty;
+          we&apos;re built to help you keep it. {ACCOUNTABLE_PARTY_LINE} The vendor detail is on the{" "}
+          <Link href="/security" className="font-semibold text-accent hover:text-accent-hover">
+            security page
+          </Link>
+          .
         </p>
       </Sec>
 
-      <Sec rule="CA Rule 5.3 · supervising nonlawyer vendors" title="A nonlawyer service your firm supervises.">
+      <Sec rule="CA Rule 5.3 · supervising nonlawyer assistants" title="A nonlawyer service your firm supervises.">
         <p>
-          Intake QA is a nonlawyer service under your supervision (Rule 5.3). The tool never contacts
-          anyone autonomously; a person at your firm approves every send. The AI drafts — it does
-          not decide who to contact or what your firm owes anyone.
+          Rule 5.3 is the correct hook here: a lawyer must make reasonable efforts to ensure a
+          nonlawyer&apos;s conduct is compatible with the lawyer&apos;s own obligations. Intake QA is
+          that nonlawyer service, under your supervision. The tool never contacts anyone
+          autonomously; a person at your firm approves every send. The AI drafts — it does not decide
+          who to contact or what your firm owes anyone.
         </p>
       </Sec>
 
-      <Sec rule="ABA Formal Op. 512 · CA State Bar GenAI guidance" title="The AI drafts. A human at your firm verifies and sends.">
+      <Sec rule="CA State Bar GenAI guidance · ABA Formal Op. 512" title="The AI drafts. A human at your firm verifies and sends.">
         <p>
-          ABA Formal Opinion 512 (July 29, 2024) and the California State Bar&apos;s Practical
-          Guidance for the Use of Generative Artificial Intelligence in the Practice of Law
-          (Nov. 16, 2023) address competence (Rule 1.1) and confidentiality (Rule 1.6) when lawyers
-          use AI. Intake QA is built for that posture: it drafts and scores, a person at your firm
-          reviews and approves, and it makes no legal judgments and sends nothing on its own.
+          The California State Bar&apos;s Practical Guidance for the Use of Generative Artificial
+          Intelligence in the Practice of Law (November 16, 2023) and ABA Formal Opinion 512 (July 29,
+          2024) map existing duties to AI use: competence (Rule 1.1), confidentiality (Rule 1.6),
+          communication (Rule 1.4), candor (Rule 3.3), supervision (Rules 5.1/5.3), and reasonable
+          fees (Rule 1.5). Intake QA is built for that posture: it drafts and scores, a person at your
+          firm reviews and approves, and it makes no legal judgments and sends nothing on its own.
         </p>
       </Sec>
 
       <Sec rule="Penal Code §632 / §632.7 · call recording" title="You record the calls. We process the recordings you already made.">
         <p>
-          California is an all-party-consent state (Penal Code §632; §632.7 for cell and cordless
-          calls; Smith v. LoanMe, 2021). Intake QA processes calls your firm already recorded — we do
-          not obtain consent for you, and your firm is responsible for having obtained it. Under
-          Kearney v. Salomon Smith Barney (2006), telling callers at the outset that the call is
-          recorded is sufficient. A disclosure pattern that works: &ldquo;This call is being recorded
-          for quality assurance.&rdquo;
+          California is an all-party-consent state: Penal Code §632 requires the consent of all
+          parties to record a confidential communication (a fine up to $2,500 per violation), and
+          §632.7 extends that to cell and cordless calls (Smith v. LoanMe, Cal. 2021). Intake QA
+          processes calls your firm already recorded — we do not obtain consent for you, and your firm
+          is responsible for having obtained it. A disclosure at the outset that the call is being
+          recorded is the standard pattern: &ldquo;This call is being recorded for quality
+          assurance.&rdquo;
           {" "}
           {/* TODO(Ali): confirm the firm's own consent/disclosure process before relying on this in onboarding. */}
         </p>
       </Sec>
 
-      <Sec rule="TCPA / SMS (2025–2026)" title="Texts go to your own prior callers, with opt-out, only after registration.">
+      <Sec rule="TCPA / SMS (2026)" title="Texts go to your own prior callers, with opt-out, only after registration.">
         <p>
           The FCC&apos;s &ldquo;one-to-one consent&rdquo; rule was vacated by the Eleventh Circuit in
-          Insurance Marketing Coalition v. FCC (Jan. 24, 2025) and repealed by the FCC, so that
-          heightened lead-gen consent regime is not in force. The TCPA still requires prior express
-          consent for certain autodialed or marketing texts, and revocation must be honored (FCC
-          revocation rules effective April 11, 2025). Win-back texts go to your firm&apos;s own prior
+          Insurance Marketing Coalition Ltd. v. FCC (Jan. 24, 2025), which held it
+          &ldquo;impermissibly conflict[ed] with the ordinary statutory meaning of &lsquo;prior
+          express consent,&rsquo;&rdquo; and the FCC declined to challenge it and reinstated the prior
+          rules. That heightened lead-gen consent regime is not in force, and bundled consent is again
+          permissible. The TCPA still requires prior express written consent for marketing autodialed
+          or prerecorded texts, and revocation must be honored — which is exactly why win-back SMS is
+          compliance-gated and human-approved. Win-back texts go to your firm&apos;s own prior
           callers, include an opt-out, and send only after A2P 10DLC registration clears and a person
           at your firm approves. Your counsel should confirm your consent basis.
         </p>
@@ -145,9 +173,18 @@ export default function CompliancePage() {
         <p>
           Call recordings and transcripts may contain personal information under the CCPA/CPRA.
           Intake QA acts as your service provider: it processes the data only to provide the service
-          and does not sell it.
+          and does not sell or share it.
           {" "}
           {/* TODO(Ali): confirm the exact "service provider" contract language exists in the DPA before publishing. */}
+        </p>
+      </Sec>
+
+      <Sec rule="Note for readers outside California" title="ABA Model Rule 5.4 (fee-sharing) — a secondary footnote, not our lead.">
+        <p>
+          Outside California, some readers reach for ABA Model Rule 5.4 (sharing legal fees with a
+          nonlawyer). It isn&apos;t the right lead authority here: our fee is a flat monthly
+          subscription, not a share of any fee, so there is nothing to split. For a California firm
+          the governing analysis is the runner/capper framework above (§§6151–6152), not Rule 5.4.
         </p>
       </Sec>
 

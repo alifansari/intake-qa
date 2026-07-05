@@ -8,6 +8,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { getSupabaseBrowser } from "../../lib/supabase/client";
+import { DELETION_DAYS, FOUNDER_NAME, FOUNDER_EMAIL } from "@/lib/site-constants";
 
 const MAX = 10;
 
@@ -182,17 +183,25 @@ export default function AuditUploaderPage() {
             </ul>
           </details>
 
-          {/* De-risk block: where your calls go and how they're handled */}
+          {/* De-risk block: the deal, in plain terms */}
           <div className="rounded-sm border border-line bg-paper p-4">
-            <p className="text-sm font-semibold text-ink">Where your calls go, and how they&apos;re handled</p>
-            <ul className="mt-2 space-y-1.5 text-sm text-muted">
-              <li>Only recorded intake calls. No client files. Redact anything you want first.</li>
-              <li>Stored on Supabase (SOC 2 Type 2, ISO 27001, encrypted at rest and in transit). Transcribed by AssemblyAI (SOC 2 Type 2). Scored with Anthropic&apos;s Claude commercial API, whose terms don&apos;t use your data to train AI and delete API logs on a short window.</li>
-              <li>Your calls are never used to train any AI model.</li>
-              <li>Recordings and transcripts are deleted within 7 days of your audit readout — or immediately, on written request.</li>
-              <li>We have a DPA ready to sign and we&apos;ll sign your NDA — or work from your firm&apos;s paper.</li>
-              <li>These are your prospective clients&apos; confidential communications (Cal. Rule 1.18). We treat them that way. One person is accountable: Ali — <a href="mailto:ali@plaintiffops.com" className="font-semibold text-navy underline">ali@plaintiffops.com</a>.</li>
-            </ul>
+            <p className="text-sm font-semibold text-ink">Here&apos;s the deal, in plain terms</p>
+            <p className="mt-2 text-sm text-muted">
+              You send up to 10 recorded intake calls. We score them and show you — in dollars — how
+              much signable fee revenue didn&apos;t convert, with the evidence behind every flag. Your
+              recordings and transcripts are deleted within {DELETION_DAYS} days of your readout, and
+              immediately if you ask in writing. Nothing is ever texted to anyone. One person is
+              accountable for your data and your audit: {FOUNDER_NAME}, founder of Intake QA —{" "}
+              <a href={`mailto:${FOUNDER_EMAIL}`} className="font-semibold text-navy underline">
+                {FOUNDER_EMAIL}
+              </a>
+              . You get a report you can keep. You decide what to do next.
+            </p>
+            <p className="mt-2 text-xs text-faint">
+              These are your prospective clients&apos; confidential communications (Cal. Rule 1.18),
+              and we treat them that way. The named providers we use and their security postures are
+              on the <a href="/security" className="font-semibold text-navy underline">security page</a>.
+            </p>
           </div>
 
           {files.length > 0 && (
