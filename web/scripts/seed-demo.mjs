@@ -9,23 +9,23 @@
 import { openMigratedDb, DEFAULT_DB_PATH } from "../db/connection.mjs";
 
 const CALLERS = [
-  { initials: "J.R.", id: "#A-0142", caseType: "Auto — rear-end", score: 84, tier: "strong",
+  { initials: "J.R.", id: "#A-0142", name: "Jordan Rivera (TEST)", caseType: "Auto — rear-end", score: 84, tier: "strong",
     reason: "Rear-ended by company truck; driver admitted fault; treating; ready to proceed, no callback.",
     citations: [
       { fact_kind: "qualifying_fact", start_ms: 192000, end_ms: 196000, verbatim_snippet: "the other driver admitted it was his fault", status: "passed", validation_score: 97 },
       { fact_kind: "flag_rationale", start_ms: 500000, end_ms: 504000, verbatim_snippet: "I definitely want to move forward with this", status: "passed", validation_score: 95 },
     ] },
-  { initials: "M.E.", id: "#A-0187", caseType: "Slip & fall", score: 81, tier: "strong",
+  { initials: "M.E.", id: "#A-0187", name: "María Elena (TEST)", caseType: "Slip & fall", score: 81, tier: "strong",
     reason: "Unmarked wet floor at grocery store; fractured wrist; incident report filed (Spanish-language call).",
     citations: [
       { fact_kind: "qualifying_fact", start_ms: 125000, end_ms: 130000, verbatim_snippet: "no había ningún letrero, me resbalé", status: "passed", validation_score: 93 },
     ] },
-  { initials: "T.W.", id: "#A-0203", caseType: "Dog bite", score: 66, tier: "moderate",
+  { initials: "T.W.", id: "#A-0203", name: "Terry Wells (TEST)", caseType: "Dog bite", score: 66, tier: "moderate",
     reason: "Neighbor's dog; puncture wounds treated at ER; severity unclear on call.",
     citations: [
       { fact_kind: "qualifying_fact", start_ms: 108000, end_ms: 112000, verbatim_snippet: "the dog bit my arm and I went to the ER", status: "needs_review", validation_score: 86 },
     ] },
-  { initials: "R.K.", id: "#A-0210", caseType: "Auto — rear-end", score: 62, tier: "moderate",
+  { initials: "R.K.", id: "#A-0210", name: "Robin Klein (TEST)", caseType: "Auto — rear-end", score: 62, tier: "moderate",
     reason: "Low-speed collision; caller unsure of injury severity, some soreness.",
     citations: [
       { fact_kind: "qualifying_fact", start_ms: 362000, end_ms: 366000, verbatim_snippet: "my neck's been a little sore since", status: "needs_review", validation_score: 88 },
@@ -36,7 +36,8 @@ export function seedDemo(db) {
   const s = {
     firm: db.prepare("INSERT INTO firms (name, avg_case_fee, kill_switch, is_demo) VALUES (?, 12000, 1, 1)"),
     call: db.prepare("INSERT INTO calls (firm_id, source, received_at, status, status_reason) VALUES (?, 'manual', ?, ?, ?)"),
-    flag: db.prepare("INSERT INTO flags (call_id, firm_id, qualification_score, is_leaked_signable, reason) VALUES (?, ?, ?, 1, ?)"),
+    flag: db.prepare("INSERT INTO flags (call_id, firm_id, qualification_score, is_leaked_signable, reason, case_type) VALUES (?, ?, ?, 1, ?, ?)"),
+    nameCall: db.prepare("UPDATE calls SET caller_name = ? WHERE id = ?"),
     conf: db.prepare("INSERT INTO flag_confidence (flag_id, confidence_tier, rubric_version) VALUES (?, ?, 'rubric-v1') ON CONFLICT (flag_id) DO NOTHING"),
     ver: db.prepare("INSERT INTO analysis_versions (flag_id, model_version, prompt_version, rubric_version) VALUES (?, 'claude-sonnet-4-6', 'sys-v3', 'rubric-v1')"),
     cite: db.prepare("INSERT INTO transcript_citations (flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score, status) VALUES (?, ?, ?, ?, ?, ?, ?)"),
@@ -62,7 +63,8 @@ export function seedDemo(db) {
   // Four leaked-signable flags on the first four analyzed calls.
   CALLERS.forEach((c, i) => {
     const callId = analyzedCallIds[i];
-    const flagId = Number(s.flag.run(callId, firmId, c.score, c.reason).lastInsertRowid);
+    s.nameCall.run(c.name, callId);
+    const flagId = Number(s.flag.run(callId, firmId, c.score, c.reason, c.caseType).lastInsertRowid);
     s.conf.run(flagId, c.tier);
     s.ver.run(flagId);
     for (const cit of c.citations) {
