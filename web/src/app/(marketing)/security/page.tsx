@@ -55,10 +55,10 @@ export default function SecurityPage() {
       <section className="mt-10">
         <h2 className="font-display text-2xl font-semibold text-ink">Retention &amp; deletion</h2>
         <p className="mt-3 max-w-[72ch] text-ink-muted">
-          We delete audio and transcripts on a set schedule.
-          {" "}
-          {/* TODO(Ali): state the exact audio + transcript retention/deletion timeline before publishing. */}
-          <span className="text-faint"> [Exact timeline: to be confirmed.]</span>
+          Your recordings and transcripts are deleted from our systems within 7 days of your audit
+          readout — or immediately, on written request. If you move to a pilot, your data carries
+          over under the pilot agreement, and the same deletion right applies. Our AI subprocessors
+          never train on your data.
         </p>
       </section>
 
@@ -103,10 +103,11 @@ export default function SecurityPage() {
         <div className="rounded-card border border-hairline bg-surface p-6">
           <p className="font-display text-lg font-semibold text-ink">A named human</p>
           <p className="mt-2 text-sm text-ink-muted">
-            One person is accountable for your data: Ali, the founder.
-            {" "}
-            {/* TODO(Ali): add your direct contact path (email) for data questions. */}
-            <span className="text-faint"> [Contact: to be added.]</span>
+            One person is accountable for your data: Ali, the founder —{" "}
+            <a href="mailto:ali@plaintiffops.com" className="font-semibold text-accent hover:text-accent-hover">
+              ali@plaintiffops.com
+            </a>
+            .
           </p>
         </div>
       </section>
