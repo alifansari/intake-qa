@@ -65,8 +65,8 @@ export default function HomePage() {
         </h1>
         <p className="mt-6 max-w-[62ch] text-lg text-ink-muted">
           Intake QA scores every intake call, flags the signable cases your team let slip, and
-          drafts the compliant follow-up — so the fees you spent $100–$500 a click to earn
-          don&apos;t walk to the firm across the street.
+          drafts a compliant lead follow-up. Monetize your marketing dollars and sign more
+          cases with Intake QA.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-5">
           <CTA />
