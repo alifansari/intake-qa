@@ -10,12 +10,12 @@ import { FounderNote } from "@/components/marketing/FounderNote";
 export const metadata: Metadata = {
   title: "Intake QA — you already paid for these cases. Go get them back.",
   description:
-    "Intake QA scores every intake call, flags the signable cases your team let slip, and drafts the compliant follow-up. Free Leak Audit — a dollar figure in minutes.",
+    "Intake QA scores every intake call, flags the signable cases your team let slip, and drafts the compliant follow-up. Free Intake Quality Audit — a dollar figure in minutes.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "You already paid for these cases. Go get them back.",
     description:
-      "Score every intake call, catch the signable cases you're leaking, recover the fees. Free Leak Audit.",
+      "Score every intake call, catch the signable cases you're leaking, recover the fees. Free Intake Quality Audit.",
     images: ["/og?title=You+already+paid+for+these+cases"],
   },
 };
@@ -39,7 +39,7 @@ const STEPS = [
   "You’re billed a flat fee per case — never a slice of the fee",
 ];
 
-function CTA({ children = "Run my free Leak Audit", href = "/audit" }: { children?: string; href?: string }) {
+function CTA({ children = "Run your free Intake Quality Audit", href = "/audit" }: { children?: string; href?: string }) {
   return (
     <Link
       href={href}
@@ -65,8 +65,8 @@ export default function HomePage() {
         </h1>
         <p className="mt-6 max-w-[62ch] text-lg text-ink-muted">
           Intake QA scores every intake call, flags the signable cases your team let slip, and
-          drafts the compliant follow-up — so the fees you spent $100–$500 a click to earn
-          don&apos;t walk to the firm across the street.
+          drafts a compliant lead follow-up. Monetize your marketing dollars and sign more
+          cases with Intake QA.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-5">
           <CTA />
@@ -135,7 +135,7 @@ export default function HomePage() {
           </p>
           <div className="mt-7">
             <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-              Run my free Leak Audit
+              Run your free Intake Quality Audit
             </Link>
           </div>
         </div>
