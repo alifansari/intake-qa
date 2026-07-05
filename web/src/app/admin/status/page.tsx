@@ -34,39 +34,49 @@ async function loadState() {
     }
     const db = await store.openPipelineDb();
     try {
-      const [firms, errors, drafted, simLog, consenting, benchmark, audits] = await Promise.all([
+      const [firms, errors, drafted] = await Promise.all([
         store.listFirms(db),
         store.getRecentErrors(db, 15),
         store.getDraftedMessages(db),
-        store.countStripeSimLog(db),
-        store.countConsentingFirms(db),
-        store.getLatestBenchmarkSnapshot(db),
-        store.listRecentAuditSessions(db, 200),
       ]);
-      // Per-firm subsystem presence (feature flags on, integrations configured).
-      let firmsWithFeatures = 0;
-      let integrationsConfigured = 0;
-      for (const f of firms as FirmRow[]) {
-        const [feats, integs] = await Promise.all([
-          store.getFirmFeatures(db, f.id),
-          store.listFirmIntegrations(db, f.id),
+      // Enhancement subsystems query the 0008–0012 tables. Isolate them so that
+      // if those migrations haven't been applied yet, the core status page still
+      // renders (graceful degradation) instead of failing to "not connected".
+      let subsystems = null;
+      try {
+        const [simLog, consenting, benchmark, audits] = await Promise.all([
+          store.countStripeSimLog(db),
+          store.countConsentingFirms(db),
+          store.getLatestBenchmarkSnapshot(db),
+          store.listRecentAuditSessions(db, 200),
         ]);
-        if (Object.values(feats as Record<string, boolean>).some(Boolean)) firmsWithFeatures += 1;
-        integrationsConfigured += (integs as unknown[]).length;
-      }
-      return {
-        connected: true as const,
-        firms: firms as FirmRow[],
-        errors: errors as ErrorRow[],
-        pendingCount: (drafted as unknown[]).length,
-        subsystems: {
+        let firmsWithFeatures = 0;
+        let integrationsConfigured = 0;
+        for (const f of firms as FirmRow[]) {
+          const [feats, integs] = await Promise.all([
+            store.getFirmFeatures(db, f.id),
+            store.listFirmIntegrations(db, f.id),
+          ]);
+          if (Object.values(feats as Record<string, boolean>).some(Boolean)) firmsWithFeatures += 1;
+          integrationsConfigured += (integs as unknown[]).length;
+        }
+        subsystems = {
           firmsWithFeatures,
           simLogCount: simLog as number,
           benchmarkConsent: consenting as number,
           benchmarkAvailable: Boolean(benchmark),
           auditCount: (audits as unknown[]).length,
           integrationsConfigured,
-        },
+        };
+      } catch {
+        subsystems = null; // migrations not applied yet — hide the card, don't crash
+      }
+      return {
+        connected: true as const,
+        firms: firms as FirmRow[],
+        errors: errors as ErrorRow[],
+        pendingCount: (drafted as unknown[]).length,
+        subsystems,
       };
     } finally {
       await store.closePipelineDb(db);
