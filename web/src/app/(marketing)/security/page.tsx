@@ -94,10 +94,8 @@ export default function SecurityPage() {
         <div className="rounded-card border border-hairline bg-surface p-6">
           <p className="font-display text-lg font-semibold text-ink">Legal agreements</p>
           <p className="mt-2 text-sm text-ink-muted">
-            We&apos;ll sign your NDA and a data-processing agreement.
-            {" "}
-            {/* TODO(Ali): confirm whether a DPA/NDA template exists or the firm's paper is used. */}
-            <span className="text-faint"> [Template vs. your paper: to be confirmed.]</span>
+            We have a data-processing agreement (DPA) ready to sign, and we&apos;ll sign your NDA —
+            or work from your firm&apos;s own paper.
           </p>
         </div>
         <div className="rounded-card border border-hairline bg-surface p-6">

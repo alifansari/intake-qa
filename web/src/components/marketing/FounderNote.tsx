@@ -11,7 +11,9 @@ export function FounderNote({ full = false }: { full?: boolean }) {
       >
         A
       </div>
-      {/* TODO(Ali): drop a real headshot at /public/founder.jpg and swap the monogram for <Image>. */}
+      {/* TODO(Ali): headshot received — save it to web/public/founder.jpg (GitHub → Add file → Upload files),
+          then this monogram gets swapped for <Image src="/founder.jpg" alt="Ali, founder of Intake QA" .../>.
+          Not wired yet to avoid a broken image link before the file is in the repo. */}
       <div className="text-sm leading-relaxed text-ink-muted">
         <p>
           {full
