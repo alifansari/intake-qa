@@ -10,8 +10,16 @@
 import { writeFile, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { openPipelineDb, closePipelineDb, createDemoCall } from "../../../../../ingest/store.mjs";
+import {
+  openPipelineDb,
+  closePipelineDb,
+  createDemoCall,
+  countAuditSessionCalls,
+  attachDemoCallToSession,
+} from "../../../../../ingest/store.mjs";
 import { runDemoPipeline, checkDemoRateLimit, purgeDemo } from "../../../../../ingest/demo.mjs";
+import { resolveSession, MAX_CALLS_PER_SESSION } from "../../../../../ingest/audit.mjs";
+import type { ResolveResult } from "@/lib/audit-types";
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // allow long transcription/scoring where supported
@@ -48,23 +56,47 @@ export async function POST(req: Request) {
     return Response.json({ error: "file too large (25MB max)" }, { status: 413 });
   }
 
+  const sessionToken = typeof form.get("session") === "string" ? String(form.get("session")) : null;
+
   const ip = clientIp(req);
   const db = await openPipelineDb();
   try {
     // Opportunistic retention purge (also runnable as a cron).
     await purgeDemo({ db }).catch(() => {});
 
-    const gate = await checkDemoRateLimit({ db, ip });
-    if (!gate.allowed) {
-      const msg =
-        gate.reason === "concurrent"
-          ? "A demo is still processing — please wait for it to finish."
-          : "You've reached the hourly demo limit (3). Please try again later.";
-      await closePipelineDb(db);
-      return Response.json({ error: msg, reason: gate.reason }, { status: 429 });
+    // Audit uploads are governed by the session's 10-call cap, not the 3/hour
+    // single-demo gate. A non-audit upload keeps the demo rate limit.
+    let auditSessionId: unknown = null;
+    if (sessionToken) {
+      const resolved = (await resolveSession({ db, token: sessionToken })) as ResolveResult;
+      if (!resolved.ok || !resolved.session) {
+        await closePipelineDb(db);
+        const status = resolved.reason === "not_found" ? 404 : 410;
+        return Response.json({ error: "audit session unavailable", reason: resolved.reason }, { status });
+      }
+      const count = await countAuditSessionCalls(db, resolved.session.id);
+      if (count >= MAX_CALLS_PER_SESSION) {
+        await closePipelineDb(db);
+        return Response.json(
+          { error: `An audit holds up to ${MAX_CALLS_PER_SESSION} calls.`, reason: "call_limit" },
+          { status: 429 },
+        );
+      }
+      auditSessionId = resolved.session.id;
+    } else {
+      const gate = await checkDemoRateLimit({ db, ip });
+      if (!gate.allowed) {
+        const msg =
+          gate.reason === "concurrent"
+            ? "A demo is still processing — please wait for it to finish."
+            : "You've reached the hourly demo limit (3). Please try again later.";
+        await closePipelineDb(db);
+        return Response.json({ error: msg, reason: gate.reason }, { status: 429 });
+      }
     }
 
     const id = await createDemoCall(db, { client_ip: ip, filename: upload.name });
+    if (auditSessionId != null) await attachDemoCallToSession(db, auditSessionId, id);
 
     // Persist bytes to a temp file the pipeline transcribes then deletes.
     const audioPath = join(tmpdir(), `intakeqa-demo-${id}.${ext}`);

@@ -319,3 +319,60 @@ export const METHODOLOGY = {
     "Share of scored calls that still have no recorded outcome. Every unknown is a hole in the math above.",
   coldCallback: `A callback slower than ${COLD_HOURS} hour rarely recovers a lead — the decay curve shows sign rate falling as callback time grows.`,
 } as const;
+
+// ---------------------------------------------------------------------------
+// Rep scoreboard (Phase 6 — speed-to-lead coaching). Per-rep, over FLAGGED calls:
+// callback rate, median time-to-callback, SLA hit rate (callback within
+// `slaHours`), and sign rate on resolved calls. Pure — no I/O.
+export interface RepStat {
+  rep: string;
+  flagged: number;
+  callbackRate: number | null;
+  medianCallbackHours: number | null;
+  slaHitRate: number | null;
+  signRate: number | null;
+}
+
+function medianOf(xs: number[]): number | null {
+  if (!xs.length) return null;
+  const s = [...xs].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+}
+
+// Default SLA for "fast callback" = 15 minutes (0.25h), matching messaging/sla.mjs.
+export function repScoreboard(rows: ReconciledCall[], slaHours = 0.25): RepStat[] {
+  type Acc = {
+    rep: string; flagged: number; cb: number; ttcs: number[]; slaHit: number; resolved: number; signedUs: number;
+  };
+  const map = new Map<string, Acc>();
+  for (const r of rows) {
+    if (!r.flagged) continue;
+    const rep = r.meta.rep || "Unassigned";
+    const m = map.get(rep) ?? { rep, flagged: 0, cb: 0, ttcs: [], slaHit: 0, resolved: 0, signedUs: 0 };
+    m.flagged += 1;
+    if (r.outcome.callback_made) {
+      m.cb += 1;
+      const ttc = r.outcome.time_to_callback_hours;
+      if (ttc != null) {
+        m.ttcs.push(ttc);
+        if (ttc <= slaHours) m.slaHit += 1;
+      }
+    }
+    if (isResolved(r.outcome.outcome_code)) {
+      m.resolved += 1;
+      if (r.outcome.outcome_code === "signed_us_after_callback") m.signedUs += 1;
+    }
+    map.set(rep, m);
+  }
+  return [...map.values()]
+    .map((m) => ({
+      rep: m.rep,
+      flagged: m.flagged,
+      callbackRate: m.flagged ? m.cb / m.flagged : null,
+      medianCallbackHours: medianOf(m.ttcs),
+      slaHitRate: m.cb ? m.slaHit / m.cb : null,
+      signRate: m.resolved ? m.signedUs / m.resolved : null,
+    }))
+    .sort((a, b) => (b.signRate ?? -1) - (a.signRate ?? -1));
+}

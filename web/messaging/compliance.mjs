@@ -58,10 +58,13 @@ export function localHour(now, timezone) {
   }
 }
 
-// Opt-out keyword detection (FCC/CTIA standard set). Case-insensitive, matched
-// as a standalone word/phrase so "stopping by" does NOT trigger an opt-out.
+// Opt-out keyword detection (FCC/CTIA standard set + Spanish equivalents, since
+// PI intake is often Spanish-speaking). Case-insensitive, matched as a standalone
+// word/phrase so "stopping by" does NOT trigger an opt-out. Spanish keywords:
+// ALTO (stop), CANCELAR (cancel), PARAR (stop), NO. We err toward honoring an
+// opt-out (a false positive just means we don't text — the compliance-safe side).
 const OPT_OUT_RE =
-  /(^|\W)(stop|unsubscribe|cancel|quit|end|revoke|opt\s*out)(\W|$)/i;
+  /(^|\W)(stop|unsubscribe|cancel|quit|end|revoke|opt\s*out|alto|cancelar|parar|no)(\W|$)/i;
 
 export function detectOptOut(text) {
   return OPT_OUT_RE.test(String(text ?? ""));

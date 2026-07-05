@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/", label: "Executive Summary" },
   { href: "/calibration", label: "Calibration & Honesty" },
   { href: "/funnel", label: "Recovery Funnel" },
+  { href: "/reps", label: "Rep Scoreboard" },
   { href: "/triage", label: "Triage Queue" },
   { href: "/statement", label: "Statement" },
   { href: "/queue", label: "Approval Queue" },

@@ -12,6 +12,9 @@ import Anthropic from "@anthropic-ai/sdk";
 const MODEL = "claude-sonnet-4-6";
 export const MAX_SMS_CHARS = 320;
 export const OPT_OUT_TEXT = "Reply STOP to opt out.";
+// Spanish opt-out line. Spanish drafts carry BOTH this AND the English "Reply
+// STOP" — Twilio honors the English keyword, so we keep it even in Spanish.
+export const OPT_OUT_TEXT_ES = "Responde ALTO para cancelar.";
 
 // The hard rules, stated to the model AND enforced by validateDraft below.
 const DRAFTING_SYSTEM = `You draft short SMS messages for a law firm's intake team re-engaging a
@@ -49,14 +52,19 @@ const BANNED = [
 // Validate a draft against the constraints. Returns an array of error strings
 // (empty = valid). `firstMessage` requires opt-out language; `firmName` (if
 // given) must appear in the text.
-export function validateDraft(text, { firstMessage = false, firmName = null } = {}) {
+export function validateDraft(text, { firstMessage = false, firmName = null, language = "en" } = {}) {
   const errors = [];
   const t = String(text ?? "");
   if (t.trim().length === 0) errors.push("empty message");
   if (t.length > MAX_SMS_CHARS)
     errors.push(`too long (${t.length} > ${MAX_SMS_CHARS} chars)`);
-  if (firstMessage && !/\bstop\b/i.test(t))
-    errors.push("first message missing opt-out language");
+  if (firstMessage) {
+    // English opt-out is REQUIRED in every first message (Twilio honors STOP).
+    if (!/\bstop\b/i.test(t)) errors.push("first message missing opt-out language (STOP)");
+    // Spanish drafts must ALSO carry the Spanish opt-out line.
+    if (language === "es" && !/\balto\b/i.test(t))
+      errors.push("Spanish first message missing opt-out language (ALTO)");
+  }
   if (firmName && !t.includes(firmName))
     errors.push("does not identify the firm by name");
   for (const re of BANNED) {
@@ -111,6 +119,7 @@ export async function draftFirstMessage({
   template,
   firmName,
   callerName,
+  language = "en",
   drafter = defaultDrafter,
 }) {
   const firstName = (callerName ?? "").trim().split(/\s+/)[0] || "there";
@@ -119,6 +128,13 @@ export async function draftFirstMessage({
     `FIRM NAME: ${firmName}`,
     `CALLER FIRST NAME: ${firstName}`,
     `ONE-LINE CALL SUMMARY (context only — do not quote legal detail): ${transcriptSummary ?? "(none)"}`,
+    ...(language === "es"
+      ? [
+          ``,
+          `WRITE THE MESSAGE IN SPANISH. It MUST include BOTH opt-out lines verbatim:`,
+          `"${OPT_OUT_TEXT_ES}" AND "${OPT_OUT_TEXT}"`,
+        ]
+      : []),
     ``,
     `APPROVED TEMPLATE (base — personalize lightly, keep the opt-out):`,
     filled,
@@ -127,7 +143,7 @@ export async function draftFirstMessage({
   return draftWithGuard({
     system: DRAFTING_SYSTEM,
     user,
-    validateOpts: { firstMessage: true, firmName },
+    validateOpts: { firstMessage: true, firmName, language },
     drafter,
   });
 }
@@ -140,6 +156,7 @@ export async function draftReply({
   template,
   firmName,
   callerName,
+  language = "en",
   drafter = defaultDrafter,
 }) {
   const firstName = (callerName ?? "").trim().split(/\s+/)[0] || "there";
@@ -153,6 +170,7 @@ export async function draftReply({
     transcript || "(none)",
     ``,
     `CALLER JUST SAID: ${incoming}`,
+    ...(language === "es" ? [``, `WRITE THE REPLY IN SPANISH.`] : []),
     ``,
     `Draft the firm's next reply. Same warm, compliant style as this approved template:`,
     fillTemplate(template.body, { firmName, firstName }),
@@ -161,7 +179,7 @@ export async function draftReply({
   return draftWithGuard({
     system: DRAFTING_SYSTEM,
     user,
-    validateOpts: { firstMessage: false, firmName },
+    validateOpts: { firstMessage: false, firmName, language },
     drafter,
   });
 }

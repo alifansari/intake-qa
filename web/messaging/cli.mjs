@@ -195,6 +195,41 @@ async function main() {
     } else {
       console.log(`Daily digest for firm #${firmId} emailed (id ${res.id}).`);
     }
+  } else if (cmd === "billing") {
+    const [sub, firmId, period] = args;
+    if (sub !== "close-period") {
+      throw new Error("usage: billing close-period <firmId> <YYYY-MM>");
+    }
+    requireId(firmId, "billing close-period <firmId> <YYYY-MM>");
+    if (!/^\d{4}-\d{2}$/.test(period ?? "")) {
+      throw new Error("period must be YYYY-MM, e.g. 2026-06");
+    }
+    const { closePeriod } = await import("../billing/invoice.mjs");
+    const res = await closePeriod({ db, firmId, period });
+    if (res.skipped) {
+      console.log(`Firm #${firmId} has no billing config — nothing to close.`);
+    } else {
+      console.log(
+        `Closed ${period} for firm #${firmId}: invoice #${res.invoiceId}, ` +
+          `${res.caseCount} recovered case(s), total ${(res.total_cents / 100).toFixed(2)} ` +
+          `(Stripe simulated in TEST_MODE)${res.guaranteeApplied ? " · guarantee applied" : ""}.`
+      );
+    }
+  } else if (cmd === "benchmarks") {
+    const [sub] = args;
+    if (sub !== "compute") throw new Error("usage: benchmarks compute");
+    const { computeSnapshot } = await import("../analytics/benchmarks.mjs");
+    const res = await computeSnapshot({ db });
+    if (res.ok) {
+      console.log(
+        `Benchmark snapshot #${res.snapshotId}: ${res.contributor_count} firms, ` +
+          `${res.sample_size} flags, median handling ${Math.round(res.median_handling_score ?? 0)}.`
+      );
+    } else {
+      console.log(
+        `Not enough consenting firms yet (${res.contributors}/${res.minFirms}) — benchmark withheld (k-anonymity).`
+      );
+    }
   } else {
     console.log(
       [
@@ -211,6 +246,8 @@ async function main() {
         "  node messaging/cli.mjs outcome <conversationId> <no_response|lost|booked_callback|opted_out>",
         "  node messaging/cli.mjs report <firmId> [ISO date]",
         "  node messaging/cli.mjs digest <firmId>",
+        "  node messaging/cli.mjs billing close-period <firmId> <YYYY-MM>",
+        "  node messaging/cli.mjs benchmarks compute",
       ].join("\n")
     );
     process.exitCode = 1;

@@ -597,3 +597,432 @@ export async function getUnalertedErrors(db, sinceIso) {
   );
   return r.rows;
 }
+
+// --- Per-firm feature flags (migration 0008) ---------------------------------
+
+// All explicitly-set flags for a firm as { feature: boolean }. Absent = OFF.
+export async function getFirmFeatures(db, firmId) {
+  const r = await db.query(
+    "SELECT feature, enabled FROM firm_features WHERE firm_id = $1",
+    [firmId]
+  );
+  const out = {};
+  for (const row of r.rows) out[row.feature] = Boolean(row.enabled);
+  return out;
+}
+
+// Is one feature enabled for a firm? DEFAULT OFF when the row is absent.
+export async function isFeatureEnabled(db, firmId, feature) {
+  const r = await db.query(
+    "SELECT enabled FROM firm_features WHERE firm_id = $1 AND feature = $2",
+    [firmId, feature]
+  );
+  return r.rows[0] ? Boolean(r.rows[0].enabled) : false;
+}
+
+// Turn a feature on/off for a firm (idempotent upsert on (firm_id, feature)).
+export async function setFirmFeature(db, firmId, feature, enabled, now) {
+  await db.query(
+    `INSERT INTO firm_features (firm_id, feature, enabled, updated_at)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (firm_id, feature)
+     DO UPDATE SET enabled = excluded.enabled, updated_at = excluded.updated_at`,
+    [firmId, feature, Boolean(enabled), now ?? new Date().toISOString()]
+  );
+}
+
+// --- Leak Audit sessions (migration 0009) ------------------------------------
+
+export async function createAuditSession(
+  db,
+  { token, visitor_fingerprint = null, monthly_call_volume = null, expires_at }
+) {
+  const r = await db.query(
+    `INSERT INTO audit_sessions (token, visitor_fingerprint, monthly_call_volume, expires_at)
+     VALUES ($1, $2, $3, $4) RETURNING id`,
+    [token, visitor_fingerprint, monthly_call_volume, expires_at]
+  );
+  return r.rows[0].id;
+}
+
+export async function getAuditSessionByToken(db, token) {
+  const r = await db.query("SELECT * FROM audit_sessions WHERE token = $1", [token]);
+  return r.rows[0];
+}
+
+export async function updateAuditSession(db, id, patch = {}) {
+  const sets = [];
+  const vals = [];
+  let i = 1;
+  for (const k of ["email", "monthly_call_volume", "status"]) {
+    if (patch[k] !== undefined) {
+      sets.push(`${k} = $${i++}`);
+      vals.push(patch[k]);
+    }
+  }
+  if (!sets.length) return;
+  vals.push(id);
+  await db.query(`UPDATE audit_sessions SET ${sets.join(", ")} WHERE id = $${i}`, vals);
+}
+
+export async function attachDemoCallToSession(db, sessionId, demoCallId) {
+  await db.query(
+    `INSERT INTO audit_session_calls (session_id, demo_call_id)
+     VALUES ($1, $2) ON CONFLICT (session_id, demo_call_id) DO NOTHING`,
+    [sessionId, demoCallId]
+  );
+}
+
+export async function getAuditSessionCalls(db, sessionId) {
+  const r = await db.query(
+    `SELECT dc.* FROM audit_session_calls ac
+       JOIN demo_calls dc ON dc.id = ac.demo_call_id
+      WHERE ac.session_id = $1
+      ORDER BY ac.id`,
+    [sessionId]
+  );
+  return r.rows;
+}
+
+export async function countAuditSessionCalls(db, sessionId) {
+  const r = await db.query(
+    `SELECT COUNT(*) AS n FROM audit_session_calls WHERE session_id = $1`,
+    [sessionId]
+  );
+  return Number(r.rows[0].n);
+}
+
+export async function countRecentAuditSessionsByFingerprint(db, fingerprint, sinceIso) {
+  const r = await db.query(
+    `SELECT COUNT(*) AS n FROM audit_sessions
+      WHERE visitor_fingerprint = $1 AND created_at >= $2`,
+    [fingerprint, sinceIso]
+  );
+  return Number(r.rows[0].n);
+}
+
+export async function listRecentAuditSessions(db, limit = 50) {
+  const r = await db.query(
+    `SELECT s.*, (SELECT COUNT(*) FROM audit_session_calls c WHERE c.session_id = s.id) AS call_count
+       FROM audit_sessions s
+      ORDER BY s.created_at DESC
+      LIMIT $1`,
+    [Math.max(1, Math.floor(limit))]
+  );
+  return r.rows;
+}
+
+export async function purgeExpiredAuditSessions(db, nowIso) {
+  const r = await db.query(
+    `UPDATE audit_sessions SET status = 'expired'
+      WHERE status <> 'expired' AND expires_at < $1`,
+    [nowIso]
+  );
+  return r.rowCount ?? 0;
+}
+
+// --- Per-recovered-case billing (migration 0010) -----------------------------
+// FLAT fee per case; NONE of these read a recovered-fee value (Rule 5.4).
+
+export async function listBillingPlans(db) {
+  const r = await db.query("SELECT * FROM billing_plans ORDER BY base_monthly_cents");
+  return r.rows;
+}
+export async function getBillingPlan(db, id) {
+  const r = await db.query("SELECT * FROM billing_plans WHERE id = $1", [id]);
+  return r.rows[0];
+}
+export async function getBillingPlanByName(db, name) {
+  const r = await db.query("SELECT * FROM billing_plans WHERE name = $1", [name]);
+  return r.rows[0];
+}
+
+export async function getFirmBilling(db, firmId) {
+  const r = await db.query(
+    `SELECT fb.*, p.name AS plan_name, p.base_monthly_cents, p.per_case_fee_cents,
+            p.per_case_fee_by_type, p.monthly_case_fee_cap_cents
+       FROM firm_billing fb JOIN billing_plans p ON p.id = fb.plan_id
+      WHERE fb.firm_id = $1`,
+    [firmId]
+  );
+  return r.rows[0];
+}
+
+export async function upsertFirmBilling(db, cfg) {
+  const {
+    firm_id,
+    plan_id,
+    status = "trialing",
+    billing_anchor_day = 1,
+    stripe_customer_id = null,
+    guarantee_type = "none",
+    guarantee_threshold_cents = null,
+    guarantee_deadline = null,
+  } = cfg;
+  await db.query(
+    `INSERT INTO firm_billing
+       (firm_id, plan_id, status, billing_anchor_day, stripe_customer_id,
+        guarantee_type, guarantee_threshold_cents, guarantee_deadline)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+     ON CONFLICT (firm_id) DO UPDATE SET
+       plan_id = excluded.plan_id,
+       status = excluded.status,
+       billing_anchor_day = excluded.billing_anchor_day,
+       stripe_customer_id = excluded.stripe_customer_id,
+       guarantee_type = excluded.guarantee_type,
+       guarantee_threshold_cents = excluded.guarantee_threshold_cents,
+       guarantee_deadline = excluded.guarantee_deadline`,
+    [firm_id, plan_id, status, billing_anchor_day, stripe_customer_id,
+     guarantee_type, guarantee_threshold_cents, guarantee_deadline]
+  );
+  return getFirmBilling(db, firm_id);
+}
+
+export async function accrueBillableEvent(db, ev) {
+  const { firm_id, outcome_id, case_type = null, per_case_fee_cents_applied, period } = ev;
+  const r = await db.query(
+    `INSERT INTO billable_events
+       (firm_id, outcome_id, case_type, per_case_fee_cents_applied, period)
+     VALUES ($1,$2,$3,$4,$5)
+     ON CONFLICT (outcome_id) DO NOTHING
+     RETURNING id`,
+    [firm_id, outcome_id, case_type, per_case_fee_cents_applied, period]
+  );
+  if (r.rows[0]) return { id: r.rows[0].id, created: true };
+  const existing = await db.query("SELECT id FROM billable_events WHERE outcome_id = $1", [outcome_id]);
+  return { id: existing.rows[0] ? existing.rows[0].id : null, created: false };
+}
+
+export async function getBillableEvents(db, firmId, { period = null, status = null } = {}) {
+  let sql = "SELECT * FROM billable_events WHERE firm_id = $1";
+  const args = [firmId];
+  if (period) { args.push(period); sql += ` AND period = $${args.length}`; }
+  if (status) { args.push(status); sql += ` AND status = $${args.length}`; }
+  sql += " ORDER BY created_at";
+  const r = await db.query(sql, args);
+  return r.rows;
+}
+
+export async function getAccruedBillableEvents(db, firmId, period) {
+  const r = await db.query(
+    "SELECT * FROM billable_events WHERE firm_id = $1 AND period = $2 AND status = 'accrued' ORDER BY created_at",
+    [firmId, period]
+  );
+  return r.rows;
+}
+
+export async function setBillableEventStatus(db, id, status, { dispute_reason = null, invoice_id = null } = {}) {
+  await db.query(
+    `UPDATE billable_events
+        SET status = $1, dispute_reason = $2, invoice_id = COALESCE($3, invoice_id)
+      WHERE id = $4`,
+    [status, dispute_reason, invoice_id, id]
+  );
+}
+
+export async function markBillableEventsInvoiced(db, ids = [], invoiceId) {
+  if (!ids.length) return 0;
+  const ph = ids.map((_, i) => `$${i + 2}`).join(",");
+  const r = await db.query(
+    `UPDATE billable_events SET status = 'invoiced', invoice_id = $1
+      WHERE id IN (${ph}) AND status = 'accrued'`,
+    [invoiceId, ...ids]
+  );
+  return r.rowCount ?? 0;
+}
+
+export async function createInvoice(db, { firm_id, period, total_cents = 0, status = "open" }) {
+  const r = await db.query(
+    "INSERT INTO invoices (firm_id, period, total_cents, status) VALUES ($1,$2,$3,$4) RETURNING id",
+    [firm_id, period, total_cents, status]
+  );
+  return r.rows[0].id;
+}
+
+export async function addInvoiceLine(db, line) {
+  const { invoice_id, kind, description, amount_cents, outcome_id = null, snapshot = null } = line;
+  const r = await db.query(
+    `INSERT INTO invoice_lines (invoice_id, kind, description, amount_cents, outcome_id, snapshot)
+     VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+    [invoice_id, kind, description, amount_cents, outcome_id,
+     snapshot == null ? null : typeof snapshot === "string" ? snapshot : JSON.stringify(snapshot)]
+  );
+  return r.rows[0].id;
+}
+
+export async function setInvoiceTotal(db, id, totalCents, status = null) {
+  if (status) {
+    await db.query("UPDATE invoices SET total_cents = $1, status = $2 WHERE id = $3", [totalCents, status, id]);
+  } else {
+    await db.query("UPDATE invoices SET total_cents = $1 WHERE id = $2", [totalCents, id]);
+  }
+}
+
+export async function voidInvoice(db, id, reason, now) {
+  await db.query(
+    "UPDATE invoices SET status = 'void', void_reason = $1, voided_at = $2 WHERE id = $3",
+    [reason ?? null, now ?? new Date().toISOString(), id]
+  );
+}
+
+export async function getInvoice(db, id) {
+  const r = await db.query("SELECT * FROM invoices WHERE id = $1", [id]);
+  return r.rows[0];
+}
+export async function getInvoiceLines(db, invoiceId) {
+  const r = await db.query("SELECT * FROM invoice_lines WHERE invoice_id = $1 ORDER BY created_at", [invoiceId]);
+  return r.rows;
+}
+export async function listInvoices(db, firmId) {
+  const r = await db.query("SELECT * FROM invoices WHERE firm_id = $1 ORDER BY created_at DESC", [firmId]);
+  return r.rows;
+}
+
+export async function appendStripeSimLog(db, { firm_id = null, action, payload = null }) {
+  const r = await db.query(
+    "INSERT INTO stripe_sim_log (firm_id, action, payload) VALUES ($1,$2,$3) RETURNING id",
+    [firm_id, action, payload == null ? null : typeof payload === "string" ? payload : JSON.stringify(payload)]
+  );
+  return r.rows[0].id;
+}
+export async function listStripeSimLog(db, { firm_id = null, limit = 50 } = {}) {
+  if (firm_id != null) {
+    const r = await db.query(
+      "SELECT * FROM stripe_sim_log WHERE firm_id = $1 ORDER BY created_at DESC LIMIT $2",
+      [firm_id, Math.max(1, Math.floor(limit))]
+    );
+    return r.rows;
+  }
+  const r = await db.query(
+    "SELECT * FROM stripe_sim_log ORDER BY created_at DESC LIMIT $1",
+    [Math.max(1, Math.floor(limit))]
+  );
+  return r.rows;
+}
+export async function countStripeSimLog(db) {
+  const r = await db.query("SELECT COUNT(*) AS n FROM stripe_sim_log");
+  return Number(r.rows[0].n);
+}
+
+export async function countLeakedFlags(db, firmId, sinceIso = null) {
+  if (sinceIso) {
+    const r = await db.query(
+      "SELECT COUNT(*) AS n FROM flags WHERE firm_id = $1 AND is_leaked_signable = true AND created_at >= $2",
+      [firmId, sinceIso]
+    );
+    return Number(r.rows[0].n);
+  }
+  const r = await db.query(
+    "SELECT COUNT(*) AS n FROM flags WHERE firm_id = $1 AND is_leaked_signable = true",
+    [firmId]
+  );
+  return Number(r.rows[0].n);
+}
+
+// --- Peer benchmarking (migration 0011) --------------------------------------
+
+export async function setBenchmarkConsent(db, firmId, on) {
+  await db.query("UPDATE firms SET benchmark_data_sharing = $1 WHERE id = $2", [Boolean(on), firmId]);
+}
+export async function countConsentingFirms(db) {
+  const r = await db.query("SELECT COUNT(*) AS n FROM firms WHERE benchmark_data_sharing = true");
+  return Number(r.rows[0].n);
+}
+export async function getConsentingFirmIds(db) {
+  const r = await db.query(
+    "SELECT id FROM firms WHERE benchmark_data_sharing = true ORDER BY id"
+  );
+  return r.rows.map((row) => row.id);
+}
+
+export async function getBenchmarkRows(db, firmIds = []) {
+  if (!firmIds.length) return [];
+  const ph = firmIds.map((_, i) => `$${i + 1}`).join(",");
+  const r = await db.query(
+    `SELECT f.qualification_score AS score,
+            (CASE WHEN f.is_leaked_signable THEN 1 ELSE 0 END) AS leaked,
+            (CASE WHEN EXISTS (
+              SELECT 1 FROM conversations c JOIN outcomes o ON o.conversation_id = c.id
+               WHERE c.flag_id = f.id AND o.result = 'signed'
+            ) THEN 1 ELSE 0 END) AS signed
+       FROM flags f
+      WHERE f.firm_id IN (${ph})`,
+    firmIds
+  );
+  return r.rows;
+}
+
+export async function insertBenchmarkSnapshot(db, s) {
+  const r = await db.query(
+    `INSERT INTO benchmark_snapshots
+       (contributor_count, sample_size, median_handling_score, q1_handling_score,
+        q3_handling_score, leak_rate, sign_rate_by_band)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+    [
+      s.contributor_count,
+      s.sample_size,
+      s.median_handling_score ?? null,
+      s.q1_handling_score ?? null,
+      s.q3_handling_score ?? null,
+      s.leak_rate ?? null,
+      s.sign_rate_by_band == null
+        ? null
+        : typeof s.sign_rate_by_band === "string"
+          ? s.sign_rate_by_band
+          : JSON.stringify(s.sign_rate_by_band),
+    ]
+  );
+  return r.rows[0].id;
+}
+
+export async function getLatestBenchmarkSnapshot(db) {
+  const r = await db.query("SELECT * FROM benchmark_snapshots ORDER BY created_at DESC LIMIT 1");
+  return r.rows[0];
+}
+
+// --- CRM / webhook integrations (migration 0012) -----------------------------
+
+export async function upsertFirmIntegration(db, cfg) {
+  const {
+    firm_id,
+    provider,
+    credentials_encrypted = null,
+    field_map = null,
+    webhook_url = null,
+    webhook_secret = null,
+    enabled = false,
+  } = cfg;
+  const fm =
+    field_map == null ? null : typeof field_map === "string" ? field_map : JSON.stringify(field_map);
+  await db.query(
+    `INSERT INTO firm_integrations
+       (firm_id, provider, credentials_encrypted, field_map, webhook_url, webhook_secret, enabled, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+     ON CONFLICT (firm_id, provider) DO UPDATE SET
+       credentials_encrypted = excluded.credentials_encrypted,
+       field_map = excluded.field_map,
+       webhook_url = excluded.webhook_url,
+       webhook_secret = excluded.webhook_secret,
+       enabled = excluded.enabled,
+       updated_at = excluded.updated_at`,
+    [firm_id, provider, credentials_encrypted, fm, webhook_url, webhook_secret, Boolean(enabled),
+     new Date().toISOString()]
+  );
+  return getFirmIntegration(db, firm_id, provider);
+}
+
+export async function getFirmIntegration(db, firmId, provider) {
+  const r = await db.query(
+    "SELECT * FROM firm_integrations WHERE firm_id = $1 AND provider = $2",
+    [firmId, provider]
+  );
+  return r.rows[0];
+}
+
+export async function listFirmIntegrations(db, firmId) {
+  const r = await db.query(
+    "SELECT * FROM firm_integrations WHERE firm_id = $1 ORDER BY provider",
+    [firmId]
+  );
+  return r.rows;
+}

@@ -5,6 +5,7 @@
 
 import { z } from "zod";
 import { openPipelineDb, closePipelineDb, createDemoLead } from "../../../../../ingest/store.mjs";
+import { saveAuditContact } from "../../../../../ingest/audit.mjs";
 import { isTestMode } from "../../../../../messaging/compliance.mjs";
 
 export const runtime = "nodejs";
@@ -12,6 +13,10 @@ export const runtime = "nodejs";
 const Body = z.object({
   email: z.string().email(),
   demoCallId: z.string().optional(),
+  // Leak Audit report capture: attach the email (+ any supplied volume) to the
+  // audit session so the operator console can follow up on hot audits.
+  session_token: z.string().min(1).max(128).optional(),
+  monthly_call_volume: z.number().int().positive().max(100000).optional(),
 });
 
 export async function POST(req: Request) {
@@ -25,11 +30,19 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return Response.json({ error: "enter a valid email address" }, { status: 422 });
   }
-  const { email, demoCallId } = parsed.data;
+  const { email, demoCallId, session_token, monthly_call_volume } = parsed.data;
 
   const db = await openPipelineDb();
   try {
     await createDemoLead(db, { demo_call_id: demoCallId ?? null, email });
+    if (session_token) {
+      await saveAuditContact({
+        db,
+        token: session_token,
+        email,
+        monthlyCallVolume: monthly_call_volume,
+      }).catch(() => {}); // never fail the capture on a session-write error
+    }
   } finally {
     await closePipelineDb(db);
   }
