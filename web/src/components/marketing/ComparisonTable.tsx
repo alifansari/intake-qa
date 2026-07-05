@@ -1,17 +1,21 @@
 // "Do nothing | Generic answering service | AI intake bot | Intake QA" across
 // real capabilities. Scrolls horizontally on small screens.
 
-const COLS = ["Do nothing", "Generic answering service", "AI intake bot", "Intake QA"];
+const COLS = ["Answering service", "AI receptionist", "Marketing agency", "Intake QA"];
 
-// rows: [capability, [doNothing, answeringService, aiBot, intakeQA]] as booleans
+// Competitors legitimately get checkmarks for what they actually do in 2026
+// (answer live, score/summarize at capture, report on their own leads). Intake
+// QA's differentiated rows are independence, full-population/all-channel scoring,
+// outcome reconciliation, and forensic recovery.
+// rows: [capability, [answeringService, aiReceptionist, agency, intakeQA]]
 const ROWS: [string, [boolean, boolean, boolean, boolean]][] = [
-  ["Signable-case detection on 100% of calls", [false, false, false, true]],
-  ["Proves what your intake produced, in dollars", [false, false, false, true]],
-  ["Same-day save protocol (staff-sent, human-reviewed)", [false, false, true, true]],
-  ["A human approves every send", [false, true, false, true]],
-  ["Flat monthly pricing — never a share of the fee, never per signed case", [false, false, false, true]],
-  ["Dollar-quantified leak audit report", [false, false, false, true]],
-  ["Answers the phone live", [false, true, false, false]],
+  ["Answers / handles the call live", [true, true, false, false]],
+  ["Scores or summarizes the calls it handled", [false, true, false, false]],
+  ["Reports on the leads it sold you", [false, false, true, false]],
+  ["Scores 100% of calls across every channel", [false, false, false, true]],
+  ["Reconciles calls against signed fee agreements", [false, false, false, true]],
+  ["Independent — paid the same flat fee regardless of findings", [false, false, false, true]],
+  ["Recovers already-paid-for PNCs with live statutes", [false, false, false, true]],
 ];
 
 function Cell({ on, highlight }: { on: boolean; highlight: boolean }) {

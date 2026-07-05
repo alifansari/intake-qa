@@ -5,7 +5,7 @@ import { GUARANTEE_METHODOLOGY, CTA_PRIMARY } from "@/lib/site-constants";
 export const metadata: Metadata = {
   title: "Calibration & honesty — how we measure, and what we won't claim yet | Intake QA",
   description:
-    "The method behind the score, how we define a correct flag and a miss, how we estimate missed signable-case value for the $50,000 guarantee, and why we won't publish precision/recall until the test corpus is documented.",
+    "The method behind the score, how we define a correct flag and a miss, how we estimate missed signable case value for the $25,000 find-it-free guarantee, and why we won't publish precision/recall until the test corpus is documented.",
   alternates: { canonical: "/honesty" },
 };
 
@@ -71,7 +71,7 @@ export default function HonestyPage() {
 
       <section className="mt-10">
         <h2 className="font-display text-2xl font-semibold text-ink">
-          How we estimate missed signable-case value (for the $50,000 guarantee)
+          How we estimate missed signable case value (for the $25,000 find-it-free guarantee)
         </h2>
         <p className="mt-3 max-w-[72ch] text-ink-muted">{GUARANTEE_METHODOLOGY}</p>
         <p className="mt-3 max-w-[72ch] text-sm text-faint">

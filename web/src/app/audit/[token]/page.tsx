@@ -80,7 +80,7 @@ export default async function AuditReportPage({
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <a href="/audit" className="rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-            Book your $500 Leak Audit
+            Run your free Intake Quality Audit
           </a>
           <a href="/" className="rounded-pill border border-hairline px-6 py-3 text-sm font-semibold text-ink hover:border-accent">
             Back to home

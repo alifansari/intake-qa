@@ -45,16 +45,22 @@ export default function FounderPage() {
           Here&apos;s what I kept coming back to: the enemy was never the intake team. It was the
           silence after the call — the voicemail nobody returned, the &ldquo;let me talk to my
           spouse&rdquo; that never got a follow-up. Firms obsess over generating the next lead and
-          stay blind to the ones they already paid for and let walk. Nobody was measuring what
-          happened after the phone rang. So I built the category that does: Case Acquisition
-          Intelligence — read every call, detect the signable ones that didn&apos;t sign, put a
-          dollar figure on what walked, and hand your staff a compliant play to win it back.
+          stay blind to the ones they already paid for and let walk. And everyone reporting on it had
+          a stake in the answer. So I built the independent desk that checks: read every call, detect
+          the signable ones that didn&apos;t sign, reconcile against who actually signed, put a dollar
+          figure on what walked, and hand your staff a compliant play to win it back.
+        </p>
+        <p>
+          I&apos;m the analyst of record. The software does the listening at scale, but I review every
+          audit and every monthly statement and sign off on what you read — because I know what a
+          signable case sounds like, and a QA function that doesn&apos;t have a human who does isn&apos;t
+          worth much.
+          {/* TODO(Ali): confirm you review 100% of statements at current cohort size; soften to "every founding-cohort statement" if that won't hold. */}
         </p>
         <p>
           The founding cohort is small on purpose — three to five Southern California PI firms who
           use it on real calls and tell me where it&apos;s wrong. You&apos;d get direct access to me
-          and a say in what the category becomes. No sales team, no logos to show you yet — just the
-          work.
+          and a say in what the desk becomes. No sales team, no logos to show you yet — just the work.
         </p>
         <p className="font-display text-base font-semibold text-ink">
           — Ali, Founder, Intake QA · Orange County, CA

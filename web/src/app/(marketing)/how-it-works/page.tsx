@@ -3,10 +3,11 @@ import Link from "next/link";
 import { ComplianceGateDiagram } from "@/components/marketing/ComplianceGateDiagram";
 import {
   CTA_PRIMARY,
-  STAT_SPEED_CONTACT,
   STAT_SPEED_TO_LEAD,
-  STAT_RESPONSE_TIME,
   STAT_LA_SPANISH,
+  MONTH_6_INTRO,
+  MONTH_6_ITEMS,
+  CHAMPION_LINE,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
@@ -65,12 +66,12 @@ export default function HowItWorksPage() {
           a staffing-and-timing problem, not a people problem, and the report says so. Scoring 100% of
           calls replaces the unfair 2% spot-check with an even standard for everyone.
         </p>
+        <p className="mt-3 max-w-[70ch] text-ink-muted">{CHAMPION_LINE}</p>
         <p className="mt-3 max-w-[70ch] text-ink-muted">
-          It&apos;s also proof of workload. The report documents how many PNCs the team is actually
-          handling and where the volume justifies another hire — the case an office manager usually
-          has to make from memory. Every flag ties to a specific moment with a coaching note, the
-          team sees its own numbers first, and a person on staff approves every callback. It protects
-          careers; it doesn&apos;t threaten them.
+          It&apos;s proof of workload — the case an office manager usually has to make from memory:
+          you&apos;re not short on effort, you&apos;re short on hours. The team sees its own numbers
+          first, and a person on staff approves every send. It protects careers; it doesn&apos;t
+          threaten them.
         </p>
       </section>
 
@@ -85,17 +86,33 @@ export default function HowItWorksPage() {
         <p className="mt-2 text-sm text-faint">That&apos;s the whole lift.</p>
       </section>
 
-      {/* Speed-to-lead measurement (from your own recordings) */}
+      {/* Speed-to-lead measurement (from your own recordings) — ONE stat */}
       <section className="mt-6 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-xl font-semibold text-ink">We measure speed, from your own recordings</h2>
         <p className="mt-2 max-w-[72ch] text-ink-muted">
-          We measure time-to-answer and time-to-callback on your own calls. The research is blunt:
-          contacting a web lead within 5 minutes vs. 30 makes you{" "}
-          <b className="text-ink">{STAT_SPEED_CONTACT.value}</b> more likely to reach them and{" "}
-          <b className="text-ink">{STAT_SPEED_TO_LEAD.value}</b> more likely to qualify them
-          ({STAT_SPEED_CONTACT.source}), yet the average business takes{" "}
-          <b className="text-ink">{STAT_RESPONSE_TIME.value}</b> to respond and 23% never do
-          ({STAT_RESPONSE_TIME.source}).
+          We measure time-to-answer and time-to-callback on your own calls, because speed decides
+          conversions: firms that respond within the first five minutes of an inquiry see a{" "}
+          <b className="text-ink">{STAT_SPEED_TO_LEAD.value}</b> higher conversion rate
+          ({STAT_SPEED_TO_LEAD.source}).
+          {/* TODO(Ali): confirm this is the single speed-to-lead stat you want; do not stack it with a response-time study. */}
+        </p>
+      </section>
+
+      {/* What months 2–12 look like (retention story; status-flagged) */}
+      <section className="mt-6 rounded-card border border-hairline bg-surface p-6">
+        <h2 className="font-display text-xl font-semibold text-ink">What months 2–12 look like</h2>
+        <p className="mt-2 max-w-[72ch] text-ink-muted">{MONTH_6_INTRO}</p>
+        <ul className="mt-3 flex flex-col gap-2 text-sm text-ink-muted">
+          {MONTH_6_ITEMS.map((m) => (
+            <li key={m.title}>
+              <b className="text-ink">{m.title}:</b> {m.body}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-xs text-faint">
+          Some of the above is live today and some is rolling out with the founding cohort — we label
+          which is which in your kickoff, and we never bill for something that isn&apos;t running yet.
+          {/* TODO(Ali): confirm build status of each MONTH_6_ITEMS entry (trend view, scorecards, coaching clips, cohort benchmark) before presenting any as live. */}
         </p>
       </section>
 
@@ -103,11 +120,11 @@ export default function HowItWorksPage() {
       <section className="mt-6 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-xl font-semibold text-ink">Spanish-language calls, analyzed natively</h2>
         <p className="mt-2 max-w-[72ch] text-ink-muted">
-          We analyze Spanish-language intake calls natively — not translated afterward. In Los
-          Angeles County, roughly {STAT_LA_SPANISH.value} of residents speak Spanish at home
+          We analyze Spanish-language intake calls natively — not translated afterward. In the Los
+          Angeles metro, {STAT_LA_SPANISH.value} of people age 5 and older speak Spanish at home
           ({STAT_LA_SPANISH.source}), and a signable Spanish-speaking caller is worth exactly as much
           as any other. Ali is bilingual and built the scoring against real calls in both languages.
-          {/* TODO(Ali): confirm the exact LA-County Spanish-at-home percentage and vintage. */}
+          {/* TODO(Ali): confirm the LA-metro Spanish-at-home figure/vintage (USAFacts/ACS). */}
         </p>
       </section>
 

@@ -34,9 +34,9 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://intake-qa.vercel.app"),
-  title: "Intake QA — Case Acquisition Intelligence for personal injury firms",
+  title: "Intake QA — the independent recovery desk for PI firms",
   description:
-    "Case Acquisition Intelligence reads 100% of your intake calls, detects the signable cases that didn't sign, and reports what your intake produced — in dollars. Book your $500 Leak Audit.",
+    "Everyone you pay to handle your intake grades their own work. Intake QA is the independent desk that checks the whole board against what actually got signed — and finds the signable cases that walked. Run your free Intake Quality Audit.",
 };
 
 export default function RootLayout({

@@ -1,75 +1,123 @@
 // Single source of truth for every repeated fact in the marketing site.
 //
 // Rule: no page or component hard-codes a repeated number, benchmark, price,
-// or legal-status line inline. It imports it from here. This keeps the two
-// distinct Clio figures from being confused, keeps pricing consistent, and
-// makes the yearly/consistency sweep a one-file edit.
+// or legal-status line inline. It imports it from here. Keeps offer numbers and
+// citations consistent and makes the consistency sweep a one-file edit.
 //
 // This module is plain data (no `server-only`) so both server components
 // (marketing pages) and client components (ROICalculator, PilotCohortBanner)
 // can import it.
+//
+// ROUND 4 (v3 report): the Leak Audit is FREE again (no $500/credit); the
+// guarantee is a $25k find-it-free / first-month-free structure; positioning is
+// "the independent recovery desk" (service with software inside, Ali as analyst
+// of record); the "Case Acquisition Intelligence" category is staged DOWN to a
+// supporting phrase, not a hero-level claim.
 
-// ─── Category (Case Acquisition Intelligence) ────────────────────────────────
-// DISCIPLINE: every time the category name appears in copy it MUST be grounded
-// in a concrete deliverable within one sentence, or it collapses into jargon.
+// ─── Positioning: the independent recovery desk ──────────────────────────────
+export const DESK_NAME = "the independent recovery desk";
+export const INDEPENDENCE_LINE =
+  "The AI receptionist grades its own calls. The agency grades its own leads. Your staff grade their own follow-up. Nobody checks the whole board against what actually got signed. Intake QA is the independent desk that does — and finds the signable cases that walked.";
+// The four things that differentiate the desk (state precisely; no disparagement).
+export const DIFFERENTIATORS: { title: string; body: string }[] = [
+  {
+    title: "Independence",
+    body: "We have no stake in the answer. We're paid the same flat fee regardless of what the audit finds — unlike the AI receptionist grading its own calls, the agency grading its own leads, or staff grading their own follow-up.",
+  },
+  {
+    title: "Full-population coverage",
+    body: "We score 100% of your intake calls across every channel — including the ones your team answered live at 2pm — not just the calls one tool happened to handle.",
+  },
+  {
+    title: "Outcome reconciliation",
+    body: "We reconcile calls against the fee agreements that actually got signed weeks later — so a flag means a signable case that truly walked, not a self-graded guess at capture time.",
+  },
+  {
+    title: "Forensic recovery",
+    body: "We surface already-paid-for PNCs whose statute is still live, and hand your staff a compliant, human-reviewed play to win them back.",
+  },
+];
+// Honest category boundary — state plainly; never claim competitors do nothing.
+export const CATEGORY_BOUNDARY_LINE =
+  "If your problem is missed calls, buy an AI receptionist. Our work starts where the phone gets answered.";
+// Objection/comparison lines (competitors legitimately do post-call work in 2026).
+export const OBJECTIONS: { q: string; a: string }[] = [
+  {
+    q: "My AI receptionist already scores calls.",
+    a: "It scores the calls it answered, and it's grading its own homework. We score 100% of your calls across every channel — including the ones your team answered live at 2pm — and we reconcile them against who actually signed.",
+  },
+  {
+    q: "My agency reports on lead quality.",
+    a: "Your agency has a stake in the answer. We don't: we're paid the same flat fee no matter what we find.",
+  },
+  {
+    q: "Lead Docket already tracks this.",
+    a: "Lead Docket routes and tracks at capture. We start after the call ends and ask the one question none of them answer: which qualified callers never signed, and how much was that?",
+  },
+];
+
+// ─── Who does the work (productized service; name Ali) ───────────────────────
+export const WHO_DOES_THE_WORK =
+  "Every audit and every monthly statement is reviewed by Ali — Intake QA's founder and analyst of record, a former PI paralegal who sat in the intake seat. The software does the listening at scale; a human who knows what a signable case sounds like decides what to flag and signs off on what you read.";
+// TODO(Ali): confirm you personally review 100% of statements at current cohort
+// size; if that won't hold at scale, soften to "reviews every founding-cohort statement."
+
+// ─── Category (staged DOWN to a supporting phrase — NOT a hero claim) ────────
+// Use only as descriptive supporting vocabulary, grounded in a deliverable.
+// Do not proclaim it as an established market category from a pre-revenue start.
 export const CATEGORY_NAME = "Case Acquisition Intelligence";
-export const CATEGORY_ABBR = "CAI";
-// Brand lockup — keep the product name, subordinate it under the category.
-export const BRAND_LOCKUP = "Intake QA — Case Acquisition Intelligence for personal injury firms";
-// One-sentence, deliverable-grounded definition (use verbatim as the anchor).
 export const CATEGORY_DEFINITION =
-  "Case Acquisition Intelligence reads 100% of your intake calls, detects the signable cases that didn't sign, and reports what your intake actually produced — in dollars.";
-// Counter-position (neutral, no disparagement).
-export const COUNTER_POSITION_LINE =
-  "AI receptionists and speed-to-lead tools optimize the next call. Case Acquisition Intelligence recovers the signable cases you already paid for — and proves what your intake actually produced.";
+  "measuring what happens to a signable case after the phone rings: which qualified callers didn't sign, across every channel, and what that walked-away fee revenue is worth.";
 
-// ─── The Leak Audit offer ($500, credited) ───────────────────────────────────
-export const AUDIT_NAME = "Leak Audit";
-export const AUDIT_PRICE = "$500";
-export const AUDIT_PRICE_NUM = 500;
+// ─── The Leak Audit offer (FREE) ─────────────────────────────────────────────
+export const AUDIT_NAME = "Intake Quality Audit";
 // Single primary CTA sitewide.
-export const CTA_PRIMARY = "Book your $500 Leak Audit";
-export const AUDIT_CREDIT_LINE =
-  "The $500 Leak Audit fee is credited in full against your first subscription invoice. Subscribe, and the audit is effectively free. Don't subscribe, and you keep the full report — no pitch, no obligation.";
-// Stripe Payment Link for the one-time $500 Leak Audit fee (Option A: no-code).
-// TODO(Ali): paste the Payment Link URL from Stripe here — Products → "Leak Audit"
-// → $500 one-time → Create payment link. Until it's set, the pay button falls back
-// to booking by email, so the page is never broken.
-export const AUDIT_PAYMENT_URL: string = "https://buy.stripe.com/cNi7sLfGq14R7Yi3eXebu01";
-export const AUDIT_WHY_PAID =
-  "The audit costs $500 because it's real diagnostic work with real deliverables — not a sales call. A serious firm and a serious analysis both put something on the table. And because the $500 is credited in full to your first invoice, it costs a subscribing firm nothing on net. If we don't find enough to justify moving forward, you keep the report and we part as friends.";
-// TODO(Ali): wire the actual $500 collection/booking step — presented as an offer
-// in copy; the payment mechanism is a product/ops task, not built here.
+export const CTA_PRIMARY = "Run your free Intake Quality Audit";
+export const AUDIT_FREE_LINE =
+  "Send us up to 10 recent intake calls. A real analyst — not just a model — reviews every one against our calibrated PI rubric and hands you a written report: the signable cases that didn't sign, the evidence behind each flag, and what that walked-away fee revenue is worth in dollars. You keep the report whether or not we ever work together.";
+// Honest capacity, not fake scarcity.
+// TODO(Ali): insert the true monthly audit capacity number, or delete the count
+// entirely. Never invent it; no countdown timers.
+export const AUDIT_CAPACITY_LINE =
+  "Because a real analyst reviews every call, we take on a limited number of audits each month.";
+export const AUDIT_DELIVERABLES: string[] = [
+  "A per-call score on our frozen, calibrated PI rubric.",
+  "The signable cases that didn't sign, with the transcript evidence behind each flag.",
+  "A dollar figure for the estimated missed signable fee revenue.",
+  "A watermarked sample of the staff-sent win-back message we'd recommend.",
+  "A shareable written report your firm keeps.",
+];
+// The one funnel (present as a single path, no competing offers).
+export const FUNNEL_LINE =
+  "Free Intake Quality Audit → a live readout with Ali → a free 30-day founding-cohort pilot → a flat monthly subscription.";
 
-// ─── The $50,000 Find-It Guarantee (conditional, on the DELIVERABLE) ──────────
-// Values must render identically everywhere. The guarantee triggers on estimated
-// value IDENTIFIED in the firm's own calls — NEVER on recovered fees (keeps clear
-// of FTC §5 / CA §17500 earnings-claim and §§6151–6152 / SB 37 outcome-fee optics).
-export const GUARANTEE_THRESHOLD = "$50,000";
-export const GUARANTEE_REMEDY = "$500 refund";
+// ─── The $25,000 find-it-free guarantee (backs the diagnostic + first month) ──
+// Attaches to the SUBSCRIPTION decision, never to recovered fees (keeps clear of
+// FTC §5 / CA §17500 earnings claims and §§6151–6152 / SB 37 outcome-fee optics).
+export const GUARANTEE_THRESHOLD = "$25,000";
 export const GUARANTEE_CANONICAL =
-  "The $50,000 Find-It Guarantee: if your Leak Audit doesn't identify at least $50,000 in estimated missed signable-case value in your firm's own recent intake calls, we refund your $500 audit fee in full. The guarantee is on what the audit FINDS in your calls — not on any revenue you recover. We don't promise you'll win cases back; we promise the audit will show you at least $50,000 worth looking at, or you don't pay for it.";
+  "The $25,000 find-it-free guarantee: if your free Intake Quality Audit doesn't identify at least $25,000 in estimated missed signable case value, we won't pitch you a subscription — and if you start one anyway, your first month is free. “Estimated missed signable case value” is an estimate of what walked, calculated from your own average fee per case type (or named industry benchmarks where we don't have it) — not a promise of what we'll recover.";
 export const GUARANTEE_BADGE_LINE =
-  "$50,000 Find-It Guarantee — if the audit doesn't find at least $50k in estimated missed signable-case value in your own calls, your $500 is refunded. On what we find, not what you recover.";
+  "$25,000 find-it-free guarantee — if the audit doesn't surface at least $25k in estimated missed signable case value, we won't pitch you, and if you subscribe anyway your first month is free. An estimate of what walked, not a promise of recovery.";
 export const GUARANTEE_METHODOLOGY =
-  "How we estimate missed signable-case value: we count the signable cases our model flags that didn't sign, then multiply by your firm's own average fee per signed case for that case type. Where you haven't given us your average fee, we substitute a conservative, sourced benchmark (the standard PI contingency fee, ~33⅓%, applied to conservative case values) and label every substituted figure. Estimates are estimates, not promises; our model's precision and recall are published on this page.";
+  "How we estimate missed signable case value: we count the signable cases our model flags that didn't sign, then multiply by your firm's own average fee per signed case for that case type. Where you haven't given us your average fee, we substitute a named, sourced benchmark (e.g., auto soft-tissue ~$16,000; serious injuries $55,000+) and label every substituted figure. Estimates are estimates, not a promise of recovered fees; our model's precision and recall are published on this page.";
 // TODO(Ali): collect each firm's average fee per case type (guarantee methodology input).
 
 // ─── Founding cohort (honest, durable language — no countdown, no "N seats left") ───
 export const COHORT_MIN = 3;
 export const COHORT_MAX = 5;
 export const PILOT_DAYS = 30;
-// One phrasing, used verbatim everywhere the cohort is described.
 export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MIN}–${COHORT_MAX} Southern California PI firms onto free ${PILOT_DAYS}-day pilots.`;
 
-// ─── Data handling ───
+// ─── Data handling (one reconciled promise) ──────────────────────────────────
 export const DELETION_DAYS = 7;
-export const DELETION_LINE = `Your recordings and transcripts are deleted within ${DELETION_DAYS} days of your audit readout — and immediately if you ask in writing.`;
+// Audio is deleted at transcription; transcripts/reports within DELETION_DAYS of
+// the readout, or immediately on written request.
+export const DELETION_LINE = `Call audio is deleted the moment it's transcribed; transcripts and reports are deleted within ${DELETION_DAYS} days of your readout, or immediately if you ask in writing.`;
 // TODO(Ali): confirm the breach-notification timeline you can actually commit to.
 export const BREACH_NOTICE_HOURS = 72;
 
 // ─── The accountable-party line (subprocessor reframe) ───
-// Homepage / Compliance use the one-sentence version; Security carries the detail.
 export const ACCOUNTABLE_PARTY_LINE =
   "Your calls are handled by Intake QA. We use three infrastructure providers under contract — the same category of vendors your CRM and transcription tools already rely on — and we remain the single party accountable to you.";
 
@@ -78,7 +126,7 @@ export type Subprocessor = { name: string; role: string; posture: string };
 export const SUBPROCESSORS: Subprocessor[] = [
   {
     name: "Anthropic (Claude API)",
-    role: "Scoring & drafting",
+    role: "Analysis & drafting",
     posture:
       "Commercial API — inputs and outputs are not used to train models and are deleted after 7 days by default; Zero-Data-Retention and a HIPAA BAA are available (Anthropic Privacy Center / Platform Docs).",
   },
@@ -98,49 +146,41 @@ export const SUBPROCESSORS: Subprocessor[] = [
 
 // ─── SMS / texting posture ───
 export const A2P_LINE =
-  "Texting activates only after our A2P 10DLC registration is approved — and even then, nothing sends without a person on your team approving it first.";
+  "Texting activates only after your A2P 10DLC registration is approved — and even then, nothing sends without a person on your team approving it first.";
 
-// ─── PI-intake benchmarks (each carries its named source; the two Clio figures ───
-//     mean DIFFERENT things and must never be used interchangeably) ─────────────
-export const STAT_ANSWERED_LIVE = {
-  value: "40%",
-  label: "of firms answered the phone live when a prospective client called",
-  source: "Clio 2024 Legal Trends Report (Lux secret-shopper study of 500 US firms)",
-};
-export const STAT_UNREACHABLE = {
+// ─── PI-intake benchmarks (each carries its named ORIGIN source) ─────────────
+
+// Phone-answer rate — reconciled to ONE figure (Clio 2024 Legal Trends Report).
+// TODO(Ali): confirm this is the figure/edition you want; do not also show the
+// other Clio figure elsewhere.
+export const STAT_ANSWER_RATE = {
   value: "48%",
-  label: "of firms were essentially unreachable by phone — never answered and never called back",
+  label: "of firms were essentially unreachable by phone — never answered a call and never called back",
   source: "Clio 2024 Legal Trends Report (Lux secret-shopper study of 500 US firms)",
 };
-export const STAT_SPEED_TO_LEAD = {
-  value: "21×",
-  label: "better odds of qualifying a caller when you respond in 5 minutes instead of 30",
-  source: "MIT Sloan / InsideSales.com Lead Response study, Dr. James Oldroyd, 2007",
-};
-export const STAT_PI_CLICK_COST = {
-  value: "$100–$500+",
-  label: "typical cost of a single Google click on personal-injury keywords",
-  source: "iLawyer Marketing, 2025 legal keyword analysis",
-};
-// TODO(Ali): confirm the exact source for the "~62% call a competitor" figure before using it inline.
 
-// Speed-to-lead multipliers — MIT/InsideSales 2007 (NOT HBR; common misquote).
-export const STAT_SPEED_CONTACT = {
-  value: "100×",
-  label: "more likely to reach a lead contacting within 5 minutes vs. 30",
-  source: "MIT Sloan / InsideSales.com Lead Response study, Dr. James Oldroyd, 2007",
+// Speed-to-lead — reconciled to ONE stat with its correct citation.
+// TODO(Ali): pick the single speed-to-lead stat you want to run. Options from the
+// v3 fact sheet: ALM Global 2025 "400% higher conversion within 5 minutes"
+// (conversion lift, used below); Hennessey Digital 2025 (response-time behavior,
+// no conversion figure); MIT/InsideSales 2007 "21× to qualify" (older). Do NOT
+// merge a response-time study with a conversion-lift study under one source.
+export const STAT_SPEED_TO_LEAD = {
+  value: "400%",
+  label: "higher conversion when a firm responds within the first five minutes of an inquiry",
+  source: "ALM Global, 2025",
 };
-// Response-time reality — Harvard Business Review 2011 (audit of 2,241 US companies).
-export const STAT_RESPONSE_TIME = {
-  value: "~42 hrs",
-  label: "average time a business takes to respond to an inbound web lead; 23% never respond",
-  source: "Oldroyd, McElheran & Elkington, \"The Short Life of Online Sales Leads,\" Harvard Business Review, 2011",
-};
-// PI acquisition economics — used for agency-accountability + ROI copy.
+
+// PI acquisition economics — cite the ORIGIN (Pareto Legal), not the aggregator.
 export const STAT_PI_COST_PER_CASE = {
   value: "$468",
-  label: "average cost to acquire one signed PI case (at a 7% lead-to-case rate; $284 per lead)",
-  source: "Rankings.io, \"How Much Do Personal Injury Leads Cost? [2026]\" — analysis of $3.3M in Google Ads/LSA spend across 13 plaintiff firms",
+  label: "blended cost to acquire one signed PI case (at $284 per lead and a 7% conversion rate; blends channels)",
+  source: "Pareto Legal, \"State of Law Firm PPC\" — 13 plaintiff-side firms, $3.3M combined Google Ads + LSA spend, 2025",
+};
+export const STAT_PI_PPC_COST_PER_CASE = {
+  value: "$2,500–$3,000",
+  label: "cost to acquire one signed PI case in competitive PPC-only markets",
+  source: "The National Law Review, 2025",
 };
 // Agency-reporting distrust — attribute to WEBRIS by name; NOT an industry statistic.
 export const STAT_WEBRIS_DISTRUST = {
@@ -148,44 +188,71 @@ export const STAT_WEBRIS_DISTRUST = {
   label: "of PI firms one legal-marketing agency audited could state their true client-acquisition cost with confidence",
   source: "WEBRIS, \"Personal Injury Leads: How Much Should They Cost?\" (after auditing 500+ PI firms)",
 };
-// Spanish-language / SoCal.
+// Spanish-language / SoCal — ONE figure, LA-metro (SoCal relevance).
+// TODO(Ali): confirm LA-metro 34.5% is the figure to publish (USAFacts/ACS).
 export const STAT_LA_SPANISH = {
-  value: "~20%",
-  label: "of Los Angeles County residents age 5+ speak Spanish at home",
-  source: "U.S. Census estimates (via Los Angeles Almanac)",
+  value: "34.5%",
+  label: "of people age 5+ in the Los Angeles–Long Beach–Anaheim metro speak Spanish at home (~4.2M people)",
+  source: "USAFacts, 2019–2023 American Community Survey",
 };
-// TODO(Ali): confirm the exact LA-County Spanish-at-home percentage and vintage.
-
-// Competitive counter-position facts (neutral, sourced; no disparagement).
-export const COMPETITOR_NOTE =
-  "Tools like Smith.ai and AI receptionists optimize answering the next call; litigation-AI tools like EvenUp and Supio work the case after it's signed. Case Acquisition Intelligence owns the gap in between — the moment a paid-for case is won or lost at intake.";
 
 // ─── Calibration / test corpus ───
-// We do NOT publish a precision or recall number until the corpus is documented.
-// When it is, set these to e.g. "77%" / "68%" and always render them with the
-// TEST_CORPUS_LABEL so they can never read as field results.
 export const TEST_CORPUS_PRECISION: string | null = null; // TODO(Ali): publish only with corpus label
 export const TEST_CORPUS_RECALL: string | null = null; // TODO(Ali): publish only with corpus label
 export const TEST_CORPUS_LABEL = "on our test corpus"; // never "in the field"
 
+// ─── What months 2–12 look like (retention story; STATUS-FLAGGED) ────────────
+// Presentation-only vs new-build must be labeled. Never market vaporware.
+export const MONTH_6_INTRO =
+  "The first audit finds the biggest leaks. After that, the desk becomes your standing intake QA function: every month your statement shows whether the leak is shrinking, your intake team gets credit for the improvement, and new leaks get caught as your marketing and staffing change.";
+export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = [
+  {
+    title: "A statement that trends over time",
+    body: "Your monthly missed-revenue statement shows the leak shrinking, not just a static snapshot.",
+    status: "TODO(Ali): confirm the trend view exists; present-only otherwise.",
+  },
+  {
+    title: "Intake-team scorecards",
+    body: "Improvement trending that makes the manager look good — credit lands where it's earned.",
+    status: "TODO(Ali): build status — label \"rolling out to the founding cohort\" only if true.",
+  },
+  {
+    title: "Coaching clips from real calls",
+    body: "Short training clips built from your team's own best calls.",
+    status: "TODO(Ali): NEW BUILD — do not present as live; label \"in development with the founding cohort\" if shown.",
+  },
+  {
+    title: "New-leak detection",
+    body: "As your marketing and staffing change, new leaks get caught.",
+    status: "Present-only (existing capability).",
+  },
+  {
+    title: "Save-protocol conversion tracking",
+    body: "Once A2P 10DLC clears, we track how many saved cases the protocol actually recovers.",
+    status: "Gated on A2P 10DLC approval — pending.",
+  },
+];
+
+// ─── Intake-manager champion framing ─────────────────────────────────────────
+export const CHAMPION_LINE =
+  "This isn't a gotcha. High-volume intake means good cases slip — that's math, not a character flaw. The desk gives your manager proof of the workload, coaching clips built from your team's own best calls, and a monthly scorecard that shows the improvement so the credit lands where it's earned.";
+
 // ─── Pricing (outcome-decoupled: flat monthly, tiered by analyzed-call volume) ───
 // NEVER a per-recovered-case, per-signed-client, or percentage-of-recovery fee.
-// Prices confirmed by Ali (July 2026). `callCap` is the analyzed-call volume the
-// tier covers; exceeding it flags an upgrade conversation — it is NEVER auto-billed.
-// These figures are the source of truth for the billing plans seeded in
-// db/migrations/0013 + supabase/migrations/0013 (keep them in sync).
+// Source of truth for the billing plans seeded in db/migrations/0013 +
+// supabase/migrations/0013 (keep in sync). TODO(Ali): confirm the v3 report did
+// not change these tier prices.
 export type PricingTier = {
   name: string;
-  planName: string | null; // matches billing_plans.name; null for the free pilot
+  planName: string | null;
   price: string;
   priceCents: number;
-  callCap: number | null; // analyzed calls/mo the tier covers; null = pilot (uncapped)
+  callCap: number | null;
   volume: string;
   sub: string;
   featured: boolean;
-  // Stripe subscription Payment Link for this tier (empty = no direct checkout;
-  // the card falls back to the Leak Audit entry point). TODO(Ali): confirm each
-  // link is LIVE mode and its monthly amount matches `price` above.
+  // Stripe subscription Payment Link for this tier (empty = no direct checkout).
+  // TODO(Ali): confirm each link is LIVE mode and its monthly amount matches `price`.
   checkoutUrl: string;
 };
 export const PRICING_TIERS: PricingTier[] = [
@@ -196,9 +263,9 @@ export const PRICING_TIERS: PricingTier[] = [
     priceCents: 0,
     callCap: null,
     volume: `${PILOT_DAYS}-day pilot`,
-    sub: "Free 30-day pilot for the founding cohort, then a locked founding rate. Cancel anytime.",
+    sub: "Free 30-day pilot for the founding cohort, after your free audit. Then a locked founding rate. Cancel anytime.",
     featured: false,
-    checkoutUrl: "", // the pilot starts with the $500 Leak Audit, not a subscription checkout
+    checkoutUrl: "", // the pilot starts with the free audit, not a subscription checkout
   },
   {
     name: "Tier 1",
@@ -207,7 +274,7 @@ export const PRICING_TIERS: PricingTier[] = [
     priceCents: 50000,
     callCap: 150,
     volume: "up to ~150 analyzed calls/mo",
-    sub: "For smaller-volume firms who want every call scored.",
+    sub: "For smaller-volume firms who want every call reviewed.",
     featured: true,
     checkoutUrl: "https://buy.stripe.com/3cIcN5bqafZL4M69Dlebu02",
   },
@@ -234,16 +301,15 @@ export const PRICING_TIERS: PricingTier[] = [
     checkoutUrl: "https://buy.stripe.com/aFa28r79U4h31zUg1Jebu04",
   },
 ];
-// Numeric reference monthly fee used only by the ROI calculator to estimate net/payback.
-// Mirrors the confirmed Tier-2 monthly price ($900); keep the two in sync.
+// Numeric reference monthly fee used only by the ROI calculator (mirrors Tier 2).
 export const REF_MONTHLY_USD = 900;
 // The compliance argument for the pricing model, in lawyer-grade language.
 export const PRICING_COMPLIANCE_ARGUMENT =
-  "We deliberately do not charge per case, per signed client, or per recovered dollar. Our fee is a flat monthly subscription for analyzing your calls — it does not change whether you sign zero cases or fifty. Because our compensation is not tied to procuring or recovering any case, it cannot be characterized as payment to an agent for soliciting or procuring clients under California Business & Professions Code §§6151–6152. You pay us for analysis, the same way you pay your answering service or your CRM.";
+  "We deliberately do not charge per case, per signed client, or per recovered dollar. Our fee is a flat monthly subscription for a QA and recovery service on your own existing callers — it does not change whether you sign zero cases or fifty. Because our compensation is not tied to procuring or recovering any case, it isn't a share of a fee under CA Rule 5.4 and can't be characterized as paying a runner or capper under California Business & Professions Code §§6151–6152 (as strengthened by SB 37). You pay us a flat fee for a service, the same way you pay your answering service or your CRM.";
 
-// ─── Cost comparables (2026-verified; used to anchor the flat monthly fee) ───
+// ─── Cost comparables (2026-verified; anchor the flat monthly fee) ───
 export const PRICING_ANCHOR_LINE =
-  "For comparison: AI receptionist tools run about $97–$325/mo, call-intelligence add-ons $50–$195/mo, and PI firms commonly spend $500–$2,000/mo on their CRM and intake platforms. A loaded in-house receptionist runs about $54,000–$68,000 a year. A flat monthly analysis fee sits inside the tool budget your firm already carries.";
+  "For comparison: AI receptionist tools run about $95–$400/mo, call-intelligence add-ons $50–$195/mo, and PI firms commonly spend $500–$2,000/mo on their CRM and intake platforms. A flat monthly desk fee sits inside the tool budget your firm already carries.";
 
 // ─── Accountable human ───
 export const FOUNDER_NAME = "Ali";

@@ -6,7 +6,7 @@ import { CTA_PRIMARY } from "@/lib/site-constants";
 export const metadata: Metadata = {
   title: "Concierge pilot setup | Intake QA",
   description:
-    "We handle setup so your team barely lifts a finger. Start with a $500 Leak Audit, credited to your first invoice, then a founding-cohort pilot.",
+    "We handle setup so your team barely lifts a finger. Start with a free Intake Quality Audit, then a founding-cohort pilot.",
   alternates: { canonical: "/concierge" },
 };
 

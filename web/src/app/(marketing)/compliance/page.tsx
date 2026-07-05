@@ -64,10 +64,13 @@ export default function CompliancePage() {
           the question from arising.
         </p>
         <p>
-          The same logic governs our $50,000 Find-It Guarantee and the $500 audit fee. Both attach to
-          a <em>deliverable</em> — what the analysis identifies in your own calls — and never to any
-          recovery. The guarantee triggers on estimated value found in your calls, not on fees you
-          win back, so it creates no outcome-fee arrangement and no earnings claim.
+          The same logic governs our guarantee. The Intake Quality Audit is free, and the $25,000
+          find-it-free guarantee attaches to a <em>diagnostic threshold and the first paid month</em>
+          — not to any recovery. It triggers on estimated value <em>identified</em> in your own
+          calls; if the audit doesn&apos;t surface at least $25,000, we won&apos;t pitch a
+          subscription, and if you start one anyway your first month is free. Because nothing here is
+          a share of, or contingent on, recovered fees, it creates no outcome-fee arrangement under
+          §§6151–6152 / SB 37 and no earnings claim under FTC §5 / CA §17500.
         </p>
       </Sec>
 
@@ -138,11 +141,16 @@ export default function CompliancePage() {
       <Sec rule="CA State Bar GenAI guidance · ABA Formal Op. 512" title="The AI drafts. A human at your firm verifies and sends.">
         <p>
           The California State Bar&apos;s Practical Guidance for the Use of Generative Artificial
-          Intelligence in the Practice of Law (November 16, 2023) and ABA Formal Opinion 512 (July 29,
-          2024) map existing duties to AI use: competence (Rule 1.1), confidentiality (Rule 1.6),
-          communication (Rule 1.4), candor (Rule 3.3), supervision (Rules 5.1/5.3), and reasonable
-          fees (Rule 1.5). Intake QA is built for that posture: it drafts and scores, a person at your
-          firm reviews and approves, and it makes no legal judgments and sends nothing on its own.
+          Intelligence in the Practice of Law (adopted November 16, 2023; an updated version, adding
+          agentic-AI coverage, was approved May 14, 2026 and is now the current guidance) and ABA
+          Formal Opinion 512 (July 29, 2024) map existing duties to AI use: competence (Rule 1.1),
+          confidentiality (Rule 1.6), communication (Rule 1.4), candor (Rule 3.3), supervision (Rules
+          5.1/5.3), and reasonable fees (Rule 1.5). Intake QA is built for that posture: the desk
+          drafts and scores, a person at your firm reviews and approves, and it makes no legal
+          judgments and sends nothing on its own. (On Aug. 22, 2025 the California Supreme Court
+          directed the State Bar to consider folding these principles into enforceable rules; that is
+          out for public comment and not yet adopted.)
+          {/* TODO(Ali): confirm the May 14, 2026 revision reference before relying on it in counsel-facing materials. */}
         </p>
       </Sec>
 

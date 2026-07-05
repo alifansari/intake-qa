@@ -137,7 +137,7 @@ export default function SampleAuditPage() {
           href="/audit"
           className="mt-4 inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
         >
-          Book your $500 Leak Audit
+          Run your free Intake Quality Audit
         </Link>
       </section>
     </div>

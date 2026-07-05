@@ -1,4 +1,4 @@
-// The $50,000 Find-It Guarantee seal. Gold is used ONLY here. Conditions are
+// The $25,000 find-it-free guarantee seal. Gold is used ONLY here. Conditions are
 // stated in full (no buried terms — FTC Guides, avoid the "illusory guarantee").
 
 import Link from "next/link";
@@ -19,14 +19,14 @@ export function GuaranteeBadge({ className = "" }: { className?: string }) {
       </div>
       <div>
         <p className="font-display text-base font-semibold text-ink">
-          {GUARANTEE_THRESHOLD} Find-It Guarantee
+          {GUARANTEE_THRESHOLD} find-it-free guarantee
         </p>
         <p className="mt-1 text-sm text-ink-muted">
-          If your Leak Audit doesn&apos;t identify at least{" "}
+          Your audit is free either way. If it doesn&apos;t surface at least{" "}
           <span className="tnum font-semibold text-ink">{GUARANTEE_THRESHOLD}</span> in estimated
-          missed signable-case value in your firm&apos;s own recent intake calls, we refund your $500
-          audit fee in full. The guarantee is on what the audit finds — not on any revenue you
-          recover.{" "}
+          missed signable case value in your own calls, we won&apos;t pitch you a subscription — and
+          if you start one anyway, your first month is free. It&apos;s an estimate of what walked, not
+          a promise of what we&apos;ll recover.{" "}
           <Link href="/honesty" className="font-semibold text-accent hover:text-accent-hover">
             See how we calculate it →
           </Link>
