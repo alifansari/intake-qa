@@ -35,7 +35,7 @@ export const AUDIT_CREDIT_LINE =
 // TODO(Ali): paste the Payment Link URL from Stripe here — Products → "Leak Audit"
 // → $500 one-time → Create payment link. Until it's set, the pay button falls back
 // to booking by email, so the page is never broken.
-export const AUDIT_PAYMENT_URL: string = "";
+export const AUDIT_PAYMENT_URL: string = "https://buy.stripe.com/cNi7sLfGq14R7Yi3eXebu01";
 export const AUDIT_WHY_PAID =
   "The audit costs $500 because it's real diagnostic work with real deliverables — not a sales call. A serious firm and a serious analysis both put something on the table. And because the $500 is credited in full to your first invoice, it costs a subscribing firm nothing on net. If we don't find enough to justify moving forward, you keep the report and we part as friends.";
 // TODO(Ali): wire the actual $500 collection/booking step — presented as an offer
