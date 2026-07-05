@@ -88,10 +88,16 @@ export const TEST_CORPUS_LABEL = "on our test corpus"; // never "in the field"
 
 // ─── Pricing (outcome-decoupled: flat monthly, tiered by analyzed-call volume) ───
 // NEVER a per-recovered-case, per-signed-client, or percentage-of-recovery fee.
-// TODO(Ali): confirm final monthly prices before launch — figures below are placeholders.
+// Prices confirmed by Ali (July 2026). `callCap` is the analyzed-call volume the
+// tier covers; exceeding it flags an upgrade conversation — it is NEVER auto-billed.
+// These figures are the source of truth for the billing plans seeded in
+// db/migrations/0013 + supabase/migrations/0013 (keep them in sync).
 export type PricingTier = {
   name: string;
+  planName: string | null; // matches billing_plans.name; null for the free pilot
   price: string;
+  priceCents: number;
+  callCap: number | null; // analyzed calls/mo the tier covers; null = pilot (uncapped)
   volume: string;
   sub: string;
   featured: boolean;
@@ -99,35 +105,47 @@ export type PricingTier = {
 export const PRICING_TIERS: PricingTier[] = [
   {
     name: "Founding pilot",
+    planName: "pilot",
     price: "$0",
+    priceCents: 0,
+    callCap: null,
     volume: `${PILOT_DAYS}-day pilot`,
     sub: "Free 30-day pilot for the founding cohort, then a locked founding rate. Cancel anytime.",
     featured: false,
   },
   {
     name: "Tier 1",
-    price: "$500/mo", // TODO(Ali): confirm final price (≈$500)
+    planName: "tier_1",
+    price: "$500/mo",
+    priceCents: 50000,
+    callCap: 150,
     volume: "up to ~150 analyzed calls/mo",
     sub: "For smaller-volume firms who want every call scored.",
     featured: true,
   },
   {
     name: "Tier 2",
-    price: "$900/mo", // TODO(Ali): confirm final price (≈$900)
+    planName: "tier_2",
+    price: "$900/mo",
+    priceCents: 90000,
+    callCap: 400,
     volume: "up to ~400 analyzed calls/mo",
     sub: "For firms running steady intake volume.",
     featured: false,
   },
   {
     name: "Tier 3",
-    price: "$1,500/mo", // TODO(Ali): confirm final price (≈$1,500)
+    planName: "tier_3",
+    price: "$1,500/mo",
+    priceCents: 150000,
+    callCap: 800,
     volume: "up to ~800 analyzed calls/mo",
     sub: "For high-volume intake operations.",
     featured: false,
   },
 ];
 // Numeric reference monthly fee used only by the ROI calculator to estimate net/payback.
-// TODO(Ali): keep in sync with the confirmed final Tier-2 monthly price.
+// Mirrors the confirmed Tier-2 monthly price ($900); keep the two in sync.
 export const REF_MONTHLY_USD = 900;
 // The compliance argument for the pricing model, in lawyer-grade language.
 export const PRICING_COMPLIANCE_ARGUMENT =

@@ -1,9 +1,9 @@
-// Firm-facing billing. Plain-English model explainer + this period's accrued
-// per-case fees (each linked to the signed case) + past invoices + an ROI banner.
+// Firm-facing billing. Plain-English model explainer (flat monthly subscription,
+// never per case) + this period's subscription + past invoices + an ROI banner.
 //
 // The ROI banner shows recovered fees for CONTEXT ONLY — they are computed for
-// display and NEVER affect the bill (Rule 5.4). Every billing number here comes
-// from the flat per-case plan, not from recovered fees.
+// display and NEVER affect the bill. The bill is a flat monthly subscription
+// tiered by analyzed-call volume; signing cases changes nothing about it.
 
 import { redirect } from "next/navigation";
 import { PageShell, PageHeader, SectionTitle } from "@/components/page";
@@ -65,15 +65,10 @@ export default async function BillingPage({
     }
 
     const billing = await store.getFirmBilling(db, firm.id);
-    const events = billing ? await store.getBillableEvents(db, firm.id, { period: PERIOD }) : [];
     const invoices = billing ? await store.listInvoices(db, firm.id) : [];
-    const accrued = events.filter(
-      (e: { status: string }) => e.status === "accrued" || e.status === "invoiced",
-    );
-    const perCaseTotalCents = accrued.reduce(
-      (a: number, e: { per_case_fee_cents_applied: number }) => a + e.per_case_fee_cents_applied,
-      0,
-    );
+    const callsThisPeriod = billing ? await store.countCallsInPeriod(db, firm.id, PERIOD) : 0;
+    const cap: number | null = billing?.monthly_call_cap ?? null;
+    const overCap = cap != null && callsThisPeriod > cap;
     // DISPLAY-ONLY ROI context: recovered fees (whole dollars) recovered MTD.
     // This value never enters any billing calculation.
     const recoveredDisplayDollars = await store.sumRecoveredMonthToDate(db, firm.id, new Date());
@@ -98,30 +93,30 @@ export default async function BillingPage({
                 <SectionTitle>Your plan · {billing.plan_name}</SectionTitle>
                 <p className="mt-2 text-sm text-ink">
                   A flat{" "}
-                  <b>{money(billing.per_case_fee_cents, { cents: true })} per case recovered</b> —
-                  never a percentage of your fees. Base subscription{" "}
-                  <b>{money(billing.base_monthly_cents, { cents: true })}/mo</b>
-                  {billing.monthly_case_fee_cap_cents
-                    ? `, case fees capped at ${money(billing.monthly_case_fee_cap_cents, { cents: true })}/mo`
-                    : ""}
-                  .
+                  <b>{money(billing.base_monthly_cents, { cents: true })}/mo</b> subscription
+                  {cap != null ? <> for up to <b>{cap.toLocaleString()}</b> analyzed calls a month</> : null}.
+                  Never a percentage of your fees, never a charge per signed or recovered case.
                 </p>
                 <p className="mt-1 text-xs text-faint">
-                  Your fee amounts are shown for ROI only and never affect your bill (structured to
-                  respect professional-independence rules — confirm with your ethics counsel).
+                  You pay the same whether you sign zero cases or fifty. Recovered-fee figures below
+                  are shown for ROI only and never affect your bill.
                 </p>
               </CardContent>
             </Card>
 
-            {/* ROI banner */}
+            {/* This period */}
             <Card>
               <CardContent className="pt-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
                   <div>
                     <p className="text-xs uppercase tracking-wide text-muted">This period ({PERIOD})</p>
                     <p className="font-display text-2xl font-bold text-ink">
-                      {money(perCaseTotalCents, { cents: true })}{" "}
-                      <span className="text-sm font-semibold text-muted">in per-case fees</span>
+                      {money(billing.base_monthly_cents, { cents: true })}{" "}
+                      <span className="text-sm font-semibold text-muted">monthly subscription</span>
+                    </p>
+                    <p className="mt-1 text-xs text-muted">
+                      {callsThisPeriod.toLocaleString()} call{callsThisPeriod === 1 ? "" : "s"} analyzed
+                      {cap != null ? ` of ${cap.toLocaleString()} included` : ""}.
                     </p>
                   </div>
                   <div className="text-right">
@@ -131,26 +126,11 @@ export default async function BillingPage({
                     </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Accrued cases */}
-            <Card>
-              <CardContent className="pt-5">
-                <SectionTitle>Recovered cases this period</SectionTitle>
-                {accrued.length === 0 ? (
-                  <p className="text-sm text-muted">No recovered cases billed yet this period.</p>
-                ) : (
-                  <ul className="mt-2 divide-y divide-line">
-                    {accrued.map((e: { id: number | string; outcome_id: number | string; per_case_fee_cents_applied: number; status: string }) => (
-                      <li key={String(e.id)} className="flex items-center justify-between py-2 text-sm">
-                        <span className="text-ink">Signed case (outcome #{String(e.outcome_id)})</span>
-                        <span className="tabular-nums text-muted">
-                          {money(e.per_case_fee_cents_applied, { cents: true })} · {e.status}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                {overCap && (
+                  <p className="mt-3 rounded-base border border-line bg-canvas px-3 py-2 text-sm text-ink">
+                    You&apos;ve analyzed more calls than this tier includes. Your bill doesn&apos;t
+                    change automatically — reach out and we&apos;ll move you to the right tier.
+                  </p>
                 )}
               </CardContent>
             </Card>

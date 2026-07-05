@@ -113,6 +113,7 @@ export const upsertFirmBilling = wrap("upsertFirmBilling");
 export const accrueBillableEvent = wrap("accrueBillableEvent");
 export const getBillableEvents = wrap("getBillableEvents");
 export const getAccruedBillableEvents = wrap("getAccruedBillableEvents");
+export const countCallsInPeriod = wrap("countCallsInPeriod");
 export const setBillableEventStatus = wrap("setBillableEventStatus");
 export const markBillableEventsInvoiced = wrap("markBillableEventsInvoiced");
 export const createInvoice = wrap("createInvoice");

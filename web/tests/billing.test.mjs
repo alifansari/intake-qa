@@ -1,10 +1,13 @@
-// Tests for per-recovered-case billing (Phase 2). The load-bearing guarantees:
-//   * FEE INVARIANCE — invoice totals do NOT change when recovered-fee amounts
-//     change (Rule 5.4: the recovered fee is never a billing input). REQUIRED.
-//   * only SIGNED outcomes accrue a billable event (adversarial: unsigned can't).
-//   * flat per-case fee (+ optional flat case-type override), monthly cap, base
-//     proration, dispute exclusion, void-not-delete, guarantee auto-void, and the
-//     Stripe simulation in test mode.
+// Tests for the FLAT-MONTHLY subscription billing model. The load-bearing
+// guarantees:
+//   * FEE INVARIANCE — the invoice total is the flat monthly subscription and
+//     does NOT change with the recovered-fee amount OR the number of signed
+//     cases (a fee tied to signing/recovering risks "capping" under B&P
+//     §§6151-6152 / SB 37). REQUIRED.
+//   * signing a case creates NO billing charge (no billable event, no per-case
+//     line).
+//   * first-month proration, guarantee waiver, void-not-delete, and the Stripe
+//     simulation in test mode.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -17,8 +20,6 @@ import {
   getBillingPlanByName,
   upsertFirmBilling,
   getBillableEvents,
-  getAccruedBillableEvents,
-  setBillableEventStatus,
   getInvoice,
   getInvoiceLines,
   voidInvoice,
@@ -28,13 +29,13 @@ import { recordOutcome } from "../messaging/outcome.mjs";
 import {
   computeInvoice,
   prorationFraction,
-  resolvePerCaseFee,
   generateInvoice,
   closePeriod,
 } from "../billing/invoice.mjs";
 
 const NOW = new Date("2026-06-15T12:00:00Z");
 const PERIOD = "2026-06";
+const TIER1_CENTS = 50000; // tier_1 flat monthly ($500), seeded by migration 0013
 
 function makeDb(t) {
   const dir = mkdtempSync(join(tmpdir(), "intakeqa-billing-"));
@@ -81,25 +82,12 @@ function makeConversation(db, firmId, { leaked = 1 } = {}) {
   );
 }
 
-async function configureBilling(db, firmId, planName = "core") {
+async function configureBilling(db, firmId, planName = "tier_1") {
   const plan = await getBillingPlanByName(db, planName);
   return upsertFirmBilling(db, { firm_id: firmId, plan_id: plan.id, status: "active" });
 }
 
 // --- Pure math ---------------------------------------------------------------
-
-test("resolvePerCaseFee: flat fee, with optional flat case-type override", () => {
-  const flat = { per_case_fee_cents: 50000, per_case_fee_by_type: null };
-  assert.equal(resolvePerCaseFee(flat, null), 50000);
-  assert.equal(resolvePerCaseFee(flat, "mva"), 50000);
-
-  const withOverride = {
-    per_case_fee_cents: 50000,
-    per_case_fee_by_type: JSON.stringify({ premises: 75000 }),
-  };
-  assert.equal(resolvePerCaseFee(withOverride, "premises"), 75000);
-  assert.equal(resolvePerCaseFee(withOverride, "mva"), 50000); // unknown type -> flat
-});
 
 test("prorationFraction: full month normally, prorated in the first month", () => {
   // Not the start month -> full base.
@@ -109,101 +97,91 @@ test("prorationFraction: full month normally, prorated in the first month", () =
   assert.ok(Math.abs(f - 15 / 30) < 1e-9);
 });
 
-test("computeInvoice: per-case lines, cap adjustment, base, and total", () => {
-  const events = [
-    { outcome_id: 1, per_case_fee_cents_applied: 50000, case_type: null },
-    { outcome_id: 2, per_case_fee_cents_applied: 50000, case_type: null },
-  ];
-  // No cap: 2*500 + base 1500 = 2500.00
-  const a = computeInvoice({ events, baseCents: 150000, capCents: null, prorateFraction: 1 });
-  assert.equal(a.total_cents, 100000 + 150000);
-  // Cap at 70000: case fees capped to 70000, + base 150000.
-  const b = computeInvoice({ events, baseCents: 150000, capCents: 70000, prorateFraction: 1 });
-  assert.equal(b.total_cents, 70000 + 150000);
-  assert.ok(b.lines.some((l) => l.kind === "cap_adjustment"));
+test("computeInvoice: a single base subscription line, prorated when partial", () => {
+  const full = computeInvoice({ baseCents: TIER1_CENTS, prorateFraction: 1 });
+  assert.equal(full.total_cents, TIER1_CENTS);
+  assert.equal(full.lines.length, 1);
+  assert.equal(full.lines[0].kind, "base");
+
+  const half = computeInvoice({ baseCents: TIER1_CENTS, prorateFraction: 0.5 });
+  assert.equal(half.total_cents, TIER1_CENTS / 2);
+  // No per-case or cap lines exist in the flat model.
+  assert.ok(!full.lines.some((l) => l.kind === "per_case" || l.kind === "cap_adjustment"));
 });
 
-// --- The invariant: recovered fee never affects billing ----------------------
+// --- The invariant: neither recovered fees NOR signed-case count move the bill -
 
-test("FEE INVARIANCE: invoice total is identical regardless of recovered-fee amounts", async (t) => {
+test("FEE INVARIANCE: invoice total is the flat fee regardless of recovered-fee amounts", async (t) => {
   const db = makeDb(t);
 
   async function firmTotalWithRecoveredFees(fees) {
     const firm = makeFirm(db);
-    await configureBilling(db, firm, "core");
+    await configureBilling(db, firm, "tier_1");
     for (const fee of fees) {
       const conv = makeConversation(db, firm);
-      // Wildly different recovered fees — must NOT influence the invoice.
       await recordOutcome({ db, conversationId: conv, result: "signed", recoveredFee: fee, now: NOW });
     }
     const inv = await generateInvoice({ db, firmId: firm, period: PERIOD, now: NOW });
     return inv.total_cents;
   }
 
-  const totalTiny = await firmTotalWithRecoveredFees([100, 250]); // $1, $2.50 recovered
+  const totalTiny = await firmTotalWithRecoveredFees([100, 250]); // small recovered
   const totalHuge = await firmTotalWithRecoveredFees([5_000_000, 9_999_999]); // huge recovered
+  assert.equal(totalTiny, TIER1_CENTS, "invoice is the flat monthly fee");
   assert.equal(totalTiny, totalHuge, "recovered-fee amount must not move the invoice total");
 });
 
-// --- Only signed cases can accrue --------------------------------------------
-
-test("adversarial: an UNSIGNED outcome never creates a billable event", async (t) => {
+test("FEE INVARIANCE: invoice total does not change with the NUMBER of signed cases", async (t) => {
   const db = makeDb(t);
-  const firm = makeFirm(db);
-  await configureBilling(db, firm, "core");
-  for (const result of ["no_response", "lost", "booked_callback"]) {
-    const conv = makeConversation(db, firm);
-    await recordOutcome({ db, conversationId: conv, result, recoveredFee: 999999, now: NOW });
+
+  async function firmTotalWithSignedCount(n) {
+    const firm = makeFirm(db);
+    await configureBilling(db, firm, "tier_1");
+    for (let i = 0; i < n; i++) {
+      const conv = makeConversation(db, firm);
+      await recordOutcome({ db, conversationId: conv, result: "signed", now: NOW });
+    }
+    const inv = await generateInvoice({ db, firmId: firm, period: PERIOD, now: NOW });
+    return inv.total_cents;
   }
-  const events = await getBillableEvents(db, firm);
-  assert.equal(events.length, 0, "unsigned outcomes must accrue nothing");
+
+  assert.equal(await firmTotalWithSignedCount(0), TIER1_CENTS);
+  assert.equal(await firmTotalWithSignedCount(5), TIER1_CENTS, "signing 5 cases bills the same flat fee");
 });
 
-test("a signed outcome accrues exactly one event, idempotently", async (t) => {
+// --- Signing creates no charge ------------------------------------------------
+
+test("a signed outcome creates NO billable event and NO per-case invoice line", async (t) => {
   const db = makeDb(t);
   const firm = makeFirm(db);
-  await configureBilling(db, firm, "core");
+  await configureBilling(db, firm, "tier_1");
   const conv = makeConversation(db, firm);
   await recordOutcome({ db, conversationId: conv, result: "signed", now: NOW });
-  // Recording the same signed outcome path again must not double-bill (unique outcome).
-  const events = await getBillableEvents(db, firm);
-  assert.equal(events.length, 1);
-  assert.equal(events[0].per_case_fee_cents_applied, 50000); // core flat fee
+
+  // Accrual was removed with the per-case model.
+  assert.equal((await getBillableEvents(db, firm)).length, 0, "no billable events in the flat model");
+
+  const inv = await generateInvoice({ db, firmId: firm, period: PERIOD, now: NOW });
+  const lines = await getInvoiceLines(db, inv.invoiceId);
+  assert.ok(lines.every((l) => l.kind !== "per_case"), "no per-case lines");
+  assert.equal(inv.total_cents, TIER1_CENTS);
 });
 
-test("no billable event when the firm has no billing config", async (t) => {
+test("no invoice base line when the firm has no billing config", async (t) => {
   const db = makeDb(t);
   const firm = makeFirm(db); // no configureBilling
   const conv = makeConversation(db, firm);
   await recordOutcome({ db, conversationId: conv, result: "signed", now: NOW });
-  assert.equal((await getBillableEvents(db, firm)).length, 0);
+  const gen = await generateInvoice({ db, firmId: firm, period: PERIOD, now: NOW });
+  assert.equal(gen.skipped, true, "no billing config -> nothing to invoice");
 });
 
-// --- Dispute / void ----------------------------------------------------------
-
-test("disputed events are excluded from invoicing", async (t) => {
-  const db = makeDb(t);
-  const firm = makeFirm(db);
-  await configureBilling(db, firm, "core");
-  const c1 = makeConversation(db, firm);
-  const c2 = makeConversation(db, firm);
-  await recordOutcome({ db, conversationId: c1, result: "signed", now: NOW });
-  await recordOutcome({ db, conversationId: c2, result: "signed", now: NOW });
-  const all = await getBillableEvents(db, firm);
-  await setBillableEventStatus(db, all[0].id, "disputed", { dispute_reason: "firm contests" });
-
-  const accrued = await getAccruedBillableEvents(db, firm, PERIOD);
-  assert.equal(accrued.length, 1, "disputed event is not billable");
-  const inv = await generateInvoice({ db, firmId: firm, period: PERIOD, now: NOW });
-  assert.equal(inv.caseCount, 1);
-});
+// --- Void ---------------------------------------------------------------------
 
 test("voiding an invoice keeps the row (never hard-deleted)", async (t) => {
   const db = makeDb(t);
   const firm = makeFirm(db);
-  await configureBilling(db, firm, "core");
-  const conv = makeConversation(db, firm);
-  await recordOutcome({ db, conversationId: conv, result: "signed", now: NOW });
+  await configureBilling(db, firm, "tier_1");
   const inv = await generateInvoice({ db, firmId: firm, period: PERIOD, now: NOW });
   await voidInvoice(db, inv.invoiceId, "test void", NOW.toISOString());
   const row = await getInvoice(db, inv.invoiceId);
@@ -213,10 +191,10 @@ test("voiding an invoice keeps the row (never hard-deleted)", async (t) => {
 
 // --- Guarantee + Stripe sim --------------------------------------------------
 
-test("find-it-free guarantee waives the base fee when the threshold is unmet at deadline", async (t) => {
+test("find-it-free guarantee waives the monthly fee when the threshold is unmet at deadline", async (t) => {
   const db = makeDb(t);
   const firm = makeFirm(db, 8000);
-  const plan = await getBillingPlanByName(db, "core");
+  const plan = await getBillingPlanByName(db, "tier_1");
   // Deadline already passed; threshold huge so it can't be met.
   await upsertFirmBilling(db, {
     firm_id: firm,
@@ -226,25 +204,20 @@ test("find-it-free guarantee waives the base fee when the threshold is unmet at 
     guarantee_threshold_cents: 10_000_000_00,
     guarantee_deadline: "2026-06-01T00:00:00Z",
   });
-  const conv = makeConversation(db, firm);
-  await recordOutcome({ db, conversationId: conv, result: "signed", now: NOW });
 
   const res = await closePeriod({ db, firmId: firm, period: PERIOD, now: NOW });
   const lines = await getInvoiceLines(db, res.invoiceId);
   const base = lines.find((l) => l.kind === "base");
   const credit = lines.find((l) => l.kind === "guarantee_credit");
   assert.ok(credit, "a guarantee credit line should be added");
-  assert.equal(credit.amount_cents, -base.amount_cents, "credit cancels the base fee");
-  // Net of base: total = per-case only (50000), base fully credited.
-  assert.equal(res.total_cents, 50000);
+  assert.equal(credit.amount_cents, -base.amount_cents, "credit cancels the monthly fee");
+  assert.equal(res.total_cents, 0, "guarantee zeroes the bill when unmet");
 });
 
 test("closePeriod simulates Stripe in test mode (no keys) — nothing transmitted", async (t) => {
   const db = makeDb(t);
   const firm = makeFirm(db);
-  await configureBilling(db, firm, "core");
-  const conv = makeConversation(db, firm);
-  await recordOutcome({ db, conversationId: conv, result: "signed", now: NOW });
+  await configureBilling(db, firm, "tier_1");
   await closePeriod({ db, firmId: firm, period: PERIOD, now: NOW });
   assert.ok((await countStripeSimLog(db)) >= 1, "would-be Stripe calls are logged, not sent");
 });

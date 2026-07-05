@@ -19,10 +19,7 @@ import {
   setConversationOptedOut,
   findHandoffBySignatureRequest,
   setHandoffStatus,
-  getFirmBilling,
-  accrueBillableEvent,
 } from "../ingest/store.mjs";
-import { resolvePerCaseFee } from "../billing/invoice.mjs";
 
 // ISO date (YYYY-MM-DD) of the Monday of the week containing `date`, in UTC.
 // Weeks start Monday; Sunday belongs to the week that just ended.
@@ -77,24 +74,9 @@ export async function recordOutcome({
     });
     await setConversationStatus(db, conversationId, "closed", nowIso);
 
-    // Per-recovered-case billing accrual (only signed cases can accrue — this is
-    // the single point where a billable event is born). The fee applied comes
-    // from the firm's PLAN (flat per-case), NEVER from the recovered fee above.
-    // Best-effort: a billing failure must never break outcome recording.
-    try {
-      const billing = await getFirmBilling(db, conversation.firm_id);
-      if (billing) {
-        await accrueBillableEvent(db, {
-          firm_id: conversation.firm_id,
-          outcome_id: outcomeId,
-          case_type: caseType ?? null,
-          per_case_fee_cents_applied: resolvePerCaseFee(billing, caseType),
-          period: nowIso.slice(0, 7),
-        });
-      }
-    } catch {
-      /* billing accrual is best-effort; outcome recording must still succeed */
-    }
+    // NOTE: signing a case creates NO billing charge. Billing is a flat monthly
+    // subscription (see billing/invoice.mjs) — never per recovered/signed case.
+    // The recovery row above exists only for ROI/reconciliation reporting.
   } else if (result === "opted_out") {
     await setConversationOptedOut(db, conversationId, nowIso);
   }

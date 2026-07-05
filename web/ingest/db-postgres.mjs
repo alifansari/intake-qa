@@ -740,12 +740,23 @@ export async function getBillingPlanByName(db, name) {
 export async function getFirmBilling(db, firmId) {
   const r = await db.query(
     `SELECT fb.*, p.name AS plan_name, p.base_monthly_cents, p.per_case_fee_cents,
-            p.per_case_fee_by_type, p.monthly_case_fee_cap_cents
+            p.per_case_fee_by_type, p.monthly_case_fee_cap_cents, p.monthly_call_cap
        FROM firm_billing fb JOIN billing_plans p ON p.id = fb.plan_id
       WHERE fb.firm_id = $1`,
     [firmId]
   );
   return r.rows[0];
+}
+
+// Count analyzed (received) calls for a firm in a 'YYYY-MM' period. Used only to
+// flag "over your tier volume — consider upgrading" in the operator console; it
+// is NEVER an input to any charge.
+export async function countCallsInPeriod(db, firmId, period) {
+  const r = await db.query(
+    "SELECT COUNT(*)::int AS n FROM calls WHERE firm_id = $1 AND to_char(received_at, 'YYYY-MM') = $2",
+    [firmId, period]
+  );
+  return Number(r.rows[0]?.n ?? 0);
 }
 
 export async function upsertFirmBilling(db, cfg) {

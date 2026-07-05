@@ -1,6 +1,10 @@
-// Operator billing console: per-firm accruals, close-period, dispute/void, and
-// the Stripe simulation log. Reads through the facade; actions post to
+// Operator billing console: per-firm plan + this period's analyzed-call volume
+// (with an upgrade flag when a firm exceeds its tier), close-period, invoice
+// void, and the Stripe simulation log. Reads through the facade; actions post to
 // /api/admin/billing. Degrades gracefully with no DB.
+//
+// Billing is a FLAT MONTHLY subscription — there is nothing to meter per case.
+// Exceeding a tier's call volume never auto-charges; it only flags an upgrade.
 
 import { PageShell, PageHeader, SectionTitle } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +21,9 @@ type FirmBilling = {
   firmId: number | string;
   firmName: string;
   planName: string | null;
-  events: Array<{ id: number | string; status: string; per_case_fee_cents_applied: number; outcome_id: number | string }>;
+  baseMonthlyCents: number;
+  callCap: number | null;
+  callsThisPeriod: number;
   invoices: Array<{ id: number | string; period: string; status: string; total_cents: number }>;
 };
 
@@ -34,13 +40,15 @@ async function load(): Promise<
       for (const f of firms) {
         const billing = await store.getFirmBilling(db, f.id);
         if (!billing) continue; // only firms with billing configured
-        const events = await store.getBillableEvents(db, f.id, { period: PERIOD });
         const invoices = await store.listInvoices(db, f.id);
+        const callsThisPeriod = await store.countCallsInPeriod(db, f.id, PERIOD);
         out.push({
           firmId: f.id,
           firmName: f.name,
           planName: billing.plan_name ?? null,
-          events,
+          baseMonthlyCents: billing.base_monthly_cents ?? 0,
+          callCap: billing.monthly_call_cap ?? null,
+          callsThisPeriod,
           invoices,
         });
       }
@@ -74,7 +82,7 @@ export default async function AdminBillingPage() {
         <Card>
           <CardContent className="pt-5">
             <p className="text-sm text-muted">
-              No firms have a billing plan yet. Configure one to start metering recovered cases.
+              No firms have a billing plan yet. Configure one to start their flat monthly subscription.
             </p>
           </CardContent>
         </Card>
@@ -82,72 +90,40 @@ export default async function AdminBillingPage() {
         <div className="space-y-6">
           <p className="text-xs text-faint">
             Stripe is simulated in test mode — {state.simCount} would-be call(s) logged, none sent.
-            Billing is a flat fee per recovered case; recovered fee amounts never affect a total.
+            Billing is a flat monthly subscription; signing or recovering cases never affects a total.
           </p>
           {state.firms.map((f) => {
-            const accrued = f.events.filter((e) => e.status === "accrued");
-            const accruedTotal = accrued.reduce((a, e) => a + e.per_case_fee_cents_applied, 0);
+            const overCap = f.callCap != null && f.callsThisPeriod > f.callCap;
             return (
               <Card key={String(f.firmId)}>
                 <CardContent className="pt-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <SectionTitle>
-                      {f.firmName} · {f.planName ?? "no plan"}
+                      {f.firmName} · {f.planName ?? "no plan"} ·{" "}
+                      {money(f.baseMonthlyCents, { cents: true })}/mo
                     </SectionTitle>
                     <ClosePeriodForm firmId={f.firmId} defaultPeriod={PERIOD} />
                   </div>
 
                   <p className="mt-2 text-sm text-muted">
-                    {PERIOD}: <b className="text-ink">{accrued.length}</b> recovered case(s) accrued ·{" "}
-                    <b className="text-ink">{money(accruedTotal, { cents: true })}</b> in per-case fees
+                    {PERIOD}: <b className="text-ink">{f.callsThisPeriod.toLocaleString()}</b> call(s)
+                    analyzed
+                    {f.callCap != null ? (
+                      <>
+                        {" "}
+                        of <b className="text-ink">{f.callCap.toLocaleString()}</b> included in this tier
+                      </>
+                    ) : (
+                      " (uncapped pilot)"
+                    )}
+                    .
                   </p>
 
-                  {f.events.length > 0 && (
-                    <div className="mt-3 overflow-x-auto">
-                      <table className="w-full min-w-[480px] text-left text-sm">
-                        <thead>
-                          <tr className="border-b border-line text-xs uppercase tracking-wide text-muted">
-                            <th className="py-1.5 pr-3">Case (outcome)</th>
-                            <th className="py-1.5 pr-3">Fee</th>
-                            <th className="py-1.5 pr-3">Status</th>
-                            <th className="py-1.5">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {f.events.map((e) => (
-                            <tr key={String(e.id)} className="border-b border-line/60">
-                              <td className="py-1.5 pr-3 tabular-nums">#{String(e.outcome_id)}</td>
-                              <td className="py-1.5 pr-3 tabular-nums">
-                                {money(e.per_case_fee_cents_applied, { cents: true })}
-                              </td>
-                              <td className="py-1.5 pr-3 text-muted">{e.status}</td>
-                              <td className="flex gap-1.5 py-1.5">
-                                {e.status === "accrued" && (
-                                  <ActionButton
-                                    label="Dispute"
-                                    body={{ action: "dispute_event", event_id: e.id }}
-                                  />
-                                )}
-                                {e.status === "disputed" && (
-                                  <ActionButton
-                                    label="Resolve"
-                                    body={{ action: "resolve_event", event_id: e.id }}
-                                  />
-                                )}
-                                {e.status !== "invoiced" && e.status !== "voided" && (
-                                  <ActionButton
-                                    label="Void"
-                                    tone="danger"
-                                    confirm="Void this billable event?"
-                                    body={{ action: "void_event", event_id: e.id }}
-                                  />
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                  {overCap && (
+                    <p className="mt-2 rounded-base border border-line bg-canvas px-3 py-2 text-sm text-ink">
+                      ⬆ Over tier volume — consider an upgrade conversation. The bill is not changed
+                      automatically.
+                    </p>
                   )}
 
                   {f.invoices.length > 0 && (

@@ -51,9 +51,9 @@ tests green. All repeated facts now live in `web/src/lib/site-constants.ts`.
 
 | Location | Confirm |
 |---|---|
-| `site-constants.ts` `PRICING_TIERS` | **Final monthly prices** (Tier 1 ≈$500, Tier 2 ≈$900, Tier 3 ≈$1,500 are placeholders). |
-| `site-constants.ts` `REF_MONTHLY_USD` | Keep ROI reference ($900) in sync with the confirmed Tier-2 price. |
-| Internal billing product (`app/billing`, `app/admin/billing`, `lib` per-case fee, `billing.test.mjs`) | The **product** still meters per-case; the public model is now flat-monthly. Aligning the billing engine to flat monthly is a **product/logic + test change** — out of scope for a copy pass. Decide whether/when to migrate it. |
+| ~~`site-constants.ts` `PRICING_TIERS`~~ | ✅ CONFIRMED (Ali, July 2026): Tier 1 $500, Tier 2 $900, Tier 3 $1,500/mo. TODO placeholders removed. |
+| ~~`site-constants.ts` `REF_MONTHLY_USD`~~ | ✅ Mirrors confirmed Tier-2 ($900). |
+| ~~Internal billing product~~ | ✅ MIGRATED to flat-monthly (see "Billing engine migration" below). |
 | `compliance/page.tsx` | The audit's **"March 2025 amendment to Rules 7.1–7.3"** could not be confirmed as in force; cited the 2018 Chapter 7 rules instead. Confirm before citing any 2025 amendment as live. |
 | `compliance/page.tsx` | Firm's own **§632 consent/disclosure process** and the exact **CCPA "service provider"** DPA language. |
 | `security/page.tsx` | **Breach-notification timeline** you can actually commit to (currently 72h). Intake QA's **own attestations**, if any. **DPA/BAA** template status. |
@@ -61,3 +61,35 @@ tests green. All repeated facts now live in `web/src/lib/site-constants.ts`.
 | `page.tsx` guarantee | Confirm the **$25,000 find-it-free** threshold and terms. |
 | `lib/pilot-config.ts` | Now **orphaned**; safe to delete. |
 | Statistic | Exact source for the **"~62% call a competitor"** figure before using it inline (currently not used). |
+
+## Billing engine migration (flat-monthly) — July 5, 2026
+
+Migrated the *internal* billing engine to match the new public model: firms pay a
+flat monthly subscription tiered by analyzed-call volume, **never** per signed or
+recovered case. Confirmed prices: Tier 1 $500 / Tier 2 $900 / Tier 3 $1,500/mo.
+Exceeding a tier's call volume **flags an upgrade** in the operator console — it is
+never auto-charged (Ali's call).
+
+- **Migration 0013** (`db/migrations` + `supabase/migrations`, lockstep): adds
+  `billing_plans.monthly_call_cap`, zeroes `per_case_fee_cents` on every plan, and
+  seeds `tier_1/2/3` (base fee + call cap). Per-case columns + `billable_events`
+  are left in place so historical invoices stay readable; they're just unused.
+- **`billing/invoice.mjs`**: `computeInvoice` now emits a single base subscription
+  line (prorated in the first partial month); removed per-case lines, the monthly
+  cap, and `resolvePerCaseFee`. `generateInvoice` no longer reads billable events.
+- **`messaging/outcome.mjs`**: signing a case no longer accrues a billable event
+  (recovery rows still recorded for ROI/reconciliation only).
+- **`ingest/db.mjs` + `db-postgres.mjs` + `store.mjs`**: `getFirmBilling` returns
+  `monthly_call_cap`; added `countCallsInPeriod` (dialect-safe) for the upgrade flag.
+- **`app/billing/page.tsx`** (firm) + **`app/admin/billing/page.tsx`** (operator):
+  show the flat monthly plan, analyzed-call volume vs. the tier cap, and an
+  upgrade nudge when over — no per-case tables. Find-it-free guarantee still waives
+  the monthly fee; invoice void + Stripe simulation unchanged.
+- **`tests/billing.test.mjs`**: rewritten for the flat model — fee-invariance now
+  proves the total is independent of both recovered-fee amount AND signed-case
+  count; a signed outcome creates no charge; proration, guarantee-waiver,
+  void-not-delete, and Stripe-sim retained. `billing-admin.test.mjs` unchanged.
+  Full suite: 130/130 green; `next build` compiles.
+
+Not done (needs a person, not code): actually assigning each pilot firm to a tier
+plan (`upsertFirmBilling`), and wiring real Stripe keys when you leave TEST_MODE.
