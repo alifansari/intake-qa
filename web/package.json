@@ -10,6 +10,7 @@
     "lint": "eslint",
     "db:migrate": "node --no-warnings db/migrate.mjs",
     "db:seed": "node --no-warnings scripts/seed-db.mjs",
+    "seed:demo": "node --no-warnings scripts/seed-demo.mjs",
     "ingest": "node --no-warnings ingest/cli.mjs",
     "queue": "node --no-warnings messaging/cli.mjs",
     "smoke": "node --no-warnings scripts/smoke.mjs",
