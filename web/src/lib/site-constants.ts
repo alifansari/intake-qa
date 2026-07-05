@@ -183,6 +183,10 @@ export type PricingTier = {
   volume: string;
   sub: string;
   featured: boolean;
+  // Stripe subscription Payment Link for this tier (empty = no direct checkout;
+  // the card falls back to the Leak Audit entry point). TODO(Ali): confirm each
+  // link is LIVE mode and its monthly amount matches `price` above.
+  checkoutUrl: string;
 };
 export const PRICING_TIERS: PricingTier[] = [
   {
@@ -194,6 +198,7 @@ export const PRICING_TIERS: PricingTier[] = [
     volume: `${PILOT_DAYS}-day pilot`,
     sub: "Free 30-day pilot for the founding cohort, then a locked founding rate. Cancel anytime.",
     featured: false,
+    checkoutUrl: "", // the pilot starts with the $500 Leak Audit, not a subscription checkout
   },
   {
     name: "Tier 1",
@@ -204,6 +209,7 @@ export const PRICING_TIERS: PricingTier[] = [
     volume: "up to ~150 analyzed calls/mo",
     sub: "For smaller-volume firms who want every call scored.",
     featured: true,
+    checkoutUrl: "https://buy.stripe.com/3cIcN5bqafZL4M69Dlebu02",
   },
   {
     name: "Tier 2",
@@ -214,6 +220,7 @@ export const PRICING_TIERS: PricingTier[] = [
     volume: "up to ~400 analyzed calls/mo",
     sub: "For firms running steady intake volume.",
     featured: false,
+    checkoutUrl: "https://buy.stripe.com/5kQ3cvam6eVH6Ue2aTebu03",
   },
   {
     name: "Tier 3",
@@ -224,6 +231,7 @@ export const PRICING_TIERS: PricingTier[] = [
     volume: "up to ~800 analyzed calls/mo",
     sub: "For high-volume intake operations.",
     featured: false,
+    checkoutUrl: "https://buy.stripe.com/aFa28r79U4h31zUg1Jebu04",
   },
 ];
 // Numeric reference monthly fee used only by the ROI calculator to estimate net/payback.
