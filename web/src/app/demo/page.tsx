@@ -66,7 +66,7 @@ type Status = {
 const STAGES: { key: string; label: string }[] = [
   { key: "transcribing", label: "Transcribing the call…" },
   { key: "scoring", label: "Scoring against the PI intake rubric…" },
-  { key: "done", label: "Checking for a leaked signable case…" },
+  { key: "done", label: "Checking for a lost signable case…" },
 ];
 
 function money(n: number) {
@@ -344,11 +344,11 @@ function Results({
           sub={`outcome: ${result.conversionOutcome}`} tone={result.askMade === false ? "red" : "ink"} />
       </div>
 
-      {/* Leaked banner or honest no-leak */}
+      {/* Signable-case banner or honest none-walked */}
       {result.leaked ? (
         <div className="rounded-lg border-2 border-red bg-red-tint p-6">
           <p className="font-display text-xl font-bold text-red">
-            Leaked signable case — estimated fee at risk: {money(result.feeAtRisk)}
+            Signable case that walked — estimated fee at risk: {money(result.feeAtRisk)}
           </p>
           <p className="mt-1 text-xs text-red/80">basis: {result.feeBasis}</p>
           {result.evidenceQuotes.length > 0 && (
@@ -364,7 +364,7 @@ function Results({
         </div>
       ) : (
         <div className="rounded-lg border border-line bg-green-tint p-6">
-          <p className="font-display text-lg font-semibold text-green">No leaked case found</p>
+          <p className="font-display text-lg font-semibold text-green">No signable case walked</p>
           <p className="mt-1 text-sm text-muted">{result.reason}</p>
           <p className="mt-2 text-xs text-faint">
             That&apos;s the product being honest — it only flags genuinely signable cases your team

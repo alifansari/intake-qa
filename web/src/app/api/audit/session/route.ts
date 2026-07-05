@@ -1,4 +1,4 @@
-// POST /api/audit/session — public, no-auth. Starts a Leak Audit session and
+// POST /api/audit/session — public, no-auth. Starts a Intake Quality Audit session and
 // returns a shareable token. Enforces one session per visitor fingerprint per
 // 7 days (each session then holds up to 10 calls). Demo-isolated: this only
 // creates an audit_sessions row and can never send anything.
@@ -43,7 +43,11 @@ export async function POST(req: Request) {
     })) as StartSessionResult;
     if (!res.ok) {
       return Response.json(
-        { error: "You've already run an audit recently — one per week.", reason: res.reason },
+        {
+          error:
+            "One audit per firm per week keeps the queue fast — yours unlocks again in about a week. Need it sooner? Email us.",
+          reason: res.reason,
+        },
         { status: 429 },
       );
     }

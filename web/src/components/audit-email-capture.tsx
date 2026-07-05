@@ -1,6 +1,6 @@
 "use client";
 
-// Email capture on the Leak Audit report. Reuses /api/demo/lead (extended with
+// Email capture on the Intake Quality Audit report. Reuses /api/demo/lead (extended with
 // session_token) so the operator console can follow up. Test-mode-safe: the API
 // only transmits when Resend is configured AND TEST_MODE is off; otherwise it
 // just records the capture.

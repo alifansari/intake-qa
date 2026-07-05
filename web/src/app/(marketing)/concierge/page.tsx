@@ -3,9 +3,9 @@ import Link from "next/link";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 
 export const metadata: Metadata = {
-  title: "White-glove recovery for founding-cohort firms",
+  title: "Concierge pilot setup | Intake QA",
   description:
-    "During your pilot we personally help work your first recovered callbacks with you — so you see signed cases before you commit to anything.",
+    "We handle setup so your team barely lifts a finger. Start the founding-cohort pilot with a free Intake Quality Audit.",
   alternates: { canonical: "/concierge" },
 };
 
@@ -26,7 +26,7 @@ export default function ConciergePage() {
       </div>
       <div className="mt-8">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Start the pilot with a free Leak Audit
+          Run your free Intake Quality Audit
         </Link>
       </div>
     </div>

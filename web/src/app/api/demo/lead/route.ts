@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 const Body = z.object({
   email: z.string().email(),
   demoCallId: z.string().optional(),
-  // Leak Audit report capture: attach the email (+ any supplied volume) to the
+  // Intake Quality Audit report capture: attach the email (+ any supplied volume) to the
   // audit session so the operator console can follow up on hot audits.
   session_token: z.string().min(1).max(128).optional(),
   monthly_call_volume: z.number().int().positive().max(100000).optional(),

@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://intake-qa.vercel.app"),
   title: "Intake QA — recover the signable cases your intake let slip",
   description:
-    "Intake QA scores every intake call, flags the signable personal-injury cases your team let slip, and drafts the compliant follow-up. Start with a free Leak Audit.",
+    "Intake QA scores every intake call, flags the signable personal-injury cases your team let slip, and drafts the compliant follow-up. Start with a free Intake Quality Audit.",
 };
 
 export default function RootLayout({

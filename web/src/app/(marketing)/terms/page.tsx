@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — Intake QA",
-  description: "Terms of Service for Intake QA.",
+  title: "Terms of service | Intake QA",
+  description: "The terms that govern use of Intake QA and the free audit.",
   alternates: { canonical: "/terms" },
 };
 

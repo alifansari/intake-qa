@@ -3,9 +3,9 @@ import Link from "next/link";
 import { FAQAccordion, type QA } from "@/components/marketing/FAQAccordion";
 
 export const metadata: Metadata = {
-  title: "FAQ — Intake QA",
+  title: "FAQ | Intake QA",
   description:
-    "Rule 5.4, Rule 7.3, TCPA, California §632, AI accuracy, staff scoring, CRM fit, data training, the find-it-free guarantee, and ROI — answered.",
+    "What the pilot costs, what your intake team sees, how sends are approved, and what happens to your data.",
   alternates: { canonical: "/faq" },
 };
 
@@ -15,12 +15,13 @@ const ITEMS: QA[] = [
   { q: "Is this TCPA-compliant?", a: "Seven gates enforce compliance in order, including quiet hours (8pm–8am local) and instant opt-out — including Spanish keywords — with revocation by any reasonable means per the April 2025 FCC rule. Texting stays off until your A2P 10DLC registration clears." },
   { q: "Can I even share call recordings with a vendor in California?", a: "California §632 requires all-party consent to record. We never ask you to do anything with a recording you couldn't already do: audio is deleted at transcription, transcripts are purged on a 72-hour window, and a BAA/DPA is available. Our AI vendor runs a zero-retention posture." },
   { q: "AI hallucinates — how do I know it's accurate?", a: "We publish our numbers: 77% flag precision, 68% recall, and a full list of the cases our model missed and wrongly flagged — with dollar amounts — on the Honesty page." },
-  { q: "My staff will hate being scored.", a: "It's a coaching tool, not a gotcha. The rep scoreboard exists to improve callback speed — the single metric that recovers the most fees — not to punish." },
+  { q: "What does my intake team see?", a: "We score the call, not the person. Every flag ties to a specific moment and a coaching note, not a verdict on your staff, and your intake team sees their own numbers first, before anyone else does. The metric that matters is callback speed, because that's what recovers fees — there are no punitive defaults." },
   { q: "We already use Lead Docket / Filevine / Clio.", a: "Intake QA is post-call QA + recovery, not a CRM replacement. It sits alongside your system of record and pushes findings into it." },
   { q: "Isn't this just another dashboard nobody checks?", a: "The work comes to you: a weekly emailed statement, a 5-minute daily triage queue, and real-time hot-lead alerts. You don't have to go looking." },
   { q: "Is my data training the AI?", a: "No. Under Anthropic's commercial terms your inputs and outputs are not used to train models, and zero-data-retention agreements are available." },
-  { q: "What if you find nothing?", a: "The find-it-free guarantee: if your Leak Audit doesn't identify at least $25,000 in recoverable signable fees, you owe nothing." },
-  { q: "How does this pay for itself?", a: "One serious signed PI case earns $25,000–$150,000 in fees. Recovering a single leaked case covers the software many times over." },
+  { q: "What if you find nothing?", a: "The find-it-free guarantee: if your Intake Quality Audit doesn't identify at least $25,000 in recoverable signable fees, you owe nothing." },
+  { q: "How does this pay for itself?", a: "One serious signed PI case earns $25,000–$150,000 in fees. Recovering a single lost case covers the software many times over." },
+  { q: "What's the catch on a free pilot?", a: "There isn't a hidden one. The pilot is free because I need 3–5 reference-able Southern California PI firms and, only with your written permission, the right to publish an anonymized case study. That's the whole trade." },
 ];
 
 export default function FaqPage() {
@@ -35,7 +36,7 @@ export default function FaqPage() {
       </div>
       <div className="mt-10">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Run my free Leak Audit
+          Run your free Intake Quality Audit
         </Link>
       </div>
     </div>

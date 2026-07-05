@@ -33,7 +33,7 @@ const ALLOWED_EXT = new Set(["mp3", "m4a", "wav"]);
 const Body = z.object({
   filename: z.string().min(1).max(255),
   size: z.number().int().nonnegative(),
-  // Optional Leak Audit session token — when present, this upload joins that
+  // Optional Intake Quality Audit session token — when present, this upload joins that
   // session (governed by the session's 10-call cap, not the 3/hour demo limit).
   session: z.string().min(1).max(128).optional(),
 });

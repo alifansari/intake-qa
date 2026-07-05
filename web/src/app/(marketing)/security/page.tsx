@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Security — where your data goes, and where it doesn't",
+  title: "Security & data handling | Intake QA",
   description:
-    "Audio deleted at transcription, 72-hour transcript purge, encryption in transit and at rest, per-firm row-level security, and a full subprocessor list. BAA/DPA available.",
+    "Audio is deleted at transcription and transcripts are purged on a set retention schedule. Here's exactly how your call data is handled.",
   alternates: { canonical: "/security" },
 };
 
@@ -66,7 +66,7 @@ export default function SecurityPage() {
 
       <div className="mt-10">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Run my free Leak Audit
+          Run your free Intake Quality Audit
         </Link>
       </div>
     </div>

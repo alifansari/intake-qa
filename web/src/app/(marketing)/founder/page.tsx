@@ -4,9 +4,9 @@ import { FounderNote } from "@/components/marketing/FounderNote";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 
 export const metadata: Metadata = {
-  title: "Why I built Intake QA",
+  title: "Why I built Intake QA | Plaintiff Ops",
   description:
-    "A Stanford-educated founder who handled intake himself, watched firms leak signable cases daily, and built the QA and recovery system he wished existed.",
+    "From ex-PI intake paralegal to founder: why the signable cases that walk are the ones worth going back for.",
   alternates: { canonical: "/founder" },
 };
 
@@ -18,10 +18,11 @@ export default function FounderPage() {
         Why I built Intake QA.
       </h1>
       <p className="mt-5 max-w-[68ch] text-lg text-ink-muted">
-        I&apos;m a Stanford-educated founder who spent real time inside personal-injury intake — on
-        the phones, in the follow-up, watching the numbers. What I saw, every single day, was firms
-        leaking signable cases: injured people who called ready to hire, then slipped away because a
-        call went to voicemail or the follow-up never happened.
+        I started as a personal-injury intake paralegal — on the phones, doing the follow-up,
+        watching the numbers. Every single day I saw the same thing: signable cases walking out the
+        door. Injured people who called ready to hire, then slipped away because a call went to
+        voicemail or the follow-up never happened. (The Stanford philosophy degree came first; the
+        education that mattered here happened at the intake desk.)
       </p>
       <div className="mt-8">
         <FounderNote full />
@@ -31,7 +32,7 @@ export default function FounderPage() {
       </div>
       <div className="mt-8">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Run my free Leak Audit
+          Run your free Intake Quality Audit
         </Link>
       </div>
     </div>

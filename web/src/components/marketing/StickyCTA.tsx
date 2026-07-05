@@ -27,7 +27,7 @@ export function StickyCTA() {
         tabIndex={shown ? 0 : -1}
         className="rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white shadow-card hover:bg-accent-hover"
       >
-        Run my free Leak Audit
+        Run your free Intake Quality Audit
       </Link>
     </div>
   );

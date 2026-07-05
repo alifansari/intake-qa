@@ -31,7 +31,7 @@ export function MarketingNav() {
           href="/audit"
           className="rounded-pill bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
         >
-          Run a free Leak Audit
+          Run your free Intake Quality Audit
         </Link>
       </div>
     </header>

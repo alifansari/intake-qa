@@ -3,9 +3,9 @@ import Link from "next/link";
 import { ComplianceGateDiagram } from "@/components/marketing/ComplianceGateDiagram";
 
 export const metadata: Metadata = {
-  title: "The compliance case for Intake QA",
+  title: "Compliance — flat fees, human-approved sends | Intake QA",
   description:
-    "Share with your ethics counsel: Rule 5.4 (flat per-case fee, fee-invariance test), Rule 7.3 (responds to inbound inquiries), TCPA (7 gates, quiet hours, opt-out), California §632, and AI data-training posture.",
+    "Flat per-case pricing keeps you clear of ABA Model Rule 5.4. Every SMS passes a 7-gate human-approval chokepoint; nothing sends automatically.",
   alternates: { canonical: "/compliance" },
 };
 
@@ -83,7 +83,7 @@ export default function CompliancePage() {
 
       <div className="mt-12 flex flex-wrap gap-4">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Run my free Leak Audit
+          Run your free Intake Quality Audit
         </Link>
         <Link href="/security" className="inline-flex rounded-pill border border-hairline px-6 py-3 text-sm font-semibold text-ink hover:border-accent">
           See our security posture

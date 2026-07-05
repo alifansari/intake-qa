@@ -30,7 +30,7 @@ export async function GET(req: Request) {
           {title}
         </div>
         <div style={{ fontSize: 28, color: "#5B6270" }}>
-          Revenue recovery for personal injury firms · Free Leak Audit
+          Revenue recovery for personal injury firms · Free Intake Quality Audit
         </div>
       </div>
     ),

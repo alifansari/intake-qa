@@ -8,14 +8,14 @@ import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 import { FounderNote } from "@/components/marketing/FounderNote";
 
 export const metadata: Metadata = {
-  title: "Intake QA — you already paid for these cases. Go get them back.",
+  title: "Intake QA — Recover the signable cases your intake let walk",
   description:
-    "Intake QA scores every intake call, flags the signable cases your team let slip, and drafts the compliant follow-up. Free Leak Audit — a dollar figure in minutes.",
+    "Score 100% of your intake calls against a calibrated PI rubric, see the signable cases that walked, and win them back. Free audit for Southern California PI firms.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "You already paid for these cases. Go get them back.",
     description:
-      "Score every intake call, catch the signable cases you're leaking, recover the fees. Free Leak Audit.",
+      "Score every intake call, see the signable cases that walked, and win them back. Free Intake Quality Audit.",
     images: ["/og?title=You+already+paid+for+these+cases"],
   },
 };
@@ -31,7 +31,7 @@ const STEPS = [
   "Call arrives",
   "Transcribed",
   "Scored 0–100 on a frozen, calibrated rubric",
-  "Signable leaks flagged (score ≥60, not converted, inside 72 hrs)",
+  "Signable cases that didn’t convert are flagged (score ≥60, not converted, inside 72 hrs)",
   "Compliant win-back SMS drafted (≤320 chars, “Reply STOP”, names your firm)",
   "A human on your team approves every send",
   "7 compliance gates enforced in order",
@@ -39,7 +39,7 @@ const STEPS = [
   "You’re billed a flat fee per case — never a slice of the fee",
 ];
 
-function CTA({ children = "Run my free Leak Audit", href = "/audit" }: { children?: string; href?: string }) {
+function CTA({ children = "Run your free Intake Quality Audit", href = "/audit" }: { children?: string; href?: string }) {
   return (
     <Link
       href={href}
@@ -93,11 +93,11 @@ export default function HomePage() {
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
             You spend a fortune to make an injured person dial your office. Then the call goes to
-            voicemail, or a rep fumbles it, or the follow-up never happens. Clio&apos;s secret
-            shoppers reached a live person at only 40% of firms. Meanwhile the caller dials the next
-            name on Google — and once they&apos;ve talked to another firm, the odds you sign them
-            collapse. This isn&apos;t a marketing problem. You already did the marketing. It&apos;s
-            a recovery problem.
+            voicemail, or the intake team misses the moment, or the follow-up never happens.
+            Clio&apos;s secret shoppers reached a live person at only 40% of firms. The caller dials
+            the next name on Google, and once they&apos;ve talked to another firm your odds of
+            signing them fall off a cliff. You&apos;re not short on leads. You&apos;re losing good
+            cases after the phone rings — and those are the ones worth going back for.
           </p>
         </div>
       </Section>
@@ -105,7 +105,8 @@ export default function HomePage() {
       {/* MECHANISM */}
       <Section className="py-14 border-t border-hairline">
         <h2 className="max-w-[24ch] font-display text-3xl font-semibold text-ink text-balance">
-          We read every call, catch the ones you&apos;re leaking, and hand you the follow-up.
+          We read every call, catch the signable ones that didn&apos;t convert, and hand you the
+          follow-up.
         </h2>
         <ol className="mt-8 grid gap-px overflow-hidden rounded-card border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((s, i) => (
@@ -116,8 +117,9 @@ export default function HomePage() {
           ))}
         </ol>
         <p className="mt-5 max-w-[68ch] text-sm text-ink-muted">
-          Texting goes live the moment your A2P 10DLC registration clears. Until then, the audit and
-          callback workflow already recover cases — no texting required.
+          Texting goes live the moment your A2P 10DLC registration clears — and nothing sends
+          without your approval even then. Until then, the audit and callback workflow already
+          recover cases — no texting required.
         </p>
       </Section>
 
@@ -125,17 +127,20 @@ export default function HomePage() {
       <Section className="py-14">
         <div className="rounded-card border border-hairline bg-navy px-6 py-10 text-white sm:px-12">
           <h2 className="max-w-[20ch] font-display text-3xl font-semibold text-balance">
-            Start with the free Leak Audit.
+            Start with the free Intake Quality Audit.
           </h2>
           <p className="mt-4 max-w-[64ch] text-white/75">
             Upload up to 10 recent intake calls. We&apos;ll show you, in dollars, how much signable
-            fee revenue is leaking each month — with a per-leak breakdown, the evidence behind each
-            flag, and a watermarked sample of the win-back message we&apos;d send. You get a
-            shareable report. You decide what to do with it.
+            fee revenue walked — with a per-call breakdown, the evidence behind each flag, and a
+            watermarked sample of the win-back message we&apos;d send. You get a shareable report.
+            You decide what to do with it.
           </p>
-          <div className="mt-7">
+          <div className="mt-7 flex flex-wrap items-center gap-5">
             <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-              Run my free Leak Audit
+              Run your free Intake Quality Audit
+            </Link>
+            <Link href="/audit/sample" className="text-sm font-semibold text-white/85 underline hover:text-white">
+              See a sample report →
             </Link>
           </div>
         </div>
@@ -175,9 +180,23 @@ export default function HomePage() {
       {/* COMPARISON */}
       <Section className="py-14 border-t border-hairline">
         <h2 className="mb-7 font-display text-3xl font-semibold text-ink text-balance">
-          This is not another answering service, and not a CRM.
+          Post-call recovery — not another answering service or CRM.
         </h2>
         <ComparisonTable />
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <p className="max-w-[60ch] rounded-card border border-hairline bg-surface p-5 text-sm leading-relaxed text-ink-muted">
+            This isn&apos;t call tracking and it isn&apos;t a CRM feature. Tools like CallRail and
+            Filevine&apos;s Lead Docket score and route leads at the moment of capture. Intake QA is
+            post-call recovery: it scores 100% of your calls against a calibrated PI rubric, flags
+            the signable ones that didn&apos;t convert, and runs the callback/win-back workflow with
+            proof of what came back — priced flat per recovered case, never a share of the fee.
+          </p>
+          <p className="max-w-[60ch] rounded-card border border-hairline bg-surface p-5 text-sm leading-relaxed text-ink-muted">
+            Why not have your best person spot-check calls? Spot-checking 10% of calls means about
+            90% of the fumbles are never seen. Scoring 100% misses none — and your reviewer&apos;s
+            time goes to the flagged calls worth a callback.
+          </p>
+        </div>
       </Section>
 
       {/* GUARANTEE */}
@@ -187,9 +206,9 @@ export default function HomePage() {
             If we don&apos;t find it, you don&apos;t pay.
           </h2>
           <p className="mt-5 mb-6 text-lg leading-relaxed text-ink-muted">
-            The find-it-free guarantee: if your Leak Audit doesn&apos;t identify at least $25,000 in
-            recoverable signable fees, the audit costs you nothing and there&apos;s no pitch. We only
-            want firms we can actually make money for.
+            The find-it-free guarantee: if your Intake Quality Audit doesn&apos;t identify at least
+            $25,000 in recoverable signable fees, the audit costs you nothing and there&apos;s no
+            pitch. We only want firms we can actually make money for.
           </p>
           <GuaranteeBadge />
         </div>

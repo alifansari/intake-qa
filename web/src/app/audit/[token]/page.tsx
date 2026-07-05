@@ -1,9 +1,9 @@
-// The Leak Audit report — the shareable, printable "here's $X/month leaking from
-// your intake" page. Server-rendered from the same buildAuditReport core the API
-// uses. Statement design language: sober, numeric, honest (the arithmetic is
-// shown). Tokenized + expiring; nothing here can send.
+// The Intake Quality Audit report — the shareable, printable exhibit of the
+// signable fees that walked in the uploaded calls. Headline is anchored to the
+// VERIFIABLE sample figure; per-call evidence is the primary content; the
+// monthly figure is a demoted, clearly-labeled range. Server-rendered from the
+// buildAuditReport core. Tokenized + expiring; nothing here can send.
 
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { money } from "@/lib/format";
 import { AuditEmailCapture } from "@/components/audit-email-capture";
@@ -45,12 +45,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { token } = await params;
   const { report } = await loadReport(token);
-  const leak = report?.summary?.projectedMonthlyLeakage;
-  const title = "Your firm's Intake Leak Audit";
+  const totalFeeAtRisk = report?.summary?.totalFeeAtRisk;
+  const callCount = report?.summary?.callsReviewed;
+  const title = "Intake Quality Audit";
   const description =
-    leak != null
-      ? `Estimated ${money(leak)}/month in signable cases leaking from intake.`
-      : "A leak audit of your intake calls from Intake QA.";
+    totalFeeAtRisk != null && callCount != null
+      ? `${money(totalFeeAtRisk)} in signable fees identified across ${callCount} reviewed calls — see the evidence.`
+      : "An Intake Quality Audit of your intake calls from Intake QA.";
   return {
     title,
     description,
@@ -66,78 +67,80 @@ export default async function AuditReportPage({
 }) {
   const { token } = await params;
   const { report, benchmark } = await loadReport(token);
-  if (!report || !report.ok || !report.summary) notFound();
+  if (!report || !report.ok || !report.summary) {
+    return (
+      <div className="mx-auto max-w-xl px-6 py-20 text-center">
+        <p className="eyebrow">Intake Quality Audit</p>
+        <h1 className="mt-3 font-display text-3xl font-bold text-ink">
+          This report link has expired
+        </h1>
+        <p className="mx-auto mt-3 max-w-prose text-muted">
+          Reports expire 30 days after creation to protect your data. Re-run your audit or email us
+          for a refreshed link.
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <a href="/audit" className="rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
+            Run your free Intake Quality Audit
+          </a>
+          <a href="/" className="rounded-pill border border-hairline px-6 py-3 text-sm font-semibold text-ink hover:border-accent">
+            Back to home
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   const s = report.summary;
   const calls = report.calls ?? [];
-  const leakedCalls = calls.filter((c) => c.leaked === true);
-  const signedCount = 0; // demo uploads have no "signed with us" outcome; shown for honesty
+  const walkedCalls = calls.filter((c) => c.leaked === true);
+  const callCount = s.callsReviewed;
+  const signedCount = 0; // uploaded calls have no "signed with us" outcome; shown for honesty
   const calendarUrl = process.env.AUDIT_CALENDAR_URL || "";
+  // Demoted monthly projection, presented as a RANGE — the low end applies a
+  // conservative 50% haircut to the observed per-call rate. Never a claim.
+  const projMonthlyHigh = s.projectedMonthlyLeakage;
+  const projMonthlyLow = Math.round(s.projectedMonthlyLeakage * 0.5);
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10 print:py-2">
       {/* Masthead */}
       <header className="border-b border-ink pb-4">
-        <p className="eyebrow">Intake QA · Leak Audit</p>
-        <h1 className="font-display text-3xl font-bold text-ink">Intake Leak Audit</h1>
+        <p className="eyebrow">Intake QA · Intake Quality Audit</p>
+        <h1 className="font-display text-3xl font-bold text-ink">Intake Quality Audit</h1>
         <p className="mt-1 text-sm text-muted">
-          {s.callsReviewed} call{s.callsReviewed === 1 ? "" : "s"} reviewed
+          {callCount} call{callCount === 1 ? "" : "s"} reviewed
           {report.pending ? ` · ${report.pending} still processing` : ""}
         </p>
       </header>
 
-      {/* 1. Headline number + honest arithmetic */}
+      {/* 1. Sample-anchored headline (verifiable) */}
       <section className="mt-8">
-        <p className="text-sm font-semibold uppercase tracking-wide text-muted">
-          Estimated monthly leakage
+        <p className="font-display text-3xl font-bold leading-tight text-ink sm:text-4xl">
+          <span className="text-red">{money(s.totalFeeAtRisk)}</span> in signable fees walked in
+          these <span className="tabular-nums">{callCount}</span> calls.
         </p>
-        <p className="mt-1 font-display text-5xl font-bold text-red">
-          {money(s.projectedMonthlyLeakage)}
-          <span className="text-lg font-semibold text-muted"> / month</span>
-        </p>
-        <p className="mt-3 max-w-prose text-sm text-muted">
-          Based on <b>{money(s.totalFeeAtRisk)}</b> in signable fees at risk across{" "}
-          <b>{s.callsReviewed}</b> reviewed call{s.callsReviewed === 1 ? "" : "s"}
-          {" "}({money(s.perCallLeak)}/call), projected over{" "}
-          <b>{s.monthlyCallVolume.toLocaleString()}</b>{" "}
-          {s.assumedVolume ? "assumed " : ""}monthly calls.
-        </p>
-        <p className="mt-2 text-xs text-faint">
-          Estimate, not a guarantee. Small sample; fee figures are labeled estimates by case
-          type, not case valuations. Confirm against your own numbers.
+        <p className="mt-2 max-w-prose text-sm text-muted">
+          Every figure below is tied to a specific call and the words the prospective client
+          actually said. This is what we found in the sample you uploaded — not a projection.
         </p>
       </section>
 
-      {/* 2. Waterfall */}
-      <section className="mt-10">
-        <h2 className="font-display text-xl font-semibold text-ink">Where cases leak</h2>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            { label: "Calls reviewed", value: s.callsReviewed },
-            { label: "Signable", value: s.signableCalls },
-            { label: "Signed on the call", value: signedCount },
-            { label: "Leaked (signable, not converted)", value: s.leakedSignable },
-          ].map((step) => (
-            <div key={step.label} className="rounded-sm border border-line bg-paper p-3">
-              <p className="font-display text-2xl font-bold text-ink tabular-nums">{step.value}</p>
-              <p className="mt-0.5 text-xs text-muted">{step.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {leakedCalls.length > 0 && (
-          <div className="mt-5 space-y-2">
-            {leakedCalls.map((c) => (
+      {/* 2. Per-call evidence — the primary content (exhibit-level) */}
+      {walkedCalls.length > 0 && (
+        <section className="mt-8">
+          <h2 className="font-display text-xl font-semibold text-ink">
+            The signable cases that walked — with the evidence
+          </h2>
+          <div className="mt-3 space-y-2">
+            {walkedCalls.map((c) => (
               <details
                 key={String(c.id)}
+                open
                 className="rounded-sm border border-red bg-red-tint p-3"
               >
                 <summary className="flex cursor-pointer items-center justify-between text-sm font-semibold text-ink">
-                  <span>
-                    Leaked signable case
-                    {c.filename ? ` · ${c.filename}` : ""}
-                  </span>
-                  <span className="text-red">{money(c.feeAtRisk ?? 0)} at risk</span>
+                  <span>Signable case that walked{c.filename ? ` · ${c.filename}` : ""}</span>
+                  <span className="tabular-nums text-red">{money(c.feeAtRisk ?? 0)} at risk</span>
                 </summary>
                 <div className="mt-2 space-y-2 text-sm text-ink">
                   {c.summary && <p className="text-muted">{c.summary}</p>}
@@ -154,7 +157,43 @@ export default async function AuditReportPage({
               </details>
             ))}
           </div>
-        )}
+        </section>
+      )}
+
+      {/* 3. Demoted monthly projection — a labeled RANGE, not a claim */}
+      <section className="mt-8 rounded-sm border border-line bg-paper p-4">
+        <p className="text-sm font-semibold uppercase tracking-wide text-muted">
+          What a full month might look like
+        </p>
+        <p className="mt-2 max-w-prose text-sm text-ink">
+          If this rate held for a full month, that&apos;s roughly{" "}
+          <b className="tabular-nums">{money(projMonthlyLow)}</b>–
+          <b className="tabular-nums">{money(projMonthlyHigh)}</b> — and the low end conservatively
+          assumes only half the rate we observed. The honest way to know is to run a full month.
+        </p>
+        <p className="mt-2 text-xs text-faint">
+          A projection, not a claim or a guarantee — a reason to run a full month. Based on{" "}
+          {callCount} call{callCount === 1 ? "" : "s"} ({money(s.perCallLeak)}/call) over an assumed{" "}
+          {s.monthlyCallVolume.toLocaleString()} monthly calls.
+        </p>
+      </section>
+
+      {/* 4. Waterfall summary */}
+      <section className="mt-10">
+        <h2 className="font-display text-xl font-semibold text-ink">The sample, by the numbers</h2>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { label: "Calls reviewed", value: callCount },
+            { label: "Signable", value: s.signableCalls },
+            { label: "Signed on the call", value: signedCount },
+            { label: "Signable, not converted", value: s.leakedSignable },
+          ].map((step) => (
+            <div key={step.label} className="rounded-sm border border-line bg-paper p-3">
+              <p className="font-display text-2xl font-bold text-ink tabular-nums">{step.value}</p>
+              <p className="mt-0.5 text-xs text-muted">{step.label}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* 3. Handling-score distribution (benchmark unlocks with pilot) */}
@@ -191,7 +230,7 @@ export default async function AuditReportPage({
       </section>
 
       {/* 4. Sample win-back SMS (watermarked) */}
-      {leakedCalls.some((c) => c.draftPreview) && (
+      {walkedCalls.some((c) => c.draftPreview) && (
         <section className="mt-10">
           <h2 className="font-display text-xl font-semibold text-ink">
             A win-back text we&apos;d draft
@@ -201,7 +240,7 @@ export default async function AuditReportPage({
               Draft preview — nothing is sent
             </p>
             <p className="mt-2 text-sm text-ink">
-              {leakedCalls.find((c) => c.draftPreview)?.draftPreview}
+              {walkedCalls.find((c) => c.draftPreview)?.draftPreview}
             </p>
           </div>
           <p className="mt-2 text-xs text-faint">
