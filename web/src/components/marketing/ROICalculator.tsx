@@ -69,9 +69,11 @@ function Result({ tone, rate, casesLost, avgFee }: { tone: string; rate: number;
 }
 
 export function ROICalculator() {
+  // Conservative defaults: PI contingency fees commonly run 33–40% of recovery
+  // (ABA / California norms), so a $12,000 average signable-case fee is modest.
   const [missedPerWeek, setMissed] = useState(10);
-  const [avgFee, setAvgFee] = useState(25000);
-  const [signPct, setSignPct] = useState(30);
+  const [avgFee, setAvgFee] = useState(12000);
+  const [signPct, setSignPct] = useState(5);
 
   const casesLost = missedPerWeek * 52 * (signPct / 100);
   const feesLost = casesLost * avgFee;

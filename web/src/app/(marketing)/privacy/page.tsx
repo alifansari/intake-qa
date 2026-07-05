@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy — Intake QA",
-  description: "How Intake QA handles call data: audio deleted at transcription, 72-hour transcript purge, no AI training on your data.",
+  title: "Privacy policy | Intake QA",
+  description: "How Plaintiff Ops LLC collects, uses, retains, and deletes your data.",
   alternates: { canonical: "/privacy" },
 };
 

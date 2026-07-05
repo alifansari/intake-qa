@@ -1,4 +1,4 @@
-// GET /api/audit/report?token=...[&volume=N] — the aggregated Leak Audit JSON
+// GET /api/audit/report?token=...[&volume=N] — the aggregated Intake Quality Audit JSON
 // (headline leakage, waterfall counts, per-leaked-call detail). Token-gated;
 // demo data only. The /audit/[token] page renders from the same buildAuditReport
 // core; this endpoint exists for the "emailed to you" / programmatic path.

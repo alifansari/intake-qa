@@ -1,10 +1,10 @@
 "use client";
 
-// Leak Audit uploader (public, no-auth). Upload up to 10 calls under one session,
-// each processed by the UNCHANGED demo pipeline, then land on the shareable
-// /audit/[token] report. Mirrors the demo upload mechanic (storage or direct),
-// but every upload carries the session token so the calls aggregate. Nothing
-// here can send — it only ever creates demo_calls.
+// Intake Quality Audit uploader (public, no-auth). Upload up to 10 calls under
+// one session, each processed by the UNCHANGED demo pipeline, then land on the
+// shareable /audit/[token] report. Mirrors the demo upload mechanic (storage or
+// direct), but every upload carries the session token so the calls aggregate.
+// Nothing here can send — it only ever creates demo_calls.
 
 import { useCallback, useRef, useState } from "react";
 import { getSupabaseBrowser } from "../../lib/supabase/client";
@@ -113,15 +113,20 @@ export default function AuditUploaderPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
       <div className="mb-8">
-        <p className="eyebrow">Intake QA · Leak Audit</p>
+        <p className="eyebrow">Intake QA · Intake Quality Audit</p>
         <h1 className="font-display text-3xl font-bold text-ink">
-          Find the signable cases your intake let slip
+          Your free Intake Quality Audit
         </h1>
         <p className="mt-2 text-muted">
-          Upload up to {MAX} recent intake calls. We&apos;ll score each one, flag the
-          signable cases that weren&apos;t converted, and estimate what your intake is leaking
-          every month — in one shareable report. Your audio is deleted the moment it&apos;s
+          Upload up to {MAX} recent intake calls. We&apos;ll score each one, flag the signable cases
+          that weren&apos;t converted, and estimate what your intake is losing every month, in
+          signable fees — in one shareable report. Your audio is deleted the moment it&apos;s
           transcribed, and nothing is ever sent to your callers.
+        </p>
+        <p className="mt-3 text-sm">
+          <a href="/audit/sample" className="font-semibold text-accent hover:text-accent-hover">
+            See a sample report →
+          </a>
         </p>
       </div>
 
@@ -162,6 +167,21 @@ export default function AuditUploaderPage() {
             />
           </label>
 
+          {/* Where to get your recordings (Change 4) */}
+          <details className="rounded-sm border border-line bg-paper px-4">
+            <summary className="cursor-pointer py-3 text-sm font-semibold text-ink">
+              Where to get your recordings
+            </summary>
+            <ul className="space-y-1.5 pb-4 text-sm text-muted">
+              <li><b className="text-ink">CallRail:</b> Analytics → Activity → open the call&apos;s timeline → Download MP3.</li>
+              <li><b className="text-ink">RingCentral:</b> Admin Portal → Call Log → open the call → download the recording.</li>
+              <li><b className="text-ink">8x8:</b> Admin Console → Recordings → select the call → Download.</li>
+              <li><b className="text-ink">Dialpad:</b> Conversation History → open the call → three-dot menu → Download (bulk via Analytics → Recordings Export).</li>
+              <li><b className="text-ink">Vonage:</b> monitoring/recordings area → download.</li>
+              <li className="pt-1 text-ink">No portal access? Your answering service can export these on request — ask for the inbound intake calls from the last two weeks.</li>
+            </ul>
+          </details>
+
           {files.length > 0 && (
             <ul className="divide-y divide-line rounded-sm border border-line">
               {files.map((f, i) => (
@@ -187,7 +207,7 @@ export default function AuditUploaderPage() {
             disabled={files.length === 0}
             className="rounded-sm bg-navy px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
           >
-            Run my Leak Audit ({files.length}/{MAX})
+            Run your free Intake Quality Audit ({files.length}/{MAX})
           </button>
         </div>
       )}

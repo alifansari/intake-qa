@@ -16,7 +16,7 @@ export function GuaranteeBadge({ className = "" }: { className?: string }) {
       <div>
         <p className="font-display text-base font-semibold text-ink">Find-it-free guarantee</p>
         <p className="mt-1 text-sm text-ink-muted">
-          If your Leak Audit doesn&apos;t identify at least{" "}
+          If your Intake Quality Audit doesn&apos;t identify at least{" "}
           <span className="tnum font-semibold text-ink">$25,000</span> in recoverable signable fees,
           the audit costs you nothing — and there&apos;s no pitch.
         </p>

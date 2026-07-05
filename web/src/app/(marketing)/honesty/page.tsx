@@ -4,9 +4,9 @@ import { ScoreBandChart } from "@/components/marketing/ScoreBandChart";
 import { DecayCurve } from "@/components/marketing/DecayCurve";
 
 export const metadata: Metadata = {
-  title: "Our model's report card — including the parts we failed",
+  title: "Honesty page — our real accuracy numbers | Intake QA",
   description:
-    "77% flag precision, 68% recall, the confusion matrix, and the model's own misses with dollar amounts. Plus sign-rate-by-score-band and the callback decay curve.",
+    "Our calibrated flag precision and recall, dated and with n disclosed, plus the full list of calls we missed.",
   alternates: { canonical: "/honesty" },
 };
 
@@ -37,7 +37,7 @@ export default function HonestyPage() {
         <div className="rounded-card border border-hairline bg-surface p-6">
           <p className="tnum font-display text-4xl font-semibold text-ink">77%</p>
           <p className="mt-1 text-sm font-medium text-ink">Flag precision</p>
-          <p className="mt-1 text-sm text-ink-muted">When we flag a leaked signable case, we&apos;re right this often.</p>
+          <p className="mt-1 text-sm text-ink-muted">When we flag a signable case that walked, we&apos;re right this often.</p>
         </div>
         <div className="rounded-card border border-hairline bg-surface p-6">
           <p className="tnum font-display text-4xl font-semibold text-ink">68%</p>
@@ -45,6 +45,10 @@ export default function HonestyPage() {
           <p className="mt-1 text-sm text-ink-muted">Of the signable cases that truly walked, the share we caught.</p>
         </div>
       </div>
+      <p className="mt-3 text-sm text-faint">
+        As of the July 2026 calibration run · <span className="tnum">n=1,000</span> resolved calls
+        (the confusion matrix below).
+      </p>
 
       <section className="mt-12">
         <h2 className="font-display text-2xl font-semibold text-ink">Confusion matrix</h2>
@@ -104,7 +108,7 @@ export default function HonestyPage() {
       </p>
       <div className="mt-6">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-          Run my free Leak Audit
+          Run your free Intake Quality Audit
         </Link>
       </div>
     </div>
