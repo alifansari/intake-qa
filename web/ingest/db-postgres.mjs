@@ -1108,6 +1108,33 @@ export async function insertCitationFailure(db, { flag_id = null, snippet, neare
   return r.rows[0].id;
 }
 
+export async function listLeakedFlags(db, firmId) {
+  const r = await db.query(
+    `SELECT f.id, f.call_id, f.qualification_score, f.reason, f.case_type,
+            c.caller_name, c.received_at,
+            fc.confidence_tier,
+            (SELECT COUNT(*) FROM transcript_citations tc WHERE tc.flag_id = f.id) AS citation_count
+       FROM flags f
+       JOIN calls c ON c.id = f.call_id
+       LEFT JOIN flag_confidence fc ON fc.flag_id = f.id
+      WHERE f.firm_id = $1 AND f.is_leaked_signable = true
+      ORDER BY (CASE WHEN fc.confidence_tier = 'strong' THEN 0 ELSE 1 END), f.id`,
+    [firmId]
+  );
+  return r.rows;
+}
+
+export async function listNonAnalyzedCalls(db, firmId) {
+  const r = await db.query(
+    `SELECT id, received_at, status, status_reason
+       FROM calls
+      WHERE firm_id = $1 AND (status IS NULL OR status <> 'analyzed')
+      ORDER BY id`,
+    [firmId]
+  );
+  return r.rows;
+}
+
 export async function getFeeValueRange(db, caseType, firmId = null) {
   if (firmId != null) {
     const firmRow = await db.query(

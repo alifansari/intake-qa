@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { DESK_REDIRECTS } from "./src/lib/desk-redirects.mjs";
 
 const nextConfig: NextConfig = {
   // This app lives in a subfolder of the CLI repo (which has its own lockfile);
@@ -43,6 +44,8 @@ const nextConfig: NextConfig = {
       { source: "/intake-service", destination: "/", permanent: true },
       { source: "/services", destination: "/", permanent: true },
       { source: "/home", destination: "/", permanent: true },
+      // Consolidation (item 3): the ~7 prior internal tabs -> four desk screens.
+      ...DESK_REDIRECTS,
     ];
   },
 };
