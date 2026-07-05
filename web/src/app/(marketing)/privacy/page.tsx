@@ -13,10 +13,10 @@ export default function PrivacyPage() {
       <p className="eyebrow">Legal</p>
       <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink">Privacy</h1>
       <p className="mt-6 text-ink-muted">
-        We minimize what we hold. We delete audio and transcripts on a set schedule
-        {/* TODO(Ali): confirm exact audio + transcript retention/deletion timeline. */}
-        {" "}<span className="text-faint">[exact timeline: to be confirmed]</span>, and data is
-        encrypted in transit and at rest with per-firm isolation. Our scoring runs on Anthropic&apos;s
+        We minimize what we hold. Your recordings and transcripts are deleted within 7 days of your
+        audit readout — or immediately, on written request; if you move to a pilot, the data carries
+        over under the pilot agreement and the same deletion right applies. Data is encrypted in
+        transit and at rest with per-firm isolation, and our scoring runs on Anthropic&apos;s
         commercial API, whose terms don&apos;t use your data to train models. A DPA is available.
       </p>
       <p className="mt-4 text-ink-muted">

@@ -43,10 +43,10 @@ logic, gate logic, or the 132 tests were touched. `next build` passes; 132/132 t
 |---|---|
 | `honesty/page.tsx`, `page.tsx` (homepage teaser) | Test-corpus **N + composition (synthetic/historical/client) + date**, THEN publish precision/recall **with the corpus label**. No bare percentage. |
 | `honesty/page.tsx` | Add anonymized real miss / false-flag examples (with $) once corpus documented. |
-| `security/page.tsx`, `privacy/page.tsx` | **Exact audio + transcript retention/deletion timeline.** |
-| `security/page.tsx` | Whether a **DPA/NDA template** exists or the firm's paper is used. |
+| ~~`security` / `privacy` / `audit` — retention/deletion timeline~~ | ✅ RESOLVED: "deleted within 7 days of audit readout, or immediately on written request; carries over under the pilot agreement." |
+| ~~`security` — Ali's direct contact~~ | ✅ RESOLVED: ali@plaintiffops.com (security page + audit de-risk block). |
+| `security/page.tsx`, `audit/page.tsx` | Whether a **DPA/NDA template** exists or the firm's paper is used. |
 | `security/page.tsx` | Intake QA's **own attestations**, if any (else keep "certs belong to subprocessors"). |
-| `security/page.tsx` | Ali's **direct contact** (email) for data questions. |
 | `compliance/page.tsx` | The firm's **§632 consent/disclosure process**; and the exact **CCPA "service provider"** contract language in the DPA. |
 | `founder/page.tsx` | Whether to state "Stanford Philosophy, Honors, June 2025" and "24" explicitly (kept implicit for a skeptic-first read). |
 | `components/marketing/FounderNote.tsx` | Drop a real headshot at `/public/founder.jpg`. |

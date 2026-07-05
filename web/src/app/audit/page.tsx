@@ -189,9 +189,9 @@ export default function AuditUploaderPage() {
               <li>Only recorded intake calls. No client files. Redact anything you want first.</li>
               <li>Stored on Supabase (SOC 2 Type 2, ISO 27001, encrypted at rest and in transit). Transcribed by AssemblyAI (SOC 2 Type 2). Scored with Anthropic&apos;s Claude commercial API, whose terms don&apos;t use your data to train AI and delete API logs on a short window.</li>
               <li>Your calls are never used to train any AI model.</li>
-              <li>We delete audio and transcripts on a set schedule. <span className="text-faint">[exact timeline: to be confirmed]</span>{/* TODO(Ali): state exact deletion timeline. */}</li>
+              <li>Recordings and transcripts are deleted within 7 days of your audit readout — or immediately, on written request.</li>
               <li>We&apos;ll sign your NDA and a data-processing agreement. <span className="text-faint">[template vs. your paper: to be confirmed]</span>{/* TODO(Ali): confirm template. */}</li>
-              <li>These are your prospective clients&apos; confidential communications (Cal. Rule 1.18). We treat them that way. One person is accountable: Ali, the founder.</li>
+              <li>These are your prospective clients&apos; confidential communications (Cal. Rule 1.18). We treat them that way. One person is accountable: Ali — <a href="mailto:ali@plaintiffops.com" className="font-semibold text-navy underline">ali@plaintiffops.com</a>.</li>
             </ul>
           </div>
 
