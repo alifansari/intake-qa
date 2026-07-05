@@ -823,7 +823,7 @@ export function getFirmBilling(db, firmId) {
   return db
     .prepare(
       `SELECT fb.*, p.name AS plan_name, p.base_monthly_cents, p.per_case_fee_cents,
-              p.per_case_fee_by_type, p.monthly_case_fee_cap_cents
+              p.per_case_fee_by_type, p.monthly_case_fee_cap_cents, p.monthly_call_cap
          FROM firm_billing fb JOIN billing_plans p ON p.id = fb.plan_id
         WHERE fb.firm_id = ?`
     )
@@ -894,6 +894,16 @@ export function getBillableEvents(db, firmId, { period = null, status = null } =
   if (status) { sql += " AND status = ?"; args.push(status); }
   sql += " ORDER BY id";
   return db.prepare(sql).all(...args);
+}
+
+// Count analyzed (received) calls for a firm in a 'YYYY-MM' period. Used only to
+// flag "over your tier volume — consider upgrading" in the operator console; it
+// is NEVER an input to any charge.
+export function countCallsInPeriod(db, firmId, period) {
+  const row = db
+    .prepare("SELECT COUNT(*) AS n FROM calls WHERE firm_id = ? AND substr(received_at, 1, 7) = ?")
+    .get(firmId, period);
+  return Number(row?.n ?? 0);
 }
 
 export function getAccruedBillableEvents(db, firmId, period) {

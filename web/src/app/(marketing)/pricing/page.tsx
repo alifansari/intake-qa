@@ -59,9 +59,7 @@ export default function PricingPage() {
       </div>
 
       <p className="mt-6 max-w-[72ch] text-sm text-faint">
-        Prices are being finalized for launch.
-        {/* TODO(Ali): confirm final monthly prices; figures above are placeholders. */}
-        {" "}Founding-cohort firms start free for 30 days, then lock in a founding rate.
+        Founding-cohort firms start free for 30 days, then lock in a founding rate.
       </p>
 
       {/* The why — the compliance argument, in lawyer-grade language */}
