@@ -2,7 +2,7 @@
 // left" that stops being true in six months. Copy comes from site-constants.
 
 import Link from "next/link";
-import { COHORT_LINE } from "@/lib/site-constants";
+import { COHORT_LINE, CTA_PRIMARY } from "@/lib/site-constants";
 
 export function PilotCohortBanner() {
   return (
@@ -20,7 +20,7 @@ export function PilotCohortBanner() {
         href="/audit"
         className="flex-none rounded-pill bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
       >
-        Run your free audit
+        {CTA_PRIMARY}
       </Link>
     </div>
   );

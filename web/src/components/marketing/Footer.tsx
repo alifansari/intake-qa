@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { COPYRIGHT_YEAR } from "@/lib/site-constants";
+import { COPYRIGHT_YEAR, CTA_PRIMARY } from "@/lib/site-constants";
 
 const LINKS = [
   { href: "/security", label: "Security" },
@@ -19,15 +19,15 @@ export function Footer() {
           <div>
             <p className="font-display text-lg font-semibold text-ink">Intake&nbsp;QA</p>
             <p className="mt-1 max-w-md text-sm text-ink-muted">
-              Revenue recovery for personal-injury firms. Score every intake call, and win back the
-              signable cases that didn&apos;t convert.
+              Case Acquisition Intelligence for personal-injury firms. See which signable cases
+              didn&apos;t sign — and what they were worth.
             </p>
           </div>
           <Link
             href="/audit"
             className="self-start rounded-pill bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
           >
-            Run your free Intake Quality Audit
+            {CTA_PRIMARY}
           </Link>
         </div>
         <nav

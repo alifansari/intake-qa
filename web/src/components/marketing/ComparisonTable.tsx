@@ -5,9 +5,9 @@ const COLS = ["Do nothing", "Generic answering service", "AI intake bot", "Intak
 
 // rows: [capability, [doNothing, answeringService, aiBot, intakeQA]] as booleans
 const ROWS: [string, [boolean, boolean, boolean, boolean]][] = [
-  ["Post-call scoring on a calibrated rubric", [false, false, false, true]],
-  ["Detects signable cases your team let slip", [false, false, false, true]],
-  ["Compliant win-back message drafting", [false, false, true, true]],
+  ["Signable-case detection on 100% of calls", [false, false, false, true]],
+  ["Proves what your intake produced, in dollars", [false, false, false, true]],
+  ["Same-day save protocol (staff-sent, human-reviewed)", [false, false, true, true]],
   ["A human approves every send", [false, true, false, true]],
   ["Flat monthly pricing — never a share of the fee, never per signed case", [false, false, false, true]],
   ["Dollar-quantified leak audit report", [false, false, false, true]],

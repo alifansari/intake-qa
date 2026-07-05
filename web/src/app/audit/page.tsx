@@ -8,7 +8,17 @@
 
 import { useCallback, useRef, useState } from "react";
 import { getSupabaseBrowser } from "../../lib/supabase/client";
-import { DELETION_DAYS, FOUNDER_NAME, FOUNDER_EMAIL } from "@/lib/site-constants";
+import {
+  DELETION_DAYS,
+  FOUNDER_NAME,
+  FOUNDER_EMAIL,
+  AUDIT_PRICE,
+  AUDIT_WHY_PAID,
+  AUDIT_CREDIT_LINE,
+  GUARANTEE_CANONICAL,
+  GUARANTEE_METHODOLOGY,
+  CATEGORY_NAME,
+} from "@/lib/site-constants";
 
 const MAX = 10;
 
@@ -114,21 +124,53 @@ export default function AuditUploaderPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
       <div className="mb-8">
-        <p className="eyebrow">Intake QA · Intake Quality Audit</p>
+        <p className="eyebrow">{CATEGORY_NAME} · Leak Audit</p>
         <h1 className="font-display text-3xl font-bold text-ink">
-          Your free Intake Quality Audit
+          The {AUDIT_PRICE} Leak Audit
         </h1>
         <p className="mt-2 text-muted">
-          Upload up to {MAX} recent intake calls. We&apos;ll score each one, flag the signable cases
-          that weren&apos;t converted, and estimate what your intake is losing every month, in
-          signable fees — in one shareable report. Your audio is deleted the moment it&apos;s
-          transcribed, and nothing is ever sent to your callers.
+          Upload up to {MAX} recent intake calls. We run signable-case detection on each one, flag
+          the qualified callers who didn&apos;t sign, and put a dollar figure on the missed signable
+          fee value — in one report you keep. Your audio is deleted the moment it&apos;s transcribed,
+          and nothing is ever sent to your callers.
         </p>
         <p className="mt-3 text-sm">
           <a href="/audit/sample" className="font-semibold text-accent hover:text-accent-hover">
             See a sample report →
           </a>
         </p>
+
+        {/* What you receive */}
+        <div className="mt-6 rounded-sm border border-line bg-paper p-4">
+          <p className="text-sm font-semibold text-ink">What you receive</p>
+          <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-muted">
+            <li><b className="text-ink">Leaked-case list:</b> every signable case our model flags that didn&apos;t sign, with the estimated fee value of each.</li>
+            <li><b className="text-ink">Intake performance readout:</b> sign-rate by score band, speed-to-answer and speed-to-callback measured from your own recordings, and where in the call cases are lost.</li>
+            <li><b className="text-ink">Follow-up protocol drafts:</b> the exact staff-sent save-protocol messages we&apos;d recommend (watermarked samples).</li>
+            <li><b className="text-ink">Benchmark context:</b> how your numbers read against sourced PI benchmarks (and, as the founding cohort grows, against anonymized SoCal peers).</li>
+          </ol>
+        </div>
+
+        {/* Price + credit mechanics */}
+        <div className="mt-4 rounded-sm border border-line bg-paper p-4">
+          <p className="text-sm font-semibold text-ink">What it costs</p>
+          <p className="mt-2 text-sm text-muted">{AUDIT_WHY_PAID}</p>
+          <p className="mt-2 text-sm text-muted">{AUDIT_CREDIT_LINE}</p>
+          <p className="mt-2 text-xs text-faint">
+            {/* TODO(Ali): wire the actual $500 collection/booking step — payment is a product/ops task, not built here. */}
+          </p>
+        </div>
+
+        {/* $50k Find-It Guarantee — full mechanics, no buried conditions */}
+        <div className="mt-4 rounded-sm border border-gold/50 bg-gold-tint/40 p-4">
+          <p className="text-sm font-semibold text-ink">The $50,000 Find-It Guarantee</p>
+          <p className="mt-2 text-sm text-muted">{GUARANTEE_CANONICAL}</p>
+          <p className="mt-2 text-xs text-muted">{GUARANTEE_METHODOLOGY}</p>
+          <p className="mt-2 text-xs text-faint">
+            Full methodology and our model&apos;s precision/recall are on the{" "}
+            <a href="/honesty" className="font-semibold text-navy underline">calibration page</a>.
+          </p>
+        </div>
       </div>
 
       {phase === "setup" && (
@@ -229,7 +271,7 @@ export default function AuditUploaderPage() {
             disabled={files.length === 0}
             className="rounded-sm bg-navy px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
           >
-            Run your free Intake Quality Audit ({files.length}/{MAX})
+            Start my Leak Audit ({files.length}/{MAX})
           </button>
         </div>
       )}

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms of service | Intake QA",
-  description: "The terms that govern use of Intake QA and the free audit.",
+  description: "The terms that govern use of Intake QA and the $500 Leak Audit.",
   alternates: { canonical: "/terms" },
 };
 

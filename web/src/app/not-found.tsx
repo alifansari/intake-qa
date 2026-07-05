@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CTA_PRIMARY } from "@/lib/site-constants";
 
 export const metadata = { title: "Page not found | Intake QA" };
 
@@ -15,7 +16,7 @@ export default function NotFound() {
           href="/audit"
           className="rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
         >
-          Run your free Intake Quality Audit
+          {CTA_PRIMARY}
         </Link>
         <Link
           href="/"

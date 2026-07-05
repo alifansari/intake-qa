@@ -80,7 +80,7 @@ export default async function AuditReportPage({
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <a href="/audit" className="rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-            Run your free Intake Quality Audit
+            Book your $500 Leak Audit
           </a>
           <a href="/" className="rounded-pill border border-hairline px-6 py-3 text-sm font-semibold text-ink hover:border-accent">
             Back to home
@@ -229,11 +229,11 @@ export default async function AuditReportPage({
         )}
       </section>
 
-      {/* 4. Sample win-back SMS (watermarked) */}
+      {/* 4. Sample same-day save-protocol text (watermarked) */}
       {walkedCalls.some((c) => c.draftPreview) && (
         <section className="mt-10">
           <h2 className="font-display text-xl font-semibold text-ink">
-            A win-back text we&apos;d draft
+            A same-day save-protocol text we&apos;d draft
           </h2>
           <div className="mt-2 rounded-sm border border-line bg-paper p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-amber">
