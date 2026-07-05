@@ -2,10 +2,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
+import { isMarketingRoute } from "@/lib/marketing-routes";
 import { DemoToggle } from "./demo-mode";
 
 const LINKS = [
-  { href: "/", label: "Executive Summary" },
+  { href: "/dashboard", label: "Executive Summary" },
   { href: "/calibration", label: "Calibration & Honesty" },
   { href: "/funnel", label: "Recovery Funnel" },
   { href: "/reps", label: "Rep Scoreboard" },
@@ -16,11 +17,14 @@ const LINKS = [
 
 export function Nav() {
   const pathname = usePathname();
+  // Marketing pages carry their own nav/footer/sticky CTA via the (marketing)
+  // shell — the product nav stands down there.
+  if (isMarketingRoute(pathname)) return null;
   return (
     <header className="no-print sticky top-0 z-30 bg-navy-deep text-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/" className="font-display text-base font-semibold leading-none">
+          <Link href="/dashboard" className="font-display text-base font-semibold leading-none">
             Intake QA
             <span className="ml-2 font-sans text-xs font-normal text-white/60">
               Outcome Reconciliation

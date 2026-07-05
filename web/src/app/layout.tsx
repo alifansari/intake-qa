@@ -1,34 +1,42 @@
 import type { Metadata } from "next";
-import { Source_Serif_4, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 import { DemoModeProvider } from "@/components/demo-mode";
 
-// Editorial serif for display headings; a quiet grotesque for body/UI; a mono
-// for tabular figures. This trio reads like a financial statement, not a SaaS app.
-const serif = Source_Serif_4({
+// Fraunces: editorial serif display (optical sizing on) for headlines.
+// Inter: quiet, legible body/UI sans. IBM Plex Mono: tabular figures for every
+// dollar amount, stat, and chart axis. Self-hosted via next/font, display:swap,
+// preloaded — no layout shift.
+const serif = Fraunces({
   variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  style: ["normal", "italic"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  preload: true,
 });
 
-const sans = IBM_Plex_Sans({
+const sans = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  display: "swap",
+  preload: true,
 });
 
 const mono = IBM_Plex_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
-  title: "Outcome Reconciliation — Intake QA",
+  metadataBase: new URL("https://intake-qa.vercel.app"),
+  title: "Intake QA — recover the signable cases your intake let slip",
   description:
-    "Did the score predict reality? Flag precision, recovered fees, and calibration for personal-injury intake calls.",
+    "Intake QA scores every intake call, flags the signable personal-injury cases your team let slip, and drafts the compliant follow-up. Start with a free Leak Audit.",
 };
 
 export default function RootLayout({
