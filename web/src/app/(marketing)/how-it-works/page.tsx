@@ -17,7 +17,7 @@ const STEPS: [string, string, string][] = [
   ["Compliant win-back drafted", "Claude drafts a ≤320-char message that names your firm and includes “Reply STOP”.", "A banned-content guard blocks guarantees, legal advice, and fee claims."],
   ["A human approves", "Someone on your team approves, edits, or rejects every message before anything sends.", "No autonomous sends — ever, in pilot."],
   ["7 compliance gates", "Each approved message passes seven gates, in order, before it can leave.", "Shown in full below — the first failed gate stops the message."],
-  ["Outcome tracked → billed flat", "Signed, booked, lost — the outcome is recorded, and you're billed a flat fee per recovered case.", "Never a percentage of your fee (Rule 5.4)."],
+  ["Outcome tracked → billed flat", "Signed, booked, lost — the outcome is recorded, and you're billed a flat fee per recovered case.", "Never a percentage of your fee, never per lead (Cal. B&P §6152)."],
 ];
 
 export default function HowItWorksPage() {
@@ -68,6 +68,17 @@ export default function HowItWorksPage() {
           <li><b className="text-ink">Intake team:</b> about 5 minutes a day on the triage queue.</li>
         </ul>
         <p className="mt-2 text-sm text-faint">That&apos;s the whole lift.</p>
+      </section>
+
+      {/* Spanish-language intake (SoCal edge) */}
+      <section className="mt-6 rounded-card border border-hairline bg-surface p-6">
+        <h2 className="font-display text-xl font-semibold text-ink">Spanish-language calls, scored too</h2>
+        <p className="mt-2 max-w-[70ch] text-ink-muted">
+          Intake QA scores and drafts in English and Spanish. In Southern California that&apos;s not
+          a nice-to-have: Latinos were 41% of California&apos;s population by 2024 (Public Policy
+          Institute of California; Pew Research Center, 2025), and Spanish-speaking callers are easy
+          to lose at intake. Ali built the scoring against real calls in both languages.
+        </p>
       </section>
 
       <div className="mt-12 rounded-card border border-hairline bg-navy px-6 py-10 text-white sm:px-12">

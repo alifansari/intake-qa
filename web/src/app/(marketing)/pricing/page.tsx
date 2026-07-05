@@ -58,9 +58,11 @@ export default function PricingPage() {
       </p>
 
       <p className="mt-8 max-w-[72ch] text-ink-muted">
-        Every plan bills a flat fee per case. We are paid the same whether your case settles for
-        <span className="tnum"> $10,000</span> or <span className="tnum">$1,000,000</span> — by
-        design, under Rule 5.4.
+        Every plan bills a flat fee per recovered case. We are paid the same whether your case
+        settles for <span className="tnum">$10,000</span> or <span className="tnum">$1,000,000</span>.
+        Not a percentage, so it isn&apos;t fee-sharing; not per lead, so it isn&apos;t a runner/capper
+        arrangement (Cal. B&amp;P §6152) — and it fits the flat-fee carve-out in California&apos;s
+        AB 931 (2025).
       </p>
 
       <div className="mt-6 max-w-[720px]">

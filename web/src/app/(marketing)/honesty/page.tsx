@@ -1,112 +1,74 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ScoreBandChart } from "@/components/marketing/ScoreBandChart";
-import { DecayCurve } from "@/components/marketing/DecayCurve";
 
 export const metadata: Metadata = {
-  title: "Honesty page — our real accuracy numbers | Intake QA",
+  title: "Calibration & honesty — how we measure, and what we won't claim yet | Intake QA",
   description:
-    "Our calibrated flag precision and recall, dated and with n disclosed, plus the full list of calls we missed.",
+    "The method behind the score, how we define a correct flag and a miss, and why we won't publish a precision or recall number until the test corpus is documented.",
   alternates: { canonical: "/honesty" },
 };
 
-const MATRIX = [
-  ["Correct flags (true positives)", 231, "text-accent"],
-  ["False alarms (false positives)", 69, "text-alert"],
-  ["Missed catches (false negatives)", 108, "text-alert"],
-  ["Correct passes (true negatives)", 592, "text-ink"],
-] as const;
-
-const MISSES = [
-  ["Missed catch", "Rear-end, commercial policy — model under-scored signability", "$42,000"],
-  ["Missed catch", "Dog bite, homeowner liability — caller downplayed injuries", "$18,500"],
-  ["False alarm", "Property-damage-only — flagged signable, wasn't", "$0"],
-  ["Missed catch", "Slip-and-fall, grocery — ambiguous liability language", "$26,000"],
-  ["False alarm", "Prior representation — flagged, already had a lawyer", "$0"],
-] as const;
-
 export default function HonestyPage() {
   return (
-    <div className="mx-auto max-w-[1120px] px-5 py-16">
-      <p className="eyebrow">Honesty</p>
+    <div className="mx-auto max-w-[820px] px-5 py-16">
+      <p className="eyebrow">Calibration &amp; honesty</p>
       <h1 className="mt-3 max-w-[24ch] font-display text-4xl font-semibold tracking-tight text-ink text-balance sm:text-5xl">
-        Our model&apos;s report card — including the parts we failed.
+        How the score works — and what we won&apos;t claim until we can prove it.
       </h1>
-
-      <div className="mt-10 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-card border border-hairline bg-surface p-6">
-          <p className="tnum font-display text-4xl font-semibold text-ink">77%</p>
-          <p className="mt-1 text-sm font-medium text-ink">Flag precision</p>
-          <p className="mt-1 text-sm text-ink-muted">When we flag a signable case that walked, we&apos;re right this often.</p>
-        </div>
-        <div className="rounded-card border border-hairline bg-surface p-6">
-          <p className="tnum font-display text-4xl font-semibold text-ink">68%</p>
-          <p className="mt-1 text-sm font-medium text-ink">Recall</p>
-          <p className="mt-1 text-sm text-ink-muted">Of the signable cases that truly walked, the share we caught.</p>
-        </div>
-      </div>
-      <p className="mt-3 text-sm text-faint">
-        As of the July 2026 calibration run · <span className="tnum">n=1,000</span> resolved calls
-        (the confusion matrix below).
+      <p className="mt-5 max-w-[72ch] text-lg text-ink-muted">
+        If a vendor is going to touch your revenue, you should see the method and the failure modes,
+        not a demo. Here is how the score is built, how we&apos;d measure whether it&apos;s right,
+        and what we will and won&apos;t put a number on today.
       </p>
 
-      <section className="mt-12">
-        <h2 className="font-display text-2xl font-semibold text-ink">Confusion matrix</h2>
-        <div className="mt-4 overflow-x-auto rounded-card border border-hairline">
-          <table className="w-full min-w-[420px] text-sm">
-            <tbody>
-              {MATRIX.map(([label, n, tone]) => (
-                <tr key={label} className="border-b border-hairline last:border-0">
-                  <td className="px-4 py-3 text-ink">{label}</td>
-                  <td className={`tnum px-4 py-3 text-right font-semibold ${tone}`}>{n}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <section className="mt-10">
+        <h2 className="font-display text-2xl font-semibold text-ink">The method</h2>
+        <ol className="mt-4 max-w-[72ch] list-decimal space-y-3 pl-5 text-ink-muted">
+          <li>Every recorded intake call is transcribed.</li>
+          <li>The transcript is scored 0–100 against a fixed rubric — the same rubric on every call, so scores don&apos;t drift from one review to the next.</li>
+          <li>A call is flagged as a signable case that walked when it scores above the threshold, wasn&apos;t converted, and is still inside the callback window.</li>
+          <li>Every flag carries the transcript evidence behind it, so you can check the call yourself.</li>
+        </ol>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="font-display text-2xl font-semibold text-ink">How we&apos;d measure whether it&apos;s right</h2>
+        <p className="mt-3 max-w-[72ch] text-ink-muted">
+          Two numbers matter. <b className="text-ink">Precision</b>: of the calls we flag, the share
+          that really were signable. <b className="text-ink">Recall</b>: of the signable calls that
+          truly walked, the share we caught. Both only mean something against a named test set — how
+          many calls, whether they&apos;re synthetic, historical, or from a real firm, and dated.
+        </p>
+        <div className="mt-4 rounded-card border border-hairline bg-canvas p-5 text-ink-muted">
+          <p className="text-sm">
+            We&apos;re not going to print a precision or recall percentage until we can name the
+            corpus it came from. A number without its test set is the kind of thing you&apos;ve been
+            pitched before. When the corpus is documented, the figures and the corpus go here
+            together.
+            {" "}
+            {/* TODO(Ali): confirm test-corpus size (N), composition (synthetic/historical/client), and date, then publish precision + recall here WITH that corpus label. Do not publish a bare percentage. */}
+          </p>
         </div>
       </section>
 
-      <section className="mt-12">
-        <h2 className="font-display text-2xl font-semibold text-ink">Our misses — with dollar amounts</h2>
-        <p className="mt-2 max-w-[68ch] text-ink-muted">The cases our model got wrong. We show them because trusting an AI with your revenue requires seeing where it&apos;s wrong.</p>
-        <div className="mt-4 overflow-x-auto rounded-card border border-hairline">
-          <table className="w-full min-w-[520px] text-sm">
-            <thead>
-              <tr className="border-b border-hairline bg-canvas text-xs uppercase tracking-wide text-ink-muted">
-                <th className="px-4 py-2.5 text-left">Type</th>
-                <th className="px-4 py-2.5 text-left">What happened</th>
-                <th className="px-4 py-2.5 text-right">Fee at stake</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MISSES.map(([type, desc, amt], i) => (
-                <tr key={i} className="border-b border-hairline last:border-0">
-                  <td className="px-4 py-3"><span className={type === "Missed catch" ? "text-alert" : "text-amber"}>{type}</span></td>
-                  <td className="px-4 py-3 text-ink-muted">{desc}</td>
-                  <td className="tnum px-4 py-3 text-right font-semibold text-ink">{amt}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <section className="mt-10">
+        <h2 className="font-display text-2xl font-semibold text-ink">Where a model like this gets it wrong</h2>
+        <p className="mt-3 max-w-[72ch] text-ink-muted">
+          Two failure modes, and we&apos;ll show real examples of each once the corpus is documented:
+        </p>
+        <ul className="mt-3 max-w-[72ch] space-y-2 text-ink-muted">
+          <li><b className="text-alert">Missed flag:</b> a signable caller the model scored too low — usually when the caller downplays the injury or the liability language is ambiguous.</li>
+          <li><b className="text-alert">False flag:</b> a call we flagged that wasn&apos;t signable — for example, property-damage-only, or a caller who already had a lawyer.</li>
+        </ul>
+        <p className="mt-3 text-sm text-faint">
+          A human at your firm approves every callback, so a false flag costs a moment of a
+          reviewer&apos;s time, not a wrong message to a caller.
+          {" "}
+          {/* TODO(Ali): add anonymized real miss/false-flag examples with dollar amounts once the corpus is documented. */}
+        </p>
       </section>
 
-      <section className="mt-12 grid gap-6 lg:grid-cols-2">
-        <div>
-          <h2 className="mb-4 font-display text-2xl font-semibold text-ink">Does the score predict reality?</h2>
-          <ScoreBandChart />
-        </div>
-        <div>
-          <h2 className="mb-4 font-display text-2xl font-semibold text-ink">Why speed matters</h2>
-          <DecayCurve />
-        </div>
-      </section>
-
-      <p className="mt-12 max-w-[70ch] text-lg text-ink-muted">
-        We show you this because trusting an AI with your revenue requires seeing where it&apos;s
-        wrong. If a vendor won&apos;t show you their error rate, ask why.
-      </p>
-      <div className="mt-6">
+      <div className="mt-12">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
           Run your free Intake Quality Audit
         </Link>

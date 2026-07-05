@@ -21,10 +21,10 @@ export const metadata: Metadata = {
 };
 
 const STATS = [
-  { value: "48%", label: "of law firms are unreachable by phone", source: "Clio 2024 Legal Trends Report (Lux secret-shopper study, 500 firms)" },
-  { value: "21×", label: "more likely a lead qualifies when you respond in 5 min vs 30", source: "MIT Sloan / InsideSales Lead Response Study, Dr. James Oldroyd, 2007" },
-  { value: "24% → 82%", label: "sign rate from lowest to highest intake-score band", source: "Intake QA calibrated data" },
-  { value: "$100–$500+", label: "what a PI firm pays per Google click to make the phone ring", source: "iLawyer Marketing, 2025 legal keyword analysis" },
+  { value: "40%", label: "of firms answered the phone when a prospective client called — down from 56% in 2019", source: "Clio 2024 Legal Trends Report (Lux secret-shopper study of 500 US firms)" },
+  { value: "21×", label: "better odds of qualifying a lead if you respond in 5 minutes instead of 30", source: "2007 MIT / InsideSales.com Lead Response study, Dr. James Oldroyd" },
+  { value: "$2,500–$3,000", label: "what PI firms typically pay in ad spend to sign a single case through paid search", source: "National Law Review, 2025" },
+  { value: "$26,501", label: "average auto bodily-injury liability claim (2023)", source: "Insurance Information Institute (NAIC data)" },
 ];
 
 const STEPS = [
@@ -63,10 +63,11 @@ export default function HomePage() {
         <h1 className="mt-3 max-w-[18ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
           You already paid for these cases. Go get them back.
         </h1>
-        <p className="mt-6 max-w-[62ch] text-lg text-ink-muted">
-          Intake QA scores every intake call, flags the signable cases your team let slip, and
-          drafts a compliant lead follow-up. Monetize your marketing dollars and sign more
-          cases with Intake QA.
+        <p className="mt-6 max-w-[64ch] text-lg text-ink-muted">
+          Intake QA scores every recorded intake call against a fixed rubric, flags the signable
+          callers your team didn&apos;t sign, and hands you a follow-up your staff approves before
+          anything goes out. You spent the marketing money to make the phone ring. This is how you
+          stop paying for calls you never closed.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-5">
           <CTA />
@@ -153,12 +154,12 @@ export default function HomePage() {
             We publish our own mistakes.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
-            Most AI vendors show you a demo and hide the error rate. We publish ours:{" "}
-            <span className="tnum font-semibold text-ink">77%</span> flag precision,{" "}
-            <span className="tnum font-semibold text-ink">68%</span> recall, and a full list of the
-            cases our model missed and the ones it wrongly flagged — with dollar amounts. If
-            we&apos;re going to touch your revenue, you should see exactly where we&apos;re right and
-            where we&apos;re not.
+            Most vendors show you a demo and hide the error rate. We&apos;ll show you ours. Every
+            call is transcribed, then scored 0–100 against a fixed rubric; a case is flagged when it
+            scores above the threshold, wasn&apos;t converted, and is still inside the callback
+            window. On the calibration page we describe that method and publish the model&apos;s
+            failure modes — the calls it missed and the ones it wrongly flagged.
+            {/* TODO(Ali): confirm test-corpus size/composition and current precision/recall before publishing any accuracy percentage. Until then, method only — no naked precision/recall figure. */}
           </p>
           <Link href="/honesty" className="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-hover">
             See the calibration data →
@@ -221,9 +222,9 @@ export default function HomePage() {
         </h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {[
-            ["Flat per-case fee", "Structurally outside Rule 5.4 — we're paid the same regardless of the recovery."],
-            ["Responds to inbound leads", "Not Rule 7.3 solicitation — we only help you answer people who called you."],
-            ["Audio deleted at transcription", "§632 all-party consent posture; 72-hour transcript purge; zero-retention AI."],
+            ["Flat fee per recovered case", "Never a percentage of the recovery, never a per-lead fee — so it isn't fee-sharing and it isn't a runner/capper arrangement (Cal. Bus. & Prof. Code §6152). It fits the flat-fee carve-out in California's AB 931 (2025)."],
+            ["We only help you answer your own callers", "Responding to someone who already called your firm is not solicitation under California Rule 7.3. We never contact strangers on your behalf."],
+            ["Your staff approves every send", "The AI drafts; a person at your firm sends. Nothing goes out on its own (Cal. Rule 5.3; ABA Formal Op. 512). Your callers' words stay confidential prospective-client information (Rule 1.18) and are never used to train AI."],
           ].map(([t, d]) => (
             <Link key={t} href="/compliance" className="rounded-card border border-hairline bg-surface p-6 hover:border-accent">
               <p className="font-display text-lg font-semibold text-ink">{t}</p>

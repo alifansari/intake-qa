@@ -39,9 +39,9 @@ export function Footer() {
             </Link>
           ))}
         </nav>
-        <p className="mt-6 text-xs text-faint">
-          © {new Date().getFullYear()} Intake QA. Estimates and calibration figures are not legal
-          advice. Texting features activate only after your A2P 10DLC registration is approved.
+        <p className="mt-6 max-w-[80ch] text-xs text-faint">
+          This is not legal advice. Intake QA gives PI firms tools to run their own compliant
+          follow-up; your firm and its counsel make the final call on ethics and consent. © {new Date().getFullYear()} Intake QA.
         </p>
       </div>
     </footer>
