@@ -1,47 +1,81 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Editorial / legal-financial design system.
-   Palette lifted from lib/report.js so the dashboard and the printed call
-   report speak the same visual language: navy + red on near-white, serif
-   headings, tabular numerals. Deliberately NOT the default "AI dashboard" look
-   — no purple, no gradients, no glassmorphism, no neon.
+   Intake QA design system — single source of truth (Tailwind v4 @theme).
+   Editorial legal-financial look: warm paper canvas, near-black ink, structural
+   navy, emerald for money/positive, muted red ONLY for the "leaking $" figure,
+   gold ONLY for the guarantee seal. Serif display (Fraunces), sans body (Inter),
+   mono numerals (IBM Plex Mono). No purple, no gradients, no glassmorphism.
+
+   NOTE (Tailwind v4): there is no tailwind.config file; theme tokens are declared
+   here in @theme. Existing product screens use these semantic class names, so
+   remapping the values restyles the whole product from one place.
 --------------------------------------------------------------------------- */
 
 @theme {
-  --color-canvas: #f4f4f5; /* page background */
-  --color-paper: #ffffff; /* card / sheet surface */
-  --color-ink: #1a1a1a; /* primary text */
-  --color-muted: #6b6b6b; /* secondary text */
-  --color-faint: #9a9a9a; /* tertiary / captions */
-  --color-line: #e2e2e2; /* hairline borders */
-  --color-line-strong: #cfcfcf;
+  /* --- Surfaces & ink -------------------------------------------------- */
+  --color-canvas: #fbfaf7; /* page canvas   (spec: --paper) */
+  --color-paper: #ffffff; /* card surface  (spec: --surface) */
+  --color-surface: #ffffff;
+  --color-ink: #12161c; /* headings / body */
+  --color-ink-muted: #5b6270;
+  --color-muted: #5b6270; /* secondary text (alias of ink-muted) */
+  --color-faint: #8a919e; /* tertiary / captions */
 
-  --color-navy: #1a4d8f; /* primary accent */
-  --color-navy-deep: #143a6b; /* nav / dark headers */
-  --color-navy-tint: #eaf0f8; /* wash behind navy elements */
+  /* --- Lines --------------------------------------------------------- */
+  --color-hairline: #e7e3da;
+  --color-line: #e7e3da; /* default separator */
+  --color-line-strong: #d8d2c6;
 
-  --color-red: #b00020; /* loss / risk / lost signable */
-  --color-red-tint: #fbeaed;
-  --color-amber: #b26a00; /* caution / needs attention */
-  --color-amber-tint: #fbf1e2;
-  --color-green: #1a7f37; /* recovered / correct */
-  --color-green-tint: #e8f3ec;
+  /* --- Navy (structure: top nav, dark blocks) ------------------------ */
+  --color-navy: #14233b;
+  --color-navy-deep: #0e1a2e;
+  --color-navy-tint: #e8ebf1; /* light wash behind navy elements */
 
-  /* Score-band colors — identical to BAND_COLORS in lib/report.js */
-  --color-band-exemplary: #1a7f37;
-  --color-band-strong: #1a4d8f;
-  --color-band-developing: #b26a00;
-  --color-band-coaching: #c05621;
-  --color-band-intervention: #b00020;
+  /* --- Emerald accent (money / positive / primary CTA) --------------- */
+  --color-accent: #0e7c5a;
+  --color-accent-hover: #0a6249;
+  --color-accent-tint: #e6f1ec;
+  --color-green: #0e7c5a; /* legacy "recovered/correct" -> emerald */
+  --color-green-tint: #e6f1ec;
 
-  --font-serif: var(--font-serif), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  /* --- Alert (muted red — ONLY leaking $ / negative deltas) ---------- */
+  --color-alert: #b23a2e;
+  --color-red: #b23a2e; /* legacy "loss/risk" -> alert red */
+  --color-red-tint: #f6e7e4;
+
+  /* --- Amber (caution) & gold (guarantee seal ONLY) ------------------ */
+  --color-amber: #a6791e;
+  --color-amber-tint: #f6efdd;
+  --color-gold: #b08324;
+  --color-gold-tint: #f3ebd6;
+
+  /* --- Neutral chart context ---------------------------------------- */
+  --color-context: #c9c4b8;
+
+  /* Score-band colors — identical to BAND_COLORS in lib/report.js (frozen) */
+  --color-band-exemplary: #0e7c5a;
+  --color-band-strong: #14233b;
+  --color-band-developing: #a6791e;
+  --color-band-coaching: #b26a2e;
+  --color-band-intervention: #b23a2e;
+
+  /* --- Type --------------------------------------------------------- */
+  --font-serif: var(--font-serif), "Source Serif 4", Georgia, serif;
+  --font-sans: var(--font-sans), system-ui, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
+
+  /* --- Radii -------------------------------------------------------- */
+  --radius-base: 6px;
+  --radius-card: 10px;
+  --radius-pill: 999px;
+
+  /* --- One allowed shadow ------------------------------------------- */
+  --shadow-card: 0 1px 2px rgba(18, 22, 28, 0.06);
 }
 
 html {
-  color-scheme: light; /* this is a document, not a themeable app */
+  color-scheme: light;
 }
 
 body {
@@ -49,25 +83,60 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Serif display headings. */
+/* Serif display headings (Fraunces). */
 .font-display {
   font-family: var(--font-serif);
   letter-spacing: -0.01em;
+  font-optical-sizing: auto;
 }
 
-/* Tabular figures for every number in the product. */
+/* Tabular figures for every number, money, stat, and chart axis. */
 .tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
 
-/* A quiet uppercase section eyebrow, matching the report's <h2> treatment. */
+/* Quiet uppercase section eyebrow. */
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.6875rem;
   font-weight: 600;
   color: var(--color-muted);
+}
+
+/* Subtle, consistent motion. */
+a,
+button,
+input,
+select,
+textarea,
+.transitionable {
+  transition:
+    color 0.16s ease,
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    opacity 0.16s ease,
+    transform 0.16s ease;
+}
+
+/* Visible 2px emerald focus ring, everywhere, keyboard-first. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Honor reduced-motion: kill all non-essential animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Print stylesheet — Executive Summary and the Statement print clean. */

@@ -25,6 +25,26 @@ const nextConfig: NextConfig = {
     // the prompt/config/example files on Vercel and every demo stalls at "queued".
     "/**": ["./data/**/*.json", "./demo-config.json", "./.engine/**/*"],
   },
+  // 301 map — retire the old human answering-service marketing while PRESERVING
+  // the concierge value. All permanent (301) redirects.
+  async redirects() {
+    return [
+      // The old "answering service / full coverage" pitch becomes the pilot
+      // white-glove concierge offer — keep that value, don't 404 it.
+      { source: "/answering-service", destination: "/concierge", permanent: true },
+      { source: "/full-coverage", destination: "/concierge", permanent: true },
+      { source: "/coverage", destination: "/concierge", permanent: true },
+      { source: "/virtual-receptionist", destination: "/concierge", permanent: true },
+      // Old pricing surfaces (including the retired $2,000/$5,000 tiers) -> /pricing.
+      { source: "/plans", destination: "/pricing", permanent: true },
+      { source: "/pricing-old", destination: "/pricing", permanent: true },
+      // Everything else from the old answering-service marketing -> new homepage.
+      { source: "/answering", destination: "/", permanent: true },
+      { source: "/intake-service", destination: "/", permanent: true },
+      { source: "/services", destination: "/", permanent: true },
+      { source: "/home", destination: "/", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
