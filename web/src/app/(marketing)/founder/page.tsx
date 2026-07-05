@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 
 export const metadata: Metadata = {
@@ -13,9 +14,19 @@ export default function FounderPage() {
   return (
     <div className="mx-auto max-w-[720px] px-5 py-16">
       <p className="eyebrow">Founder</p>
-      <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink text-balance sm:text-5xl">
-        Why I built Intake QA
-      </h1>
+      <div className="mt-3 flex items-center gap-5">
+        <Image
+          src="/founder.jpg"
+          alt="Ali, founder of Intake QA"
+          width={96}
+          height={96}
+          priority
+          className="h-24 w-24 flex-none rounded-full object-cover"
+        />
+        <h1 className="font-display text-4xl font-semibold tracking-tight text-ink text-balance sm:text-5xl">
+          Why I built Intake QA
+        </h1>
+      </div>
 
       <div className="mt-8 space-y-5 text-lg leading-relaxed text-ink-muted">
         <p>

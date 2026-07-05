@@ -1,19 +1,17 @@
-// Signed founder note. Drop a real headshot at /public/founder.jpg and swap the
-// monogram for <Image src="/founder.jpg" .../> — the layout already reserves the
-// square so there is no shift.
+// Signed founder note with Ali's headshot (web/public/founder.jpg).
+
+import Image from "next/image";
 
 export function FounderNote({ full = false }: { full?: boolean }) {
   return (
     <div className="flex flex-col gap-5 rounded-card border border-hairline bg-surface p-6 sm:flex-row">
-      <div
-        className="flex h-20 w-20 flex-none items-center justify-center rounded-full bg-navy font-display text-2xl font-semibold text-white"
-        aria-hidden="true"
-      >
-        A
-      </div>
-      {/* TODO(Ali): headshot received — save it to web/public/founder.jpg (GitHub → Add file → Upload files),
-          then this monogram gets swapped for <Image src="/founder.jpg" alt="Ali, founder of Intake QA" .../>.
-          Not wired yet to avoid a broken image link before the file is in the repo. */}
+      <Image
+        src="/founder.jpg"
+        alt="Ali, founder of Intake QA"
+        width={80}
+        height={80}
+        className="h-20 w-20 flex-none rounded-full object-cover"
+      />
       <div className="text-sm leading-relaxed text-ink-muted">
         <p>
           {full
