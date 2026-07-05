@@ -8,56 +8,55 @@ import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 import { FounderNote } from "@/components/marketing/FounderNote";
 import { StateOfIntakeSignup } from "@/components/marketing/StateOfIntakeSignup";
 import {
-  CATEGORY_NAME,
-  CATEGORY_DEFINITION,
-  COUNTER_POSITION_LINE,
   CTA_PRIMARY,
-  GUARANTEE_BADGE_LINE,
+  INDEPENDENCE_LINE,
+  DIFFERENTIATORS,
+  CATEGORY_BOUNDARY_LINE,
+  WHO_DOES_THE_WORK,
+  MONTH_6_INTRO,
+  FUNNEL_LINE,
   ACCOUNTABLE_PARTY_LINE,
+  GUARANTEE_THRESHOLD,
   COHORT_MIN,
   COHORT_MAX,
   STAT_PI_COST_PER_CASE,
-  STAT_UNREACHABLE,
+  STAT_ANSWER_RATE,
   STAT_SPEED_TO_LEAD,
   STAT_WEBRIS_DISTRUST,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "Intake QA — Case Acquisition Intelligence for personal injury firms",
+  title: "Intake QA — the independent recovery desk for PI firms",
   description:
-    "Case Acquisition Intelligence reads 100% of your intake calls, detects the signable cases that didn't sign, and reports what your intake produced — in dollars. Book your $500 Leak Audit.",
+    "Everyone you pay to handle your intake grades their own work. Intake QA is the independent desk that checks the whole board against what actually got signed — and finds the signable cases that walked. Run your free Intake Quality Audit.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "You already paid for these cases. We prove which ones walked.",
+    title: "The independent desk that finds the signable cases that walked.",
     description:
-      "Case Acquisition Intelligence for PI firms: detect the signable cases that didn't sign, in dollars. Book your $500 Leak Audit.",
-    images: ["/og?title=Case+Acquisition+Intelligence"],
+      "The AI receptionist grades its own calls. The agency grades its own leads. We check the whole board against what actually got signed. Free Intake Quality Audit.",
+    images: ["/og?title=The+independent+recovery+desk"],
   },
 };
 
 const STATS = [
   STAT_PI_COST_PER_CASE,
-  STAT_UNREACHABLE,
+  STAT_ANSWER_RATE,
   STAT_SPEED_TO_LEAD,
   STAT_WEBRIS_DISTRUST,
 ];
 
-// The intake pipeline, in the reframed vocabulary (signable-case detection,
-// same-day save protocol, missed-revenue statement).
+// The closed loop, in plain steps.
 const STEPS = [
-  "Call arrives",
-  "Transcribed",
-  "Scored 0–100 on a frozen, calibrated rubric",
-  "Signable-case detection: qualified callers who didn’t sign are flagged (score ≥60, not converted, inside 72 hrs)",
-  "Same-day save protocol drafted — a follow-up your staff reviews and sends (never automated)",
-  "A human on your team approves every send",
-  "7 compliance gates enforced in order",
-  "Your missed-revenue statement updates — signable calls, cases that walked, dollars at stake",
-  "Flat monthly subscription — never per case, per client, or per recovered dollar",
+  "Send us your recorded intake calls — from every channel: your team, your answering service, your AI receptionist",
+  "Transcribed and scored 0–100 on a frozen, calibrated PI rubric",
+  "Signable-case detection: qualified callers who didn’t sign are flagged, with the evidence behind each",
+  "Reconciled against the fee agreements that actually got signed — so a flag is a real miss, not a guess",
+  "Ali reviews the readout and signs off on what you see",
+  "A staff-sent, human-reviewed save protocol for the recoverable ones (texting gated on A2P 10DLC)",
+  "A monthly missed-revenue statement — what walked, in dollars, trending over time",
 ];
 
-// Illustrative Monthly Missed-Revenue Statement — every figure is a clearly
-// labeled EXAMPLE, not a claim about any firm.
+// Illustrative Monthly Missed-Revenue Statement — every figure is a labeled EXAMPLE.
 const STATEMENT_ROWS: [string, string][] = [
   ["Signable calls analyzed", "128"],
   ["Cases that signed", "31"],
@@ -85,33 +84,26 @@ function Section({ children, className = "" }: { children: React.ReactNode; clas
 export default function HomePage() {
   return (
     <>
-      {/* HERO — category in the eyebrow, definition-grounded subhead */}
+      {/* HERO — independence + closed-loop recovery (no category-king claim) */}
       <Section className="pt-16 pb-12 sm:pt-24">
-        <p className="eyebrow">{CATEGORY_NAME} for personal injury firms</p>
+        <p className="eyebrow">The independent recovery desk for personal injury firms</p>
         <h1 className="mt-3 max-w-[20ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
-          You already paid for these cases. We prove which ones walked — and hand your team the play
-          to get them back.
+          Everyone you pay to handle your intake tells you they&apos;re doing a great job.
         </h1>
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
-          {CATEGORY_DEFINITION} Not an answering service. Not a CRM. The intelligence layer on the
-          cases you already paid to generate.
+          The AI receptionist grades its own calls. The agency grades its own leads. Your staff grade
+          their own follow-up. Nobody checks the whole board against what actually got signed. Intake
+          QA is the independent desk that does — and finds the signable cases that walked.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-5">
           <CTA />
-          <Link href="/what-is-case-acquisition-intelligence" className="text-sm font-semibold text-accent hover:text-accent-hover">
-            What is Case Acquisition Intelligence? →
+          <Link href="/how-it-works" className="text-sm font-semibold text-accent hover:text-accent-hover">
+            See how the desk works →
           </Link>
         </div>
-        {/* $50k guarantee badge, hero-adjacent (one line, conditions stated) */}
-        <p className="mt-5 max-w-[70ch] rounded-card border border-gold/40 bg-gold-tint/60 px-4 py-3 text-sm text-ink">
-          <span className="font-semibold">{GUARANTEE_BADGE_LINE}</span>{" "}
-          <Link href="/audit" className="font-semibold text-accent hover:text-accent-hover">
-            See how we calculate it →
-          </Link>
-        </p>
         <p className="mt-4 text-sm text-faint">
-          Upload up to 10 recorded calls. Get a dollar figure in days. Nothing is ever texted without
-          your written approval.
+          Free for qualifying Southern California PI firms. A real analyst reviews every call. You
+          keep the report whether or not we work together.
         </p>
       </Section>
 
@@ -120,48 +112,42 @@ export default function HomePage() {
         <StatBar stats={STATS} />
       </Section>
 
-      {/* PROBLEM / ENEMY — population-level, links to the manifesto */}
+      {/* INDEPENDENCE / self-graded homework */}
       <Section className="py-14">
         <div className="max-w-[68ch]">
           <h2 className="font-display text-3xl font-semibold text-ink text-balance">
-            The enemy isn&apos;t your intake team. It&apos;s the silence after the call.
+            Every report you get on your intake is self-graded homework.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
-            Every injured caller who dials your firm cost money to get there — sometimes hundreds of
-            dollars a click. Then a call lands during a lunch rush, a voicemail doesn&apos;t get
-            returned, or a &ldquo;let me talk to my spouse&rdquo; never gets a follow-up. Firms
-            obsess over generating the next lead and stay blind to the ones they already paid for and
-            let walk. Every firm has these calls — the question is whether you can see them.
+            {INDEPENDENCE_LINE} We have no stake in the answer — we&apos;re paid the same flat fee no
+            matter what we find. That independence is the whole point: a QA function that grades the
+            people it reports on isn&apos;t a QA function.
           </p>
-          <Link href="/manifesto" className="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-hover">
-            Read the manifesto →
-          </Link>
         </div>
       </Section>
 
-      {/* CATEGORY DEFINITION mini-block */}
+      {/* FOUR-POINT DIFFERENTIATION */}
       <Section className="py-14 border-t border-hairline">
-        <div className="max-w-[72ch]">
-          <p className="eyebrow">The category</p>
-          <h2 className="mt-2 font-display text-3xl font-semibold text-ink text-balance">
-            A measurement layer on case acquisition.
-          </h2>
-          <p className="mt-5 text-lg leading-relaxed text-ink-muted">
-            {CATEGORY_DEFINITION} Where speed-to-lead tools optimize answering the next call, and
-            litigation-AI tools work the case after it&apos;s signed, {CATEGORY_NAME} owns the gap in
-            between — the moment a paid-for case is won or lost at intake.
-          </p>
-          <Link href="/what-is-case-acquisition-intelligence" className="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-hover">
-            The full definition →
-          </Link>
+        <h2 className="mb-7 max-w-[24ch] font-display text-3xl font-semibold text-ink text-balance">
+          What the desk does that the tools handling your calls don&apos;t.
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {DIFFERENTIATORS.map((d) => (
+            <div key={d.title} className="rounded-card border border-hairline bg-surface p-6">
+              <p className="font-display text-lg font-semibold text-ink">{d.title}</p>
+              <p className="mt-2 text-sm text-ink-muted">{d.body}</p>
+            </div>
+          ))}
         </div>
+        <p className="mt-6 max-w-[68ch] rounded-card border border-hairline bg-canvas p-5 text-sm text-ink-muted">
+          <b className="text-ink">The honest boundary:</b> {CATEGORY_BOUNDARY_LINE}
+        </p>
       </Section>
 
-      {/* MECHANISM */}
+      {/* CLOSED LOOP / mechanism */}
       <Section className="py-14 border-t border-hairline">
         <h2 className="max-w-[26ch] font-display text-3xl font-semibold text-ink text-balance">
-          Read every call. Detect the signable ones that didn&apos;t convert. Put a dollar figure on
-          what walked.
+          The closed loop: read every call, reconcile against what signed, recover what walked.
         </h2>
         <ol className="mt-8 grid gap-px overflow-hidden rounded-card border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((s, i) => (
@@ -171,11 +157,6 @@ export default function HomePage() {
             </li>
           ))}
         </ol>
-        <p className="mt-5 max-w-[68ch] text-sm text-ink-muted">
-          The same-day save protocol is staff-sent and human-reviewed. Texting activates only after
-          our A2P 10DLC registration is approved — until then, the audit and callback workflow
-          already surface the cases worth going back for.
-        </p>
       </Section>
 
       {/* AGENCY ACCOUNTABILITY */}
@@ -189,17 +170,17 @@ export default function HomePage() {
             Your agency reports clicks, calls, and cost-per-lead. We report what happened{" "}
             <em>after</em> the phone rang: how many callers were actually signable, how many signed,
             and what the misses were worth. One legal-marketing agency (WEBRIS) reports that after
-            auditing 500+ PI firms, fewer than 10% could state their true client-acquisition cost
-            with confidence. {CATEGORY_NAME} closes that gap.
+            auditing 500+ PI firms, fewer than 10% could state their true client-acquisition cost with
+            confidence.
           </p>
           <p className="mt-3 text-sm text-faint">
             {STAT_WEBRIS_DISTRUST.source}. Cost-per-signed-case benchmark: {STAT_PI_COST_PER_CASE.source}.
-            {/* TODO(Ali): plug the firm-specific monthly ad-spend number here for the "$40K/month" framing (only realistic for a multi-market firm). */}
+            {/* TODO(Ali): plug a firm-specific monthly ad-spend number here only for a multi-market firm profile; otherwise leave as "your ad spend." */}
           </p>
         </div>
       </Section>
 
-      {/* MONTHLY MISSED-REVENUE STATEMENT — the flagship artifact (illustrative mock) */}
+      {/* MONTHLY MISSED-REVENUE STATEMENT — flagship deliverable (illustrative) */}
       <Section className="py-14 border-t border-hairline">
         <div className="grid gap-8 lg:grid-cols-[1fr_minmax(0,420px)] lg:items-center">
           <div className="max-w-[60ch]">
@@ -208,10 +189,10 @@ export default function HomePage() {
               Your monthly missed-revenue statement.
             </h2>
             <p className="mt-5 text-lg leading-relaxed text-ink-muted">
-              Every month you get one artifact that reads like a P&amp;L for your intake: signable
+              Every month you get one readout that reads like a P&amp;L for your intake: signable
               calls analyzed, cases that signed, cases that walked, estimated missed fee value, the
-              saves your team recovered, and the trend line. This is what lands on your desk — not
-              another dashboard to log into.
+              saves your team recovered, and the trend line. A written deliverable — not another
+              dashboard to log into.
             </p>
           </div>
           <div className="rounded-card border border-hairline bg-surface p-6 shadow-card">
@@ -235,56 +216,35 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* AUDIT CTA */}
-      <Section className="py-14">
-        <div className="rounded-card border border-hairline bg-navy px-6 py-10 text-white sm:px-12">
-          <h2 className="max-w-[22ch] font-display text-3xl font-semibold text-balance">
-            Start with the $500 Leak Audit.
-          </h2>
-          <p className="mt-4 max-w-[64ch] text-white/75">
-            Upload up to 10 recent intake calls. We&apos;ll show you, in dollars, how much signable
-            fee revenue didn&apos;t convert — with a per-call breakdown, the evidence behind each
-            flag, and watermarked sample save-protocol messages. The $500 is credited in full to your
-            first subscription invoice. You keep the report either way.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center gap-5">
-            <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-              {CTA_PRIMARY}
-            </Link>
-            <Link href="/audit/sample" className="text-sm font-semibold text-white/85 underline hover:text-white">
-              See a sample report →
-            </Link>
-          </div>
-        </div>
-      </Section>
-
-      {/* COUNTER-POSITIONING */}
+      {/* MONTHS 2–12 value strip */}
       <Section className="py-14 border-t border-hairline">
         <div className="max-w-[72ch]">
           <h2 className="font-display text-3xl font-semibold text-ink text-balance">
-            We don&apos;t replace your answering service. We tell you what it produced.
+            What months 2–12 look like.
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-ink-muted">{COUNTER_POSITION_LINE}</p>
+          <p className="mt-5 text-lg leading-relaxed text-ink-muted">{MONTH_6_INTRO}</p>
+          <Link href="/how-it-works" className="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-hover">
+            See the ongoing work →
+          </Link>
         </div>
       </Section>
 
-      {/* HONESTY TEASER */}
-      <Section className="py-14 border-t border-hairline">
-        <div className="max-w-[68ch]">
-          <h2 className="font-display text-3xl font-semibold text-ink text-balance">
-            We publish our own mistakes.
+      {/* AUDIT CTA */}
+      <Section className="py-14">
+        <div className="rounded-card border border-hairline bg-navy px-6 py-10 text-white sm:px-12">
+          <h2 className="max-w-[24ch] font-display text-3xl font-semibold text-balance">
+            Start with a free Intake Quality Audit.
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-ink-muted">
-            Most vendors show you a demo and hide the error rate. We&apos;ll show you ours. Every call
-            is transcribed, then scored 0–100 against a fixed rubric; a case is flagged when it scores
-            above the threshold, wasn&apos;t converted, and is still inside the callback window. On
-            the calibration page we describe that method, publish the model&apos;s failure modes, and
-            show exactly how we estimate missed signable-case value for the guarantee.
-            {/* TODO(Ali): publish precision/recall only with the test-corpus label (see site-constants TEST_CORPUS_*). */}
+          <p className="mt-4 max-w-[64ch] text-white/75">
+            Send up to 10 recent intake calls. A real analyst reviews every one and shows you, in
+            dollars, how much signable fee revenue didn&apos;t convert — with a per-call breakdown and
+            the evidence behind each flag. You keep the report either way. Then: {FUNNEL_LINE}
           </p>
-          <Link href="/honesty" className="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-hover">
-            See the calibration data →
-          </Link>
+          <div className="mt-7">
+            <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
+              {CTA_PRIMARY}
+            </Link>
+          </div>
         </div>
       </Section>
 
@@ -301,9 +261,14 @@ export default function HomePage() {
 
       {/* COMPARISON */}
       <Section className="py-14 border-t border-hairline">
-        <h2 className="mb-7 font-display text-3xl font-semibold text-ink text-balance">
-          Case Acquisition Intelligence — not another answering service or CRM.
+        <h2 className="mb-3 font-display text-3xl font-semibold text-ink text-balance">
+          Where the desk fits alongside what you already run.
         </h2>
+        <p className="mb-7 max-w-[68ch] text-sm text-ink-muted">
+          Your answering service and AI receptionist do real work — they answer, summarize, and score
+          the calls they handle. The desk does the part none of them do: score 100% of calls across
+          every channel and reconcile them against who actually signed.
+        </p>
         <ComparisonTable />
       </Section>
 
@@ -311,15 +276,26 @@ export default function HomePage() {
       <Section className="py-14">
         <div className="max-w-[68ch]">
           <h2 className="font-display text-3xl font-semibold text-ink text-balance">
-            The $50,000 Find-It Guarantee.
+            The {GUARANTEE_THRESHOLD} find-it-free guarantee.
           </h2>
           <p className="mt-5 mb-6 text-lg leading-relaxed text-ink-muted">
-            If your Leak Audit doesn&apos;t identify at least $50,000 in estimated missed
-            signable-case value in your firm&apos;s own recent intake calls, we refund your $500 audit
-            fee in full. The guarantee is on what the audit finds in your calls — not on any revenue
-            you recover.
+            If your free audit doesn&apos;t surface at least {GUARANTEE_THRESHOLD} in estimated missed
+            signable case value, we won&apos;t pitch you a subscription — and if you start one anyway,
+            your first month is free. It&apos;s an estimate of what walked, not a promise of what
+            we&apos;ll recover.
           </p>
           <GuaranteeBadge />
+        </div>
+      </Section>
+
+      {/* WHO DOES THE WORK */}
+      <Section className="py-14 border-t border-hairline">
+        <div className="max-w-[68ch]">
+          <h2 className="font-display text-3xl font-semibold text-ink text-balance">Who does the work.</h2>
+          <p className="mt-5 text-lg leading-relaxed text-ink-muted">{WHO_DOES_THE_WORK}</p>
+          <Link href="/founder" className="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-hover">
+            More about Ali →
+          </Link>
         </div>
       </Section>
 
@@ -330,9 +306,9 @@ export default function HomePage() {
         </h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {[
-            ["Flat monthly fee — never a share of a fee, never per signed case", "Our compensation doesn't change whether you sign zero cases or fifty, so it can't be characterized as paying an agent to procure or recover business under Cal. B&P §§6151–6152 — now backed by SB 37's private right of action. The audit fee and guarantee attach to a deliverable, never to a recovery."],
-            ["We only help you answer your own callers", "Responding to someone who already called your firm is treated differently from soliciting a stranger under California Rule 7.3. We never contact strangers on your behalf."],
-            ["Your staff approves every send", "The same-day save protocol is drafted by AI and sent by a person at your firm. Nothing goes out on its own (Cal. Rule 5.3; CA State Bar GenAI guidance). Your callers' words stay confidential prospective-client information (Rule 1.18) and are never used to train AI."],
+            ["A flat fee for a service — never a share of a fee", "We're paid the same flat monthly fee no matter what we find, so it isn't a share of a fee under CA Rule 5.4 and can't be characterized as paying a runner or capper under B&P §§6151–6152 (strengthened by SB 37). The audit is free and the guarantee backs a diagnostic threshold, never a recovery."],
+            ["We only help you answer your own callers", "Win-back messages respond to people who already called your firm. Under CA Rule 7.3, a communication in response to a request for information is not solicitation. We never contact strangers on your behalf."],
+            ["A human verifies and sends", "The desk drafts; a person at your firm reviews and sends. Nothing goes out on its own (CA Rule 5.3; the CA State Bar's GenAI guidance, updated May 2026; ABA Formal Op. 512's verification duty). Your callers' words are never used to train AI."],
           ].map(([t, d]) => (
             <Link key={t} href="/compliance" className="rounded-card border border-hairline bg-surface p-6 hover:border-accent">
               <p className="font-display text-lg font-semibold text-ink">{t}</p>
@@ -372,8 +348,8 @@ export default function HomePage() {
             A founding cohort of {COHORT_MIN}–{COHORT_MAX} Southern California PI firms.
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">
-            Free 30-day pilot after your audit, locked founding-cohort pricing, and a say in what the
-            category becomes. We&apos;ll even work your first recovered saves alongside you.
+            Free audit, free 30-day pilot, locked founding-cohort pricing, and a say in what the desk
+            becomes. We&apos;ll even work your first recovered saves alongside you.
           </p>
           <CTA />
         </div>

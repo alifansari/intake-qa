@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CTA_PRIMARY, CATEGORY_NAME } from "@/lib/site-constants";
+import { CTA_PRIMARY, CATEGORY_BOUNDARY_LINE } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "The cases you lose at intake are the cheapest cases you'll ever buy back | Intake QA",
+  title: "Why intake is where PI firms bleed | Intake QA",
   description:
-    "The manifesto for Case Acquisition Intelligence: the enemy is the silence after the call, the shift from speed-to-lead to measuring what it produced, and the new way — read every call, detect the signable ones that didn't sign, and prove what walked.",
+    "A point of view: personal-injury firms spend fortunes to make the phone ring, then lose signable cases after it's answered — and nobody independent is checking. The case for closing the loop.",
   alternates: { canonical: "/manifesto" },
 };
 
@@ -21,45 +21,57 @@ function Movement({ kicker, children }: { kicker: string; children: React.ReactN
 export default function ManifestoPage() {
   return (
     <div className="mx-auto max-w-[1120px] px-5 py-16">
-      <p className="eyebrow">{CATEGORY_NAME} · Manifesto</p>
+      <p className="eyebrow">A point of view</p>
       <h1 className="mt-3 max-w-[26ch] font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink text-balance sm:text-5xl">
-        The cases you lose at intake are the cheapest cases you&apos;ll ever buy back.
+        Why intake is where personal injury firms bleed.
       </h1>
+      <p className="mt-5 max-w-[68ch] text-lg text-ink-muted">
+        This is an argument, not a category proclamation. Here&apos;s how we see the problem, and why
+        we built the desk the way we did. Disagree with any part of it and tell us — we&apos;re early
+        and we&apos;d rather be right than loud.
+      </p>
 
-      <Movement kicker="The enemy">
+      <Movement kicker="The money is already spent">
         <p>
-          Every injured caller who dials your firm cost you money to get there — sometimes hundreds
-          of dollars a click. The enemy isn&apos;t your intake team. It&apos;s the silence after the
-          call. The voicemail nobody returned. The &ldquo;let me talk to my spouse&rdquo; that never
-          got a follow-up. Firms obsess over generating the next lead and stay blind to the ones they
-          already paid for and let walk.
+          Every injured caller who dials your firm cost money to get there — a click, a billboard, a
+          referral. By the time the phone rings, the acquisition cost is sunk. What happens in the
+          next ninety seconds decides whether that spend turns into a fee agreement or evaporates. A
+          call lands during a lunch rush. A voicemail doesn&apos;t get returned. A &ldquo;let me talk
+          to my spouse&rdquo; never gets a follow-up. The case was signable. It just left.
         </p>
       </Movement>
 
-      <Movement kicker="The shift">
+      <Movement kicker="Everyone grades their own homework">
         <p>
-          For a decade, legal tech optimized the front of the funnel — answer faster, chat sooner,
-          book more. But speed only matters if you can prove what it produced. The question was never
-          &ldquo;did we answer?&rdquo; It&apos;s &ldquo;of the people who called, how many were
-          signable, how many signed, and where did the rest go?&rdquo; Nobody was measuring that. So
-          we built the category that does.
+          Here&apos;s the part that should bother you: every report you get on your intake comes from
+          someone with a stake in the answer. The AI receptionist reports on the calls it answered.
+          The agency reports on the leads it sold you. Your own staff report on their own follow-up.
+          None of them are lying — but none of them are independent, and none of them reconcile what
+          happened at the call against who actually signed a fee agreement weeks later. The one
+          question nobody answers: of the people who called, how many were signable, how many signed,
+          and where did the rest go?
         </p>
       </Movement>
 
-      <Movement kicker="The new way">
+      <Movement kicker="Close the loop">
         <p>
-          {CATEGORY_NAME}. Read every call. Detect the signable ones that didn&apos;t convert. Put a
-          dollar figure on what walked. Hand your staff a compliant, human-reviewed play to win it
-          back. Report it like a financial statement, every month.
+          The fix isn&apos;t answering faster — plenty of tools already do that well. The fix is a
+          closed loop: read every call across every channel, flag the signable ones that didn&apos;t
+          convert, reconcile them against the fee agreements that actually got signed, put a dollar
+          figure on what walked, and hand the firm a compliant, human-reviewed way to win the
+          recoverable ones back. Done by someone with no stake in the grade. That&apos;s the desk.
         </p>
+        <p>{CATEGORY_BOUNDARY_LINE}</p>
       </Movement>
 
-      <Movement kicker="The stakes">
+      <Movement kicker="Why it compounds">
         <p>
-          A firm doesn&apos;t lose because it can&apos;t generate leads. It loses because it can&apos;t
-          see which paid-for cases it&apos;s leaving on the table — and its competitor across the
-          street can. The firms that install a measurement layer on case acquisition will compound;
-          the firms that keep guessing will keep paying to generate cases they can&apos;t hold onto.
+          A firm doesn&apos;t lose because it can&apos;t generate leads. It loses because it
+          can&apos;t see which paid-for cases it&apos;s leaving on the table — and the firm across the
+          street that installs a measurement layer on its intake will keep getting a little better
+          every month while the one that guesses keeps paying to generate cases it can&apos;t hold
+          onto. Intake is the cheapest place a PI firm can find growth, because the money to get there
+          is already spent.
         </p>
       </Movement>
 
@@ -67,8 +79,8 @@ export default function ManifestoPage() {
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
           {CTA_PRIMARY}
         </Link>
-        <Link href="/what-is-case-acquisition-intelligence" className="inline-flex rounded-pill border border-hairline px-6 py-3 text-sm font-semibold text-ink hover:border-accent">
-          What is Case Acquisition Intelligence?
+        <Link href="/how-it-works" className="inline-flex rounded-pill border border-hairline px-6 py-3 text-sm font-semibold text-ink hover:border-accent">
+          See how the desk works
         </Link>
       </div>
     </div>

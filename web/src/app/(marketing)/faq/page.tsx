@@ -1,36 +1,36 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FAQAccordion, type QA } from "@/components/marketing/FAQAccordion";
-import { COHORT_MIN, COHORT_MAX, PILOT_DAYS, DELETION_DAYS, CTA_PRIMARY } from "@/lib/site-constants";
+import { COHORT_MIN, COHORT_MAX, PILOT_DAYS, DELETION_DAYS, CTA_PRIMARY, GUARANTEE_THRESHOLD } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "FAQ | Intake QA",
   description:
-    "Why the audit costs $500, how the $50,000 Find-It Guarantee works, what counts as a leaked signable case, whether we replace your answering service, and whether your marketing agency will hate this.",
+    "Why the audit is free, what the $25,000 find-it-free guarantee actually backs, how we differ from your AI receptionist or agency, what months 2–12 look like, and how your data is handled.",
   alternates: { canonical: "/faq" },
 };
 
-// Ordered by the questions a skeptical partner asks first.
+// Ordered by the new objection stack (v3 report).
 const ITEMS: QA[] = [
   {
-    q: "Why does the Leak Audit cost $500?",
-    a: "Because it's real diagnostic work with real deliverables — a leaked-case list with an estimated fee value on each, an intake performance readout from your own recordings, and sample save-protocol drafts — not a sales call. A serious firm and a serious analysis both put something on the table. And the $500 is credited in full against your first subscription invoice, so a subscribing firm pays nothing on net. Don't subscribe, and you keep the full report — no pitch, no obligation.",
+    q: "Why is the audit free?",
+    a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Intake Quality Audit is free for qualifying Southern California PI firms — a real analyst reviews up to 10 of your recent calls and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we run a limited number each month. [TODO(Ali): capacity number or delete.] — Ali",
   },
   {
-    q: "How does the $50,000 Find-It Guarantee work?",
-    a: "If your Leak Audit doesn't identify at least $50,000 in estimated missed signable-case value in your firm's own recent intake calls, we refund your $500 audit fee in full. Read the conditions plainly: the guarantee is on what the audit FINDS in your calls — not on any revenue you recover. We don't promise you'll win cases back; we promise the audit will show you at least $50,000 worth looking at, or you don't pay for it. Exactly how we estimate that value is on the calibration page.",
+    q: `What does the ${GUARANTEE_THRESHOLD} find-it-free guarantee actually back?`,
+    a: `A diagnostic threshold, not a case outcome. If the free audit doesn't surface at least ${GUARANTEE_THRESHOLD} in estimated missed signable case value in your own calls, we won't pitch you a subscription — and if you start one anyway, your first month is free. "Estimated missed signable case value" is calculated from your own average fee per case type (or named industry benchmarks where we don't have it), and it's an estimate of what walked — never a promise of what we'll recover. That distinction is deliberate: a promise tied to recovered fees would raise runner/capper and earnings-claim problems. See how we calculate it on the calibration page.`,
   },
   {
-    q: "What counts as a leaked signable case?",
-    a: "A recorded intake call our model scores at or above the signability threshold (≥60 on a fixed rubric) where the caller didn't sign and the call is still inside the callback window. Every flag carries the transcript evidence behind it, so you can check the call yourself. Estimated value = the count of those flagged cases multiplied by your firm's own average fee per signed case for that case type (or a conservative, labeled benchmark where you haven't given us your average).",
+    q: "I already have an AI receptionist / answering service / Lead Docket / a marketing agency that reports on this.",
+    a: "Good — keep them; we don't replace them. But each of those grades its own work. Your AI receptionist scores the calls it answered. Your agency reports on the leads it sold you. Lead Docket routes and tracks at capture. We're the independent desk: we score 100% of your calls across every channel — including the ones your team answered live at 2pm — reconcile them against who actually signed weeks later, and we're paid the same flat fee no matter what we find. If your problem is missed calls, buy an AI receptionist. Our work starts where the phone gets answered.",
   },
   {
-    q: "Do you replace my answering service or AI receptionist?",
-    a: "No. Tools like Smith.ai and AI receptionists optimize answering the next call. Case Acquisition Intelligence works after the call: it proves which signable cases didn't sign and helps your staff recover them. Keep your receptionist — we tell you what it produced.",
+    q: "Once you've found the big leaks, why keep paying in months 2–12?",
+    a: "The first audit finds the biggest leaks; after that the desk becomes your standing intake QA function. Every month your statement shows whether the leak is shrinking, your intake team gets credit for the improvement, and new leaks get caught as your marketing and staffing change. Some of that (trend view, scorecards, coaching clips) is rolling out with the founding cohort and we'll tell you plainly what's live versus in development — we don't bill for what isn't running. [TODO(Ali): confirm build status of trend view / scorecards / coaching clips.]",
   },
   {
-    q: "Will my marketing agency hate this?",
-    a: "It shouldn't — but it will make everyone more accountable. Your agency reports clicks, calls, and cost-per-lead. We report what happened after the phone rang: how many callers were actually signable, how many signed, and what the misses were worth. One legal-marketing agency (WEBRIS) reports that after auditing 500+ PI firms, fewer than 10% could state their true client-acquisition cost with confidence. A good agency uses that to prove its leads convert; only an agency hiding weak lead quality has something to fear.",
+    q: "Will my intake manager hate this?",
+    a: "She shouldn't — it's built to make her a champion, not a target. This isn't a gotcha: high-volume intake means good cases slip, and that's math, not a character flaw. The desk gives her proof of the workload (you're not short on effort, you're short on hours), coaching clips built from the team's own best calls [TODO(Ali): coaching-clip build status], and a monthly scorecard that shows improvement so credit lands where it's earned. It catches what volume caused, not people.",
   },
   {
     q: "The AI could be wrong — won't it embarrass me?",
@@ -41,20 +41,12 @@ const ITEMS: QA[] = [
     a: "The design is built to avoid one, on California authority. Our fee is a flat monthly subscription to analyze your calls — never per case, per signed client, or per recovered dollar — so it can't be characterized as paying an agent to procure or recover business under B&P §§6151–6152 (the capping framework, now backed by SB 37's private right of action). We only help you re-contact people who already called your firm, so responding to their own inquiry isn't soliciting a stranger (Rule 7.3). A person at your firm approves every message (Rule 5.3). The full analysis, with citations, is on the compliance page — and your counsel makes the final call.",
   },
   {
-    q: "The audit is $500 — but the pilot is free? What's the catch?",
-    a: `Two different things. The $500 Leak Audit is the diagnostic, and it's credited back against your first invoice if you subscribe. The pilot is the subscription itself: we're taking a founding cohort of ${COHORT_MIN}–${COHORT_MAX} Southern California PI firms onto free ${PILOT_DAYS}-day pilots because I need a handful of firms to use it on real calls and tell me where it's wrong — and, only with your written permission, the right to publish an anonymized case study. You get direct access to me and a say in what it becomes. That's the whole trade. — Ali`,
-  },
-  {
     q: "What happens to my prospective clients' data?",
-    a: `We treat every call as confidential prospective-client information (Cal. Rule 1.18). Your recordings and transcripts are deleted within ${DELETION_DAYS} days of your audit readout — and immediately if you ask in writing. Your calls are handled by Intake QA; we use infrastructure providers under contract (the same category your CRM and transcription tools already use), none of whom train AI on your data, and we remain the single party accountable to you. The named providers and their postures are on the security page. We'll sign your NDA and a DPA.`,
-  },
-  {
-    q: "What if my intake manager objects to being monitored?",
-    a: "Fair concern, and worth raising with her directly. This scores the call and the process, not her job security. Scoring 100% of calls replaces the unfair 2% spot-check with one even standard, and the report becomes her proof of workload — it documents how many PNCs the team is actually handling and where the volume justifies another hire. Every flag ties to a specific moment with a coaching note, the team sees its own numbers first, and a person on staff approves every send. Most managers who screen this end up championing it because it makes their case for staffing.",
+    a: `We treat every call as confidential prospective-client information (Cal. Rule 1.18). Call audio is deleted the moment it's transcribed; transcripts and reports are deleted within ${DELETION_DAYS} days of your readout, or immediately if you ask in writing. Your calls are handled by Intake QA; we use infrastructure providers under contract (the same category your CRM and transcription tools already use), none of whom train AI on your data, and we remain the single party accountable to you. The named providers and their postures are on the security page. We'll sign your NDA and a DPA.`,
   },
   {
     q: "You're a solo founder — will this be around in a year?",
-    a: "Straight answer: it's early, and I'm honest about it — no logos, no case studies yet. The product logic is complete and version-locked, so the scoring doesn't drift under you. The founding cohort is small on purpose, you get direct access to me, and the pilot is free and cancel-anytime, so you can prove the value before you commit a dollar. Your data is deletable on request at any point, so you're never locked in. — Ali",
+    a: `Straight answer: it's early, and I'm honest about it — no logos, no case studies yet. The product logic is complete and version-locked, so the scoring doesn't drift under you. The founding cohort is ${COHORT_MIN}–${COHORT_MAX} firms on purpose, you get direct access to me, and the ${PILOT_DAYS}-day pilot is free and cancel-anytime, so you can prove the value before you commit a dollar. Your data is deletable on request at any point, so you're never locked in. — Ali`,
     // TODO(Ali): confirm the continuity/commitment language you want here (e.g. runway, escrow of scoring config, data-export guarantee).
   },
   {
@@ -63,15 +55,11 @@ const ITEMS: QA[] = [
   },
   {
     q: "Is texting old callers solicitation, or a TCPA problem?",
-    a: "Win-back texts go only to people who already called your firm — responding to an inbound inquiry is treated differently from soliciting a stranger under Rule 7.3. On the TCPA: the FCC's one-to-one consent rule was vacated (Insurance Marketing Coalition v. FCC, Jan. 2025) and the prior rules reinstated, so bundled consent is again permissible; marketing texts still require prior express written consent and must honor opt-out. That's exactly why win-back SMS is compliance-gated: every draft includes 'Reply STOP,' nothing sends until A2P 10DLC registration clears, and a person approves each one. Confirm your consent basis with counsel.",
+    a: "The same-day save protocol goes only to people who already called your firm — responding to an inbound inquiry is treated differently from soliciting a stranger under Rule 7.3. On the TCPA: the FCC's one-to-one consent rule was vacated (Insurance Marketing Coalition v. FCC, Jan. 2025) and the prior rules reinstated, so bundled consent is again permissible; marketing texts still require prior express written consent and must honor opt-out. That's exactly why the protocol is compliance-gated: every draft includes 'Reply STOP,' nothing sends until A2P 10DLC registration clears, and a person approves each one. Confirm your consent basis with counsel.",
   },
   {
     q: "Can I even share call recordings with a vendor in California?",
     a: "California is all-party consent (Penal Code §632; §632.7 for cell calls). Intake QA processes calls your firm already recorded — we don't obtain consent for you. Under Kearney v. Salomon Smith Barney, telling callers 'this call is being recorded for quality assurance' at the outset is the standard pattern. Your firm confirms its own consent process.",
-  },
-  {
-    q: "Isn't this just call tracking, an answering service, or what my marketing agency does?",
-    a: "No. CallRail tracks calls, Smith.ai answers them, Lead Docket and Filevine route the PNC — all at the moment of contact. Intake QA works after the call: it scores 100% of completed calls against a fixed rubric and quantifies the fee dollars that didn't convert. It sits on top of whatever you already use and doesn't replace it.",
   },
   {
     q: "How much staff time does this take?",
@@ -83,7 +71,7 @@ const ITEMS: QA[] = [
   },
   {
     q: "Do you handle Spanish-language calls?",
-    a: "Yes — the tool scores and drafts in English and Spanish. In Southern California that matters: Latino residents are the largest ethnic group in California, roughly 40% of the population (U.S. Census / Public Policy Institute of California), and Spanish-speaking callers are easy to lose at intake. Ali built the scoring against real calls in both languages.",
+    a: "Yes — the desk analyzes and drafts in English and Spanish, natively, not translated afterward. In Southern California that matters: in the Los Angeles metro, 34.5% of people age 5 and older speak Spanish at home (USAFacts, 2019–2023 American Community Survey), and a signable Spanish-speaking caller is worth exactly as much as any other. Ali is bilingual and built the scoring against real calls in both languages.",
   },
 ];
 

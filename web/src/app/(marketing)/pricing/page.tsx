@@ -6,7 +6,8 @@ import {
   PRICING_TIERS,
   PRICING_COMPLIANCE_ARGUMENT,
   PRICING_ANCHOR_LINE,
-  AUDIT_CREDIT_LINE,
+  FUNNEL_LINE,
+  GUARANTEE_THRESHOLD,
   CTA_PRIMARY,
 } from "@/lib/site-constants";
 
@@ -75,10 +76,18 @@ export default function PricingPage() {
         Founding-cohort firms start free for 30 days, then lock in a founding rate.
       </p>
 
-      {/* Audit credit mechanics */}
+      {/* The one journey */}
       <section className="mt-8 rounded-card border border-hairline bg-surface p-6">
-        <h2 className="font-display text-xl font-semibold text-ink">Your $500 Leak Audit is credited back</h2>
-        <p className="mt-3 max-w-[72ch] text-ink-muted">{AUDIT_CREDIT_LINE}</p>
+        <h2 className="font-display text-xl font-semibold text-ink">How a firm gets here</h2>
+        <p className="mt-3 max-w-[72ch] text-ink-muted">
+          One path, no surprises: {FUNNEL_LINE} The audit is free, the founding-cohort pilot is free,
+          and only then does a flat monthly subscription begin.
+        </p>
+        <p className="mt-3 max-w-[72ch] text-sm text-faint">
+          {GUARANTEE_THRESHOLD} find-it-free guarantee: if the free audit doesn&apos;t surface at
+          least {GUARANTEE_THRESHOLD} in estimated missed signable case value, we won&apos;t pitch a
+          subscription — and if you start one anyway, your first month is free.
+        </p>
       </section>
 
       {/* The why — the compliance argument, in lawyer-grade language */}

@@ -12,13 +12,11 @@ import {
   DELETION_DAYS,
   FOUNDER_NAME,
   FOUNDER_EMAIL,
-  AUDIT_PRICE,
-  AUDIT_WHY_PAID,
-  AUDIT_CREDIT_LINE,
+  AUDIT_FREE_LINE,
+  AUDIT_CAPACITY_LINE,
+  AUDIT_DELIVERABLES,
   GUARANTEE_CANONICAL,
   GUARANTEE_METHODOLOGY,
-  CATEGORY_NAME,
-  AUDIT_PAYMENT_URL,
 } from "@/lib/site-constants";
 
 const MAX = 10;
@@ -125,16 +123,17 @@ export default function AuditUploaderPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
       <div className="mb-8">
-        <p className="eyebrow">{CATEGORY_NAME} · Leak Audit</p>
+        <p className="eyebrow">The independent recovery desk · Intake Quality Audit</p>
         <h1 className="font-display text-3xl font-bold text-ink">
-          The {AUDIT_PRICE} Leak Audit
+          Your free Intake Quality Audit
         </h1>
         <p className="mt-2 text-muted">
-          Upload up to {MAX} recent intake calls. We run signable-case detection on each one, flag
-          the qualified callers who didn&apos;t sign, and put a dollar figure on the missed signable
-          fee value — in one report you keep. Your audio is deleted the moment it&apos;s transcribed,
-          and nothing is ever sent to your callers.
+          Send us up to {MAX} recent intake calls. A real analyst — not just a model — reviews every
+          one against our calibrated PI rubric and hands you a written report: the signable cases that
+          didn&apos;t sign, the evidence behind each flag, and what that walked-away fee revenue is
+          worth in dollars. You keep the report whether or not we ever work together.
         </p>
+        <p className="mt-2 text-sm text-faint">{AUDIT_CAPACITY_LINE}</p>
         <p className="mt-3 text-sm">
           <a href="/audit/sample" className="font-semibold text-accent hover:text-accent-hover">
             See a sample report →
@@ -144,53 +143,27 @@ export default function AuditUploaderPage() {
         {/* What you receive */}
         <div className="mt-6 rounded-sm border border-line bg-paper p-4">
           <p className="text-sm font-semibold text-ink">What you receive</p>
-          <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-muted">
-            <li><b className="text-ink">Leaked-case list:</b> every signable case our model flags that didn&apos;t sign, with the estimated fee value of each.</li>
-            <li><b className="text-ink">Intake performance readout:</b> sign-rate by score band, speed-to-answer and speed-to-callback measured from your own recordings, and where in the call cases are lost.</li>
-            <li><b className="text-ink">Follow-up protocol drafts:</b> the exact staff-sent save-protocol messages we&apos;d recommend (watermarked samples).</li>
-            <li><b className="text-ink">Benchmark context:</b> how your numbers read against sourced PI benchmarks (and, as the founding cohort grows, against anonymized SoCal peers).</li>
-          </ol>
-        </div>
-
-        {/* Price + credit mechanics */}
-        <div className="mt-4 rounded-sm border border-line bg-paper p-4">
-          <p className="text-sm font-semibold text-ink">What it costs</p>
-          <p className="mt-2 text-sm text-muted">{AUDIT_WHY_PAID}</p>
-          <p className="mt-2 text-sm text-muted">{AUDIT_CREDIT_LINE}</p>
-          <p className="mt-2 text-xs text-faint">
-            {/* TODO(Ali): wire the actual $500 collection/booking step — payment is a product/ops task, not built here. */}
+          <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-muted">
+            {AUDIT_DELIVERABLES.map((d) => (
+              <li key={d}>{d}</li>
+            ))}
+          </ul>
+          <p className="mt-3 text-sm text-muted">
+            The audit is free. A real analyst reviews every call, so we take on a limited number each
+            month.
+            {/* TODO(Ali): insert the true monthly audit-capacity number, or delete this sentence. Never invent it. */}
           </p>
         </div>
 
-        {/* $50k Find-It Guarantee — full mechanics, no buried conditions */}
+        {/* $25,000 find-it-free guarantee — full mechanics, no buried conditions */}
         <div className="mt-4 rounded-sm border border-gold/50 bg-gold-tint/40 p-4">
-          <p className="text-sm font-semibold text-ink">The $50,000 Find-It Guarantee</p>
+          <p className="text-sm font-semibold text-ink">The $25,000 find-it-free guarantee</p>
           <p className="mt-2 text-sm text-muted">{GUARANTEE_CANONICAL}</p>
           <p className="mt-2 text-xs text-muted">{GUARANTEE_METHODOLOGY}</p>
           <p className="mt-2 text-xs text-faint">
             Full methodology and our model&apos;s precision/recall are on the{" "}
             <a href="/honesty" className="font-semibold text-navy underline">calibration page</a>.
           </p>
-        </div>
-
-        {/* Primary action: pay + book. Falls back to booking by email until the
-            Stripe Payment Link is set in site-constants (AUDIT_PAYMENT_URL). */}
-        <div className="mt-6 rounded-sm border border-navy bg-navy-tint p-4">
-          <p className="text-sm font-semibold text-ink">Ready to book?</p>
-          <p className="mt-1 text-sm text-muted">
-            Pay {AUDIT_PRICE} to book your Leak Audit — credited in full to your first subscription
-            invoice, and covered by the $50,000 Find-It Guarantee.
-          </p>
-          <a
-            href={
-              AUDIT_PAYMENT_URL ||
-              `mailto:${FOUNDER_EMAIL}?subject=${encodeURIComponent("Book my $500 Leak Audit")}`
-            }
-            {...(AUDIT_PAYMENT_URL ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-            className="mt-3 inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
-          >
-            {AUDIT_PAYMENT_URL ? `Pay ${AUDIT_PRICE} & book your Leak Audit` : "Email us to book your Leak Audit"}
-          </a>
         </div>
       </div>
 
