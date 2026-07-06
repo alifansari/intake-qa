@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 88" role="img" aria-label="Signature of Ali Ansari" width="320" height="88">
+  <!-- PLACEHOLDER public mark. TODO(Ali): replace with a purpose-drawn STYLIZED
+       public mark. This must be a distinct public mark, NOT a scan of a binding
+       legal or banking signature. Typeset italic wordmark used here so nothing
+       ships that could be mistaken for an executable signature. -->
+  <text x="6" y="52" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="46" fill="#1a1a1a">Ali Ansari</text>
+  <path d="M8 66 C 90 60, 210 60, 300 64" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+</svg>
