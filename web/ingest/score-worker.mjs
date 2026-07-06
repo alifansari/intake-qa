@@ -12,8 +12,8 @@
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { scoreCall } from "../../lib/score-call.js";
+import { pathToFileURL } from "node:url";
+import { engineRoot } from "../engine-root.mjs";
 import { ensureTranscript } from "./transcribe.mjs";
 import {
   getUnscoredCalls,
@@ -26,10 +26,18 @@ import { evaluateFlag } from "../messaging/flag-logic.mjs";
 import { draftFirstMessage } from "../messaging/draft.mjs";
 import { getTemplate } from "../messaging/templates.mjs";
 
-// Firm config used to assemble the scoring prompt (root config/test-firm.md).
-const DEFAULT_FIRM_CONFIG = fileURLToPath(
-  new URL("../../config/test-firm.md", import.meta.url)
-);
+// The root engine (lib/score-call.js) lives outside web/ locally and is vendored
+// into web/.engine for the serverless bundle. Load it as a NATIVE runtime import
+// (webpackIgnore) exactly like ingest/demo.mjs, so the bundler never tries to
+// resolve the repo-root path at build time. See ../engine-root.mjs.
+function importEngine(fileName) {
+  const href = pathToFileURL(join(engineRoot(), "lib", fileName)).href;
+  return import(/* webpackIgnore: true */ /* turbopackIgnore: true */ href);
+}
+
+// Firm config used to assemble the scoring prompt (config/test-firm.md, resolved
+// from the same engine root as the engine .js files).
+const DEFAULT_FIRM_CONFIG = join(engineRoot(), "config", "test-firm.md");
 
 // Consent basis for pilot re-engagement: the caller's own inbound inquiry
 // (established business relationship). REQUIRED by the conversations schema.
@@ -39,6 +47,7 @@ const CONSENT_BASIS = "inbound_call_inquiry_EBR";
 // temp file per call (scoreCall requires an outPath) and returns the parsed obj.
 async function defaultScorer({ transcript, callId, firmConfigPath }) {
   const outDir = mkdtempSync(join(tmpdir(), "intakeqa-score-"));
+  const { scoreCall } = await importEngine("score-call.js");
   return scoreCall({
     transcript,
     callId,
