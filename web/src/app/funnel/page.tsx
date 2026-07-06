@@ -110,7 +110,7 @@ export default async function FunnelPage() {
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>
           <CardContent className="pt-5">
-            <SectionTitle>Callback rate on flagged calls, by rep</SectionTitle>
+            <SectionTitle>Callback rate on flagged calls, by teammate</SectionTitle>
             <CategoryBars data={repBars} valueFormat={(v) => `${v}%`} color={COLORS.navy} />
           </CardContent>
         </Card>

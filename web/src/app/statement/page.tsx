@@ -4,6 +4,7 @@ import { PageShell } from "@/components/page";
 import { PrintButton } from "@/components/print-button";
 import { Annotation } from "@/components/demo-mode";
 import { money } from "@/lib/format";
+import { GOLD_ATTESTATION, GOLD_RIGHT_OF_REPLY } from "@/lib/site-constants";
 
 // A printable one-page "Monthly Reconciliation Statement" styled like a bank
 // statement of intake: fees at risk, fees recovered, net leakage. The
@@ -26,6 +27,7 @@ export default async function StatementPage() {
   const stillOpen = flagged
     .filter((r) => r.outcome.outcome_code === "still_open")
     .reduce((s, r) => s + r.feeAtRisk, 0);
+  const openCount = flagged.filter((r) => r.outcome.outcome_code === "still_open").length;
   const netLeakage = walked;
 
   const lines: { label: string; detail: string; amount: number; tone: "red" | "green" | "ink" }[] = [
@@ -73,7 +75,7 @@ export default async function StatementPage() {
           <div>
             <div className="font-display text-xl font-bold">Intake QA</div>
             <div className="mt-0.5 text-xs uppercase tracking-widest text-muted">
-              Monthly Reconciliation Statement
+              Missed-Revenue Statement
             </div>
           </div>
           <div className="text-right text-xs text-muted">
@@ -81,6 +83,18 @@ export default async function StatementPage() {
             <div>{periodLabel}</div>
             <div className="mt-1">{period.length} intake calls scored</div>
           </div>
+        </div>
+
+        {/* Page-one opening (Gold iv) */}
+        <div className="border-b border-line px-8 py-5">
+          <p className="max-w-[60ch] font-display text-lg leading-snug text-ink">
+            Your firm recovered <span className="text-green">{fees.conservativeCount}</span> signable
+            cases this period, worth an estimated{" "}
+            <span className="text-green">{money(fees.conservative)}</span> in fees.{" "}
+            <span className="text-muted">
+              {openCount} more were flagged and are still open.
+            </span>
+          </p>
         </div>
 
         {/* Ledger */}
@@ -146,8 +160,24 @@ export default async function StatementPage() {
           </div>
         </div>
 
+        {/* Right of Reply + narrow attestation + signature */}
+        <div className="space-y-4 border-t border-line px-8 py-6">
+          <div>
+            <div className="eyebrow">Right of reply</div>
+            <p className="mt-1 max-w-[70ch] text-xs leading-relaxed text-muted">{GOLD_RIGHT_OF_REPLY}</p>
+          </div>
+          <div>
+            <div className="eyebrow">Attestation</div>
+            <p className="mt-1 max-w-[70ch] text-xs leading-relaxed text-muted">{GOLD_ATTESTATION}</p>
+          </div>
+          <div className="pt-1">
+            <div className="font-display text-sm font-semibold text-ink">Ali F. Ansari</div>
+            <div className="text-xs text-muted">Analyst of Record · Plaintiff Ops LLC</div>
+          </div>
+        </div>
+
         <div className="border-t border-line px-8 py-3 text-center text-[11px] text-faint">
-          Reconciled against confirmed outcomes · conservative recovery basis · Intake QA
+          Reconciled against confirmed outcomes · conservative recovery basis · a service of Plaintiff Ops LLC
         </div>
       </div>
 
