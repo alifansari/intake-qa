@@ -6,6 +6,7 @@ const NAV = [
   { href: "/desk/queue", label: "Leaked-case queue" },
   { href: "/desk/documents", label: "Statements & readouts" },
   { href: "/desk/reconciliation", label: "Calls & reconciliation" },
+  { href: "/desk/review", label: "Review queue" },
   { href: "/desk/settings", label: "Settings" },
 ];
 

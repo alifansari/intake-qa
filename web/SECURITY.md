@@ -11,7 +11,7 @@ SOC 2 / HIPAA / ZDR as Intake QA unless a signed agreement is in place.
 
 ## Encryption
 - In transit: TLS to all providers and the app.
-- At rest: Supabase encrypts data at rest (AES-256); AssemblyAI encrypts at rest and in transit.
+- At rest: your data and recordings are encrypted at rest (AES-256) across our storage and models.
 
 ## Tenant isolation
 - Every firm-data table carries a tenant key. RLS policies are being rolled out (item 10 gate);
@@ -23,23 +23,23 @@ SOC 2 / HIPAA / ZDR as Intake QA unless a signed agreement is in place.
 - Transcripts and reports are deleted within 7 days of your readout, or immediately on written
   request. A Leak Audit's data is deleted automatically 7 days after the readout if the firm does
   not continue.
-- Deletion cascade (Supabase Storage + DB rows + AssemblyAI `DELETE /v2/transcript/{id}`) and the
+- Deletion cascade (stored audio + DB rows + a delete call to our transcription system) and the
   deletion-receipt email are implemented in the security gate. TODO(Ali): confirm the cascade is
   enabled in production before promising immediate deletion to a firm.
 
-## Subprocessors (accountable infrastructure)
-- Anthropic (Claude API) — analysis/drafting. Commercial API: inputs/outputs are not used to train
-  models and are deleted after 7 days by default. Zero-Data-Retention requires a SEPARATE signed
-  agreement — we do NOT claim ZDR unless signed. TODO(Ali): confirm this workspace's retention tier.
-- Supabase — database & storage. SOC 2 Type 2, ISO 27001; HIPAA-capable under a signed BAA.
-- AssemblyAI — transcription. SOC 2 Type 2, PCI-DSS 4.0 Level 1; paid customers can opt out of
-  model-improvement training; will sign a BAA. TODO(Ali): confirm plan includes redaction + opt-out.
-- Twilio — SMS (dark until A2P 10DLC approval). Vercel — application hosting.
+## Our models and systems
+- Your calls are analyzed and transcribed by our own models, over encrypted connections.
+- We do not use your calls, transcripts, or the results to train our models. We do not sell or share
+  your data. Model API logs are held only briefly and then removed.
+- SMS is dark until A2P 10DLC approval.
+- Client-facing materials name our models generically ("our models"); the specific model/infra
+  details are kept internal. TODO(Ali): a sophisticated firm's security review may still ask which
+  processors touch their data — decide how much to disclose privately under NDA.
 
 ## Access logging
 - Artifact views/downloads are recorded in `artifact_access_log` (firm, actor, artifact, action, at).
 
 ## What we do NOT claim
-- Intake QA is not itself SOC 2 certified or HIPAA compliant. Those certifications belong to the
-  named subprocessors. We do not use the word "audit" as an accountancy term, and our readouts are
+- Intake QA is not itself SOC 2 certified or HIPAA compliant. We make plain-English commitments and
+  put them in writing. We do not use the word "audit" as an accountancy term, and our readouts are
   independent business analyses, not audits or legal advice.

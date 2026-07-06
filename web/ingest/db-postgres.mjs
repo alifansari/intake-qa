@@ -1149,3 +1149,30 @@ export async function getFeeValueRange(db, caseType, firmId = null) {
   );
   return r.rows[0];
 }
+
+// ── Report review gate (migration 0016) — Postgres twins. ─────────────────────
+export async function getReportStatus(db, sessionId) {
+  const r = await db.query(
+    "SELECT report_status, released_at, released_by FROM audit_sessions WHERE id = $1",
+    [sessionId]
+  );
+  return r.rows[0] ?? null;
+}
+
+export async function setReportStatus(db, sessionId, status, { releasedBy = null, now = null } = {}) {
+  if (status === "released") {
+    await db.query(
+      "UPDATE audit_sessions SET report_status = $1, released_at = $2, released_by = $3 WHERE id = $4",
+      [status, now ?? new Date().toISOString(), releasedBy, sessionId]
+    );
+  } else {
+    await db.query("UPDATE audit_sessions SET report_status = $1 WHERE id = $2", [status, sessionId]);
+  }
+}
+
+export async function listReviewableSessions(db) {
+  const r = await db.query(
+    "SELECT id, token, email, report_status, created_at FROM audit_sessions WHERE report_status IN ('draft','analyst_review') ORDER BY created_at DESC LIMIT 100"
+  );
+  return r.rows;
+}

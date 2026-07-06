@@ -19,8 +19,8 @@ export const metadata: Metadata = {
 
 const STEPS: [string, string, string][] = [
   ["Call arrives", "Every intake call comes in through your existing phone system or a manual upload.", "Nothing changes about how your clients reach you."],
-  ["Transcribed", "AssemblyAI produces a speaker-separated transcript.", "The audio is deleted the moment the transcript exists."],
-  ["Scored 0–100", "Claude scores the call against a frozen, calibrated rubric with gold-standard examples.", "The rubric is version-locked — scores don't drift under you."],
+  ["Transcribed", "Our transcription model produces a speaker-separated transcript.", "The audio is deleted the moment the transcript exists."],
+  ["Scored 0–100", "Our model scores the call against a frozen, calibrated rubric with gold-standard examples.", "The rubric is version-locked — scores don't drift under you."],
   ["Signable-case detection", "A case is flagged when signability ≥60, it wasn't converted, and it's within 72 hours.", "Pure, inspectable logic — not a black box."],
   ["Same-day save protocol drafted", "We draft a ≤320-char follow-up that names your firm and includes “Reply STOP” — a follow-up your staff reviews and sends, never automated.", "A banned-content guard blocks guarantees, legal advice, and fee claims."],
   ["A human approves", "Someone on your team approves, edits, or rejects every message before anything sends.", "No autonomous sends — ever, in pilot."],

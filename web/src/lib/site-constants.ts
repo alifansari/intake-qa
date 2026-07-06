@@ -117,32 +117,9 @@ export const DELETION_LINE = `Call audio is deleted the moment it's transcribed;
 // TODO(Ali): confirm the breach-notification timeline you can actually commit to.
 export const BREACH_NOTICE_HOURS = 72;
 
-// ─── The accountable-party line (subprocessor reframe) ───
+// ─── The accountable-party line (single-accountable-party framing) ───
 export const ACCOUNTABLE_PARTY_LINE =
-  "Your calls are handled by Intake QA. We use three infrastructure providers under contract — the same category of vendors your CRM and transcription tools already rely on — and we remain the single party accountable to you.";
-
-// ─── Named subprocessors (detail lives on the Security page only) ───
-export type Subprocessor = { name: string; role: string; posture: string };
-export const SUBPROCESSORS: Subprocessor[] = [
-  {
-    name: "Anthropic (Claude API)",
-    role: "Analysis & drafting",
-    posture:
-      "Commercial API — inputs and outputs are not used to train models and are deleted after 7 days by default; Zero-Data-Retention and a HIPAA BAA are available (Anthropic Privacy Center / Platform Docs).",
-  },
-  {
-    name: "Supabase",
-    role: "Database & storage",
-    posture:
-      "SOC 2 Type 2 and ISO 27001; AES-256 at rest, TLS in transit; HIPAA-capable under a signed BAA (supabase.com/security).",
-  },
-  {
-    name: "AssemblyAI",
-    role: "Transcription",
-    posture:
-      "SOC 2 Type 2 and PCI-DSS 4.0 Level 1 (as of Mar. 31, 2025), GDPR; AES-256 at rest, TLS 1.3 in transit; paid customers opt out of model-improvement training; will sign a BAA (assemblyai.com/security).",
-  },
-];
+  "Your calls are handled by Intake QA, and we're the single party accountable for them. Your recordings run through our own analysis and transcription models, encrypted in transit and at rest, and are never used to train our models.";
 
 // ─── SMS / texting posture ───
 export const A2P_LINE =
