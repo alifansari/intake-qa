@@ -12,7 +12,7 @@ import {
 export const metadata: Metadata = {
   title: "How it works: what lands on your desk | Intake QA",
   description:
-    "Case Acquisition Intelligence in practice: signable-case detection on every call, a staff-sent same-day save protocol, and a monthly missed-revenue statement that reads like a P&L for your intake.",
+    "How Intake QA works: we score every intake call, flag the signable cases that slipped, send a same-day Recoverable-Lead Alert your team approves before anything sends, and hand you a monthly Missed-Revenue Statement that reads like a P&L for your intake.",
   alternates: { canonical: "/how-it-works" },
 };
 

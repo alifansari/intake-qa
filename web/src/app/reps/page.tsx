@@ -1,7 +1,8 @@
-// Rep scoreboard (Phase 6) — the coaching view. Per-rep callback rate, median
-// time-to-callback, 15-minute SLA hit rate, and sign rate on flagged calls, so an
-// owner can see who follows up fast and who lets signable cases cool. Reads the
-// reconciled dashboard data (same source as the Recovery Funnel).
+// Team Coaching (Phase 6) — the coaching view. Callback rate, median
+// time-to-callback, 15-minute SLA hit rate, and sign rate on flagged calls, so a
+// team can see where the process slows down and fix it together. Reads the
+// reconciled dashboard data (same source as the Recovery Funnel). Just-culture:
+// we score the call, not the colleague; the number that matters is callback speed.
 
 import { getReconciledCalls } from "@/lib/data";
 import { repScoreboard } from "@/lib/metrics";
@@ -10,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { pct } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Rep scoreboard — Intake QA" };
+export const metadata = { title: "Team Coaching — Intake QA" };
 
 function hrs(h: number | null): string {
   if (h == null) return "—";
@@ -24,13 +25,18 @@ export default async function RepsPage() {
 
   return (
     <PageShell>
-      <PageHeader kicker="Coaching" title="Rep scoreboard" />
+      <PageHeader kicker="Coaching" title="Team Coaching" />
       <Card>
         <CardContent className="pt-5">
-          <SectionTitle>Speed to lead, by rep</SectionTitle>
+          <p className="mb-4 rounded-sm border border-line bg-paper p-3 text-sm text-ink">
+            We score the call, not the colleague. Each number points to one fixable step and the
+            moment it happened, never a verdict on a person. Most misses are system misses. The
+            number that matters is callback speed, because that is the one we can fix together.
+          </p>
+          <SectionTitle>Callback speed, by teammate</SectionTitle>
           <p className="mb-4 mt-1 text-sm text-muted">
-            Over flagged (leaked-signable) calls. Faster callbacks recover more cases — the
-            SLA target is a callback within 15 minutes.
+            Over flagged (leaked-signable) calls. Faster callbacks recover more cases. The SLA
+            target is a callback within 15 minutes.
           </p>
           {reps.length === 0 ? (
             <p className="text-sm text-muted">No flagged calls yet.</p>
@@ -39,7 +45,7 @@ export default async function RepsPage() {
               <table className="w-full min-w-[560px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-line text-xs uppercase tracking-wide text-muted">
-                    <th className="py-2 pr-3">Rep</th>
+                    <th className="py-2 pr-3">Teammate</th>
                     <th className="py-2 pr-3">Flagged</th>
                     <th className="py-2 pr-3">Callback rate</th>
                     <th className="py-2 pr-3">Median callback</th>

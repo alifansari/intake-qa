@@ -62,12 +62,10 @@ export const WHO_DOES_THE_WORK =
 // Confirmed by Ali (July 2026): he personally reviews 100% of statements/readouts
 // at current cohort size. Revisit this wording if that stops holding at scale.
 
-// ─── Category (staged DOWN to a supporting phrase — NOT a hero claim) ────────
-// Use only as descriptive supporting vocabulary, grounded in a deliverable.
-// Do not proclaim it as an established market category from a pre-revenue start.
-export const CATEGORY_NAME = "Case Acquisition Intelligence";
-export const CATEGORY_DEFINITION =
-  "measuring what happens to a signable case after the phone rings: which qualified callers didn't sign, across every channel, and what that walked-away fee revenue is worth.";
+// ─── What we do (plain description; the "Case Acquisition Intelligence" category
+// label is retired per the Round 7 master edit — banned as jargon). ────────────
+export const WHAT_WE_DO =
+  "We measure what happens to a signable case after the phone rings: which qualified callers didn't sign, across every channel, and what that walked-away fee revenue is worth.";
 
 // ─── The Leak Audit offer (FREE) ─────────────────────────────────────────────
 export const AUDIT_NAME = "Intake Quality Audit";

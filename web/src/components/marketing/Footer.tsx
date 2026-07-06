@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/faq", label: "FAQ" },
   { href: "/demo", label: "Demo" },
   { href: "/concierge", label: "Concierge" },
+  { href: "/for-callers", label: "For callers" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
 ];
@@ -41,8 +42,10 @@ export function Footer() {
           ))}
         </nav>
         <p className="mt-6 max-w-[80ch] text-xs text-faint">
-          This is not legal advice. Intake QA gives PI firms tools to run their own compliant
-          follow-up; your firm and its counsel make the final call on ethics and consent. © {COPYRIGHT_YEAR} Intake QA.
+          Intake QA is a service of Plaintiff Ops LLC. Estimates and calibration figures are not
+          legal advice; your firm and its counsel make the final call on ethics and consent. Texting
+          features activate only after your A2P 10DLC registration is approved. © {COPYRIGHT_YEAR}{" "}
+          Plaintiff Ops LLC.
         </p>
       </div>
     </footer>
