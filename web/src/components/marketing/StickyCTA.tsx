@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CTA_PRIMARY } from "@/lib/site-constants";
 
-// Persistent primary CTA — appears after 600px of scroll on mobile + desktop.
+// Persistent primary CTA, appears after 600px of scroll on mobile + desktop.
 // No animation beyond a fade; respects reduced-motion via the global CSS rule.
 export function StickyCTA() {
   const [shown, setShown] = useState(false);

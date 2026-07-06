@@ -20,15 +20,15 @@ export function StatementDoc({ d }: { d: DocData }) {
   const id = statementId(d.firmCode, d.year, d.seq);
   const metricName = (k: string) => INTAKE_METRICS.find((m) => m.key === k)?.name ?? k;
   return (
-    <Document title={`Missed-Revenue Statement — ${d.firmName} — ${d.periodLabel}`} language="en">
+    <Document title={`Missed-Revenue Statement: ${d.firmName}, ${d.periodLabel}`} language="en">
       <DocPage docId={id}>
         {/* Header block */}
         <Text style={S.h1}>{d.firmName}</Text>
         <Text style={{ ...S.serif, fontSize: 14, marginTop: 2 }}>Missed-Revenue Statement</Text>
         <Text style={S.metaLine}>
-          Period: {d.periodLabel}  (calls received {fmtDate(d.periodStart)}{"–"}{fmtDate(d.periodEnd)})
+          Period: {d.periodLabel}  (calls received {fmtDate(d.periodStart)}{" to "}{fmtDate(d.periodEnd)})
         </Text>
-        <Text style={S.metaLine}>Prepared by Intake QA — Independent Recovery Desk</Text>
+        <Text style={S.metaLine}>Prepared by Intake QA · Independent Recovery Desk</Text>
         <Text style={S.metaLine}>Statement No. {id}</Text>
 
         {/* Executive summary — EXACTLY three numbers */}
@@ -75,7 +75,7 @@ export function StatementDoc({ d }: { d: DocData }) {
           {/* Qualifying facts with citations, per case */}
           {d.leaks.map((l) => (
             <View key={`facts-${l.callerId}`} style={{ marginTop: 6 }} wrap={false}>
-              <Text style={{ fontSize: 8, color: COLORS.ink }}>{l.callerInitials} · {l.callerId} — qualifying facts</Text>
+              <Text style={{ fontSize: 8, color: COLORS.ink }}>{l.callerInitials} · {l.callerId} · qualifying facts</Text>
               {l.qualifyingFacts.map((f, i) => (
                 <Text key={i} style={{ fontSize: 8, color: COLORS.muted, marginLeft: 8 }}>
                   • {f.text} {f.cite}

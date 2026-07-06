@@ -1,4 +1,4 @@
-// Founding-cohort banner. Honest, durable language — no countdown, no "N seats
+// Founding-cohort banner. Honest, durable language. No countdown, no "N seats
 // left" that stops being true in six months. Copy comes from site-constants.
 
 import Link from "next/link";

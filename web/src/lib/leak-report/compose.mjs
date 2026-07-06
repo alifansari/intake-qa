@@ -43,7 +43,7 @@ export function lintNoStaffNames(texts) {
   for (const t of texts) {
     const s = String(t ?? "");
     if (BLAME_VERB.test(s) || NAMED_ROLE.test(s)) {
-      throw new Error(`system-not-person lint: findings must be process-level, not individual blame — offending text: "${s.slice(0, 80)}"`);
+      throw new Error(`system-not-person lint: findings must be process-level, not individual blame. Offending text: "${s.slice(0, 80)}"`);
     }
   }
 }
@@ -54,7 +54,7 @@ const RECOMMENDED = {
   "transfer-dropped": "Have staff re-contact and complete the intake that the dropped transfer interrupted.",
   "quote-only-no-close": "Have staff call back to set a concrete next step and offer to sign.",
   "language-mismatch": "Route the callback to a bilingual staffer and send the Spanish follow-up draft.",
-  "statute-urgency-missed": "Escalate immediately — the statute clock is closing; place the callback today.",
+  "statute-urgency-missed": "Escalate immediately: the statute clock is closing; place the callback today.",
   "qualification-incomplete": "Have staff call back to finish screening the qualifying facts.",
 };
 
@@ -176,7 +176,7 @@ export function composeLeakReport(data, { now = "2026-07-05" } = {}) {
       subtotalLow: feeLow,
       subtotalHigh: feeHigh,
       exclusions: [
-        ...moderate.map((l) => ({ label: `${l.callerInitials} · ${l.caseType}`, reason: "moderate confidence — excluded from totals" })),
+        ...moderate.map((l) => ({ label: `${l.callerInitials} · ${l.caseType}`, reason: "moderate confidence, excluded from totals" })),
         ...expired.map((l) => ({ label: `${l.callerInitials} · ${l.caseType}`, reason: "statute expired" })),
       ],
       headlineLow: feeLow, // visibly equals the sum of the shown strong, non-expired rows

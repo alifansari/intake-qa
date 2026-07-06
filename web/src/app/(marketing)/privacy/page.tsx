@@ -15,7 +15,7 @@ export default function PrivacyPage() {
       <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink">Privacy</h1>
       <p className="mt-6 text-ink-muted">
         We minimize what we hold. Your recordings and transcripts are deleted within {DELETION_DAYS}{" "}
-        days of your readout — or immediately, on written request; if you move to a pilot, the data carries
+        days of your readout, or immediately, on written request; if you move to a pilot, the data carries
         over under the pilot agreement and the same deletion right applies. Data is encrypted in
         transit and at rest with per-firm isolation, and your calls are analyzed by our own models and
         are never used to train them. A DPA is available.
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
         For our full data-handling posture, see{" "}
         <Link href="/security" className="font-semibold text-accent hover:text-accent-hover">Security</Link>.
       </p>
-      <p className="mt-4 text-sm text-faint">This page is a placeholder summary; the executed DPA controls.</p>
+      <p className="mt-4 text-sm text-faint">This page is a plain-language summary; the executed DPA controls.</p>
     </div>
   );
 }

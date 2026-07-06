@@ -42,7 +42,7 @@ export function WaterfallChart({ steps = DEFAULT_STEPS }: { steps?: Step[] }) {
       </div>
       <figcaption className="mt-4 text-xs text-faint">
         Illustrative: fee value surviving each step from flagged to signed. The red figures are the
-        recoverable fees that leak at each drop-off — where Intake QA intervenes.
+        recoverable fees that leak at each drop-off, where Intake QA intervenes.
       </figcaption>
     </figure>
   );

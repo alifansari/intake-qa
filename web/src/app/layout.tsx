@@ -7,7 +7,7 @@ import { DemoModeProvider } from "@/components/demo-mode";
 // Fraunces: editorial serif display (optical sizing on) for headlines.
 // Inter: quiet, legible body/UI sans. IBM Plex Mono: tabular figures for every
 // dollar amount, stat, and chart axis. Self-hosted via next/font, display:swap,
-// preloaded — no layout shift.
+// preloaded, no layout shift.
 const serif = Fraunces({
   variable: "--font-serif",
   subsets: ["latin"],
@@ -34,9 +34,9 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://intake-qa.vercel.app"),
-  title: "Intake QA — the independent recovery desk for PI firms",
+  title: "Intake QA: the independent recovery desk for PI firms",
   description:
-    "Everyone you pay to handle your intake grades their own work. Intake QA is the independent desk that checks the whole board against what actually got signed — and finds the signable cases that walked. Run your free Intake Quality Audit.",
+    "Everyone you pay to handle your intake grades their own work. Intake QA is the independent desk that checks the whole board against what actually got signed, and finds the signable cases that walked. Run your free Intake Quality Audit.",
 };
 
 export default function RootLayout({

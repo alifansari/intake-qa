@@ -17,20 +17,20 @@
 // ─── Positioning: the independent recovery desk ──────────────────────────────
 export const DESK_NAME = "the independent recovery desk";
 export const INDEPENDENCE_LINE =
-  "The AI receptionist grades its own calls. The agency grades its own leads. Your staff grade their own follow-up. Nobody checks the whole board against what actually got signed. Intake QA is the independent desk that does — and finds the signable cases that walked.";
+  "The AI receptionist grades its own calls. The agency grades its own leads. Your staff grade their own follow-up. Nobody checks the whole board against what actually got signed. Intake QA is the independent desk that does, and finds the signable cases that walked.";
 // The four things that differentiate the desk (state precisely; no disparagement).
 export const DIFFERENTIATORS: { title: string; body: string }[] = [
   {
     title: "Independence",
-    body: "We have no stake in the answer. We're paid the same flat fee regardless of what the audit finds — unlike the AI receptionist grading its own calls, the agency grading its own leads, or staff grading their own follow-up.",
+    body: "We have no stake in the answer. We're paid the same flat fee regardless of what the audit finds, unlike the AI receptionist grading its own calls, the agency grading its own leads, or staff grading their own follow-up.",
   },
   {
     title: "Full-population coverage",
-    body: "We score 100% of your intake calls across every channel — including the ones your team answered live at 2pm — not just the calls one tool happened to handle.",
+    body: "We score 100% of your intake calls across every channel, including the ones your team answered live at 2pm, not just the calls one tool happened to handle.",
   },
   {
     title: "Outcome reconciliation",
-    body: "We reconcile calls against the fee agreements that actually got signed weeks later — so a flag means a signable case that truly walked, not a self-graded guess at capture time.",
+    body: "We reconcile calls against the fee agreements that actually got signed weeks later, so a flag means a signable case that truly walked, not a self-graded guess at capture time.",
   },
   {
     title: "Forensic recovery",
@@ -44,7 +44,7 @@ export const CATEGORY_BOUNDARY_LINE =
 export const OBJECTIONS: { q: string; a: string }[] = [
   {
     q: "My AI receptionist already scores calls.",
-    a: "It scores the calls it answered, and it's grading its own homework. We score 100% of your calls across every channel — including the ones your team answered live at 2pm — and we reconcile them against who actually signed.",
+    a: "It scores the calls it answered, and it's grading its own homework. We score 100% of your calls across every channel, including the ones your team answered live at 2pm, and we reconcile them against who actually signed.",
   },
   {
     q: "My agency reports on lead quality.",
@@ -58,7 +58,7 @@ export const OBJECTIONS: { q: string; a: string }[] = [
 
 // ─── Who does the work (productized service; name Ali) ───────────────────────
 export const WHO_DOES_THE_WORK =
-  "Every audit and every monthly statement is reviewed by Ali — Intake QA's founder and analyst of record, a former PI paralegal who sat in the intake seat. The software does the listening at scale; a human who knows what a signable case sounds like decides what to flag and signs off on what you read.";
+  "Every audit and every monthly statement is reviewed by Ali, Intake QA's founder and analyst of record, a former PI paralegal who sat in the intake seat. The software does the listening at scale; a human who knows what a signable case sounds like decides what to flag and signs off on what you read.";
 // Confirmed by Ali (July 2026): he personally reviews 100% of statements/readouts
 // at current cohort size. Revisit this wording if that stops holding at scale.
 
@@ -74,7 +74,7 @@ export const AUDIT_NAME = "Intake Quality Audit";
 // Single primary CTA sitewide.
 export const CTA_PRIMARY = "Run your free Intake Quality Audit";
 export const AUDIT_FREE_LINE =
-  "Send us up to 10 recent intake calls. A real analyst — not just a model — reviews every one against our calibrated PI rubric and hands you a written report: the signable cases that didn't sign, the evidence behind each flag, and what that walked-away fee revenue is worth in dollars. You keep the report whether or not we ever work together.";
+  "Send us up to 10 recent intake calls. A real analyst, not just a model, reviews every one against our calibrated PI rubric and hands you a written report: the signable cases that didn't sign, the evidence behind each flag, and what that walked-away fee revenue is worth in dollars. You keep the report whether or not we ever work together.";
 // Honest capacity, not fake scarcity. Confirmed by Ali (July 2026): 8/month.
 export const AUDIT_CAPACITY = 8;
 export const AUDIT_CAPACITY_LINE = `Because a real analyst reviews every call, we take on up to ${AUDIT_CAPACITY} audits each month.`;
@@ -94,9 +94,9 @@ export const FUNNEL_LINE =
 // FTC §5 / CA §17500 earnings claims and §§6151–6152 / SB 37 outcome-fee optics).
 export const GUARANTEE_THRESHOLD = "$25,000";
 export const GUARANTEE_CANONICAL =
-  "The $25,000 find-it-free guarantee: if your free Intake Quality Audit doesn't identify at least $25,000 in estimated missed signable case value, we won't pitch you a subscription — and if you start one anyway, your first month is free. “Estimated missed signable case value” is an estimate of what walked, calculated from your own average fee per case type (or named industry benchmarks where we don't have it) — not a promise of what we'll recover.";
+  "The $25,000 find-it-free guarantee: if your free Intake Quality Audit doesn't identify at least $25,000 in estimated missed signable case value, we won't pitch you a subscription, and if you start one anyway, your first month is free. “Estimated missed signable case value” is an estimate of what walked, calculated from your own average fee per case type (or named industry benchmarks where we don't have it). It is not a promise of what we'll recover.";
 export const GUARANTEE_BADGE_LINE =
-  "$25,000 find-it-free guarantee — if the audit doesn't surface at least $25k in estimated missed signable case value, we won't pitch you, and if you subscribe anyway your first month is free. An estimate of what walked, not a promise of recovery.";
+  "$25,000 find-it-free guarantee: if the audit doesn't surface at least $25k in estimated missed signable case value, we won't pitch you, and if you subscribe anyway your first month is free. An estimate of what walked, not a promise of recovery.";
 export const GUARANTEE_METHODOLOGY =
   "How we estimate missed signable case value: we count the signable cases our model flags that didn't sign, then multiply by your firm's own average fee per signed case for that case type. Where you haven't given us your average fee, we substitute a named, sourced benchmark (e.g., auto soft-tissue ~$16,000; serious injuries $55,000+) and label every substituted figure. Estimates are estimates, not a promise of recovered fees; our model's precision and recall are published on this page.";
 // TODO(Ali): collect each firm's average fee per case type (guarantee methodology input).
@@ -105,7 +105,7 @@ export const GUARANTEE_METHODOLOGY =
 export const COHORT_MIN = 3;
 export const COHORT_MAX = 5;
 export const PILOT_DAYS = 30;
-export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MIN}–${COHORT_MAX} Southern California PI firms onto free ${PILOT_DAYS}-day pilots.`;
+export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MIN} to ${COHORT_MAX} Southern California PI firms onto free ${PILOT_DAYS}-day pilots.`;
 
 // ─── Data handling (one reconciled promise) ──────────────────────────────────
 export const DELETION_DAYS = 7;
@@ -121,7 +121,7 @@ export const ACCOUNTABLE_PARTY_LINE =
 
 // ─── SMS / texting posture ───
 export const A2P_LINE =
-  "Texting activates only after your A2P 10DLC registration is approved — and even then, nothing sends without a person on your team approving it first.";
+  "Texting activates only after your A2P 10DLC registration is approved, and even then nothing sends without a person on your team approving it first.";
 
 // ─── PI-intake benchmarks (each carries its named ORIGIN source) ─────────────
 
@@ -130,7 +130,7 @@ export const A2P_LINE =
 // other Clio figure elsewhere.
 export const STAT_ANSWER_RATE = {
   value: "48%",
-  label: "of firms were essentially unreachable by phone — never answered a call and never called back",
+  label: "of firms were essentially unreachable by phone: they never answered a call and never called back",
   source: "Clio 2024 Legal Trends Report (Lux secret-shopper study of 500 US firms)",
 };
 
@@ -148,10 +148,10 @@ export const STAT_SPEED_TO_LEAD = {
 export const STAT_PI_COST_PER_CASE = {
   value: "$468",
   label: "blended cost to acquire one signed PI case (at $284 per lead and a 7% conversion rate; blends channels)",
-  source: "Pareto Legal, \"State of Law Firm PPC\" — 13 plaintiff-side firms, $3.3M combined Google Ads + LSA spend, 2025",
+  source: "Pareto Legal, \"State of Law Firm PPC\": 13 plaintiff-side firms, $3.3M combined Google Ads + LSA spend, 2025",
 };
 export const STAT_PI_PPC_COST_PER_CASE = {
-  value: "$2,500–$3,000",
+  value: "$2,500 to $3,000",
   label: "cost to acquire one signed PI case in competitive PPC-only markets",
   source: "The National Law Review, 2025",
 };
@@ -165,8 +165,8 @@ export const STAT_WEBRIS_DISTRUST = {
 // Confirmed by Ali (July 2026): publish LA-metro 34.5% (USAFacts/ACS 2019–2023).
 export const STAT_LA_SPANISH = {
   value: "34.5%",
-  label: "of people age 5+ in the Los Angeles–Long Beach–Anaheim metro speak Spanish at home (~4.2M people)",
-  source: "USAFacts, 2019–2023 American Community Survey",
+  label: "of people age 5+ in the Los Angeles-Long Beach-Anaheim metro speak Spanish at home (about 4.2M people)",
+  source: "USAFacts, 2019-2023 American Community Survey",
 };
 
 // ─── Calibration / test corpus ───
@@ -188,7 +188,7 @@ export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = 
   },
   {
     title: "Intake-team scorecards",
-    body: "Improvement trending that makes the manager look good — credit lands where it's earned.",
+    body: "Improvement trending that makes the manager look good, so credit lands where it's earned.",
     status: "In development with the founding cohort.",
   },
   {
@@ -204,13 +204,13 @@ export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = 
   {
     title: "Save-protocol conversion tracking",
     body: "Once A2P 10DLC clears, we track how many saved cases the protocol actually recovers.",
-    status: "Gated on A2P 10DLC approval — pending.",
+    status: "Gated on A2P 10DLC approval (pending).",
   },
 ];
 
 // ─── Intake-manager champion framing ─────────────────────────────────────────
 export const CHAMPION_LINE =
-  "This isn't a gotcha. High-volume intake means good cases slip — that's math, not a character flaw. The desk gives your manager proof of the workload, coaching clips built from your team's own best calls, and a monthly scorecard that shows the improvement so the credit lands where it's earned.";
+  "This isn't a gotcha. High-volume intake means good cases slip. That's math, not a character flaw. The desk gives your manager proof of the workload, coaching clips built from your team's own best calls, and a monthly scorecard that shows the improvement so the credit lands where it's earned.";
 
 // ─── Pricing (outcome-decoupled: flat monthly, tiered by analyzed-call volume) ───
 // NEVER a per-recovered-case, per-signed-client, or percentage-of-recovery fee.
@@ -280,11 +280,11 @@ export const PRICING_TIERS: PricingTier[] = [
 export const REF_MONTHLY_USD = 900;
 // The compliance argument for the pricing model, in lawyer-grade language.
 export const PRICING_COMPLIANCE_ARGUMENT =
-  "We deliberately do not charge per case, per signed client, or per recovered dollar. Our fee is a flat monthly subscription for a QA and recovery service on your own existing callers — it does not change whether you sign zero cases or fifty. Because our compensation is not tied to procuring or recovering any case, it isn't a share of a fee under CA Rule 5.4 and can't be characterized as paying a runner or capper under California Business & Professions Code §§6151–6152 (as strengthened by SB 37). You pay us a flat fee for a service, the same way you pay your answering service or your CRM.";
+  "We deliberately do not charge per case, per signed client, or per recovered dollar. Our fee is a flat monthly subscription for a QA and recovery service on your own existing callers. It does not change whether you sign zero cases or fifty. Because our compensation is not tied to procuring or recovering any case, it isn't a share of a fee under CA Rule 5.4 and can't be characterized as paying a runner or capper under California Business & Professions Code §§6151-6152 (as strengthened by SB 37). You pay us a flat fee for a service, the same way you pay your answering service or your CRM.";
 
 // ─── Cost comparables (2026-verified; anchor the flat monthly fee) ───
 export const PRICING_ANCHOR_LINE =
-  "For comparison: AI receptionist tools run about $95–$400/mo, call-intelligence add-ons $50–$195/mo, and PI firms commonly spend $500–$2,000/mo on their CRM and intake platforms. A flat monthly desk fee sits inside the tool budget your firm already carries.";
+  "For comparison: AI receptionist tools run about $95 to $400/mo, call-intelligence add-ons $50 to $195/mo, and PI firms commonly spend $500 to $2,000/mo on their CRM and intake platforms. A flat monthly desk fee sits inside the tool budget your firm already carries.";
 
 // ─── Accountable human ───
 export const FOUNDER_NAME = "Ali";

@@ -6,7 +6,7 @@ import { ACCOUNTABLE_PARTY_LINE, CTA_PRIMARY } from "@/lib/site-constants";
 export const metadata: Metadata = {
   title: "The compliance case for Intake QA (California)",
   description:
-    "Built on California authority: runner/capper and outcome-decoupled pricing (B&P §§6151–6152, SB 37), Rules 7.2/7.3 solicitation, confidentiality (1.18/1.6), vendor supervision (5.3), GenAI ethics (CA State Bar guidance + ABA Formal Op. 512), §632 recording, and the current TCPA posture.",
+    "Built on California authority: runner/capper and outcome-decoupled pricing (B&P §§6151-6152, SB 37), Rules 7.2/7.3 solicitation, confidentiality (1.18/1.6), vendor supervision (5.3), GenAI ethics (CA State Bar guidance + ABA Formal Op. 512), §632 recording, and the current TCPA posture.",
   alternates: { canonical: "/compliance" },
 };
 
@@ -16,7 +16,7 @@ function Sec({ rule, title, children }: { rule: string; title: string; children:
       <p className="eyebrow">{rule}</p>
       <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">{title}</h2>
       <div className="mt-4 max-w-[72ch] space-y-4 text-ink-muted">{children}</div>
-      <p className="mt-5 text-sm text-faint">Confirm with your own counsel — your firm makes the final call.</p>
+      <p className="mt-5 text-sm text-faint">Confirm with your own counsel. Your firm makes the final call.</p>
     </section>
   );
 }
@@ -35,7 +35,7 @@ export default function CompliancePage() {
         its own.
       </p>
 
-      <Sec rule="B&P §§6151–6152 · runner / capper · SB 37 (2026)" title="Our fee is flat and monthly. It is never tied to whether you sign or recover a case.">
+      <Sec rule="B&P §§6151-6152 · runner / capper · SB 37 (2026)" title="Our fee is flat and monthly. It is never tied to whether you sign or recover a case.">
         <p>
           This is the design decision that matters most. California Business &amp; Professions Code
           §6151 defines a &ldquo;runner or capper&rdquo; as a person or entity acting{" "}
@@ -48,37 +48,37 @@ export default function CompliancePage() {
           So we don&apos;t structure our fee that way. Intake QA charges a flat monthly subscription
           to analyze your calls. It does not change whether you sign zero cases or fifty. Because
           our compensation is not tied to procuring or recovering any case, it cannot fairly be
-          characterized as payment to an agent for soliciting or procuring clients under §§6151–6152.
+          characterized as payment to an agent for soliciting or procuring clients under §§6151-6152.
           You pay us for analysis, the same way you pay your answering service or your CRM.
         </p>
         <p>
-          The stakes here rose in 2026. §6153 makes capping a crime — &ldquo;punishable, upon a first
+          The stakes here rose in 2026. §6153 makes capping a crime: &ldquo;punishable, upon a first
           conviction, by imprisonment in a county jail for not more than one year or by a fine not
           exceeding fifteen thousand dollars ($15,000), or by both.&rdquo; SB 37 (Umberg), Chapter
           645, Statutes of 2025, effective January 1, 2026, added a civil private right of action:
           &ldquo;statutory damages of a minimum of five thousand dollars ($5,000) up to a maximum of
           one hundred thousand dollars ($100,000) per violation, or three times the amount of actual
           damages, whichever is larger,&rdquo; plus attorney&apos;s fees. SB 37 does not contain a
-          stand-alone ban on per-case vendor pricing; that conduct is reached through the §§6151–6152
+          stand-alone ban on per-case vendor pricing; that conduct is reached through the §§6151-6152
           capping framework, now backed by this private right of action. Flat monthly pricing keeps
           the question from arising.
         </p>
         <p>
           The same logic governs our guarantee. The Intake Quality Audit is free, and the $25,000
-          find-it-free guarantee attaches to a <em>diagnostic threshold and the first paid month</em>
-          — not to any recovery. It triggers on estimated value <em>identified</em> in your own
+          find-it-free guarantee attaches to a <em>diagnostic threshold and the first paid month</em>,
+          not to any recovery. It triggers on estimated value <em>identified</em> in your own
           calls; if the audit doesn&apos;t surface at least $25,000, we won&apos;t pitch a
           subscription, and if you start one anyway your first month is free. Because nothing here is
           a share of, or contingent on, recovered fees, it creates no outcome-fee arrangement under
-          §§6151–6152 / SB 37 and no earnings claim under FTC §5 / CA §17500.
+          §§6151-6152 / SB 37 and no earnings claim under FTC §5 / CA §17500.
         </p>
       </Sec>
 
-      <Sec rule="B&P §§6151–6152 · runner / capper" title="We don't find you clients. We help you answer the ones who already called.">
+      <Sec rule="B&P §§6151-6152 · runner / capper" title="We don't find you clients. We help you answer the ones who already called.">
         <p>
           The same statutes bar acting as an agent who brings a lawyer new business. Intake QA never
           solicits or procures new clients. It only helps your firm re-contact people who already
-          called your firm — your own inbound prospective clients. It is quality control and internal
+          called your firm, your own inbound prospective clients. It is quality control and internal
           follow-up, not an agent bringing you strangers. §6154 voids any contract procured through a
           runner or capper; we never procure a contract for you.
         </p>
@@ -93,11 +93,11 @@ export default function CompliancePage() {
         <p>
           Rule 7.3 governs solicitation. The nuance that matters: a communication made in response to
           the prospective client&apos;s own inquiry is treated differently from an unsolicited
-          approach to a stranger. Save-protocol texts go only to people who already called your firm —
-          you are responding to an inbound inquiry, not soliciting a stranger. Written communications
+          approach to a stranger. Save-protocol texts go only to people who already called your firm.
+          You are responding to an inbound inquiry, not soliciting a stranger. Written communications
           must still honor a recipient&apos;s stated wish not to be contacted and must avoid intrusion,
           coercion, or harassment; every draft includes an opt-out (&ldquo;Reply STOP&rdquo;) and human
-          approval. We don&apos;t claim the save protocol is categorically outside 7.3 — we give you the
+          approval. We don&apos;t claim the save protocol is categorically outside 7.3. We give you the
           controls, and your counsel makes the call.
         </p>
         <p className="text-sm text-faint">
@@ -132,7 +132,7 @@ export default function CompliancePage() {
           Rule 5.3 is the correct hook here: a lawyer must make reasonable efforts to ensure a
           nonlawyer&apos;s conduct is compatible with the lawyer&apos;s own obligations. Intake QA is
           that nonlawyer service, under your supervision. The tool never contacts anyone
-          autonomously; a person at your firm approves every send. The AI drafts — it does not decide
+          autonomously; a person at your firm approves every send. The AI drafts. It does not decide
           who to contact or what your firm owes anyone.
         </p>
       </Sec>
@@ -156,7 +156,7 @@ export default function CompliancePage() {
           California is an all-party-consent state: Penal Code §632 requires the consent of all
           parties to record a confidential communication (a fine up to $2,500 per violation), and
           §632.7 extends that to cell and cordless calls (Smith v. LoanMe, Cal. 2021). Intake QA
-          processes calls your firm already recorded — we do not obtain consent for you, and your firm
+          processes calls your firm already recorded. We do not obtain consent for you, and your firm
           is responsible for having obtained it. A disclosure at the outset that the call is being
           recorded is the standard pattern: &ldquo;This call is being recorded for quality
           assurance.&rdquo;
@@ -171,7 +171,7 @@ export default function CompliancePage() {
           express consent,&rsquo;&rdquo; and the FCC declined to challenge it and reinstated the prior
           rules. That heightened lead-gen consent regime is not in force, and bundled consent is again
           permissible. The TCPA still requires prior express written consent for marketing autodialed
-          or prerecorded texts, and revocation must be honored — which is exactly why the same-day
+          or prerecorded texts, and revocation must be honored, which is exactly why the same-day
           save protocol is compliance-gated and human-approved. Save-protocol texts go to your
           firm&apos;s own prior callers, include an opt-out, and send only after A2P 10DLC
           registration clears and a person at your firm approves. Your counsel should confirm your
@@ -179,7 +179,7 @@ export default function CompliancePage() {
         </p>
       </Sec>
 
-      <Sec rule="CCPA / CPRA" title="We act as your service provider — process only, never sell.">
+      <Sec rule="CCPA / CPRA" title="We act as your service provider: process only, never sell.">
         <p>
           Call recordings and transcripts may contain personal information under the CCPA/CPRA.
           Intake QA acts as your service provider: it processes the data only to provide the service
@@ -188,12 +188,12 @@ export default function CompliancePage() {
         </p>
       </Sec>
 
-      <Sec rule="Note for readers outside California" title="ABA Model Rule 5.4 (fee-sharing) — a secondary footnote, not our lead.">
+      <Sec rule="Note for readers outside California" title="ABA Model Rule 5.4 (fee-sharing), a secondary footnote, not our lead.">
         <p>
           Outside California, some readers reach for ABA Model Rule 5.4 (sharing legal fees with a
           nonlawyer). It isn&apos;t the right lead authority here: our fee is a flat monthly
           subscription, not a share of any fee, so there is nothing to split. For a California firm
-          the governing analysis is the runner/capper framework above (§§6151–6152), not Rule 5.4.
+          the governing analysis is the runner/capper framework above (§§6151-6152), not Rule 5.4.
         </p>
       </Sec>
 

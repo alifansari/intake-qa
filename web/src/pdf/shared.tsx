@@ -53,7 +53,7 @@ export function DocPage({ docId, children }: { docId: string; children: React.Re
     <Page size="LETTER" style={S.page}>
       {children}
       <View style={S.footer} fixed>
-        <Text>Intake QA — Independent Recovery Desk</Text>
+        <Text>Intake QA · Independent Recovery Desk</Text>
         <Text>{docId}</Text>
         <Text render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
       </View>
@@ -77,14 +77,14 @@ export function BenchmarkBand({
   verdict: string;
   unit?: string;
 }) {
-  const shown = value == null ? "—" : `${value}${unit}`;
+  const shown = value == null ? "n/a" : `${value}${unit}`;
   const inRange = value != null && value >= bandLow && value <= bandHigh;
   return (
     <View style={{ ...S.trow, alignItems: "center" }}>
       <Text style={{ width: "38%" }}>{label}</Text>
       <Text style={{ width: "16%", ...S.cellNum, color: inRange ? C.ink : C.amber }}>{shown}</Text>
       <Text style={{ width: "28%", color: C.muted }}>
-        {value == null ? "not yet measured" : `Healthy range: ${bandLow}${unit}${"–"}${bandHigh}${unit}`}
+        {value == null ? "not yet measured" : `Healthy range: ${bandLow}${unit} to ${bandHigh}${unit}`}
       </Text>
       <Text style={{ width: "18%", color: C.muted }}>{verdict}</Text>
     </View>

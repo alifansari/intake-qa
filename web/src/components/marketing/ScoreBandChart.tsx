@@ -2,10 +2,10 @@
 // end labels, tabular numerals, no gridlines (max data-ink).
 
 const BANDS = [
-  { band: "0–39", rate: 24 },
-  { band: "40–59", rate: 53 },
-  { band: "60–79", rate: 74 },
-  { band: "80–100", rate: 82 },
+  { band: "0-39", rate: 24 },
+  { band: "40-59", rate: 53 },
+  { band: "60-79", rate: 74 },
+  { band: "80-100", rate: 82 },
 ];
 
 export function ScoreBandChart() {
@@ -27,7 +27,7 @@ export function ScoreBandChart() {
         ))}
       </div>
       <figcaption className="mt-4 text-xs text-faint">
-        Sign rate by intake-score band — higher scores sign far more often (Intake QA calibrated
+        Sign rate by intake-score band. Higher scores sign far more often (Intake QA calibrated
         data). If the score predicts reality, the bars climb. They do.
       </figcaption>
     </figure>

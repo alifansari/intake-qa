@@ -20,7 +20,7 @@ export function Footer() {
             <p className="font-display text-lg font-semibold text-ink">Intake&nbsp;QA</p>
             <p className="mt-1 max-w-md text-sm text-ink-muted">
               The independent recovery desk for personal-injury firms. See which signable cases
-              didn&apos;t sign — and what they were worth.
+              didn&apos;t sign, and what they were worth.
             </p>
           </div>
           <Link

@@ -51,7 +51,7 @@ export async function generateMetadata({
   const title = "Intake Quality Audit";
   const description =
     totalFeeAtRisk != null && callCount != null
-      ? `${money(totalFeeAtRisk)} in signable fees identified across ${callCount} reviewed calls — see the evidence.`
+      ? `${money(totalFeeAtRisk)} in signable fees identified across ${callCount} reviewed calls. See the evidence.`
       : "An Intake Quality Audit of your intake calls from Intake QA.";
   return {
     title,
@@ -125,7 +125,7 @@ export default async function AuditReportPage({
         </p>
         <p className="mt-2 max-w-prose text-sm text-muted">
           Every figure below is tied to a specific call and the words the prospective client
-          actually said. This is what we found in the sample you uploaded — not a projection.
+          actually said. This is what we found in the sample you uploaded, not a projection.
         </p>
       </section>
 
@@ -133,7 +133,7 @@ export default async function AuditReportPage({
       {walkedCalls.length > 0 && (
         <section className="mt-8">
           <h2 className="font-display text-xl font-semibold text-ink">
-            The signable cases that walked — with the evidence
+            The signable cases that walked, with the evidence
           </h2>
           <div className="mt-3 space-y-2">
             {walkedCalls.map((c) => (
@@ -171,12 +171,12 @@ export default async function AuditReportPage({
         </p>
         <p className="mt-2 max-w-prose text-sm text-ink">
           If this rate held for a full month, that&apos;s roughly{" "}
-          <b className="tabular-nums">{money(projMonthlyLow)}</b>–
-          <b className="tabular-nums">{money(projMonthlyHigh)}</b> — and the low end conservatively
+          <b className="tabular-nums">{money(projMonthlyLow)}</b> to{" "}
+          <b className="tabular-nums">{money(projMonthlyHigh)}</b>, and the low end conservatively
           assumes only half the rate we observed. The honest way to know is to run a full month.
         </p>
         <p className="mt-2 text-xs text-faint">
-          A projection, not a claim or a guarantee — a reason to run a full month. Based on{" "}
+          A projection, not a claim or a guarantee, just a reason to run a full month. Based on{" "}
           {callCount} call{callCount === 1 ? "" : "s"} ({money(s.perCallLeak)}/call) over an assumed{" "}
           {s.monthlyCallVolume.toLocaleString()} monthly calls.
         </p>
@@ -205,7 +205,7 @@ export default async function AuditReportPage({
         <h2 className="font-display text-xl font-semibold text-ink">Handling scores</h2>
         <p className="mt-1 text-sm text-muted">
           Average handling score:{" "}
-          <b className="text-ink">{s.avgHandlingScore ?? "—"}</b> / 100.
+          <b className="text-ink">{s.avgHandlingScore ?? "n/a"}</b> / 100.
         </p>
         {benchmark.available && benchmark.snapshot ? (
           <div className="mt-3 rounded-sm border border-line bg-paper p-4 text-sm text-ink">
@@ -214,7 +214,7 @@ export default async function AuditReportPage({
             {s.avgHandlingScore != null ? (
               <>
                 {" "}
-                — your average of <b>{s.avgHandlingScore}</b> is{" "}
+                and your average of <b>{s.avgHandlingScore}</b> is{" "}
                 <b className={s.avgHandlingScore >= (benchmark.snapshot.median_handling_score ?? 0) ? "text-green" : "text-red"}>
                   {s.avgHandlingScore >= (benchmark.snapshot.median_handling_score ?? 0) ? "above" : "below"}
                 </b>{" "}
@@ -227,7 +227,7 @@ export default async function AuditReportPage({
           </div>
         ) : (
           <div className="mt-3 rounded-sm border border-dashed border-line bg-paper p-4 text-sm text-faint">
-            Peer benchmark — how your intake compares to other firms —{" "}
+            Peer benchmark (how your intake compares to other firms){" "}
             <span className="font-semibold text-muted">unlocks as the network grows</span>.
           </div>
         )}
@@ -241,7 +241,7 @@ export default async function AuditReportPage({
           </h2>
           <div className="mt-2 rounded-sm border border-line bg-paper p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-amber">
-              Draft preview — nothing is sent
+              Draft preview: nothing is sent
             </p>
             <p className="mt-2 text-sm text-ink">
               {walkedCalls.find((c) => c.draftPreview)?.draftPreview}
@@ -259,7 +259,7 @@ export default async function AuditReportPage({
           Turn this audit into recovered cases
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Book a 20-minute walkthrough and we&apos;ll show you how to win these cases back —
+          Book a 20-minute walkthrough and we&apos;ll show you how to win these cases back,
           compliantly, with a human approving every text.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">

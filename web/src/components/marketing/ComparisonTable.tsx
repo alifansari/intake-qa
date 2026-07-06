@@ -14,7 +14,7 @@ const ROWS: [string, [boolean, boolean, boolean, boolean]][] = [
   ["Reports on the leads it sold you", [false, false, true, false]],
   ["Scores 100% of calls across every channel", [false, false, false, true]],
   ["Reconciles calls against signed fee agreements", [false, false, false, true]],
-  ["Independent — paid the same flat fee regardless of findings", [false, false, false, true]],
+  ["Independent, paid the same flat fee regardless of findings", [false, false, false, true]],
   ["Recovers already-paid-for PNCs with live statutes", [false, false, false, true]],
 ];
 

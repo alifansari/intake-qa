@@ -3,8 +3,8 @@
 
 const POINTS = [
   { t: "< 1 hr", rate: 50 },
-  { t: "1–4 hr", rate: 38 },
-  { t: "4–24 hr", rate: 33 },
+  { t: "1-4 hr", rate: 38 },
+  { t: "4-24 hr", rate: 33 },
   { t: "> 24 hr", rate: 0 },
 ];
 
@@ -22,7 +22,7 @@ export function DecayCurve() {
     <figure className="rounded-card border border-hairline bg-surface p-6">
       <div className="overflow-x-auto">
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Callback-speed decay curve" className="min-w-[420px]">
-          {/* baseline only — no gridlines */}
+          {/* baseline only, no gridlines */}
           <line x1={PAD} y1={H - PAD} x2={W - PAD} y2={H - PAD} stroke="var(--color-hairline)" strokeWidth="1" />
           <polyline points={line} fill="none" stroke="var(--color-accent)" strokeWidth="2.5" />
           {POINTS.map((p, i) => (

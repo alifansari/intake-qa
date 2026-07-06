@@ -69,7 +69,7 @@ function TranscriptExcerpt({ excerpt }: { excerpt: string }) {
   const lines = excerpt.split("\n");
   return (
     <View style={{ marginTop: 4, borderLeftWidth: 1.5, borderLeftColor: COLORS.rule, paddingLeft: 6 }} wrap={false}>
-      <Text style={{ ...S.faint, marginBottom: 2 }}>Excerpt — internal use; redacted (surname → initial; phone/address/DOB removed).</Text>
+      <Text style={{ ...S.faint, marginBottom: 2 }}>Excerpt (internal use; redacted: surname to initial; phone/address/DOB removed).</Text>
       {lines.map((ln, i) => (
         <View key={i} style={{ flexDirection: "row" }}>
           <Text style={{ fontFamily: "Courier", fontSize: 8, color: COLORS.faint, width: 20 }}>
@@ -85,7 +85,7 @@ function TranscriptExcerpt({ excerpt }: { excerpt: string }) {
 export function LeakReportDoc({ model }: { model: Model }) {
   const m = model;
   return (
-    <Document title={`Intake Leak Report — ${m.meta.firmName}`} language="en">
+    <Document title={`Intake Leak Report: ${m.meta.firmName}`} language="en">
       {/* Dated cover memo — only when a case is in the CRITICAL band */}
       {m.coverMemo ? (
         <DocPage docId={m.meta.reportId}>
@@ -104,7 +104,7 @@ export function LeakReportDoc({ model }: { model: Model }) {
         <Text style={S.h1}>Intake Leak Report</Text>
         <Text style={{ ...S.serif, fontSize: 13, marginTop: 2 }}>{m.meta.firmName}</Text>
         <Text style={S.metaLine}>{m.meta.periodLabel} · Report No. {m.meta.reportId}</Text>
-        <Text style={S.metaLine}>Prepared by Intake QA — Independent Recovery Desk · Analyst of record: {m.meta.analystName}</Text>
+        <Text style={S.metaLine}>Prepared by Intake QA · Independent Recovery Desk · Analyst of record: {m.meta.analystName}</Text>
 
         {/* Page-one BLUF: three numbers */}
         <View style={S.section}>
@@ -138,7 +138,7 @@ export function LeakReportDoc({ model }: { model: Model }) {
             <View key={e.n} style={{ marginBottom: 12 }} wrap={false}>
               <View style={{ ...S.row, justifyContent: "space-between" }}>
                 <Text style={{ fontSize: 10, fontFamily: "Times-Roman" }}>
-                  Exhibit {e.n} — {e.caseType} · {e.initials} {e.displayId} · {e.callDate} · {e.channel}
+                  Exhibit {e.n}: {e.caseType} · {e.initials} {e.displayId} · {e.callDate} · {e.channel}
                 </Text>
                 <Badge band={e.badge} />
               </View>
@@ -169,12 +169,12 @@ export function LeakReportDoc({ model }: { model: Model }) {
           <View style={{ ...S.row, paddingTop: 3 }}>
             <Text style={{ width: "70%" }}>Headline total (sum of rows above)</Text>
             <Text style={{ width: "30%", ...S.cellNum }}>
-              ${(m.schedule.headlineLow / 100).toLocaleString("en-US")}–${(m.schedule.headlineHigh / 100).toLocaleString("en-US")}
+              ${(m.schedule.headlineLow / 100).toLocaleString("en-US")} to ${(m.schedule.headlineHigh / 100).toLocaleString("en-US")}
             </Text>
           </View>
           <Text style={{ ...S.faint, marginTop: 6 }}>{m.schedule.exclusionsIntro}</Text>
           {m.schedule.exclusions.map((x, i) => (
-            <Text key={i} style={{ ...S.faint, marginLeft: 8 }}>• {x.label} — excluded ({x.reason})</Text>
+            <Text key={i} style={{ ...S.faint, marginLeft: 8 }}>• {x.label}: excluded ({x.reason})</Text>
           ))}
         </View>
 

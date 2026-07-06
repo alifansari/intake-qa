@@ -19,9 +19,9 @@ import {
   SAVE_STATUSES,
 } from "../src/pdf/doc-helpers.mjs";
 
-test("money: no cents, thousands separators, en-dash ranges", () => {
+test("money: no cents, thousands separators, human 'to' ranges", () => {
   assert.equal(fmtMoney(1800000), "$18,000");
-  assert.equal(fmtMoneyRange(1800000, 4500000), "$18,000–$45,000");
+  assert.equal(fmtMoneyRange(1800000, 4500000), "$18,000 to $45,000");
 });
 
 test("dates render as Mon D, YYYY", () => {
@@ -31,7 +31,7 @@ test("dates render as Mon D, YYYY", () => {
 
 test("statute clock: months normally, days + time-sensitive under 90", () => {
   assert.equal(statuteClock(690), "Statute: ~23 months remaining (est.)");
-  assert.equal(statuteClock(40), "Statute: ~40 days remaining (est.) – time-sensitive");
+  assert.equal(statuteClock(40), "Statute: ~40 days remaining (est.), time-sensitive");
   assert.equal(statuteBand(690), "neutral");
   assert.equal(statuteBand(120), "amber");
   assert.equal(statuteBand(40), "red");

@@ -1,6 +1,6 @@
 "use client";
 
-// Public Demo Mode — upload one call, watch it get transcribed + scored + flagged
+// Public Demo Mode: upload one call, watch it get transcribed + scored + flagged
 // in under 5 minutes. No account, no CallRail, no A2P. Three states: upload ->
 // processing (staged, driven by real /api/demo/status) -> results (print-clean).
 // Nothing is ever sent from demo mode; the draft is a WATERMARKED preview only.
@@ -172,7 +172,7 @@ export default function DemoPage() {
             .from(data.bucket)
             .uploadToSignedUrl(data.path, data.token, file);
           if (upErr) throw new Error(upErr.message);
-          // Fire processing; no need to await its body — the poll surfaces result.
+          // Fire processing; no need to await its body. The poll surfaces result.
           void fetch("/api/demo/process", {
             method: "POST",
             headers: { "content-type": "application/json" },
@@ -185,7 +185,7 @@ export default function DemoPage() {
           poll(id);
         }
       } catch (err) {
-        setErrorMsg(err instanceof Error ? err.message : "Upload failed — check your connection.");
+        setErrorMsg(err instanceof Error ? err.message : "Upload failed. Check your connection.");
         setPhase("error");
       }
     },
@@ -208,8 +208,8 @@ export default function DemoPage() {
         </h1>
         <p className="mt-2 text-muted">
           Upload a single call recording. In a few minutes you&apos;ll see how it scored, whether it
-          was a signable case your team let slip, and the exact re-engagement text we&apos;d draft —
-          all with a human approving every send in the real product.
+          was a signable case your team let slip, and the exact re-engagement text we&apos;d draft.
+          In the real product a human approves every send.
         </p>
       </div>
 
@@ -336,11 +336,11 @@ function Results({
 
       {/* Score + verdicts */}
       <div className="grid gap-4 rounded-lg border border-line bg-paper p-6 sm:grid-cols-3">
-        <Stat label="Overall handling" value={result.overallScore == null ? "—" : String(result.overallScore)}
+        <Stat label="Overall handling" value={result.overallScore == null ? "-" : String(result.overallScore)}
           sub={BAND_LABEL[result.scoreBand] ?? result.scoreBand} />
         <Stat label="Case signability" value={SIGNABILITY_LABEL[result.signability] ?? result.signability}
           sub={`signability ${result.signabilityScore}/100`} />
-        <Stat label="Did your team ask?" value={result.askMade == null ? "—" : result.askMade ? "Yes" : "No ask"}
+        <Stat label="Did your team ask?" value={result.askMade == null ? "-" : result.askMade ? "Yes" : "No ask"}
           sub={`outcome: ${result.conversionOutcome}`} tone={result.askMade === false ? "red" : "ink"} />
       </div>
 
@@ -348,7 +348,7 @@ function Results({
       {result.leaked ? (
         <div className="rounded-lg border-2 border-red bg-red-tint p-6">
           <p className="font-display text-xl font-bold text-red">
-            Signable case that walked — estimated fee at risk: {money(result.feeAtRisk)}
+            Signable case that walked. Estimated fee at risk: {money(result.feeAtRisk)}
           </p>
           <p className="mt-1 text-xs text-red/80">basis: {result.feeBasis}</p>
           {result.evidenceQuotes.length > 0 && (
@@ -367,13 +367,13 @@ function Results({
           <p className="font-display text-lg font-semibold text-green">No signable case walked</p>
           <p className="mt-1 text-sm text-muted">{result.reason}</p>
           <p className="mt-2 text-xs text-faint">
-            That&apos;s the product being honest — it only flags genuinely signable cases your team
+            That&apos;s the product being honest. It only flags genuinely signable cases your team
             didn&apos;t close, so you never text the wrong lead.
           </p>
         </div>
       )}
 
-      {/* Draft preview — watermarked, never sent */}
+      {/* Draft preview: watermarked, never sent */}
       {result.leaked && result.draftPreview && (
         <div className="rounded-lg border border-line bg-paper p-6">
           <p className="eyebrow">Re-engagement text we&apos;d draft</p>
@@ -401,7 +401,7 @@ function Results({
 
 const URGENCY_STYLE: Record<string, { box: string; text: string; label: string }> = {
   expired: { box: "border-2 border-red bg-red-tint", text: "text-red", label: "Deadline may have passed" },
-  critical: { box: "border-2 border-red bg-red-tint", text: "text-red", label: "Critical — act now" },
+  critical: { box: "border-2 border-red bg-red-tint", text: "text-red", label: "Critical, act now" },
   soon: { box: "border-2 border-amber bg-amber-tint", text: "text-amber", label: "Approaching" },
   ok: { box: "border border-line bg-green-tint", text: "text-green", label: "On track" },
   unknown: { box: "border border-line bg-paper", text: "text-muted", label: "Not enough info" },
@@ -412,7 +412,7 @@ function DeadlineWatch({ sol }: { sol: SolResult }) {
   return (
     <div className={`rounded-lg p-6 ${style.box}`}>
       <div className="flex items-baseline justify-between">
-        <p className="eyebrow">Deadline watch — statute of limitations</p>
+        <p className="eyebrow">Deadline watch: statute of limitations</p>
         <span className={`text-xs font-semibold uppercase tracking-wide ${style.text}`}>{style.label}</span>
       </div>
       {sol.deadlineDate ? (
@@ -424,18 +424,18 @@ function DeadlineWatch({ sol }: { sol: SolResult }) {
           <div>
             <p className="eyebrow">Days remaining</p>
             <p className={`font-display text-2xl font-bold tnum ${style.text}`}>
-              {sol.daysRemaining == null ? "—" : sol.daysRemaining}
+              {sol.daysRemaining == null ? "-" : sol.daysRemaining}
             </p>
           </div>
           <div>
             <p className="eyebrow">Applicable rule</p>
-            <p className="text-sm text-ink">{sol.ruleLabel ?? sol.applicable ?? "—"}</p>
+            <p className="text-sm text-ink">{sol.ruleLabel ?? sol.applicable ?? "-"}</p>
             {sol.statute && <p className="mt-0.5 text-xs text-muted">{sol.statute}</p>}
           </div>
         </div>
       ) : (
         <p className="mt-3 text-sm text-muted">
-          We couldn&apos;t compute a deadline — no incident date was clear on the call.
+          We couldn&apos;t compute a deadline. No incident date was clear on the call.
         </p>
       )}
       {sol.notes.length > 0 && (
@@ -566,7 +566,7 @@ function EmailCapture({ demoCallId }: { demoCallId: string }) {
   if (sent) {
     return (
       <div className="no-print rounded-lg border border-line bg-paper p-5 text-center text-sm text-green">
-        Thanks — we&apos;ll send this report to your inbox.
+        Thanks. We&apos;ll send this report to your inbox.
       </div>
     );
   }

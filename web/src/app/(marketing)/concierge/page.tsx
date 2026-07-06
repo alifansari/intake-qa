@@ -18,7 +18,7 @@ export default function ConciergePage() {
         White-glove recovery for founding-cohort firms.
       </h1>
       <p className="mt-6 max-w-[68ch] text-lg leading-relaxed text-ink-muted">
-        During your pilot, we don&apos;t just hand you a dashboard — we&apos;ll personally help work
+        During your pilot, we don&apos;t just hand you a dashboard. We&apos;ll personally help work
         your first recovered callbacks with you, so you see signed cases before you commit to
         anything.
       </p>
