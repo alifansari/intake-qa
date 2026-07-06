@@ -47,8 +47,14 @@ in code; each is a literal `TODO(Ali):` marker where it lives. Answer these and 
 - [x] **Client sign-in (magic link)** live: /login → email link → /auth/callback; /desk gated by `src/proxy.ts`; Sign-out in the desk header. **Action needed:** in Supabase → Authentication → Providers, enable **Email** with magic link, and add the redirect URL `https://<your-domain>/auth/callback` (+ localhost for dev) under Authentication → URL Configuration.
 - [x] **RLS**: verified all 32 prod tables have RLS; firm-scoped tables carry `firm_members` membership policies; migration 0018 closed the last gap (report_access_events). Applied to prod.
 
-## The four remaining builds (in progress / sequenced)
-- [ ] **Document routes → real firm data** — now unblocked by sign-in (login tells us the firm). Next up.
-- [ ] **Integrations (Clio / Filevine / Lead Docket)** — scaffold all three (connector framework + read-interface + auth), since no vendor dev accounts yet. Real end-to-end needs your credentials per vendor.
-- [ ] **SMS send pipeline** — build the human-approved, TEST_MODE-simulated pipeline through the compliant chokepoint. NOT autonomous (compliance guardrail (a)/(f)); goes live only after A2P 10DLC + flag flip.
-- [ ] **Branded PDF fonts** — need you to send a licensed/OFL `.ttf` (I can't download fonts). Built-in fonts render fine until then.
+## The four remaining builds
+- [x] **Document routes → real firm data** — DONE + verified on prod. Readout renders real audit-session data (`/api/documents/readout?token=…`); Leak Report renders real data ONLY when analyst-released (403 un-released, 404 unknown, sample with no token). Bridge: `src/lib/documents/from-audit.mjs`. Monthly statement stays sample until a firm subscribes + a period closes.
+- [x] **Integrations (Clio / Filevine / Lead Docket)** — all three scaffolded (`integrations/{clio,filevine,leaddocket}.mjs` + connector). EXPORT-only, cannot touch the send chokepoint. **To go live you need vendor API credentials** (see below); paste them in and each connects with no rebuild.
+- [x] **SMS send pipeline** — ALREADY BUILT (`messaging/send.mjs`): all 7 compliance gates (human approval, opt-out, kill switch, per-firm kill, quiet hours, TEST_MODE simulation). Human-gated, simulated until A2P 10DLC clears + TEST_MODE off. Nothing to build; run `npm i twilio` before turning TEST_MODE off.
+- [~] **Branded PDF fonts** — deferred (Ali doesn't have font files yet). Send a licensed/OFL `.ttf` and I'll register it; built-in fonts render fine until then.
+
+## How to get vendor API credentials (for the integrations)
+- **Clio**: developers.clio.com → create a Developer account → "Add App" → get a Client ID/Secret → complete the OAuth2 flow for the firm → store the access token. (Clio Manage API v4.)
+- **Filevine**: developer.filevine.io (or ask your Filevine rep to enable API access) → request API keys / a personal access token for the org.
+- **Lead Docket**: it's a Lawmatics/Lead Docket product — request an API key from their support/account team (API access is account-gated).
+- In all cases: you (the firm, or Intake QA on the firm's behalf) create the app/keys; paste them into the firm's integration settings (stored encrypted) and the connector goes live.
