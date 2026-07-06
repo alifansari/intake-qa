@@ -142,3 +142,29 @@ test("dispatch routes to the Lead Docket adapter with decrypted creds (mock serv
   assert.equal(body.lead_ref, 42);
   assert.equal(body.office, "LA"); // field_map merged
 });
+
+test("dispatch routes to the Clio adapter with decrypted creds (mock server)", async () => {
+  const f = mockFetch();
+  const encrypted = encryptSecret("clio_tok_abc", PASS);
+  const res = await dispatch({
+    integration: {
+      provider: "clio",
+      enabled: 1,
+      credentials_encrypted: encrypted,
+      webhook_url: "https://mock.clio.local",
+      field_map: JSON.stringify({ external_ref: "M-9" }),
+    },
+    event: "flag.created",
+    payload: { call: { id: 7 }, flag: { qualification_score: 91, is_leaked_signable: 1, reason: "no ask" } },
+    fetchImpl: f,
+    decrypt: (blob) => decryptSecret(blob, PASS),
+  });
+  assert.equal(res.delivered, true);
+  assert.equal(res.provider, "clio");
+  const { url, opts } = f.calls[0];
+  assert.match(url, /mock\.clio\.local\/api\/v4\/notes\.json/);
+  assert.equal(opts.headers.authorization, "Bearer clio_tok_abc");
+  const body = JSON.parse(opts.body);
+  assert.equal(body.data.external_ref, "M-9"); // v4 { data } envelope + field_map merged
+  assert.match(body.data.detail, /Handling score 91/);
+});
