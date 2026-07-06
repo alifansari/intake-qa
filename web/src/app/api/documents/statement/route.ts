@@ -1,6 +1,9 @@
-// Renders the Monthly Missed-Revenue Statement PDF. For now it serves the
-// self-contained demo fixture so a sample always renders with no DB; real per-firm
-// data wiring lands with the pipeline gate. TODO(Ali): resolve firm+period → DocData.
+// Renders the Monthly Missed-Revenue Statement PDF (the SAMPLE). Unlike the Leak
+// Audit readout/report — which now render real per-session data (see the readout +
+// leak-report routes) — the monthly statement is a SUBSCRIPTION-phase artifact: it
+// aggregates a firm's calls over a billing period, which only exists once a firm is
+// subscribed and a period has closed. Until then this serves the demo fixture.
+// TODO(Ali): wire firm+period aggregation → DocData when the first firm subscribes.
 import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { StatementDoc } from "@/pdf/statement";
