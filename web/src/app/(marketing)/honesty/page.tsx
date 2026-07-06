@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GUARANTEE_METHODOLOGY, CTA_PRIMARY } from "@/lib/site-constants";
+import { ConfidenceTierTable } from "@/components/marketing/ConfidenceTierTable";
 
 export const metadata: Metadata = {
   title: "Calibration & honesty: how we measure, and what we won't claim yet | Intake QA",
@@ -63,6 +64,17 @@ export default function HonestyPage() {
           A human at your firm approves every callback, so a false flag costs a moment of a
           reviewer&apos;s time, not a wrong message to a caller.
         </p>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="font-display text-2xl font-semibold text-ink">How we express confidence</h2>
+        <p className="mt-3 max-w-[72ch] text-ink-muted">
+          Every call maps to one of five plain-English tiers. We use the same five definitions on
+          every call, so a Tier 4 means the same thing in January as it does in June.
+        </p>
+        <div className="mt-4">
+          <ConfidenceTierTable />
+        </div>
       </section>
 
       <section className="mt-10">

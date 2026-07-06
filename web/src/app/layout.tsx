@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Source_Serif_4, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 import { DemoModeProvider } from "@/components/demo-mode";
 
-// Fraunces: editorial serif display (optical sizing on) for headlines.
-// Inter: quiet, legible body/UI sans. IBM Plex Mono: tabular figures for every
-// dollar amount, stat, and chart axis. Self-hosted via next/font, display:swap,
-// preloaded, no layout shift.
-const serif = Fraunces({
+// Source Serif 4: an expert-report serif with genuine legal-document gravitas
+// (Round 7 visual direction) for headlines and statement excerpts. Inter: quiet,
+// legible body/UI sans. IBM Plex Mono: tabular figures for every dollar amount,
+// stat, and chart axis. Self-hosted via next/font, display:swap, preloaded.
+const serif = Source_Serif_4({
   variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
   preload: true,
 });
