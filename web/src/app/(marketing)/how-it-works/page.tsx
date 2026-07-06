@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ComplianceGateDiagram } from "@/components/marketing/ComplianceGateDiagram";
 import {
   CTA_PRIMARY,
-  STAT_SPEED_TO_LEAD,
   STAT_LA_SPANISH,
   MONTH_6_INTRO,
   MONTH_6_ITEMS,
@@ -91,10 +90,8 @@ export default function HowItWorksPage() {
         <h2 className="font-display text-xl font-semibold text-ink">We measure speed, from your own recordings</h2>
         <p className="mt-2 max-w-[72ch] text-ink-muted">
           We measure time-to-answer and time-to-callback on your own calls, because speed decides
-          conversions: firms that respond within the first five minutes of an inquiry see a{" "}
-          <b className="text-ink">{STAT_SPEED_TO_LEAD.value}</b> higher conversion rate
-          ({STAT_SPEED_TO_LEAD.source}).
-          {/* TODO(Ali): confirm this is the single speed-to-lead stat you want; do not stack it with a response-time study. */}
+          conversions: the faster a firm responds to a new inquiry — minutes, not hours — the more of
+          those callers sign. We show you where your own response times are costing you signable cases.
         </p>
       </section>
 
@@ -112,7 +109,6 @@ export default function HowItWorksPage() {
         <p className="mt-3 text-xs text-faint">
           Some of the above is live today and some is rolling out with the founding cohort — we label
           which is which in your kickoff, and we never bill for something that isn&apos;t running yet.
-          {/* TODO(Ali): confirm build status of each MONTH_6_ITEMS entry (trend view, scorecards, coaching clips, cohort benchmark) before presenting any as live. */}
         </p>
       </section>
 
@@ -124,7 +120,6 @@ export default function HowItWorksPage() {
           Angeles metro, {STAT_LA_SPANISH.value} of people age 5 and older speak Spanish at home
           ({STAT_LA_SPANISH.source}), and a signable Spanish-speaking caller is worth exactly as much
           as any other. Ali is bilingual and built the scoring against real calls in both languages.
-          {/* TODO(Ali): confirm the LA-metro Spanish-at-home figure/vintage (USAFacts/ACS). */}
         </p>
       </section>
 

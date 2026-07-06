@@ -11,8 +11,9 @@ The round assumes **132 passing tests, unmodified**. The actual current baseline
 engine was intentionally migrated from per-case to flat-monthly (an approved product change), which
 rewrote `web/tests/billing.test.mjs` (~−2 tests). **The frozen scoring/flagging/gate tests were not
 touched.** So the real, honored constraint is: *the frozen-core tests below stay green and unmodified;
-130 is the true baseline; each new item adds its own tests.* TODO(Ali): acknowledge 130 as the
-baseline, or tell me if you want the two billing tests reconstructed to hit 132.
+130 is the true baseline; each new item adds its own tests.* Acknowledged by Ali (July 2026): 130
+is the accepted baseline (the two migrated billing tests are not reconstructed). The suite has since
+grown well past it as new items added their own tests.
 
 ---
 

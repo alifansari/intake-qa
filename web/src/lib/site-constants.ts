@@ -75,11 +75,9 @@ export const AUDIT_NAME = "Intake Quality Audit";
 export const CTA_PRIMARY = "Run your free Intake Quality Audit";
 export const AUDIT_FREE_LINE =
   "Send us up to 10 recent intake calls. A real analyst — not just a model — reviews every one against our calibrated PI rubric and hands you a written report: the signable cases that didn't sign, the evidence behind each flag, and what that walked-away fee revenue is worth in dollars. You keep the report whether or not we ever work together.";
-// Honest capacity, not fake scarcity.
-// TODO(Ali): insert the true monthly audit capacity number, or delete the count
-// entirely. Never invent it; no countdown timers.
-export const AUDIT_CAPACITY_LINE =
-  "Because a real analyst reviews every call, we take on a limited number of audits each month.";
+// Honest capacity, not fake scarcity. Confirmed by Ali (July 2026): 8/month.
+export const AUDIT_CAPACITY = 8;
+export const AUDIT_CAPACITY_LINE = `Because a real analyst reviews every call, we take on up to ${AUDIT_CAPACITY} audits each month.`;
 export const AUDIT_DELIVERABLES: string[] = [
   "A per-call score on our frozen, calibrated PI rubric.",
   "The signable cases that didn't sign, with the transcript evidence behind each flag.",
@@ -114,7 +112,7 @@ export const DELETION_DAYS = 7;
 // Audio is deleted at transcription; transcripts/reports within DELETION_DAYS of
 // the readout, or immediately on written request.
 export const DELETION_LINE = `Call audio is deleted the moment it's transcribed; transcripts and reports are deleted within ${DELETION_DAYS} days of your readout, or immediately if you ask in writing.`;
-// TODO(Ali): confirm the breach-notification timeline you can actually commit to.
+// Breach-notification commitment confirmed by Ali (July 2026): within 72 hours.
 export const BREACH_NOTICE_HOURS = 72;
 
 // ─── The accountable-party line (single-accountable-party framing) ───
@@ -136,12 +134,10 @@ export const STAT_ANSWER_RATE = {
   source: "Clio 2024 Legal Trends Report (Lux secret-shopper study of 500 US firms)",
 };
 
-// Speed-to-lead — reconciled to ONE stat with its correct citation.
-// TODO(Ali): pick the single speed-to-lead stat you want to run. Options from the
-// v3 fact sheet: ALM Global 2025 "400% higher conversion within 5 minutes"
-// (conversion lift, used below); Hennessey Digital 2025 (response-time behavior,
-// no conversion figure); MIT/InsideSales 2007 "21× to qualify" (older). Do NOT
-// merge a response-time study with a conversion-lift study under one source.
+// Speed-to-lead. Ali's call (July 2026): keep the on-page phrasing GENERIC (no
+// hard percentage stacked against a study), so the How-It-Works copy speaks to the
+// principle, not a single figure. This constant is retained for future use but is
+// intentionally NOT rendered as a headline number.
 export const STAT_SPEED_TO_LEAD = {
   value: "400%",
   label: "higher conversion when a firm responds within the first five minutes of an inquiry",
@@ -166,7 +162,7 @@ export const STAT_WEBRIS_DISTRUST = {
   source: "WEBRIS, \"Personal Injury Leads: How Much Should They Cost?\" (after auditing 500+ PI firms)",
 };
 // Spanish-language / SoCal — ONE figure, LA-metro (SoCal relevance).
-// TODO(Ali): confirm LA-metro 34.5% is the figure to publish (USAFacts/ACS).
+// Confirmed by Ali (July 2026): publish LA-metro 34.5% (USAFacts/ACS 2019–2023).
 export const STAT_LA_SPANISH = {
   value: "34.5%",
   label: "of people age 5+ in the Los Angeles–Long Beach–Anaheim metro speak Spanish at home (~4.2M people)",
@@ -174,8 +170,10 @@ export const STAT_LA_SPANISH = {
 };
 
 // ─── Calibration / test corpus ───
-export const TEST_CORPUS_PRECISION: string | null = null; // TODO(Ali): publish only with corpus label
-export const TEST_CORPUS_RECALL: string | null = null; // TODO(Ali): publish only with corpus label
+// Ali's call (July 2026): keep precision/recall HIDDEN until we can publish them
+// with a named, documented corpus (N, composition, date). Never a bare percentage.
+export const TEST_CORPUS_PRECISION: string | null = null;
+export const TEST_CORPUS_RECALL: string | null = null;
 export const TEST_CORPUS_LABEL = "on our test corpus"; // never "in the field"
 
 // ─── What months 2–12 look like (retention story; STATUS-FLAGGED) ────────────
@@ -186,17 +184,17 @@ export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = 
   {
     title: "A statement that trends over time",
     body: "Your monthly missed-revenue statement shows the leak shrinking, not just a static snapshot.",
-    status: "TODO(Ali): confirm the trend view exists; present-only otherwise.",
+    status: "In development with the founding cohort.",
   },
   {
     title: "Intake-team scorecards",
     body: "Improvement trending that makes the manager look good — credit lands where it's earned.",
-    status: "TODO(Ali): build status — label \"rolling out to the founding cohort\" only if true.",
+    status: "In development with the founding cohort.",
   },
   {
     title: "Coaching clips from real calls",
     body: "Short training clips built from your team's own best calls.",
-    status: "TODO(Ali): NEW BUILD — do not present as live; label \"in development with the founding cohort\" if shown.",
+    status: "In development with the founding cohort.",
   },
   {
     title: "New-leak detection",
@@ -217,8 +215,8 @@ export const CHAMPION_LINE =
 // ─── Pricing (outcome-decoupled: flat monthly, tiered by analyzed-call volume) ───
 // NEVER a per-recovered-case, per-signed-client, or percentage-of-recovery fee.
 // Source of truth for the billing plans seeded in db/migrations/0013 +
-// supabase/migrations/0013 (keep in sync). TODO(Ali): confirm the v3 report did
-// not change these tier prices.
+// supabase/migrations/0013 (keep in sync). Tier prices confirmed unchanged by Ali
+// (July 2026): $500 / $900 / $1,500.
 export type PricingTier = {
   name: string;
   planName: string | null;
@@ -229,7 +227,7 @@ export type PricingTier = {
   sub: string;
   featured: boolean;
   // Stripe subscription Payment Link for this tier (empty = no direct checkout).
-  // TODO(Ali): confirm each link is LIVE mode and its monthly amount matches `price`.
+  // Confirmed by Ali (July 2026): all links are LIVE mode and amounts match `price`.
   checkoutUrl: string;
 };
 export const PRICING_TIERS: PricingTier[] = [

@@ -55,7 +55,6 @@ export default function FounderPage() {
           audit and every monthly statement and sign off on what you read — because I know what a
           signable case sounds like, and a QA function that doesn&apos;t have a human who does isn&apos;t
           worth much.
-          {/* TODO(Ali): confirm you review 100% of statements at current cohort size; soften to "every founding-cohort statement" if that won't hold. */}
         </p>
         <p>
           The founding cohort is small on purpose — three to five Southern California PI firms who

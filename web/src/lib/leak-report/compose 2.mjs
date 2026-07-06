@@ -24,7 +24,6 @@ import {
   analystSignoff,
   coverMemo,
 } from "./copy.mjs";
-import { ANALYST } from "../analyst.mjs";
 
 // Map sol.mjs urgencyBand output → the report's standardized badge label.
 export function badgeFor(leak) {
@@ -112,26 +111,14 @@ export function composeLeakReport(data, { now = "2026-07-05" } = {}) {
   const reportId = readoutId(data.firmCode, data.year, data.seq);
   const { counts } = tagCounts(leaks);
 
-  // Resolve the exact statute deadline for the most-urgent case. Prefer an explicit
-  // deadlineDate carried on the leak (from sol.mjs computeSol upstream); otherwise
-  // derive it from the days-remaining that already drives the urgency badge, so the
-  // printed date and the "N days" figure are always consistent. Never invent one.
-  const mostUrgentLeak = leaks.find((l) => l.callerId === mostUrgent.displayId);
-  const muDays = mostUrgentLeak?.statuteDays;
-  const deadlineText = mostUrgentLeak?.deadlineDate
-    ? fmtDate(mostUrgentLeak.deadlineDate)
-    : typeof muDays === "number"
-      ? fmtDate(new Date(new Date(now).getTime() + muDays * 86400000))
-      : "a date your attorney must confirm";
-
   const coverMemoText =
     exhibits.some((e) => e.badge === "CRITICAL")
       ? coverMemo({
           date: fmtDate(now),
           firm: data.firmName,
           caseType: mostUrgent.caseType,
-          deadline: deadlineText,
-          days: muDays ?? "[days]",
+          deadline: "[deadline]", // TODO(Ali): render exact deadline via sol.mjs computeSol per case
+          days: leaks.find((l) => l.callerId === mostUrgent.displayId)?.statuteDays ?? "[days]",
           exhibit: mostUrgent.n,
         })
       : null;
@@ -141,7 +128,7 @@ export function composeLeakReport(data, { now = "2026-07-05" } = {}) {
       firmName: data.firmName,
       reportId,
       periodLabel: data.periodLabel,
-      analystName: data.analystName ?? ANALYST.name,
+      analystName: data.analystName,
       issuedDate: fmtDate(data.issuedDate),
     },
     coverMemo: coverMemoText,

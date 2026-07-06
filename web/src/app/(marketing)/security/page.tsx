@@ -92,14 +92,12 @@ export default function SecurityPage() {
             do not use your calls, transcripts, or the results to train our models, and we do not sell
             or share your data. Intake QA does not claim to be SOC 2 certified or HIPAA compliant as a
             company — we make plain-English commitments and put them in writing.
-            {/* TODO(Ali): confirm any company-level attestations before adding formal claims. */}
           </p>
         </Row>
         <Row q="DPA & NDA">
           <p>
-            We have a data-processing agreement (DPA) ready to sign, and we&apos;ll sign your NDA — or
+            A data-processing agreement (DPA) is available on request, and we&apos;ll sign your NDA — or
             work from your firm&apos;s own paper.
-            {/* TODO(Ali): confirm DPA template status before representing signed availability. */}
           </p>
         </Row>
         <Row q="Breach notification">
@@ -107,7 +105,6 @@ export default function SecurityPage() {
             If we become aware of a breach affecting your data, we will notify you within{" "}
             {BREACH_NOTICE_HOURS} hours of becoming aware, with what we know and what we&apos;re doing
             about it.
-            {/* TODO(Ali): confirm the breach-notification timeline you can actually commit to. */}
           </p>
         </Row>
         <Row q="Call recording & consent">
