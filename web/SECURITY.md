@@ -14,9 +14,13 @@ SOC 2 / HIPAA / ZDR as Intake QA unless a signed agreement is in place.
 - At rest: your data and recordings are encrypted at rest (AES-256) across our storage and models.
 
 ## Tenant isolation
-- Every firm-data table carries a tenant key. RLS policies are being rolled out (item 10 gate);
-  until then, firm data is only reached through server code that filters by firm. TODO(Ali):
-  complete RLS enablement + policies before onboarding multiple live firms.
+- Every firm-data table carries a tenant key AND has Row-Level Security enabled (verified on
+  production: all 32 public tables have RLS on). Firm-scoped tables (calls, flags, conversations,
+  messages, outcomes, invoices, firm_*, etc.) carry membership policies keyed on `firm_members`, so
+  a signed-in user can only reach rows for firms they belong to; token-/demo-keyed tables are
+  service-role-only (RLS enabled, no policy). Server data access additionally runs as a trusted role
+  over a direct connection. Client sign-in is magic-link (Supabase Auth); the /desk work screens are
+  gated by middleware.
 
 ## PII redaction
 - Transcription redacts sensitive identifiers server-side by default (Social Security numbers,
