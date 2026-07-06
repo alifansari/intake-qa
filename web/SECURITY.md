@@ -18,6 +18,13 @@ SOC 2 / HIPAA / ZDR as Intake QA unless a signed agreement is in place.
   until then, firm data is only reached through server code that filters by firm. TODO(Ali):
   complete RLS enablement + policies before onboarding multiple live firms.
 
+## PII redaction
+- Transcription redacts sensitive identifiers server-side by default (Social Security numbers,
+  payment-card and banking details, driver's-license and passport numbers). It intentionally does
+  NOT redact the caller's name, phone number, or the injury/medical facts of the case — those are
+  needed to re-contact the caller and to assess the case, and the flag is set so scoring behavior is
+  unchanged when no such identifiers appear. Controlled by `ASSEMBLYAI_REDACT_PII` (on by default).
+
 ## Retention & deletion
 - Call audio is deleted the moment it is transcribed.
 - Transcripts and reports are deleted within 7 days of your readout, or immediately on written

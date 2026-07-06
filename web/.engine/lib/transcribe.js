@@ -1,9 +1,11 @@
 // Transcribes a local audio file with AssemblyAI (speaker diarization +
-// language detection), assigns INTAKE/CALLER roles, and writes a diarized
-// transcript JSON. Uses the SDK's built-in polling (no webhooks).
+// language detection + conservative PII redaction), assigns INTAKE/CALLER roles,
+// and writes a diarized transcript JSON. Uses the SDK's built-in polling (no
+// webhooks).
 
 import { AssemblyAI } from "assemblyai";
 import { readFileSync, writeFileSync } from "node:fs";
+import { buildTranscribeParams, redactionEnabled } from "./transcribe-config.js";
 
 // mm:ss from a millisecond offset.
 function mmss(ms) {
@@ -84,11 +86,10 @@ export async function transcribeFile(audioPath, outPath, configPath) {
   const client = new AssemblyAI({ apiKey });
   const firmName = firmNameFromConfig(configPath);
 
-  const transcript = await client.transcripts.transcribe({
-    audio: audioPath,
-    speaker_labels: true,
-    language_detection: true,
-  });
+  const redact = redactionEnabled();
+  const transcript = await client.transcripts.transcribe(
+    buildTranscribeParams(audioPath, { redact })
+  );
 
   if (transcript.status === "error") {
     throw new Error(`AssemblyAI transcription failed: ${transcript.error}`);
@@ -119,6 +120,7 @@ export async function transcribeFile(audioPath, outPath, configPath) {
     speaker_role_map: roleMap,
     role_confidence: confidence,
     duration_sec: Math.round((transcript.audio_duration || 0)),
+    pii_redacted: redact, // compliance trail: was server-side PII redaction applied
     utterances,
     formatted_transcript: formatted,
   };
