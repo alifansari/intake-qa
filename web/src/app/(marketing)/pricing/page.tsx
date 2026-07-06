@@ -31,6 +31,9 @@ export default function PricingPage() {
         way you pay your answering service or your CRM, whether or not any given call becomes a
         client.
       </p>
+      <p className="mt-5 max-w-[60ch] font-display text-2xl font-semibold text-ink">
+        One flat monthly fee. Never per case, never a percentage. That&apos;s the whole point.
+      </p>
 
       <div className="mt-8">
         <PilotCohortBanner />

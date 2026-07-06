@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ComplianceGateDiagram } from "@/components/marketing/ComplianceGateDiagram";
-import { ACCOUNTABLE_PARTY_LINE, CTA_PRIMARY } from "@/lib/site-constants";
+import { ACCOUNTABLE_PARTY_LINE, CTA_PRIMARY, INDEPENDENCE_STATEMENT } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "The compliance case for Intake QA (California)",
@@ -34,6 +34,10 @@ export default function CompliancePage() {
         tool your firm runs and supervises. It never contacts a stranger and never sends anything on
         its own.
       </p>
+
+      <div className="mt-6 max-w-[72ch] rounded-card border border-hairline bg-canvas p-5">
+        <p className="font-display text-lg leading-relaxed text-ink">{INDEPENDENCE_STATEMENT}</p>
+      </div>
 
       <Sec rule="B&P §§6151-6152 · runner / capper · SB 37 (2026)" title="Our fee is flat and monthly. It is never tied to whether you sign or recover a case.">
         <p>

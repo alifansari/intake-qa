@@ -8,9 +8,11 @@ import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 import { FounderNote } from "@/components/marketing/FounderNote";
 import { StateOfIntakeSignup } from "@/components/marketing/StateOfIntakeSignup";
 import { SampleStatement } from "@/components/marketing/SampleStatement";
+import { SampleAlert } from "@/components/marketing/SampleAlert";
 import {
   CTA_PRIMARY,
   INDEPENDENCE_LINE,
+  INDEPENDENCE_STATEMENT,
   DIFFERENTIATORS,
   CATEGORY_BOUNDARY_LINE,
   WHO_DOES_THE_WORK,
@@ -167,6 +169,48 @@ export default function HomePage() {
             </li>
           ))}
         </ol>
+      </Section>
+
+      {/* THE FOUR DELIVERABLES + the lead-product artifact */}
+      <Section className="py-14 border-t border-hairline">
+        <p className="eyebrow">What lands on your desk</p>
+        <h2 className="mt-2 max-w-[26ch] font-display text-3xl font-semibold text-ink text-balance">
+          Four plain deliverables, in the order they matter.
+        </h2>
+        <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-start">
+          <ol className="flex flex-col gap-5">
+            {[
+              ["Recoverable-Lead Alert", "The lead product. A signable case that didn't convert today, on one screen, so your team can call back within the hour, while the lead is still warm."],
+              ["Missed-Revenue Statement", "A two-page monthly read: the dollar range, the trend, and the Saved-Case Ledger. Page one is a 90-second boardroom look, signed by the analyst."],
+              ["Team Coaching", "The call, not the colleague. One fixable step and the moment it happened, framed to help the team, never to rank people."],
+              ["Saved-Case Ledger", "A running record of the cases your team actually recovered, so the value is on paper, not a claim."],
+            ].map(([name, body], i) => (
+              <li key={name} className="flex gap-4">
+                <span className="tnum flex-none font-display text-xl font-semibold text-accent">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <p className="font-display text-lg font-semibold text-ink">{name}</p>
+                  <p className="mt-1 text-ink-muted">{body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div>
+            <SampleAlert />
+            <p className="mt-3 text-xs text-faint">
+              A sample Recoverable-Lead Alert. Figures illustrative; caller redacted.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* INDEPENDENCE STATEMENT (forwardable) */}
+      <Section className="py-14 border-t border-hairline">
+        <div className="max-w-[68ch] rounded-card border border-hairline bg-canvas p-7">
+          <p className="eyebrow">Independence statement</p>
+          <p className="mt-3 font-display text-xl leading-relaxed text-ink">{INDEPENDENCE_STATEMENT}</p>
+        </div>
       </Section>
 
       {/* AGENCY ACCOUNTABILITY */}
