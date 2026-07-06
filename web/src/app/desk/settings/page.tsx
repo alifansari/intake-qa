@@ -25,8 +25,8 @@ export default function SettingsPage() {
       <section className="rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-lg font-semibold text-ink">Data handling</h2>
         <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
-          Call audio is deleted the moment it&apos;s transcribed; transcripts and reports are deleted
-          within 7 days of your readout, or immediately if you ask in writing.
+          Call audio is deleted the moment it&apos;s transcribed; transcripts and reports are purged
+          within 72 hours of your readout, or immediately if you ask in writing.
         </p>
         {!requested ? (
           <button
@@ -92,7 +92,7 @@ export default function SettingsPage() {
               This permanently deletes this firm&apos;s call recordings, transcripts, flags, and
               statements from Intake QA and requests deletion of the transcripts held by our
               transcription provider. This cannot be undone. We do this immediately on request, and
-              automatically 7 days after a Leak Audit if you don&apos;t continue. You&apos;ll get a
+              automatically 72 hours after a Leak Audit if you don&apos;t continue. You&apos;ll get a
               deletion receipt by email.
             </p>
             <div className="mt-5 flex justify-end gap-2">
