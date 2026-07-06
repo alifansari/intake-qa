@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 const ITEMS: QA[] = [
   {
     q: "Why is the audit free?",
-    a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Intake Quality Audit is free for qualifying Southern California PI firms — a real analyst reviews up to 10 of your recent calls and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we run a limited number each month. [TODO(Ali): capacity number or delete.] — Ali",
+    a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Intake Quality Audit is free for qualifying Southern California PI firms — a real analyst reviews up to 10 of your recent calls and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. — Ali",
   },
   {
     q: `What does the ${GUARANTEE_THRESHOLD} find-it-free guarantee actually back?`,
@@ -26,11 +26,11 @@ const ITEMS: QA[] = [
   },
   {
     q: "Once you've found the big leaks, why keep paying in months 2–12?",
-    a: "The first audit finds the biggest leaks; after that the desk becomes your standing intake QA function. Every month your statement shows whether the leak is shrinking, your intake team gets credit for the improvement, and new leaks get caught as your marketing and staffing change. Some of that (trend view, scorecards, coaching clips) is rolling out with the founding cohort and we'll tell you plainly what's live versus in development — we don't bill for what isn't running. [TODO(Ali): confirm build status of trend view / scorecards / coaching clips.]",
+    a: "The first audit finds the biggest leaks; after that the desk becomes your standing intake QA function. Every month your statement shows whether the leak is shrinking, your intake team gets credit for the improvement, and new leaks get caught as your marketing and staffing change. Some of that (trend view, scorecards, coaching clips) is rolling out with the founding cohort and we'll tell you plainly what's live versus in development — we don't bill for what isn't running.",
   },
   {
     q: "Will my intake manager hate this?",
-    a: "She shouldn't — it's built to make her a champion, not a target. This isn't a gotcha: high-volume intake means good cases slip, and that's math, not a character flaw. The desk gives her proof of the workload (you're not short on effort, you're short on hours), coaching clips built from the team's own best calls [TODO(Ali): coaching-clip build status], and a monthly scorecard that shows improvement so credit lands where it's earned. It catches what volume caused, not people.",
+    a: "She shouldn't — it's built to make her a champion, not a target. This isn't a gotcha: high-volume intake means good cases slip, and that's math, not a character flaw. The desk gives her proof of the workload (you're not short on effort, you're short on hours), coaching clips built from the team's own best calls, and a monthly scorecard that shows improvement so credit lands where it's earned. It catches what volume caused, not people.",
   },
   {
     q: "The AI could be wrong — won't it embarrass me?",
@@ -47,7 +47,6 @@ const ITEMS: QA[] = [
   {
     q: "You're a solo founder — will this be around in a year?",
     a: `Straight answer: it's early, and I'm honest about it — no logos, no case studies yet. The product logic is complete and version-locked, so the scoring doesn't drift under you. The founding cohort is ${COHORT_MIN}–${COHORT_MAX} firms on purpose, you get direct access to me, and the ${PILOT_DAYS}-day pilot is free and cancel-anytime, so you can prove the value before you commit a dollar. Your data is deletable on request at any point, so you're never locked in. — Ali`,
-    // TODO(Ali): confirm the continuity/commitment language you want here (e.g. runway, escrow of scoring config, data-export guarantee).
   },
   {
     q: "Isn't our fee to you basically fee-splitting?",

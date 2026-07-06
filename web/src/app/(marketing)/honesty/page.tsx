@@ -46,8 +46,6 @@ export default function HonestyPage() {
             corpus it came from. A number without its test set is the kind of thing you&apos;ve been
             pitched before. When the corpus is documented, the figures and the corpus go here
             together.
-            {" "}
-            {/* TODO(Ali): confirm test-corpus size (N), composition (synthetic/historical/client), and date, then publish precision + recall here WITH that corpus label. Do not publish a bare percentage. */}
           </p>
         </div>
       </section>
@@ -64,8 +62,6 @@ export default function HonestyPage() {
         <p className="mt-3 text-sm text-faint">
           A human at your firm approves every callback, so a false flag costs a moment of a
           reviewer&apos;s time, not a wrong message to a caller.
-          {" "}
-          {/* TODO(Ali): add anonymized real miss/false-flag examples with dollar amounts once the corpus is documented. */}
         </p>
       </section>
 

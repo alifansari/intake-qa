@@ -103,7 +103,6 @@ export default function CompliancePage() {
         <p className="text-sm text-faint">
           These are the Chapter 7 rules effective November 1, 2018, which remain the operative rules.
           {" "}
-          {/* TODO(Ali): the second-round audit referenced "March 2025 amendments to Rules 7.1–7.3." This task could not confirm any such amendment is in force; a separate State Bar proposal on lawyer-referral-service rules had public comment close Jan. 10, 2026 but is not yet enacted. Do not cite a March 2025 amendment as live until confirmed. */}
           A separate State Bar proposal on lawyer-referral-service rules is pending and not yet
           enacted.
         </p>
@@ -141,8 +140,7 @@ export default function CompliancePage() {
       <Sec rule="CA State Bar GenAI guidance · ABA Formal Op. 512" title="The AI drafts. A human at your firm verifies and sends.">
         <p>
           The California State Bar&apos;s Practical Guidance for the Use of Generative Artificial
-          Intelligence in the Practice of Law (adopted November 16, 2023; an updated version, adding
-          agentic-AI coverage, was approved May 14, 2026 and is now the current guidance) and ABA
+          Intelligence in the Practice of Law (adopted November 16, 2023) and ABA
           Formal Opinion 512 (July 29, 2024) map existing duties to AI use: competence (Rule 1.1),
           confidentiality (Rule 1.6), communication (Rule 1.4), candor (Rule 3.3), supervision (Rules
           5.1/5.3), and reasonable fees (Rule 1.5). Intake QA is built for that posture: the desk
@@ -150,7 +148,6 @@ export default function CompliancePage() {
           judgments and sends nothing on its own. (On Aug. 22, 2025 the California Supreme Court
           directed the State Bar to consider folding these principles into enforceable rules; that is
           out for public comment and not yet adopted.)
-          {/* TODO(Ali): confirm the May 14, 2026 revision reference before relying on it in counsel-facing materials. */}
         </p>
       </Sec>
 
@@ -163,8 +160,6 @@ export default function CompliancePage() {
           is responsible for having obtained it. A disclosure at the outset that the call is being
           recorded is the standard pattern: &ldquo;This call is being recorded for quality
           assurance.&rdquo;
-          {" "}
-          {/* TODO(Ali): confirm the firm's own consent/disclosure process before relying on this in onboarding. */}
         </p>
       </Sec>
 
@@ -180,8 +175,7 @@ export default function CompliancePage() {
           save protocol is compliance-gated and human-approved. Save-protocol texts go to your
           firm&apos;s own prior callers, include an opt-out, and send only after A2P 10DLC
           registration clears and a person at your firm approves. Your counsel should confirm your
-          consent basis.
-          {/* TODO(Ali): confirm current A2P 10DLC registration status/date. */}
+          consent basis. (A2P 10DLC registration is pending; texting stays dark until it clears.)
         </p>
       </Sec>
 
@@ -189,9 +183,8 @@ export default function CompliancePage() {
         <p>
           Call recordings and transcripts may contain personal information under the CCPA/CPRA.
           Intake QA acts as your service provider: it processes the data only to provide the service
-          and does not sell or share it.
-          {" "}
-          {/* TODO(Ali): confirm the exact "service provider" contract language exists in the DPA before publishing. */}
+          and does not sell or share it. A data-processing agreement (DPA) with this service-provider
+          language is available on request.
         </p>
       </Sec>
 

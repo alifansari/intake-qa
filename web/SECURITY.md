@@ -30,9 +30,12 @@ SOC 2 / HIPAA / ZDR as Intake QA unless a signed agreement is in place.
 - Transcripts and reports are deleted within 7 days of your readout, or immediately on written
   request. A Leak Audit's data is deleted automatically 7 days after the readout if the firm does
   not continue.
-- Deletion cascade (stored audio + DB rows + a delete call to our transcription system) and the
-  deletion-receipt email are implemented in the security gate. TODO(Ali): confirm the cascade is
-  enabled in production before promising immediate deletion to a firm.
+- What is live today: call audio is deleted immediately after transcription; demo data and expired
+  Leak Audit sessions are purged automatically on a daily durable (Inngest) schedule.
+- Still to build before promising firms one-click, immediate deletion: a full per-firm deletion
+  cascade (all stored objects + DB rows + a DELETE call per transcript to our transcription system)
+  with a deletion-receipt email. Do NOT promise immediate on-request full-tenant deletion until this
+  ships.
 
 ## Our models and systems
 - Your calls are analyzed and transcribed by our own models, over encrypted connections.

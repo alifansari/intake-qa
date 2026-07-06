@@ -4,8 +4,7 @@ Keep this current. If something goes wrong with a firm's confidential call data,
 matter more than polish.
 
 ## Who to contact
-- Owner / analyst of record: Ali — ali@plaintiffops.com. TODO(Ali): add a phone number and a
-  backup contact.
+- Owner / analyst of record: Ali F. Ansari — ali@plaintiffops.com, (949) 636-6918.
 
 ## Revoke / rotate keys (do this first on any suspected key compromise)
 - Supabase: Dashboard → Project Settings → API → roll the `service_role` and `anon` keys; update
@@ -26,9 +25,8 @@ matter more than polish.
 1. Contain: revoke keys (above), take the affected surface offline if needed.
 2. Scope: which firm(s), which data (recordings/transcripts/flags/statements), what time window.
    Use `artifact_access_log` to see what was accessed.
-3. Notify the affected firm(s) promptly and plainly — what happened, what data, what you're doing.
-   TODO(Ali): confirm the notification timeline you can commit to (e.g., within 72 hours of
-   becoming aware) and whether any statutory notice (e.g., CCPA) applies.
+3. Notify the affected firm(s) within 72 hours of becoming aware — plainly: what happened, what
+   data, what you're doing. Check whether any statutory notice (e.g., CCPA) also applies.
 4. Preserve evidence: logs, timestamps, the access log.
 5. Remediate + write a short post-incident note (what, why, fix).
 

@@ -17,7 +17,6 @@ export function StateOfIntakeSignup() {
         phone rings — built from anonymized, consented, aggregated cohort data (the Clio Legal Trends
         model: aggregated and anonymized, no PII, no client data). It doesn&apos;t exist yet; it
         grows as the founding cohort grows. Get the first edition — and help shape it.
-        {/* TODO(Ali): confirm timing for the first edition before promising a date. */}
       </p>
       <a
         href={`mailto:${FOUNDER_EMAIL}?subject=${encodeURIComponent("The State of PI Intake — first edition")}`}

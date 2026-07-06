@@ -149,9 +149,7 @@ export default function AuditUploaderPage() {
             ))}
           </ul>
           <p className="mt-3 text-sm text-muted">
-            The audit is free. A real analyst reviews every call, so we take on a limited number each
-            month.
-            {/* TODO(Ali): insert the true monthly audit-capacity number, or delete this sentence. Never invent it. */}
+            The audit is free. A real analyst reviews every call, so we take on up to 8 each month.
           </p>
         </div>
 
