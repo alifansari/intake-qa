@@ -23,7 +23,7 @@ in code; each is a literal `TODO(Ali):` marker where it lives. Answer these and 
 
 ## Blocking before a real firm's data flows through production
 - [x] **Anthropic retention tier** — Ali confirmed **7-day standard, NO ZDR**. Copy/docs must not claim ZDR (already enforced). Fine for the pilot.
-- [ ] **AssemblyAI PII redaction + code-switching** — Ali doesn't have this set up yet. These are REQUEST parameters, not a plan gate: redaction = `redact_pii: true` + policies; code-switching = `language_detection`/`language_code`. Turning them on means editing the FROZEN engine (`lib/transcribe.js`), so it needs a deliberate, separately-tested change before real (non-demo) confidential calls flow. Until then: demos only, and transcripts are already treated confidential + purged. **Flag me when you want the redaction pass built.**
+- [x] **AssemblyAI PII redaction + code-switching** — **BUILT (July 2026).** Conservative server-side redaction is ON by default (`ASSEMBLYAI_REDACT_PII`, defaults true): redacts SSN, card/banking, driver's-license, passport ONLY — never names, phones, injuries, or medical facts (needed for re-contact + scoring). Because those identifiers are not scoring signal, scoring is unchanged when a call contains none of them. Code-switching: handled by the existing `language_detection: true` on the multilingual model. Logic is in dependency-free `lib/transcribe-config.js` with 6 unit tests. No action needed from you; the flag can be flipped off in Vercel if ever required.
 - [ ] **Pilot firms' dominant language(s)** per firm/channel (`en` / `es` / `es-en-codeswitch`) — forced-language routing, not auto-detect.
 - [ ] **Phone-system export formats** each pilot firm actually has on hand (RingCentral mp3/wav, CallRail mp3, 8x8/Dialpad vary).
 
