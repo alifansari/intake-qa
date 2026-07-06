@@ -22,7 +22,13 @@ export function Nav() {
   // stands down on both. The Intake Quality Audit report (/audit/*) is a
   // client-facing, shareable, printable artifact with its own masthead, so the
   // internal dashboard nav stands down there too.
-  if (isMarketingRoute(pathname) || pathname.startsWith("/desk") || pathname.startsWith("/audit")) {
+  if (
+    isMarketingRoute(pathname) ||
+    pathname.startsWith("/desk") ||
+    pathname.startsWith("/audit") ||
+    pathname.startsWith("/letter") ||
+    pathname.startsWith("/carta")
+  ) {
     return null;
   }
   return (
