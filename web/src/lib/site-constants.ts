@@ -175,6 +175,23 @@ export const TEST_CORPUS_PRECISION: string | null = null;
 export const TEST_CORPUS_RECALL: string | null = null;
 export const TEST_CORPUS_LABEL = "on our test corpus"; // never "in the field"
 
+// ─── The five signability tiers (Round 7 certified, ICD-203 style) ───────────
+// Single source of truth. Displayed once (ConfidenceTierTable) and referenced
+// everywhere. ICD-203 rule: never combine a confidence level and a likelihood in
+// the same sentence; state the transcript basis for each judgment. The operational
+// flag threshold (signability >= 60) maps to Tier 4 and above. Bands use hyphens,
+// never en/em-dashes.
+export type ConfidenceTier = { tier: number; label: string; definition: string; band: string };
+export const CONFIDENCE_TIERS: ConfidenceTier[] = [
+  { tier: 5, label: "Very likely signable", definition: "Clear liability and injury, no disqualifier heard.", band: "80-95%" },
+  { tier: 4, label: "Likely signable", definition: "Strong indicators, one minor open question.", band: "55-80%" },
+  { tier: 3, label: "Roughly even", definition: "Genuinely mixed signals.", band: "45-55%" },
+  { tier: 2, label: "Unlikely signable", definition: "Weak indicators, or a likely disqualifier.", band: "20-45%" },
+  { tier: 1, label: "Very unlikely", definition: "Clear disqualifier: prior counsel, no injury, or property damage only.", band: "5-20%" },
+];
+export const CONFIDENCE_TIERS_NOTE =
+  "We state the transcript moment behind each judgment, and we never mix a confidence level with a likelihood in the same sentence. A call is flagged for follow-up at Tier 4 and above.";
+
 // ─── What months 2–12 look like (retention story; STATUS-FLAGGED) ────────────
 // Presentation-only vs new-build must be labeled. Never market vaporware.
 export const MONTH_6_INTRO =

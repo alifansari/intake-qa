@@ -4,8 +4,9 @@
    Intake QA design system — single source of truth (Tailwind v4 @theme).
    Editorial legal-financial look: warm paper canvas, near-black ink, structural
    navy, emerald for money/positive, muted red ONLY for the "leaking $" figure,
-   gold ONLY for the guarantee seal. Serif display (Fraunces), sans body (Inter),
-   mono numerals (IBM Plex Mono). No purple, no gradients, no glassmorphism.
+   gold ONLY for the guarantee seal. Serif display (Source Serif 4 — expert-report
+   gravitas), sans body (Inter), mono numerals (IBM Plex Mono). Numbers use tabular
+   lining figures. No purple, no gradients, no glassmorphism.
 
    NOTE (Tailwind v4): there is no tailwind.config file; theme tokens are declared
    here in @theme. Existing product screens use these semantic class names, so
@@ -61,7 +62,7 @@
   --color-band-intervention: #b23a2e;
 
   /* --- Type --------------------------------------------------------- */
-  --font-serif: var(--font-serif), "Source Serif 4", Georgia, serif;
+  --font-serif: var(--font-serif), "Source Serif 4", "Newsreader", Georgia, serif;
   --font-sans: var(--font-sans), system-ui, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
 

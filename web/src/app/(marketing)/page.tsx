@@ -7,6 +7,7 @@ import { GuaranteeBadge } from "@/components/marketing/GuaranteeBadge";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 import { FounderNote } from "@/components/marketing/FounderNote";
 import { StateOfIntakeSignup } from "@/components/marketing/StateOfIntakeSignup";
+import { SampleStatement } from "@/components/marketing/SampleStatement";
 import {
   CTA_PRIMARY,
   INDEPENDENCE_LINE,
@@ -104,6 +105,15 @@ export default function HomePage() {
         <p className="mt-4 text-sm text-faint">
           Free for qualifying Southern California PI firms. A real analyst reviews every call. You
           keep the report whether or not we work together.
+        </p>
+      </Section>
+
+      {/* HERO ARTIFACT: show the document immediately */}
+      <Section className="pb-16">
+        <SampleStatement />
+        <p className="mt-3 text-xs text-faint">
+          Page one of a sample Missed-Revenue Statement. Figures are illustrative and names are
+          redacted; your own Statement is built from your calls.
         </p>
       </Section>
 
