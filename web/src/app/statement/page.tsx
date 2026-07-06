@@ -30,25 +30,25 @@ export default async function StatementPage() {
 
   const lines: { label: string; detail: string; amount: number; tone: "red" | "green" | "ink" }[] = [
     {
-      label: "Opening balance — fees at risk",
+      label: "Opening balance: fees at risk",
       detail: `${flagged.length} flagged lost-signable calls this period`,
       amount: openedAtRisk,
       tone: "ink",
     },
     {
-      label: "Recovered — signed with us after callback",
+      label: "Recovered: signed with us after callback",
       detail: `${fees.conservativeCount} calls, within 14 days`,
       amount: -fees.conservative,
       tone: "green",
     },
     {
-      label: "Walked — signed elsewhere",
+      label: "Walked: signed elsewhere",
       detail: "flagged, not called back in time",
       amount: walked,
       tone: "red",
     },
     {
-      label: "Unresolved — still open",
+      label: "Unresolved: still open",
       detail: "recoverable if worked now",
       amount: stillOpen,
       tone: "ink",
@@ -63,7 +63,7 @@ export default async function StatementPage() {
   return (
     <PageShell className="max-w-3xl">
       <Annotation>
-        Hand this to a firm owner. It reframes intake QA as money in and money out — the
+        Hand this to a firm owner. It reframes intake QA as money in and money out, the
         language they already think in.
       </Annotation>
 

@@ -128,7 +128,7 @@ export default function AuditUploaderPage() {
           Your free Intake Quality Audit
         </h1>
         <p className="mt-2 text-muted">
-          Send us up to {MAX} recent intake calls. A real analyst — not just a model — reviews every
+          Send us up to {MAX} recent intake calls. A real analyst, not just a model, reviews every
           one against our calibrated PI rubric and hands you a written report: the signable cases that
           didn&apos;t sign, the evidence behind each flag, and what that walked-away fee revenue is
           worth in dollars. You keep the report whether or not we ever work together.
@@ -171,7 +171,7 @@ export default function AuditUploaderPage() {
             <span className="text-sm font-semibold text-ink">
               Roughly how many intake calls do you take a month?
             </span>
-            <span className="ml-2 text-xs text-faint">optional — we&apos;ll assume 100 if skipped</span>
+            <span className="ml-2 text-xs text-faint">optional, we&apos;ll assume 100 if skipped</span>
             <input
               type="number"
               min={1}
@@ -213,7 +213,7 @@ export default function AuditUploaderPage() {
               <li><b className="text-ink">8x8:</b> Admin Console → Recordings → select the call → Download.</li>
               <li><b className="text-ink">Dialpad:</b> Conversation History → open the call → three-dot menu → Download (bulk via Analytics → Recordings Export).</li>
               <li><b className="text-ink">Vonage:</b> monitoring/recordings area → download.</li>
-              <li className="pt-1 text-ink">No portal access? Your answering service can export these on request — ask for the inbound intake calls from the last two weeks.</li>
+              <li className="pt-1 text-ink">No portal access? Your answering service can export these on request. Ask for the inbound intake calls from the last two weeks.</li>
             </ul>
           </details>
 
@@ -221,11 +221,11 @@ export default function AuditUploaderPage() {
           <div className="rounded-sm border border-line bg-paper p-4">
             <p className="text-sm font-semibold text-ink">Here&apos;s the deal, in plain terms</p>
             <p className="mt-2 text-sm text-muted">
-              You send up to 10 recorded intake calls. We score them and show you — in dollars — how
+              You send up to 10 recorded intake calls. We score them and show you, in dollars, how
               much signable fee revenue didn&apos;t convert, with the evidence behind every flag. Your
               recordings and transcripts are deleted within {DELETION_DAYS} days of your readout, and
               immediately if you ask in writing. Nothing is ever texted to anyone. One person is
-              accountable for your data and your audit: {FOUNDER_NAME}, founder of Intake QA —{" "}
+              accountable for your data and your audit: {FOUNDER_NAME}, founder of Intake QA,{" "}
               <a href={`mailto:${FOUNDER_EMAIL}`} className="font-semibold text-navy underline">
                 {FOUNDER_EMAIL}
               </a>

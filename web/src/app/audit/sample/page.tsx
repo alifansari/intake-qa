@@ -9,7 +9,7 @@ import { money } from "@/lib/format";
 export const metadata: Metadata = {
   title: "Sample Intake Quality Audit | Intake QA",
   description:
-    "A sample Intake Quality Audit report on synthetic calls — see the signable fees that walked, with per-call evidence.",
+    "A sample Intake Quality Audit report on synthetic calls. See the signable fees that walked, with per-call evidence.",
   alternates: { canonical: "/audit/sample" },
 };
 
@@ -25,20 +25,20 @@ const WALKED = [
     filename: "call-0431.mp3",
     feeAtRisk: 18000,
     summary:
-      "Rear-end collision, company truck, documented driver admission, worsening injuries — the caller was ready to move forward but no retainer was sent and no follow-up was scheduled.",
+      "Rear-end collision, company truck, documented driver admission, worsening injuries. The caller was ready to move forward but no retainer was sent and no follow-up was scheduled.",
     quotes: [
       "Yeah, I definitely want to move forward with this.",
       "The other driver admitted it was his fault at the scene.",
     ],
     draftPreview:
-      "Hi Erika, this is the intake team at Sample PI Firm following up on your call — is now a good time to finish getting you set up? Reply STOP to opt out.",
+      "Hi Erika, this is the intake team at Sample PI Firm following up on your call. Is now a good time to finish getting you set up? Reply STOP to opt out.",
   },
   {
     filename: "call-0447.mp3",
     feeAtRisk: 9000,
     summary:
       "Slip-and-fall at a grocery store, clear liability, caller audibly distressed; the call closed on a vague “we’ll call you back” with no time set.",
-    quotes: ["I fell right where they’d just mopped — there was no sign or anything."],
+    quotes: ["I fell right where they’d just mopped. There was no sign or anything."],
     draftPreview: null,
   },
 ];
@@ -48,7 +48,7 @@ export default function SampleAuditPage() {
     <div className="mx-auto max-w-3xl px-6 py-10">
       {/* Persistent sample banner */}
       <div className="mb-6 rounded-sm border border-amber bg-amber-tint px-4 py-2 text-sm font-medium text-ink">
-        Sample report — synthetic calls for illustration. Your own report uses your calls.
+        Sample report on synthetic calls for illustration. Your own report uses your calls.
       </div>
 
       {/* Masthead */}
@@ -66,14 +66,14 @@ export default function SampleAuditPage() {
         </p>
         <p className="mt-2 max-w-prose text-sm text-muted">
           Every figure below is tied to a specific call and the words the prospective client
-          actually said. This is what we found in the sample — not a projection.
+          actually said. This is what we found in the sample, not a projection.
         </p>
       </section>
 
       {/* Per-call evidence — primary content */}
       <section className="mt-8">
         <h2 className="font-display text-xl font-semibold text-ink">
-          The signable cases that walked — with the evidence
+          The signable cases that walked, with the evidence
         </h2>
         <div className="mt-3 space-y-2">
           {WALKED.map((c) => (
@@ -104,12 +104,12 @@ export default function SampleAuditPage() {
         </p>
         <p className="mt-2 max-w-prose text-sm text-ink">
           If this rate held for a full month, that&apos;s roughly{" "}
-          <b className="tabular-nums">{money(PROJ_LOW)}</b>–
-          <b className="tabular-nums">{money(PROJ_HIGH)}</b> — and the low end conservatively assumes
+          <b className="tabular-nums">{money(PROJ_LOW)}</b> to{" "}
+          <b className="tabular-nums">{money(PROJ_HIGH)}</b>, and the low end conservatively assumes
           only half the rate we observed. The honest way to know is to run a full month.
         </p>
         <p className="mt-2 text-xs text-faint">
-          A projection, not a claim or a guarantee — a reason to run a full month.
+          A projection, not a claim or a guarantee, just a reason to run a full month.
         </p>
       </section>
 
@@ -118,7 +118,7 @@ export default function SampleAuditPage() {
         <h2 className="font-display text-xl font-semibold text-ink">A same-day save-protocol text we&apos;d draft</h2>
         <div className="mt-2 rounded-sm border border-line bg-paper p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-amber">
-            Draft preview — nothing is sent
+            Draft preview: nothing is sent
           </p>
           <p className="mt-2 text-sm text-ink">{WALKED[0].draftPreview}</p>
         </div>

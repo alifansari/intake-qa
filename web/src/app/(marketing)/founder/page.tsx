@@ -7,7 +7,7 @@ import { CTA_PRIMARY } from "@/lib/site-constants";
 export const metadata: Metadata = {
   title: "Why I built Intake QA | Plaintiff Ops",
   description:
-    "Ali ran PI intake before he built Intake QA. Why the signable cases that walk are the ones worth going back for — and why the first few firms use it free.",
+    "Ali ran PI intake before he built Intake QA. Why the signable cases that walk are the ones worth going back for, and why the first few firms use it free.",
   alternates: { canonical: "/founder" },
 };
 
@@ -43,7 +43,7 @@ export default function FounderPage() {
         </p>
         <p>
           Here&apos;s what I kept coming back to: the enemy was never the intake team. It was the
-          silence after the call — the voicemail nobody returned, the &ldquo;let me talk to my
+          silence after the call. The voicemail nobody returned, the &ldquo;let me talk to my
           spouse&rdquo; that never got a follow-up. Firms obsess over generating the next lead and
           stay blind to the ones they already paid for and let walk. And everyone reporting on it had
           a stake in the answer. So I built the independent desk that checks: read every call, detect
@@ -52,17 +52,17 @@ export default function FounderPage() {
         </p>
         <p>
           I&apos;m the analyst of record. The software does the listening at scale, but I review every
-          audit and every monthly statement and sign off on what you read — because I know what a
+          audit and every monthly statement and sign off on what you read, because I know what a
           signable case sounds like, and a QA function that doesn&apos;t have a human who does isn&apos;t
           worth much.
         </p>
         <p>
-          The founding cohort is small on purpose — three to five Southern California PI firms who
+          The founding cohort is small on purpose: three to five Southern California PI firms who
           use it on real calls and tell me where it&apos;s wrong. You&apos;d get direct access to me
-          and a say in what the desk becomes. No sales team, no logos to show you yet — just the work.
+          and a say in what the desk becomes. No sales team, no logos to show you yet, just the work.
         </p>
         <p className="font-display text-base font-semibold text-ink">
-          — Ali, Founder, Intake QA · Orange County, CA
+          Ali, Founder, Intake QA · Orange County, CA
         </p>
       </div>
 

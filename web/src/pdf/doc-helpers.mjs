@@ -5,7 +5,6 @@
 // Formatting conventions (from the design system): en-dash ranges, no cents
 // unless needed, dates as "Mon D, YYYY", sentence case, no exclamation marks.
 
-const EN_DASH = "–";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export function fmtMoney(cents) {
@@ -13,9 +12,9 @@ export function fmtMoney(cents) {
   return "$" + dollars.toLocaleString("en-US");
 }
 
-// "$12,000–$28,000" — range only, never a point estimate.
+// "$12,000 to $28,000", range only, never a point estimate.
 export function fmtMoneyRange(lowCents, highCents) {
-  return `${fmtMoney(lowCents)}${EN_DASH}${fmtMoney(highCents)}`;
+  return `${fmtMoney(lowCents)} to ${fmtMoney(highCents)}`;
 }
 
 // "Jul 5, 2026" from an ISO date/string.
@@ -28,7 +27,7 @@ export function fmtDate(iso) {
 // Statute-clock phrasing (verbatim rules). Under 90 days → days + time-sensitive.
 export function statuteClock(daysRemaining) {
   const d = Math.max(0, Math.round(Number(daysRemaining)));
-  if (d < 90) return `Statute: ~${d} days remaining (est.) ${EN_DASH} time-sensitive`;
+  if (d < 90) return `Statute: ~${d} days remaining (est.), time-sensitive`;
   const months = Math.round(d / 30);
   return `Statute: ~${months} months remaining (est.)`;
 }
@@ -92,15 +91,15 @@ export const SAVE_STATUSES = [
 
 // Severity tiers for the Leak Audit readout (findings-first).
 export const SEVERITY_TIERS = {
-  critical: "Critical — recoverable and time-sensitive",
-  significant: "Significant — recoverable",
-  awareness: "For awareness — pattern or process",
+  critical: "Critical: recoverable and time-sensitive",
+  significant: "Significant: recoverable",
+  awareness: "For awareness: pattern or process",
 };
 
 // ── Verbatim fixed blocks (ship exactly; avoid reserved accountancy terms) ──
 
 export const ATTESTATION = `Analyst's attestation
-I personally reviewed the calls, flags, and figures in this statement before it was issued. Each qualifying fact cited here is tied to a specific point in the call recording, and each estimated fee value is presented as a range under the methodology in Appendix A — not as a guarantee of outcome or recovery. This is an independent business analysis of intake performance. It is not an audit, an accounting engagement, a financial statement, or legal advice, and it should not be relied on as any of those.`;
+I personally reviewed the calls, flags, and figures in this statement before it was issued. Each qualifying fact cited here is tied to a specific point in the call recording, and each estimated fee value is presented as a range under the methodology in Appendix A, not as a guarantee of outcome or recovery. This is an independent business analysis of intake performance. It is not an audit, an accounting engagement, a financial statement, or legal advice, and it should not be relied on as any of those.`;
 
 export const FOOTNOTES = {
   fee: `¹ Estimated fee value. Ranges are estimates under the methodology in Appendix A. They use your firm's own historical outcomes first where available, and named published sources otherwise. Ranges exclude case-specific facts we cannot see (for example, policy limits, comparative fault, and prior injuries). They are not guarantees.`,
@@ -109,12 +108,12 @@ export const FOOTNOTES = {
 };
 
 export const AGENCY_INTRO = `Where your calls came from
-For each intake channel (your staff, your answering service, your AI receptionist), this section shows call volume, qualification completeness, and flagged leaks. It is meant to show which channels deliver signable PNCs — not to assign blame.`;
+For each intake channel (your staff, your answering service, your AI receptionist), this section shows call volume, qualification completeness, and flagged leaks. It is meant to show which channels deliver signable PNCs, not to assign blame.`;
 
-export const COACHING_XREF = `Coaching clips for this period are in Appendix B. Each clip is a short excerpt with one teaching point, chosen to help — not to single anyone out.`;
+export const COACHING_XREF = `Coaching clips for this period are in Appendix B. Each clip is a short excerpt with one teaching point, chosen to help, not to single anyone out.`;
 
 export const READOUT_LIMITS_INTRO = `What we could not determine
-We are deliberate about the limits of this review. The items below are things we could not confirm from the call recordings alone — for example, whether a PNC later called back on another line, signed elsewhere, or had a policy-limits problem we can't see. We list them so you know exactly what this readout does and does not establish.`;
+We are deliberate about the limits of this review. The items below are things we could not confirm from the call recordings alone. For example, whether a PNC later called back on another line, signed elsewhere, or had a policy-limits problem we can't see. We list them so you know exactly what this readout does and does not establish.`;
 
 export const READOUT_NEXT_STEPS = `If this is useful
 If you'd like, we can run this every month as your independent recovery desk. The first 30 days are free, with no obligation and no card. If it isn't earning its keep, we'll say so ourselves.`;

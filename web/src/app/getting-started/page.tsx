@@ -1,4 +1,4 @@
-// Getting Started — plain-English guide for non-technical firm staff, shown right
+// Getting Started: plain-English guide for non-technical firm staff, shown right
 // after onboarding. No data, no client state; a static server component. Explains
 // the pilot flow (score -> flag -> approve -> re-engage) and the compliance
 // guardrails so staff know exactly what the product does and does not do.
@@ -7,7 +7,7 @@ import { PageShell, PageHeader, SectionTitle } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-export const metadata = { title: "Getting started — Intake QA" };
+export const metadata = { title: "Getting started · Intake QA" };
 
 const STEPS: { title: string; body: string }[] = [
   {
@@ -20,16 +20,16 @@ const STEPS: { title: string; body: string }[] = [
   },
   {
     title: "3. You approve every re-engagement text",
-    body: "For a flagged case we draft a warm, compliant follow-up text from your approved templates. It lands in your Approval Queue. You approve, edit, or reject each one — nothing sends on its own.",
+    body: "For a flagged case we draft a warm, compliant follow-up text from your approved templates. It lands in your Approval Queue. You approve, edit, or reject each one. Nothing sends on its own.",
   },
   {
     title: "4. The lead signs or books a callback",
-    body: "An interested caller gets an e-signature link (Dropbox Sign) or a booked callback. Everything is logged so your weekly report can show recovered fees honestly — signed cases only.",
+    body: "An interested caller gets an e-signature link (Dropbox Sign) or a booked callback. Everything is logged so your weekly report can show recovered fees honestly, signed cases only.",
   },
 ];
 
 const GUARDRAILS: string[] = [
-  "A human approves every outbound text — always.",
+  "A human approves every outbound text, always.",
   "No texts between 8pm and 8am in the recipient's local time.",
   "STOP / UNSUBSCRIBE opts a number out immediately and forever.",
   "A kill switch can halt all sending instantly; new accounts start halted.",
@@ -66,7 +66,7 @@ export default function GettingStartedPage() {
             </ul>
           </div>
           <p className="mt-3 text-xs text-muted">
-            These are legal requirements, enforced in code at a single send chokepoint — no part of the
+            These are legal requirements, enforced in code at a single send chokepoint. No part of the
             product can send around them.
           </p>
         </CardContent>
@@ -78,7 +78,7 @@ export default function GettingStartedPage() {
           <ol className="ml-4 list-decimal space-y-2 text-sm text-ink">
             <li>Connect CallRail (or upload a recording) so your calls start getting scored.</li>
             <li>Watch the <a className="text-navy underline" href="/queue">Approval Queue</a> for flagged cases and approved-in-advance drafts.</li>
-            <li>Review your firm&apos;s message templates anytime — every change is saved as a new approved version.</li>
+            <li>Review your firm&apos;s message templates anytime. Every change is saved as a new approved version.</li>
             <li>When your A2P 10DLC registration is approved, an operator clears your kill switch to go live.</li>
           </ol>
           <p className="mt-4 text-xs text-faint">

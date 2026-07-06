@@ -1,4 +1,4 @@
-// Marketing shell — its own nav / footer / sticky CTA on the paper canvas.
+// Marketing shell with its own nav / footer / sticky CTA on the paper canvas.
 // Nested inside the root layout (fonts + providers); the product Nav stands down
 // on these routes (see components/nav.tsx + lib/marketing-routes.ts).
 

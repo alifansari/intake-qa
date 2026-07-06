@@ -45,14 +45,14 @@ export default async function CalibrationPage() {
           <p className="font-display text-2xl leading-snug text-ink sm:text-3xl">
             When we flag a call as a lost signable case, we&rsquo;re right{" "}
             <span className="font-bold text-navy tnum">
-              {precision == null ? "—" : pct(precision)}
+              {precision == null ? "-" : pct(precision)}
             </span>{" "}
             of the time.
           </p>
           <p className="mt-2 max-w-2xl text-sm text-muted">
             And of the signable cases that actually walked out the door, we caught{" "}
             <span className="font-semibold text-ink tnum">
-              {recall == null ? "—" : pct(recall)}
+              {recall == null ? "-" : pct(recall)}
             </span>{" "}
             of them. <InfoTip>{METHODOLOGY.catchRate}</InfoTip>
           </p>
@@ -71,7 +71,7 @@ export default async function CalibrationPage() {
               <MiniStat label="Correct passes" value={String(counts.correctPasses)} sub="rightly not flagged" />
             </div>
             <p className="mt-2 text-xs text-muted">
-              {counts.excluded} calls excluded — no confirmed outcome yet.
+              {counts.excluded} calls excluded, no confirmed outcome yet.
             </p>
           </CardContent>
         </Card>
@@ -93,7 +93,7 @@ export default async function CalibrationPage() {
                     />
                   </div>
                   <div className="tnum w-28 text-right text-sm">
-                    <span className="font-semibold">{c.precision == null ? "—" : pct(c.precision)}</span>
+                    <span className="font-semibold">{c.precision == null ? "-" : pct(c.precision)}</span>
                     <span className="ml-1 text-xs text-muted">
                       ({c.correctFlags}/{c.correctFlags + c.falseAlarms})
                     </span>
@@ -108,7 +108,7 @@ export default async function CalibrationPage() {
         </Card>
       </div>
 
-      {/* Our Misses — the required trust-builder */}
+      {/* Our Misses: the required trust-builder */}
       <Card>
         <CardContent className="pt-5">
           <SectionTitle>
@@ -121,13 +121,13 @@ export default async function CalibrationPage() {
           </p>
 
           <MissList
-            title="False alarms — we flagged it, it wasn't signable"
+            title="False alarms: we flagged it, it wasn't signable"
             tone="amber"
             rows={falseAlarms}
           />
           <div className="h-5" />
           <MissList
-            title="Missed catches — we didn't flag it, it signed elsewhere"
+            title="Missed catches: we didn't flag it, it signed elsewhere"
             tone="red"
             rows={missedCatches}
           />

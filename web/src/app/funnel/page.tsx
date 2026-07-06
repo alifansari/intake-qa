@@ -101,7 +101,7 @@ export default async function FunnelPage() {
             </SectionTitle>
             <CallbackDecayChart data={decay} />
             <p className="mt-2 text-xs text-muted">
-              Recovery sign rate collapses as the callback gets colder — speed is the lever.
+              Recovery sign rate collapses as the callback gets colder. Speed is the lever.
             </p>
           </CardContent>
         </Card>

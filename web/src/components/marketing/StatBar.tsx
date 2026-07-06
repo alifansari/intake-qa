@@ -1,5 +1,5 @@
 // Four stats in a row, each with a named source caption. Figures use tabular
-// numerals. Reusable — pass the stats in.
+// numerals. Reusable, pass the stats in.
 
 export type Stat = { value: string; label: string; source: string };
 

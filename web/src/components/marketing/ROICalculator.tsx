@@ -14,7 +14,7 @@ const usd = (n: number) =>
 // convert the workflow realistically wins back. Shown to the user as captions.
 const CONSERVATIVE = 0.2;
 const OPTIMISTIC = 0.4;
-// Reference cost is a FLAT monthly subscription — never per recovered case.
+// Reference cost is a FLAT monthly subscription, never per recovered case.
 const BASE_YR = REF_MONTHLY_USD * 12;
 
 function Field({
@@ -62,14 +62,14 @@ function Result({ tone, rate, casesLost, avgFee }: { tone: string; rate: number;
         <div className="flex justify-between"><dt className="text-ink-muted">Cases won back / yr</dt><dd className="tnum font-semibold text-ink">{recoveredCases.toFixed(1)}</dd></div>
         <div className="flex justify-between"><dt className="text-ink-muted">Fees recovered / yr</dt><dd className="tnum font-semibold text-accent">{usd(recoveredFees)}</dd></div>
         <div className="flex justify-between"><dt className="text-ink-muted">Net of software / yr</dt><dd className="tnum font-semibold text-ink">{usd(net)}</dd></div>
-        <div className="flex justify-between"><dt className="text-ink-muted">Pays for itself in</dt><dd className="tnum font-semibold text-ink">{paysInDays ? `${paysInDays} days` : "—"}</dd></div>
+        <div className="flex justify-between"><dt className="text-ink-muted">Pays for itself in</dt><dd className="tnum font-semibold text-ink">{paysInDays ? `${paysInDays} days` : "n/a"}</dd></div>
       </dl>
     </div>
   );
 }
 
 export function ROICalculator() {
-  // Conservative defaults: PI contingency fees commonly run 33–40% of recovery
+  // Conservative defaults: PI contingency fees commonly run 33-40% of recovery
   // (ABA / California norms), so a $12,000 average signable-case fee is modest.
   const [missedPerWeek, setMissed] = useState(10);
   const [avgFee, setAvgFee] = useState(12000);
@@ -89,8 +89,8 @@ export function ROICalculator() {
       <div className="mt-5 flex flex-col gap-1 rounded-card bg-canvas p-5">
         <p className="text-sm text-ink-muted">
           At that rate you lose{" "}
-          <span className="tnum font-semibold text-ink">{casesLost.toFixed(0)}</span> signable cases —
-          about <span className="tnum font-semibold text-alert">{usd(feesLost)}</span> in fees — a year.
+          <span className="tnum font-semibold text-ink">{casesLost.toFixed(0)}</span> signable cases,
+          about <span className="tnum font-semibold text-alert">{usd(feesLost)}</span> in fees, a year.
         </p>
       </div>
 

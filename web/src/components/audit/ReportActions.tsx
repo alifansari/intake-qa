@@ -37,7 +37,7 @@ export function ReportActions({ token }: { token: string }) {
         Save as PDF
       </button>
       <span className="text-xs text-faint">
-        Prints a clean copy you can forward. Audio isn&apos;t stored — every quote is timestamped to
+        Prints a clean copy you can forward. Audio isn&apos;t stored. Every quote is timestamped to
         your original recording.
       </span>
     </div>

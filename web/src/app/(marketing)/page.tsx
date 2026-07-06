@@ -26,9 +26,9 @@ import {
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "Intake QA — the independent recovery desk for PI firms",
+  title: "Intake QA: the independent recovery desk for PI firms",
   description:
-    "Everyone you pay to handle your intake grades their own work. Intake QA is the independent desk that checks the whole board against what actually got signed — and finds the signable cases that walked. Run your free Intake Quality Audit.",
+    "Everyone you pay to handle your intake grades their own work. Intake QA is the independent desk that checks the whole board against what actually got signed, and finds the signable cases that walked. Run your free Intake Quality Audit.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "The independent desk that finds the signable cases that walked.",
@@ -47,16 +47,16 @@ const STATS = [
 
 // The closed loop, in plain steps.
 const STEPS = [
-  "Send us your recorded intake calls — from every channel: your team, your answering service, your AI receptionist",
-  "Transcribed and scored 0–100 on a frozen, calibrated PI rubric",
+  "Send us your recorded intake calls from every channel: your team, your answering service, your AI receptionist",
+  "Transcribed and scored 0-100 on a frozen, calibrated PI rubric",
   "Signable-case detection: qualified callers who didn’t sign are flagged, with the evidence behind each",
-  "Reconciled against the fee agreements that actually got signed — so a flag is a real miss, not a guess",
+  "Reconciled against the fee agreements that actually got signed, so a flag is a real miss, not a guess",
   "Ali reviews the readout and signs off on what you see",
   "A staff-sent, human-reviewed save protocol for the recoverable ones (texting gated on A2P 10DLC)",
-  "A monthly missed-revenue statement — what walked, in dollars, trending over time",
+  "A monthly missed-revenue statement: what walked, in dollars, trending over time",
 ];
 
-// Illustrative Monthly Missed-Revenue Statement — every figure is a labeled EXAMPLE.
+// Illustrative Monthly Missed-Revenue Statement. Every figure is a labeled EXAMPLE.
 const STATEMENT_ROWS: [string, string][] = [
   ["Signable calls analyzed", "128"],
   ["Cases that signed", "31"],
@@ -84,7 +84,7 @@ function Section({ children, className = "" }: { children: React.ReactNode; clas
 export default function HomePage() {
   return (
     <>
-      {/* HERO — independence + closed-loop recovery (no category-king claim) */}
+      {/* HERO: independence + closed-loop recovery (no category-king claim) */}
       <Section className="pt-16 pb-12 sm:pt-24">
         <p className="eyebrow">The independent recovery desk for personal injury firms</p>
         <h1 className="mt-3 max-w-[20ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
@@ -93,7 +93,7 @@ export default function HomePage() {
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
           The AI receptionist grades its own calls. The agency grades its own leads. Your staff grade
           their own follow-up. Nobody checks the whole board against what actually got signed. Intake
-          QA is the independent desk that does — and finds the signable cases that walked.
+          QA is the independent desk that does, and finds the signable cases that walked.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-5">
           <CTA />
@@ -119,7 +119,7 @@ export default function HomePage() {
             Every report you get on your intake is self-graded homework.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
-            {INDEPENDENCE_LINE} We have no stake in the answer — we&apos;re paid the same flat fee no
+            {INDEPENDENCE_LINE} We have no stake in the answer. We&apos;re paid the same flat fee no
             matter what we find. That independence is the whole point: a QA function that grades the
             people it reports on isn&apos;t a QA function.
           </p>
@@ -180,7 +180,7 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* MONTHLY MISSED-REVENUE STATEMENT — flagship deliverable (illustrative) */}
+      {/* MONTHLY MISSED-REVENUE STATEMENT: flagship deliverable (illustrative) */}
       <Section className="py-14 border-t border-hairline">
         <div className="grid gap-8 lg:grid-cols-[1fr_minmax(0,420px)] lg:items-center">
           <div className="max-w-[60ch]">
@@ -191,7 +191,7 @@ export default function HomePage() {
             <p className="mt-5 text-lg leading-relaxed text-ink-muted">
               Every month you get one readout that reads like a P&amp;L for your intake: signable
               calls analyzed, cases that signed, cases that walked, estimated missed fee value, the
-              saves your team recovered, and the trend line. A written deliverable — not another
+              saves your team recovered, and the trend line. A written deliverable, not another
               dashboard to log into.
             </p>
           </div>
@@ -216,11 +216,11 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* MONTHS 2–12 value strip */}
+      {/* MONTHS 2-12 value strip */}
       <Section className="py-14 border-t border-hairline">
         <div className="max-w-[72ch]">
           <h2 className="font-display text-3xl font-semibold text-ink text-balance">
-            What months 2–12 look like.
+            What months 2-12 look like.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">{MONTH_6_INTRO}</p>
           <Link href="/how-it-works" className="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-hover">
@@ -237,7 +237,7 @@ export default function HomePage() {
           </h2>
           <p className="mt-4 max-w-[64ch] text-white/75">
             Send up to 10 recent intake calls. A real analyst reviews every one and shows you, in
-            dollars, how much signable fee revenue didn&apos;t convert — with a per-call breakdown and
+            dollars, how much signable fee revenue didn&apos;t convert, with a per-call breakdown and
             the evidence behind each flag. You keep the report either way. Then: {FUNNEL_LINE}
           </p>
           <div className="mt-7">
@@ -265,7 +265,7 @@ export default function HomePage() {
           Where the desk fits alongside what you already run.
         </h2>
         <p className="mb-7 max-w-[68ch] text-sm text-ink-muted">
-          Your answering service and AI receptionist do real work — they answer, summarize, and score
+          Your answering service and AI receptionist do real work. They answer, summarize, and score
           the calls they handle. The desk does the part none of them do: score 100% of calls across
           every channel and reconcile them against who actually signed.
         </p>
@@ -280,7 +280,7 @@ export default function HomePage() {
           </h2>
           <p className="mt-5 mb-6 text-lg leading-relaxed text-ink-muted">
             If your free audit doesn&apos;t surface at least {GUARANTEE_THRESHOLD} in estimated missed
-            signable case value, we won&apos;t pitch you a subscription — and if you start one anyway,
+            signable case value, we won&apos;t pitch you a subscription, and if you start one anyway,
             your first month is free. It&apos;s an estimate of what walked, not a promise of what
             we&apos;ll recover.
           </p>
@@ -306,7 +306,7 @@ export default function HomePage() {
         </h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {[
-            ["A flat fee for a service — never a share of a fee", "We're paid the same flat monthly fee no matter what we find, so it isn't a share of a fee under CA Rule 5.4 and can't be characterized as paying a runner or capper under B&P §§6151–6152 (strengthened by SB 37). The audit is free and the guarantee backs a diagnostic threshold, never a recovery."],
+            ["A flat fee for a service, never a share of a fee", "We're paid the same flat monthly fee no matter what we find, so it isn't a share of a fee under CA Rule 5.4 and can't be characterized as paying a runner or capper under B&P §§6151-6152 (strengthened by SB 37). The audit is free and the guarantee backs a diagnostic threshold, never a recovery."],
             ["We only help you answer your own callers", "Win-back messages respond to people who already called your firm. Under CA Rule 7.3, a communication in response to a request for information is not solicitation. We never contact strangers on your behalf."],
             ["A human verifies and sends", "The desk drafts; a person at your firm reviews and sends. Nothing goes out on its own (CA Rule 5.3; the CA State Bar's GenAI guidance, updated May 2026; ABA Formal Op. 512's verification duty). Your callers' words are never used to train AI."],
           ].map(([t, d]) => (
@@ -345,7 +345,7 @@ export default function HomePage() {
         <PilotCohortBanner />
         <div className="mt-10 max-w-[68ch]">
           <h2 className="font-display text-3xl font-semibold text-ink text-balance">
-            A founding cohort of {COHORT_MIN}–{COHORT_MAX} Southern California PI firms.
+            A founding cohort of {COHORT_MIN}-{COHORT_MAX} Southern California PI firms.
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">
             Free audit, free 30-day pilot, locked founding-cohort pricing, and a say in what the desk

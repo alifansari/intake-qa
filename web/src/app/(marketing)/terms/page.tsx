@@ -18,7 +18,7 @@ export default function TermsPage() {
         Contact us to receive the current executed documents before go-live.
       </p>
       <p className="mt-4 text-sm text-faint">
-        This page is a placeholder summary, not the binding agreement. The executed contract controls.
+        This page is a plain-language summary, not the binding agreement. The executed contract controls.
       </p>
     </div>
   );

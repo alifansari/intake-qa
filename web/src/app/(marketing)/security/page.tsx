@@ -47,7 +47,7 @@ export default function SecurityPage() {
         <p className="font-display text-lg font-semibold text-ink">Who is accountable</p>
         <p className="mt-2 text-sm text-ink-muted">
           {ACCOUNTABLE_PARTY_LINE} One person owns your data and your audit: {FOUNDER_NAME}, the
-          founder —{" "}
+          founder,{" "}
           <a href={`mailto:${FOUNDER_EMAIL}`} className="font-semibold text-accent hover:text-accent-hover">
             {FOUNDER_EMAIL}
           </a>
@@ -80,7 +80,7 @@ export default function SecurityPage() {
         </Row>
         <Row q="Retention & deletion">
           <p>
-            Your recordings and transcripts are deleted within {DELETION_DAYS} days of your readout —
+            Your recordings and transcripts are deleted within {DELETION_DAYS} days of your readout,
             and immediately if you ask in writing. If you move to a pilot, your data carries over
             under the pilot agreement, and the same deletion right applies. Your calls are never used
             to train our models.
@@ -91,12 +91,12 @@ export default function SecurityPage() {
             We analyze and transcribe your calls with our own models, over encrypted connections. We
             do not use your calls, transcripts, or the results to train our models, and we do not sell
             or share your data. Intake QA does not claim to be SOC 2 certified or HIPAA compliant as a
-            company — we make plain-English commitments and put them in writing.
+            company. We make plain-English commitments and put them in writing.
           </p>
         </Row>
         <Row q="DPA & NDA">
           <p>
-            A data-processing agreement (DPA) is available on request, and we&apos;ll sign your NDA — or
+            A data-processing agreement (DPA) is available on request, and we&apos;ll sign your NDA, or
             work from your firm&apos;s own paper.
           </p>
         </Row>

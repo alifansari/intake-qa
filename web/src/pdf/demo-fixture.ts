@@ -75,7 +75,7 @@ export const DEMO_DOC: DocData = {
       callerInitials: "J.R.",
       callerId: "#A-0142",
       callDate: "2026-06-08",
-      caseType: "Auto — rear-end",
+      caseType: "Auto (rear-end)",
       qualifyingFacts: [
         { text: "Rear-ended by a company truck; driver admitted fault at the scene", cite: "[03:12]" },
         { text: "Treating with a chiropractor twice a week for neck and back pain", cite: "[05:41]" },
@@ -110,7 +110,7 @@ export const DEMO_DOC: DocData = {
       severity: "critical",
       tag: "language-mismatch",
       excerpt:
-        "Caller: There was no sign, nothing — I slipped right where they'd mopped.\nStaff: Let me take your number and someone will reach out.\n[Spanish-language call; fully transcribed and analyzed.]",
+        "Caller: There was no sign, nothing. I slipped right where they'd mopped.\nStaff: Let me take your number and someone will reach out.\n[Spanish-language call; fully transcribed and analyzed.]",
     },
     {
       callerInitials: "T.W.",
@@ -133,7 +133,7 @@ export const DEMO_DOC: DocData = {
       callerInitials: "R.K.",
       callerId: "#A-0210",
       callDate: "2026-06-27",
-      caseType: "Auto — rear-end",
+      caseType: "Auto (rear-end)",
       qualifyingFacts: [
         { text: "Low-speed collision; caller unsure of injury severity, some soreness", cite: "[06:02]" },
       ],
@@ -160,10 +160,10 @@ export const DEMO_DOC: DocData = {
   ],
   reconciliation: { received: 132, processed: 128, excluded: 3, failed: 1 },
   analystNote:
-    "Two of this period's four leaks were the same pattern: a strong auto PNC called after hours, reached the answering service, and never got a same-day callback. The facts were all there on the calls — this is a follow-up-timing gap, not an intake-skill gap. If callbacks on after-hours auto calls happen within the business day, I'd expect most of these to convert. I've queued a coaching clip that shows one call where the callback happened fast and the PNC signed.",
+    "Two of this period's four leaks were the same pattern: a strong auto PNC called after hours, reached the answering service, and never got a same-day callback. The facts were all there on the calls. This is a follow-up-timing gap, not an intake-skill gap. If callbacks on after-hours auto calls happen within the business day, I'd expect most of these to convert. I've queued a coaching clip that shows one call where the callback happened fast and the PNC signed.",
   couldNotDetermine: [
     "Whether J.R. (#A-0142) later called back on another line or signed with another firm.",
     "Whether M.E. (#A-0187) has a policy-limits problem we cannot see from the call.",
-    "Whether the one failed recording contained a signable PNC — re-export at higher quality to include it.",
+    "Whether the one failed recording contained a signable PNC. Re-export at higher quality to include it.",
   ],
 };

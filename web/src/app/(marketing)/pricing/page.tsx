@@ -12,7 +12,7 @@ import {
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "Pricing — flat monthly, never a share of the fee | Intake QA",
+  title: "Pricing: flat monthly, never a share of the fee | Intake QA",
   description:
     "A flat monthly subscription tiered by call volume. No per-case fee, no percentage of any recovery, no charge tied to whether you sign a client. The founding-cohort pilot is free.",
   alternates: { canonical: "/pricing" },
@@ -27,7 +27,7 @@ export default function PricingPage() {
       </h1>
       <p className="mt-5 max-w-[72ch] text-lg text-ink-muted">
         No per-case fee. No percentage of any recovery. No charge tied to whether you sign a
-        client. You pay a flat monthly subscription to have your intake calls analyzed — the same
+        client. You pay a flat monthly subscription to have your intake calls analyzed, the same
         way you pay your answering service or your CRM, whether or not any given call becomes a
         client.
       </p>
@@ -86,11 +86,11 @@ export default function PricingPage() {
         <p className="mt-3 max-w-[72ch] text-sm text-faint">
           {GUARANTEE_THRESHOLD} find-it-free guarantee: if the free audit doesn&apos;t surface at
           least {GUARANTEE_THRESHOLD} in estimated missed signable case value, we won&apos;t pitch a
-          subscription — and if you start one anyway, your first month is free.
+          subscription. And if you start one anyway, your first month is free.
         </p>
       </section>
 
-      {/* The why — the compliance argument, in lawyer-grade language */}
+      {/* The why: the compliance argument, in lawyer-grade language */}
       <section className="mt-10 rounded-card border border-hairline bg-canvas p-6">
         <h2 className="font-display text-xl font-semibold text-ink">
           Why the fee is flat, and never tied to a case

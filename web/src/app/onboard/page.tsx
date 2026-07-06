@@ -1,10 +1,10 @@
 "use client";
 
-// Onboarding wizard — a 5-step setup for a new firm. Collects firm basics + case
+// Onboarding wizard: a 5-step setup for a new firm. Collects firm basics + case
 // types/fees, requires a compliance acknowledgement (PILOT MODE: nothing sends
 // without human approval), lets the operator review/edit the attorney-approved
 // SMS template pack (validated live), and finishes by creating the workspace via
-// /api/onboard. The wizard NEVER sends anything — it only sets up config and an
+// /api/onboard. The wizard NEVER sends anything; it only sets up config and an
 // approved, versioned template pack.
 
 import { useMemo, useState } from "react";
@@ -21,13 +21,13 @@ const TIMEZONES = [
 ];
 
 const DEFAULT_TEMPLATES = `=== TEMPLATE id=warm_followup | name=Warm follow-up (first contact) ===
-Hi {{first_name}}, this is the intake team at {{firm_name}} following up on your call. We're sorry we couldn't finish helping you then — is now a good time for a quick callback? No obligation. Reply STOP to opt out.
+Hi {{first_name}}, this is the intake team at {{firm_name}} following up on your call. We're sorry we couldn't finish helping you then. Is now a good time for a quick callback? No obligation. Reply STOP to opt out.
 
 === TEMPLATE id=we_can_help | name=We're here to help (first contact) ===
 Hi {{first_name}}, it's {{firm_name}}. We know reaching out after an accident isn't easy, and we'd still like to listen and see how we can help. When's a good time to talk? Reply STOP to opt out.
 
 === TEMPLATE id=checking_in | name=Checking in (first contact) ===
-Hi {{first_name}}, {{firm_name}} here — just checking in after your call. We'd genuinely like to help you sort out next steps whenever you're ready. Want us to give you a call back? Reply STOP to opt out.`;
+Hi {{first_name}}, {{firm_name}} here, just checking in after your call. We'd genuinely like to help you sort out next steps whenever you're ready. Want us to give you a call back? Reply STOP to opt out.`;
 
 type CaseType = { key: string; label: string; defaultFee: number };
 type AcceptedState = Record<string, { on: boolean; fee: string }>;
@@ -115,7 +115,7 @@ export default function OnboardPage() {
       }
       setResult({ version: data.version, persisted: data.persisted, configMarkdown: data.configMarkdown });
     } catch {
-      setError("Network error — please try again.");
+      setError("Network error. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -135,7 +135,7 @@ export default function OnboardPage() {
             </p>
             <div className="mt-4 rounded-sm border border-amber bg-amber-tint p-4 text-sm text-ink">
               <strong>Pilot mode is on.</strong> No text messages will send until an operator turns off
-              the kill switch after A2P 10DLC approval — and even then, a human approves every message
+              the kill switch after A2P 10DLC approval, and even then a human approves every message
               in the queue first.
             </div>
             <div className="mt-5 flex flex-wrap gap-3">
@@ -211,7 +211,7 @@ export default function OnboardPage() {
                 </select>
               </label>
               <label className="text-sm text-ink">
-                Monthly subscription price (optional — used in your weekly ROI report)
+                Monthly subscription price (optional, used in your weekly ROI report)
                 <input
                   type="number"
                   value={subscriptionPrice}
@@ -262,7 +262,7 @@ export default function OnboardPage() {
               </p>
               <ul className="space-y-2 text-sm text-ink">
                 <li>• <strong>Pilot mode:</strong> a human approves every text before it can be sent.</li>
-                <li>• <strong>Quiet hours:</strong> nothing sends 8pm–8am in the recipient&apos;s local time.</li>
+                <li>• <strong>Quiet hours:</strong> nothing sends 8pm-8am in the recipient&apos;s local time.</li>
                 <li>• <strong>Opt-out:</strong> STOP/UNSUBSCRIBE opts a number out immediately, forever.</li>
                 <li>• <strong>Kill switch:</strong> your account starts with all sending halted.</li>
                 <li>• <strong>Test mode:</strong> messages are simulated until A2P 10DLC is approved.</li>
@@ -282,7 +282,7 @@ export default function OnboardPage() {
             <div>
               <p className="mb-2 text-sm text-muted">
                 These are your attorney-approved first-contact templates. Edit the wording to match your
-                voice — the rules (name the firm, include opt-out, stay under 320 characters, no legal
+                voice. The rules (name the firm, include opt-out, stay under 320 characters, no legal
                 advice) are enforced and checked below.
               </p>
               <label className="mb-2 block text-sm text-ink">
@@ -314,7 +314,7 @@ export default function OnboardPage() {
             <div className="flex flex-col gap-3 text-sm text-ink">
               <Row label="Firm">{name}</Row>
               <Row label="Time zone">{timezone}</Row>
-              <Row label="Subscription">{subscriptionPrice ? `$${subscriptionPrice}/mo` : "—"}</Row>
+              <Row label="Subscription">{subscriptionPrice ? `$${subscriptionPrice}/mo` : "-"}</Row>
               <Row label="Case types">
                 {acceptedList.map((a) => `${a.label} ($${a.fee.toLocaleString("en-US")})`).join(", ")}
               </Row>

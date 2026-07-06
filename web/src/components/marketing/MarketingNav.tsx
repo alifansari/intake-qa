@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CTA_PRIMARY } from "@/lib/site-constants";
 
-// Marketing top nav — max 5 items, emerald CTA pill. No JS: middle links hide on
+// Marketing top nav, max 5 items, emerald CTA pill. No JS: middle links hide on
 // mobile, brand + CTA always visible.
 const LINKS = [
   { href: "/manifesto", label: "Manifesto" },

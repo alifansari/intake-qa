@@ -26,16 +26,16 @@ export function ReadoutDoc({ d }: { d: DocData }) {
   const order = { critical: 0, significant: 1, awareness: 2 } as const;
   const sorted = [...d.leaks].sort((a, b) => order[a.severity] - order[b.severity]);
   return (
-    <Document title={`Leak Audit — ${d.firmName}`} language="en">
+    <Document title={`Leak Audit: ${d.firmName}`} language="en">
       <DocPage docId={id}>
-        <Text style={S.h1}>Leak Audit — {d.firmName}</Text>
+        <Text style={S.h1}>Leak Audit · {d.firmName}</Text>
         <Text style={{ ...S.serif, fontSize: 12, marginTop: 2 }}>Independent review of intake calls</Text>
         <Text style={{ ...S.metaLine, marginTop: 4 }}>
-          Scope: {d.reconciliation.received} intake calls received {fmtDate(d.periodStart)}{"–"}{fmtDate(d.periodEnd)},
+          Scope: {d.reconciliation.received} intake calls received {fmtDate(d.periodStart)}{" to "}{fmtDate(d.periodEnd)},
           across {channels.join(" / ")}. {d.reconciliation.processed} calls were analyzed; the remainder are
           accounted for in the reconciliation table on the last page.
         </Text>
-        <Text style={S.metaLine}>Prepared by Intake QA — Independent Recovery Desk</Text>
+        <Text style={S.metaLine}>Prepared by Intake QA · Independent Recovery Desk</Text>
         <Text style={S.metaLine}>Readout No. {id}</Text>
 
         {/* Findings, most severe first */}
@@ -47,14 +47,14 @@ export function ReadoutDoc({ d }: { d: DocData }) {
                 {SEVERITY_TIERS[l.severity]}
               </Text>
               <Text style={{ fontSize: 10 }}>
-                {l.callerInitials} · {l.callerId} — {l.caseType} · {fmtDate(l.callDate)} · {l.channel}
+                {l.callerInitials} · {l.callerId} · {l.caseType} · {fmtDate(l.callDate)} · {l.channel}
               </Text>
               {l.qualifyingFacts.map((f, i) => (
                 <Text key={i} style={{ fontSize: 8.5, color: COLORS.muted, marginLeft: 8 }}>• {f.text} {f.cite}</Text>
               ))}
               {l.excerpt ? (
                 <View style={{ marginTop: 4, marginLeft: 8, borderLeftWidth: 1.5, borderLeftColor: COLORS.rule, paddingLeft: 6 }}>
-                  <Text style={{ ...S.faint, marginBottom: 2 }}>Excerpt — internal use; redacted.</Text>
+                  <Text style={{ ...S.faint, marginBottom: 2 }}>Excerpt (internal use; redacted).</Text>
                   {l.excerpt.split("\n").map((line, i) => (
                     <Text key={i} style={{ fontSize: 8, color: COLORS.ink }}>{line}</Text>
                   ))}

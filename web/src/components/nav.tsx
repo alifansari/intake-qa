@@ -18,9 +18,13 @@ const LINKS = [
 export function Nav() {
   const pathname = usePathname();
   // Marketing pages carry their own nav/footer/sticky CTA via the (marketing)
-  // shell, and the four-screen desk carries its own chrome — the product nav
-  // stands down on both.
-  if (isMarketingRoute(pathname) || pathname.startsWith("/desk")) return null;
+  // shell, and the four-screen desk carries its own chrome, so the product nav
+  // stands down on both. The Intake Quality Audit report (/audit/*) is a
+  // client-facing, shareable, printable artifact with its own masthead, so the
+  // internal dashboard nav stands down there too.
+  if (isMarketingRoute(pathname) || pathname.startsWith("/desk") || pathname.startsWith("/audit")) {
+    return null;
+  }
   return (
     <header className="no-print sticky top-0 z-30 bg-navy-deep text-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between">
