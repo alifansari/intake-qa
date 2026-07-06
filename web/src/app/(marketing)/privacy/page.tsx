@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  DELETION_DAYS,
+  DELETION_HOURS,
   FOUNDER_EMAIL,
   LEGAL_ENTITY,
   LEGAL_DBA,
@@ -105,7 +105,7 @@ export default function PrivacyPage() {
         <Section n="6" title="How long we keep it, and deletion">
           <p>
             Call audio is deleted the moment it is transcribed. Transcripts and reports are deleted
-            within {DELETION_DAYS}{" "}days of your readout, or immediately if you ask in writing. If you
+            within {DELETION_HOURS}{" "}hours of your readout, or immediately if you ask in writing. If you
             move from a free audit to a pilot, the data carries over under the pilot agreement and the
             same deletion right applies.
           </p>

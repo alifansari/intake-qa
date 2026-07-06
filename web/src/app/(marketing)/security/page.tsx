@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ACCOUNTABLE_PARTY_LINE,
-  DELETION_DAYS,
+  DELETION_HOURS,
   BREACH_NOTICE_HOURS,
   FOUNDER_NAME,
   FOUNDER_EMAIL,
@@ -80,10 +80,10 @@ export default function SecurityPage() {
         </Row>
         <Row q="Retention & deletion">
           <p>
-            Your recordings and transcripts are deleted within {DELETION_DAYS} days of your readout,
-            and immediately if you ask in writing. If you move to a pilot, your data carries over
-            under the pilot agreement, and the same deletion right applies. Your calls are never used
-            to train our models.
+            Your audio is deleted the moment it is transcribed, and transcripts and reports are
+            purged within {DELETION_HOURS} hours of your readout, or immediately if you ask in
+            writing. If you move to a pilot, your data carries over under the pilot agreement, and
+            the same 72-hour purge applies. Your calls are never used to train our models.
           </p>
         </Row>
         <Row q="Our models">

@@ -9,7 +9,7 @@
 import { useCallback, useRef, useState } from "react";
 import { getSupabaseBrowser } from "../../lib/supabase/client";
 import {
-  DELETION_DAYS,
+  DELETION_HOURS,
   FOUNDER_NAME,
   FOUNDER_EMAIL,
   AUDIT_FREE_LINE,
@@ -223,7 +223,7 @@ export default function AuditUploaderPage() {
             <p className="mt-2 text-sm text-muted">
               You send up to 10 recorded intake calls. We score them and show you, in dollars, how
               much signable fee revenue didn&apos;t convert, with the evidence behind every flag. Your
-              recordings and transcripts are deleted within {DELETION_DAYS} days of your readout, and
+              recordings and transcripts are purged within {DELETION_HOURS} hours of your readout, and
               immediately if you ask in writing. Nothing is ever texted to anyone. One person is
               accountable for your data and your audit: {FOUNDER_NAME}, founder of Intake QA,{" "}
               <a href={`mailto:${FOUNDER_EMAIL}`} className="font-semibold text-navy underline">

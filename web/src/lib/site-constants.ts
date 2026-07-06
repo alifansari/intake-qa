@@ -106,10 +106,11 @@ export const PILOT_DAYS = 30;
 export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MIN} to ${COHORT_MAX} Southern California PI firms onto free ${PILOT_DAYS}-day pilots.`;
 
 // ─── Data handling (one reconciled promise) ──────────────────────────────────
-export const DELETION_DAYS = 7;
-// Audio is deleted at transcription; transcripts/reports within DELETION_DAYS of
-// the readout, or immediately on written request.
-export const DELETION_LINE = `Call audio is deleted the moment it's transcribed; transcripts and reports are deleted within ${DELETION_DAYS} days of your readout, or immediately if you ask in writing.`;
+// Canonical retention (Round 7 master): audio deleted at transcription; transcripts
+// and reports purged within 72 hours. Stated identically on Security, Compliance,
+// Privacy, Demo, and FAQ. The demo pipeline already purges on this 72-hour window.
+export const DELETION_HOURS = 72;
+export const DELETION_LINE = `Call audio is deleted the moment it's transcribed; transcripts and reports are purged within ${DELETION_HOURS} hours of your readout, or immediately if you ask in writing.`;
 // Breach-notification commitment confirmed by Ali (July 2026): within 72 hours.
 export const BREACH_NOTICE_HOURS = 72;
 

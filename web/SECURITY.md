@@ -31,8 +31,8 @@ SOC 2 / HIPAA / ZDR as Intake QA unless a signed agreement is in place.
 
 ## Retention & deletion
 - Call audio is deleted the moment it is transcribed.
-- Transcripts and reports are deleted within 7 days of your readout, or immediately on written
-  request. A Leak Audit's data is deleted automatically 7 days after the readout if the firm does
+- Transcripts and reports are purged within 72 hours of your readout, or immediately on written
+  request. A Leak Audit's data is purged automatically 72 hours after the readout if the firm does
   not continue.
 - What is live today: call audio is deleted immediately after transcription; demo data and expired
   Leak Audit sessions are purged automatically on a daily durable (Inngest) schedule.
