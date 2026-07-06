@@ -7,6 +7,7 @@
 
 import React from "react";
 import { Page, View, Text, StyleSheet } from "@react-pdf/renderer";
+import { ANALYST } from "../lib/analyst.mjs";
 
 const C = {
   ink: "#12161C",
@@ -100,7 +101,7 @@ export function AttestationBlock({ text, analystName, issuedDate }: { text: stri
       ))}
       <Text style={{ marginTop: 18 }}>_______________________________</Text>
       <Text style={{ marginTop: 2, color: C.ink }}>{analystName}</Text>
-      <Text style={{ color: C.muted }}>Analyst of Record, Intake QA</Text>
+      <Text style={{ color: C.muted }}>{ANALYST.title}, Intake QA</Text>
       <Text style={{ color: C.muted }}>{issuedDate}</Text>
     </View>
   );

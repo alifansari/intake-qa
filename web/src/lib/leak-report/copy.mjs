@@ -3,6 +3,8 @@
 // exactly as specified. Reserved-term rule: never "audit"/"audited" for this
 // artifact — it is a review / diagnostic / independent diagnostic review.
 
+import { ANALYST, ANALYST_CONTACT } from "../analyst.mjs";
+
 // Page-one BLUF — three fixed labels (do not rename).
 export const PAGE_ONE_LABELS = {
   count: "Leaked signable cases found",
@@ -39,13 +41,13 @@ export function methodologyAppendix({ low, high }) {
   return `How we estimated fee value. We use a conservative method. For each case we apply a value range, not a single number, and in the summary we quote the low end. Our sources, in order of preference: (1) your firm's own average fee by case type, when you provide it at onboarding; (2) otherwise, published fee ranges by case type, which you approve before we use them. We exclude any case whose statute has expired. We exclude moderate-confidence flags from the totals. We do not predict outcomes and we do not guarantee recoveries. Worked example: a case with a value range of ${low}–${high} contributes ${low} to the conservative headline total, and appears as one row in the fee-at-risk schedule. TODO(Ali): populate the fee-value table by case type, and approve the published-source citations used when a firm has not provided its own averages.`;
 }
 
-export function analystSignoff({ contact = "[contact]" } = {}) {
-  return `Analyst of record: Ali [last name], Intake QA — the Independent Recovery Desk. Former personal-injury paralegal; bilingual English/Spanish. Direct line: ${contact}. I personally reviewed this report before it was released. The findings here reflect my own independent judgment. Every quoted excerpt was checked against the original call recording. This is an independent diagnostic review — it is not a certified financial audit and it is not legal advice. TODO(Ali): confirm legal last name and direct contact line.`;
+export function analystSignoff({ contact = ANALYST_CONTACT } = {}) {
+  return `Analyst of record: ${ANALYST.name}, ${ANALYST.org}. Former personal-injury paralegal; bilingual English/Spanish. Direct line: ${contact}. I personally reviewed this report before it was released. The findings here reflect my own independent judgment. Every quoted excerpt was checked against the original call recording. This is an independent diagnostic review — it is not a certified financial audit and it is not legal advice.`;
 }
 
 export function coverMemo({ date, firm, caseType, deadline, days, exhibit }) {
   return `MEMO — TIME-SENSITIVE.
-Date: ${date}.   To: ${firm}.   From: Ali [last name], Intake QA — Independent Recovery Desk.
+Date: ${date}.   To: ${firm}.   From: ${ANALYST.name}, ${ANALYST.org}.
 Re: One live case with a closing statute clock.
 Before you read the full report: at least one leaked case has a statute deadline in the CRITICAL band.
 Case type: ${caseType}.  Estimated deadline: ${deadline} (${days} days out).

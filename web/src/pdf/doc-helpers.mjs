@@ -54,6 +54,24 @@ export function trendVerdict(current, prior) {
   return "held";
 }
 
+// Derive a short, stable FIRM-CODE from a firm name when one isn't assigned by
+// hand. Confirmed scheme (Ali, July 2026): [FIRM-CODE]-[YYYY]-[NN]. Takes the
+// first two significant words (drops "law", "firm", "&", "the", etc.), keeps
+// letters only, uppercases, and caps at 6 chars. Deterministic — same name always
+// yields the same code. e.g. "Sunset & Vine Injury Law" -> "SUNVIN".
+const CODE_STOPWORDS = new Set(["the", "and", "of", "law", "firm", "group", "llp", "llc", "pc", "apc", "injury", "attorneys", "attorney", "office", "offices"]);
+export function deriveFirmCode(firmName) {
+  const words = String(firmName || "")
+    .replace(/\(DEMO\)|\(TEST\)/gi, "")
+    .split(/[^A-Za-z]+/)
+    .filter((w) => w && !CODE_STOPWORDS.has(w.toLowerCase()));
+  const base = (words.length ? words : String(firmName || "").split(/[^A-Za-z]+/).filter(Boolean))
+    .slice(0, 2)
+    .map((w) => w.toUpperCase())
+    .join("");
+  return (base || "FIRM").slice(0, 6);
+}
+
 // Document IDs: [FIRM-CODE]-[YYYY]-[NN] and [FIRM-CODE]-LA-[YYYY]-[NN].
 export function statementId(firmCode, year, nn) {
   return `${firmCode}-${year}-${String(nn).padStart(2, "0")}`;

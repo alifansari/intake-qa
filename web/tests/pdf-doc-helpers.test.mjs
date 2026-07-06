@@ -14,6 +14,7 @@ import {
   trendVerdict,
   statementId,
   readoutId,
+  deriveFirmCode,
   ATTESTATION,
   SAVE_STATUSES,
 } from "../src/pdf/doc-helpers.mjs";
@@ -51,6 +52,15 @@ test("trend verdict is one word", () => {
 test("document IDs are zero-padded", () => {
   assert.equal(statementId("SUNSET", 2026, 3), "SUNSET-2026-03");
   assert.equal(readoutId("SUNSET", 2026, 3), "SUNSET-LA-2026-03");
+});
+
+test("firm code: drops stopwords, letters only, uppercased, capped at 6", () => {
+  assert.equal(deriveFirmCode("Sunset & Vine Injury Law"), "SUNSET");
+  assert.equal(deriveFirmCode("Sunset & Vine Injury Law (DEMO)"), "SUNSET");
+  assert.equal(deriveFirmCode("The Law Offices of Jane Doe"), "JANEDO");
+  assert.equal(deriveFirmCode(""), "FIRM");
+  // A name made entirely of stopwords still yields a stable, non-empty code.
+  assert.ok(deriveFirmCode("Law Firm LLP").length > 0);
 });
 
 test("attestation disclaims reserved terms and any recovery guarantee", () => {
