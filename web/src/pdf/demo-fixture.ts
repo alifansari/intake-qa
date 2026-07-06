@@ -1,6 +1,9 @@
 // Self-contained, obviously-synthetic data for rendering sample PDFs with NO DB.
 // Mirrors the demo firm from seed:demo ("Sunset & Vine Injury Law (DEMO)").
 // Every figure here is illustrative; callers are fake (initials + #ID only).
+// The analyst-of-record, however, is the REAL signer (see src/lib/analyst.mjs).
+
+import { ANALYST } from "../lib/analyst.mjs";
 
 export type LeakTag =
   | "no-callback-commitment"
@@ -59,7 +62,7 @@ export const DEMO_DOC: DocData = {
   periodLabel: "June 2026",
   periodStart: "2026-06-01",
   periodEnd: "2026-06-30",
-  analystName: "Ali (DEMO)",
+  analystName: ANALYST.name,
   issuedDate: "2026-07-05",
   seq: 3,
   year: 2026,

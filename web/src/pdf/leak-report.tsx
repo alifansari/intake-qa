@@ -6,6 +6,7 @@
 import React from "react";
 import { Document, View, Text } from "@react-pdf/renderer";
 import { DocPage, S, COLORS } from "./shared";
+import { ANALYST } from "../lib/analyst.mjs";
 
 // Shape of the composed document model (from src/lib/leak-report/compose.mjs).
 type Exhibit = {
@@ -217,7 +218,7 @@ export function LeakReportDoc({ model }: { model: Model }) {
           <Text style={{ fontSize: 8.5, color: COLORS.muted }}>{m.signoff}</Text>
           <Text style={{ marginTop: 14 }}>_______________________________</Text>
           <Text style={{ marginTop: 2, color: COLORS.ink }}>{m.meta.analystName}</Text>
-          <Text style={{ color: COLORS.muted }}>Analyst of Record, Intake QA · {m.meta.issuedDate}</Text>
+          <Text style={{ color: COLORS.muted }}>{ANALYST.title}, Intake QA · {m.meta.issuedDate}</Text>
         </View>
       </DocPage>
     </Document>

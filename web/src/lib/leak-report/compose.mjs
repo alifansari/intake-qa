@@ -24,6 +24,7 @@ import {
   analystSignoff,
   coverMemo,
 } from "./copy.mjs";
+import { ANALYST } from "../analyst.mjs";
 
 // Map sol.mjs urgencyBand output → the report's standardized badge label.
 export function badgeFor(leak) {
@@ -128,7 +129,7 @@ export function composeLeakReport(data, { now = "2026-07-05" } = {}) {
       firmName: data.firmName,
       reportId,
       periodLabel: data.periodLabel,
-      analystName: data.analystName,
+      analystName: data.analystName ?? ANALYST.name,
       issuedDate: fmtDate(data.issuedDate),
     },
     coverMemo: coverMemoText,
