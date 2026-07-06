@@ -191,6 +191,11 @@ export default function SampleAuditPage() {
           Run your free Intake Quality Audit
         </Link>
       </section>
+
+      <footer className="mt-10 border-t border-hairline pt-6 text-xs text-faint">
+        Intake QA is a service of Plaintiff Ops LLC. Estimates and calibration figures are not legal
+        advice and are not a prediction of case value. © 2026 Plaintiff Ops LLC.
+      </footer>
     </div>
   );
 }
