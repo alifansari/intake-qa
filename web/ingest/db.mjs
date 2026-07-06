@@ -1267,6 +1267,26 @@ export function setReportStatus(db, sessionId, status, { releasedBy = null, now 
   }
 }
 
+// ── Report access events (migration 0017). ────────────────────────────────────
+export function logReportAccess(db, { token, event_type, viewer_fingerprint = null }) {
+  db.prepare(
+    "INSERT INTO report_access_events (token, event_type, viewer_fingerprint) VALUES (?, ?, ?)"
+  ).run(token, event_type, viewer_fingerprint);
+}
+
+export function countReportAccess(db, token) {
+  const row = db
+    .prepare(
+      `SELECT
+         COUNT(*) FILTER (WHERE event_type = 'view')      AS views,
+         COUNT(*) FILTER (WHERE event_type = 'download')  AS downloads,
+         COUNT(DISTINCT viewer_fingerprint)               AS distinct_viewers
+       FROM report_access_events WHERE token = ?`
+    )
+    .get(token);
+  return row ?? { views: 0, downloads: 0, distinct_viewers: 0 };
+}
+
 // Sessions awaiting analyst review (for the internal review queue UI).
 export function listReviewableSessions(db) {
   return db

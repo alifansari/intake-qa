@@ -1176,3 +1176,23 @@ export async function listReviewableSessions(db) {
   );
   return r.rows;
 }
+
+// ── Report access events (migration 0017) — Postgres twins. ───────────────────
+export async function logReportAccess(db, { token, event_type, viewer_fingerprint = null }) {
+  await db.query(
+    "INSERT INTO report_access_events (token, event_type, viewer_fingerprint) VALUES ($1, $2, $3)",
+    [token, event_type, viewer_fingerprint]
+  );
+}
+
+export async function countReportAccess(db, token) {
+  const r = await db.query(
+    `SELECT
+       COUNT(*) FILTER (WHERE event_type = 'view')     AS views,
+       COUNT(*) FILTER (WHERE event_type = 'download') AS downloads,
+       COUNT(DISTINCT viewer_fingerprint)              AS distinct_viewers
+     FROM report_access_events WHERE token = $1`,
+    [token]
+  );
+  return r.rows[0] ?? { views: 0, downloads: 0, distinct_viewers: 0 };
+}
