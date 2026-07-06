@@ -34,6 +34,32 @@ export default function ForCallersPage() {
         </p>
       </div>
 
+      <div className="mt-12 border-t border-hairline pt-8">
+        <p className="eyebrow">En español</p>
+        <h2 className="mt-2 max-w-[26ch] font-display text-2xl font-semibold tracking-tight text-ink">
+          Si llamó a un bufete de abogados y le dijeron que su llamada podría ser revisada.
+        </h2>
+        <div className="mt-5 space-y-4 leading-relaxed text-ink-muted">
+          <p>
+            Si hace poco llamó a un bufete de abogados de lesiones personales y le dijeron que su
+            llamada podría ser revisada para control de calidad, esta puede ser la razón. Los bufetes
+            usan Intake QA para asegurarse de que las personas que necesitan ayuda no queden sin
+            atención.
+          </p>
+          <p>
+            Trabajamos únicamente para el bufete al que usted llamó, siguiendo sus instrucciones.
+            Nunca vendemos su información ni lo agregamos a listas de publicidad. Si el bufete se
+            comunica con usted, es para que una persona pueda ayudarle. Puede responder STOP o ALTO a
+            cualquier mensaje de texto y dejaremos de enviarlos de inmediato.
+          </p>
+          <p>
+            Su llamada se trata como confidencial. Las grabaciones se eliminan justo después de
+            convertirse en texto. Si tiene una pregunta sobre su propia llamada, lo mejor es
+            preguntarle al bufete al que llamó.
+          </p>
+        </div>
+      </div>
+
       <div className="mt-10 border-t border-hairline pt-6 text-sm text-faint">
         <p>
           Intake QA is a service of Plaintiff Ops LLC. This page is a general explanation, not legal
