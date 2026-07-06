@@ -40,7 +40,7 @@ export function seedDemo(db) {
     flag: db.prepare("INSERT INTO flags (call_id, firm_id, qualification_score, is_leaked_signable, reason, case_type) VALUES (?, ?, ?, 1, ?, ?)"),
     nameCall: db.prepare("UPDATE calls SET caller_name = ? WHERE id = ?"),
     conf: db.prepare("INSERT INTO flag_confidence (flag_id, confidence_tier, rubric_version) VALUES (?, ?, 'rubric-v1') ON CONFLICT (flag_id) DO NOTHING"),
-    ver: db.prepare("INSERT INTO analysis_versions (flag_id, model_version, prompt_version, rubric_version) VALUES (?, 'claude-sonnet-4-6', 'sys-v3', 'rubric-v1')"),
+    ver: db.prepare("INSERT INTO analysis_versions (flag_id, model_version, prompt_version, rubric_version) VALUES (?, 'intake-analysis-2026-07', 'sys-v3', 'rubric-v1')"),
     cite: db.prepare("INSERT INTO transcript_citations (flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score, status) VALUES (?, ?, ?, ?, ?, ?, ?)"),
   };
 

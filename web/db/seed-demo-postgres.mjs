@@ -76,7 +76,7 @@ try {
       [flagId, cr.tier]
     );
     await c.query(
-      "INSERT INTO analysis_versions (flag_id, model_version, prompt_version, rubric_version) VALUES ($1,'claude-sonnet-4-6','sys-v3','rubric-v1')",
+      "INSERT INTO analysis_versions (flag_id, model_version, prompt_version, rubric_version) VALUES ($1,'intake-analysis-2026-07','sys-v3','rubric-v1')",
       [flagId]
     );
     for (const cit of cr.citations) {

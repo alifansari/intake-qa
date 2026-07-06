@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  SUBPROCESSORS,
   ACCOUNTABLE_PARTY_LINE,
   DELETION_DAYS,
   BREACH_NOTICE_HOURS,
@@ -13,7 +12,7 @@ import {
 export const metadata: Metadata = {
   title: "Security & data handling | Intake QA",
   description:
-    "Encryption, access controls, retention and deletion, named subprocessors and their postures, DPA/BAA and NDA willingness, and breach notification. Your calls are never used to train AI, and one party is accountable to you.",
+    "Encryption, access controls, retention and deletion, DPA/NDA willingness, and breach notification. Your calls are never used to train our models, and one party is accountable to you.",
   alternates: { canonical: "/security" },
 };
 
@@ -68,59 +67,39 @@ export default function SecurityPage() {
       <div className="mt-10">
         <Row q="Encryption">
           <p>
-            Data is encrypted in transit (TLS) and at rest (AES-256), across storage and every
-            provider we use. Nothing about your calls travels or sits unencrypted.
+            Data is encrypted in transit (TLS) and at rest (AES-256). Nothing about your calls
+            travels or sits unencrypted.
           </p>
         </Row>
         <Row q="Access controls">
           <p>
             Firm data is isolated per firm. Access is limited to what&apos;s needed to run the
-            service, and the confidential audio and transcripts are not shared beyond the providers
-            listed below, each under contract.
+            service; your confidential audio and transcripts stay inside our systems and are never
+            handed to anyone else.
           </p>
         </Row>
         <Row q="Retention & deletion">
           <p>
-            Your recordings and transcripts are deleted within {DELETION_DAYS} days of your audit
-            readout — and immediately if you ask in writing. If you move to a pilot, your data carries
-            over under the pilot agreement, and the same deletion right applies. Your calls are never
-            used to train any AI model.
+            Your recordings and transcripts are deleted within {DELETION_DAYS} days of your readout —
+            and immediately if you ask in writing. If you move to a pilot, your data carries over
+            under the pilot agreement, and the same deletion right applies. Your calls are never used
+            to train our models.
           </p>
         </Row>
-        <Row q="Subprocessors">
-          <p className="mb-4">
-            We use three infrastructure providers under contract — the same category of vendors your
-            CRM and transcription tools already rely on. The certifications below belong to those
-            providers; Intake QA does not claim to be SOC 2 certified or HIPAA compliant as a company.
-            {/* TODO(Ali): confirm Intake QA's own attestations, if any, before adding company-level claims. */}
+        <Row q="Our models">
+          <p>
+            We analyze and transcribe your calls with our own models, over encrypted connections. We
+            do not use your calls, transcripts, or the results to train our models, and we do not sell
+            or share your data. Intake QA does not claim to be SOC 2 certified or HIPAA compliant as a
+            company — we make plain-English commitments and put them in writing.
+            {/* TODO(Ali): confirm any company-level attestations before adding formal claims. */}
           </p>
-          <div className="overflow-x-auto rounded-card border border-hairline">
-            <table className="w-full min-w-[640px] text-sm">
-              <thead>
-                <tr className="border-b border-hairline bg-canvas text-xs uppercase tracking-wide text-ink-muted">
-                  <th className="px-4 py-2.5 text-left">Provider</th>
-                  <th className="px-4 py-2.5 text-left">Role</th>
-                  <th className="px-4 py-2.5 text-left">Posture</th>
-                </tr>
-              </thead>
-              <tbody>
-                {SUBPROCESSORS.map((s) => (
-                  <tr key={s.name} className="border-b border-hairline last:border-0 align-top">
-                    <td className="px-4 py-3 font-semibold text-ink">{s.name}</td>
-                    <td className="px-4 py-3 text-ink-muted">{s.role}</td>
-                    <td className="px-4 py-3 text-ink-muted">{s.posture}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </Row>
-        <Row q="DPA, BAA & NDA">
+        <Row q="DPA & NDA">
           <p>
             We have a data-processing agreement (DPA) ready to sign, and we&apos;ll sign your NDA — or
-            work from your firm&apos;s own paper. A HIPAA BAA is available through the providers above
-            where you need one.
-            {/* TODO(Ali): confirm DPA/BAA template status before representing signed availability. */}
+            work from your firm&apos;s own paper.
+            {/* TODO(Ali): confirm DPA template status before representing signed availability. */}
           </p>
         </Row>
         <Row q="Breach notification">

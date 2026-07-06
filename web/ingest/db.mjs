@@ -1249,3 +1249,29 @@ export function getFeeValueRange(db, caseType, firmId = null) {
     .prepare("SELECT * FROM fee_value_ranges WHERE case_type = ? AND firm_id IS NULL ORDER BY updated_at DESC LIMIT 1")
     .get(caseType);
 }
+
+// ── Report review gate (migration 0016). ──────────────────────────────────────
+export function getReportStatus(db, sessionId) {
+  return db
+    .prepare("SELECT report_status, released_at, released_by FROM audit_sessions WHERE id = ?")
+    .get(sessionId) ?? null;
+}
+
+export function setReportStatus(db, sessionId, status, { releasedBy = null, now = null } = {}) {
+  if (status === "released") {
+    db.prepare(
+      "UPDATE audit_sessions SET report_status = ?, released_at = ?, released_by = ? WHERE id = ?"
+    ).run(status, now ?? new Date().toISOString(), releasedBy, sessionId);
+  } else {
+    db.prepare("UPDATE audit_sessions SET report_status = ? WHERE id = ?").run(status, sessionId);
+  }
+}
+
+// Sessions awaiting analyst review (for the internal review queue UI).
+export function listReviewableSessions(db) {
+  return db
+    .prepare(
+      "SELECT id, token, email, report_status, created_at FROM audit_sessions WHERE report_status IN ('draft','analyst_review') ORDER BY created_at DESC LIMIT 100"
+    )
+    .all();
+}
