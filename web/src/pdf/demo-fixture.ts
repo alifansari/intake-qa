@@ -2,19 +2,30 @@
 // Mirrors the demo firm from seed:demo ("Sunset & Vine Injury Law (DEMO)").
 // Every figure here is illustrative; callers are fake (initials + #ID only).
 
+export type LeakTag =
+  | "no-callback-commitment"
+  | "unhandled-objection"
+  | "transfer-dropped"
+  | "quote-only-no-close"
+  | "language-mismatch"
+  | "statute-urgency-missed"
+  | "qualification-incomplete";
+
 export type LeakRow = {
   callerInitials: string;
   callerId: string;
   callDate: string;
   caseType: string;
   qualifyingFacts: { text: string; cite: string }[];
-  feeLowCents: number;
+  feeLowCents: number; // illustrative FEE range (post-contingency)
   feeHighCents: number;
   statuteDays: number;
+  statuteExpired?: boolean;
   saveStatus: string;
   confidence: "strong" | "moderate";
   channel: string;
   severity: "critical" | "significant" | "awareness";
+  tag: LeakTag;
   excerpt?: string;
 };
 
@@ -74,6 +85,7 @@ export const DEMO_DOC: DocData = {
       confidence: "strong",
       channel: "Answering service",
       severity: "significant",
+      tag: "no-callback-commitment",
       excerpt:
         "Caller: The other driver admitted it was his fault at the scene.\nStaff: Okay. Someone will call you back.\nCaller: Yeah, I definitely want to move forward with this.\n[No callback logged.]",
     },
@@ -88,11 +100,12 @@ export const DEMO_DOC: DocData = {
       ],
       feeLowCents: 1500000,
       feeHighCents: 5000000,
-      statuteDays: 40,
+      statuteDays: 22,
       saveStatus: "Draft ready",
       confidence: "strong",
       channel: "Staff (business hours)",
       severity: "critical",
+      tag: "language-mismatch",
       excerpt:
         "Caller: There was no sign, nothing — I slipped right where they'd mopped.\nStaff: Let me take your number and someone will reach out.\n[Spanish-language call; fully transcribed and analyzed.]",
     },
@@ -111,6 +124,7 @@ export const DEMO_DOC: DocData = {
       confidence: "moderate",
       channel: "AI receptionist",
       severity: "significant",
+      tag: "quote-only-no-close",
     },
     {
       callerInitials: "R.K.",
@@ -127,6 +141,7 @@ export const DEMO_DOC: DocData = {
       confidence: "moderate",
       channel: "Answering service",
       severity: "awareness",
+      tag: "qualification-incomplete",
     },
   ],
   metrics: [
