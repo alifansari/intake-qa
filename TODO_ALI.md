@@ -28,21 +28,27 @@ in code; each is a literal `TODO(Ali):` marker where it lives. Answer these and 
 - [ ] **Phone-system export formats** each pilot firm actually has on hand (RingCentral mp3/wav, CallRail mp3, 8x8/Dialpad vary).
 
 ## Numbers / thresholds to tune
-- [ ] Baseline test count: acknowledge **130** as the true baseline (billing tests were migrated), or ask me to reconstruct 2 tests to reach 132.
-- [ ] Estimated-fee-value table: your firms' **standard contingency %** and, when available, historical signed-case fee ranges by case type (these OVERRIDE published sources).
-- [ ] Drift-monitor alert thresholds (start: flag-rate ±30% relative, tier-mix ±15 pts).
-- [ ] QA sampling: N% random (start 10%) and word-confidence threshold (start 0.55).
-- [ ] Citation-guard bands (start: ≥90 pass / 80–90 review / <80 fail).
+- [x] Baseline test count: **130 acknowledged** (suite has since grown well past it).
+- [~] Estimated-fee-value table: contingency **33⅓% default with per-firm override** is live. Historical signed-case fee ranges by case type → provide at onboarding (they override published sources).
+- [ ] Drift-monitor alert thresholds (defaults in place: flag-rate ±30% relative, tier-mix ±15 pts).
+- [ ] QA sampling: defaults in place (10% random, 0.55 word-confidence).
+- [ ] Citation-guard bands: defaults in place (≥90 pass / 80–90 review / <80 fail).
 
-## Commitments to confirm before promising to firms
-- [ ] SLOs: Leak Audit readout within **3 business days**; monthly statement by the **5th business day**. Comfortable committing?
-- [ ] "I personally review 100% of statements/readouts" — true at pilot scale? (Attestation + Analyst-of-Record blocks depend on it.)
-- [ ] Audit monthly **capacity number** (or we keep the count out of the copy).
+## Commitments confirmed before promising to firms
+- [x] SLOs: Leak Audit within **3 business days**; monthly statement by the **5th business day** — committed.
+- [x] "I personally review 100% of statements/readouts" — confirmed at pilot scale; copy finalized (Founder page + constants).
+- [x] Audit monthly **capacity number**: **8/month** (constant + FAQ + audit page).
 
-## Content to provide
-- [ ] Analyst name + issued-date handling for the attestation signature block.
-- [ ] Firm code scheme for statement/readout IDs (`[FIRM-CODE]-[YYYY]-[NN]`).
+## Content — resolved
+- [x] Attestation signature block: **Ali F. Ansari, Founder & Analyst of Record, ali@plaintiffops.com, (949) 636-6918** (single source: `web/src/lib/analyst.mjs`).
+- [x] Firm-code scheme `[FIRM-CODE]-[YYYY]-[NN]` with **auto-generated** codes (`deriveFirmCode`).
 
-## Deferred (do NOT build pre-pilot — stubs only)
-- Real Clio / Filevine / Lead Docket integrations (read interfaces + `NotImplemented` stubs only).
-- Auto-sending follow-ups (staff copy & send themselves; A2P 10DLC pending — no go-live date published).
+## Client sign-in + security — resolved
+- [x] **Client sign-in (magic link)** live: /login → email link → /auth/callback; /desk gated by `src/proxy.ts`; Sign-out in the desk header. **Action needed:** in Supabase → Authentication → Providers, enable **Email** with magic link, and add the redirect URL `https://<your-domain>/auth/callback` (+ localhost for dev) under Authentication → URL Configuration.
+- [x] **RLS**: verified all 32 prod tables have RLS; firm-scoped tables carry `firm_members` membership policies; migration 0018 closed the last gap (report_access_events). Applied to prod.
+
+## The four remaining builds (in progress / sequenced)
+- [ ] **Document routes → real firm data** — now unblocked by sign-in (login tells us the firm). Next up.
+- [ ] **Integrations (Clio / Filevine / Lead Docket)** — scaffold all three (connector framework + read-interface + auth), since no vendor dev accounts yet. Real end-to-end needs your credentials per vendor.
+- [ ] **SMS send pipeline** — build the human-approved, TEST_MODE-simulated pipeline through the compliant chokepoint. NOT autonomous (compliance guardrail (a)/(f)); goes live only after A2P 10DLC + flag flip.
+- [ ] **Branded PDF fonts** — need you to send a licensed/OFL `.ttf` (I can't download fonts). Built-in fonts render fine until then.
