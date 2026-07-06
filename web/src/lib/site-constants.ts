@@ -19,6 +19,15 @@ export const DESK_NAME = "the independent recovery desk";
 // Certified forwardable Independence Statement (Round 7 Gold iii). Use verbatim.
 export const INDEPENDENCE_STATEMENT =
   "Intake QA is an independent quality-control service that scores a PI firm's own intake calls, flags signable cases that slipped, and hands the firm a compliant way to follow up, for a flat monthly fee that never varies with any recovery. We take no referral fees and no contingent compensation.";
+// Certified gold-standard sentences (Round 7 Section G). Use verbatim. No em-dashes.
+export const GOLD_ALTERNATIVE_VIEW =
+  "Here's the strongest case against our flag, the reading under which this case is not signable, so you can weigh both before you spend a callback.";
+export const GOLD_RIGHT_OF_REPLY =
+  "You can dispute anything in this Statement. Tell us what we got wrong and your correction is printed, unedited, in the next Statement's Corrections column and logged against the original finding. We'd rather be corrected than trusted blindly.";
+export const GOLD_VALUATION_DISCLAIMER =
+  "Any dollar figure here is a conservative, case-within-a-case estimate of potential fee value, using an expected-value method described in the appendix. It is an operations estimate, not a legal opinion, a promise, or a guarantee. The merits are your firm's call.";
+export const GOLD_ATTESTATION =
+  "This is a record of the procedures we performed and the fidelity of the transcripts we reviewed. It is not an opinion on the value or legal merit of any case, and it carries no penalty-of-perjury attestation. Where we judge, we show the transcript moment behind the judgment so you can check it yourself.";
 export const INDEPENDENCE_LINE =
   "The AI receptionist grades its own calls. The agency grades its own leads. Your staff grade their own follow-up. Nobody checks the whole board against what actually got signed. Intake QA is the independent desk that does, and finds the signable cases that walked.";
 // The four things that differentiate the desk (state precisely; no disparagement).
