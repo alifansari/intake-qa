@@ -9,6 +9,13 @@ export const metadata = { title: "Statements & readouts — Intake QA" };
 
 const DOCS = [
   {
+    label: "Intake Leak Report — June 2026",
+    period: "June 2026",
+    issued: "Jul 5, 2026",
+    status: "Issued (demo)",
+    href: "/api/documents/leak-report",
+  },
+  {
     label: "Missed-Revenue Statement — June 2026",
     period: "June 2026",
     issued: "Jul 5, 2026",
