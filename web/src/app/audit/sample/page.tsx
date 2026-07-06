@@ -5,6 +5,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { money } from "@/lib/format";
+import { SampleStatement } from "@/components/marketing/SampleStatement";
+import { ConfidenceTierTable } from "@/components/marketing/ConfidenceTierTable";
+import {
+  GOLD_ALTERNATIVE_VIEW,
+  GOLD_RIGHT_OF_REPLY,
+  GOLD_VALUATION_DISCLAIMER,
+} from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "Sample Intake Quality Audit | Intake QA",
@@ -125,6 +132,50 @@ export default function SampleAuditPage() {
         <p className="mt-2 text-xs text-faint">
           In the product, a human approves every message before it can send.
         </p>
+      </section>
+
+      {/* What the monthly Statement looks like — annotated */}
+      <section className="mt-14 border-t border-hairline pt-10">
+        <h2 className="font-display text-2xl font-semibold text-ink text-balance">
+          What the monthly Statement looks like
+        </h2>
+        <p className="mt-2 max-w-[70ch] text-sm text-muted">
+          After a full month, this is the two-page read that lands on your desk. Page one is a
+          90-second boardroom look, signed by the analyst. Here is page one, with the parts that
+          make it checkable called out.
+        </p>
+
+        <div className="mt-6 grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-start">
+          <SampleStatement />
+          <div className="flex flex-col gap-4">
+            <div className="rounded-card border border-hairline bg-paper p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Alternative View</p>
+              <p className="mt-1.5 text-sm text-ink">{GOLD_ALTERNATIVE_VIEW}</p>
+            </div>
+            <div className="rounded-card border border-hairline bg-paper p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Right of Reply</p>
+              <p className="mt-1.5 text-sm text-ink">{GOLD_RIGHT_OF_REPLY}</p>
+            </div>
+            <div className="rounded-card border border-hairline bg-paper p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Every dollar is an estimate</p>
+              <p className="mt-1.5 text-sm text-ink">{GOLD_VALUATION_DISCLAIMER}</p>
+            </div>
+            <div className="rounded-card border border-hairline bg-paper p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Citation to transcript</p>
+              <p className="mt-1.5 text-sm text-ink">
+                Every judgment names the exact moment in the recording behind it, so you can play the
+                call and check it yourself.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">The five signability tiers</p>
+          <div className="mt-3">
+            <ConfidenceTierTable />
+          </div>
+        </div>
       </section>
 
       {/* CTA */}
