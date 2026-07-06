@@ -1,6 +1,6 @@
 // Connector seam — one interface, many destinations. Given a firm's integration
-// config, dispatch an event to either a provider adapter (Lead Docket, Filevine)
-// or the generic signed webhook. Provider adapters are lazy-loaded (Twilio
+// config, dispatch an event to either a provider adapter (Lead Docket, Filevine,
+// Clio) or the generic signed webhook. Provider adapters are lazy-loaded (Twilio
 // pattern) and expose: pushFlag(ctx, payload), pushOutcomePrompt(ctx, payload),
 // pushCaseSummary(ctx, payload). All HTTP lives in the adapter files.
 //
@@ -13,6 +13,7 @@ import { decryptSecret } from "./crypto.mjs";
 async function loadAdapter(provider) {
   if (provider === "leaddocket") return import("./leaddocket.mjs");
   if (provider === "filevine") return import("./filevine.mjs");
+  if (provider === "clio") return import("./clio.mjs");
   return null;
 }
 
