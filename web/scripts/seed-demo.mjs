@@ -8,7 +8,8 @@
 
 import { openMigratedDb, DEFAULT_DB_PATH } from "../db/connection.mjs";
 
-const CALLERS = [
+export const DEMO_FIRM_NAME = "Sunset & Vine Injury Law (DEMO)";
+export const CALLERS = [
   { initials: "J.R.", id: "#A-0142", name: "Jordan Rivera (TEST)", caseType: "Auto — rear-end", score: 84, tier: "strong",
     reason: "Rear-ended by company truck; driver admitted fault; treating; ready to proceed, no callback.",
     citations: [
@@ -43,7 +44,7 @@ export function seedDemo(db) {
     cite: db.prepare("INSERT INTO transcript_citations (flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score, status) VALUES (?, ?, ?, ?, ?, ?, ?)"),
   };
 
-  const firmId = Number(s.firm.run("Sunset & Vine Injury Law (DEMO)").lastInsertRowid);
+  const firmId = Number(s.firm.run(DEMO_FIRM_NAME).lastInsertRowid);
   const baseDay = 1; // June 2026 demo period
   let n = 0;
   const mkCall = (status, reason = null) => {
