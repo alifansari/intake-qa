@@ -290,5 +290,12 @@ export const PRICING_ANCHOR_LINE =
 export const FOUNDER_NAME = "Ali";
 export const FOUNDER_EMAIL = "ali@plaintiffops.com";
 
+// ─── Legal entity + document dates (single source for the legal pages) ───
+// TODO(Ali): confirm the exact registered legal entity name and state of formation.
+export const LEGAL_ENTITY = "Plaintiff Ops LLC";
+export const LEGAL_DBA = "Intake QA";
+export const LEGAL_LAST_UPDATED = "July 6, 2026";
+export const LEGAL_GOVERNING_STATE = "California";
+
 // ─── Copyright ───
 export const COPYRIGHT_YEAR = new Date().getFullYear();
