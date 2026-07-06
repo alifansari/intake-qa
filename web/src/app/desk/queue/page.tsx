@@ -3,6 +3,7 @@
 // interactive cards. Degrades gracefully with no DB.
 import { LeakCard, type Leak } from "@/components/desk/LeakCard";
 import { fmtMoneyRange } from "@/pdf/doc-helpers.mjs";
+import { feeRangeFromRow } from "../../../../analysis/fee-value.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,15 +34,20 @@ export default async function QueuePage() {
     const leaks: Leak[] = [];
     for (const f of flags) {
       const range = f.case_type ? await store.getFeeValueRange(db, f.case_type, firm.id) : null;
+      // Displayed value is the estimated FEE = case value × contingency %, not the
+      // raw case value. Ranges only.
+      const fee = feeRangeFromRow(range);
+      // Short, stable display id (works for both integer and UUID primary keys).
+      const shortId = String(f.id).replace(/[^a-zA-Z0-9]/g, "").slice(-4).toUpperCase();
       leaks.push({
         id: f.id,
         caseType: f.case_type ?? null,
         callDate: f.received_at,
         initials: initialsOf(f.caller_name),
-        displayId: `#A-${String(f.id).padStart(4, "0")}`,
+        displayId: `#A-${shortId}`,
         score: f.qualification_score ?? null,
         tier: (f.confidence_tier as "strong" | "moderate" | null) ?? null,
-        feeRange: range ? fmtMoneyRange(range.low_cents, range.high_cents) : null,
+        feeRange: fee ? fmtMoneyRange(fee.lowCents, fee.highCents) : null,
         citationCount: Number(f.citation_count ?? 0),
         reason: f.reason ?? null,
       });

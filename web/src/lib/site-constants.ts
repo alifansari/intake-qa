@@ -59,8 +59,8 @@ export const OBJECTIONS: { q: string; a: string }[] = [
 // ─── Who does the work (productized service; name Ali) ───────────────────────
 export const WHO_DOES_THE_WORK =
   "Every audit and every monthly statement is reviewed by Ali — Intake QA's founder and analyst of record, a former PI paralegal who sat in the intake seat. The software does the listening at scale; a human who knows what a signable case sounds like decides what to flag and signs off on what you read.";
-// TODO(Ali): confirm you personally review 100% of statements at current cohort
-// size; if that won't hold at scale, soften to "reviews every founding-cohort statement."
+// Confirmed by Ali (July 2026): he personally reviews 100% of statements/readouts
+// at current cohort size. Revisit this wording if that stops holding at scale.
 
 // ─── Category (staged DOWN to a supporting phrase — NOT a hero claim) ────────
 // Use only as descriptive supporting vocabulary, grounded in a deliverable.

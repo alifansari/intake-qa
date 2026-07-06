@@ -3,6 +3,20 @@
 These are collected from the product-round spec's fact sheet and discipline rules. None are guessed
 in code; each is a literal `TODO(Ali):` marker where it lives. Answer these and I'll fill them in.
 
+## ✅ Resolved this session (July 2026)
+- Migrations 0014 + 0015 **applied to Supabase** (direct connection confirmed).
+- Demo firm **seeded into Supabase** (is_demo, labeled DEMO/TEST) — live /desk screens populate.
+- Inngest signing + event keys stored in `.env.local` (git-ignored). **Also add them to Vercel env** (see below), and consider rotating them since they came through chat.
+- Contingency %: defaulted to **33⅓%** (standard CA pre-litigation; ~40% litigation). Firm rate overrides when provided.
+- Phone-export formats: standardizing on **mp3 + wav** (RingCentral/CallRail/8x8/Dialpad all export these); convert others before upload.
+- SLOs: **committed** — Leak Audit within 3 business days; monthly statement by the 5th business day.
+- Analyst-of-record: **confirmed** you review 100% of statements/readouts at current scale.
+- Pilot-firm languages: no audio uploaded yet → default **`en`** routing, `es`/`es-en-codeswitch` available per firm. Set per firm when you onboard them.
+
+## Still needed from you (add to Vercel env for production)
+- [ ] Add **INNGEST_SIGNING_KEY** + **INNGEST_EVENT_KEY** to Vercel env vars (Production).
+- [ ] Confirm **SUPABASE_SERVICE_ROLE_KEY** and **RESEND_API_KEY** are set in Vercel (needed for the deletion cascade + digest/receipt emails).
+
 ## Blocking before a real firm's data flows through production
 - [ ] **Anthropic retention tier** for this workspace (default 7-day, or a signed ZDR agreement?). Do NOT claim ZDR unless signed. (Security docs + deletion receipt.)
 - [ ] **AssemblyAI plan** — confirm it includes Universal-3 Pro, code-switching, and PII redaction policies. Confirm the backend AWS-TTL purge SLA in writing for a legal deployment.

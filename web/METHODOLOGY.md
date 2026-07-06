@@ -18,8 +18,9 @@ Sources, in order of priority.
      payments only.
 
 How we build a range. We take the case-type range from the best available source, then apply your
-firm's fee agreement percentage (TODO(Ali): your standard contingency %). The result is shown as a
-low–high range.
+firm's fee agreement percentage. Our default is the standard California pre-litigation contingency
+of 33⅓% (rising to ~40% in litigation); your own rate replaces the default the moment you give it
+to us. The result is shown as a low–high range.
 
 What we exclude, on purpose. We do not attempt to price things we cannot see from a call:
 policy limits, comparative fault, prior injuries, liens, or a PNC who signed elsewhere. Because we
