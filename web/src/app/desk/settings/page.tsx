@@ -79,7 +79,7 @@ export default function SettingsPage() {
       </section>
 
       <p className="mt-4 text-xs text-faint">
-        The prior tabs (dashboard, triage, rep scoreboard, calibration, funnel, statement) now live
+        The prior tabs (dashboard, triage, team coaching, calibration, funnel, statement) now live
         inside these four screens; their old links redirect here automatically.
       </p>
 
