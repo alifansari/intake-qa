@@ -7,7 +7,11 @@ in code; each is a literal `TODO(Ali):` marker where it lives. Answer these and 
 - Migrations 0014 + 0015 **applied to Supabase** (direct connection confirmed).
 - Demo firm **seeded into Supabase** (is_demo, labeled DEMO/TEST) — live /desk screens populate.
 - Inngest signing + event keys stored in `.env.local` (git-ignored). **Also add them to Vercel env** (see below), and consider rotating them since they came through chat.
-- Contingency %: defaulted to **33⅓%** (standard CA pre-litigation; ~40% litigation). Firm rate overrides when provided.
+- **Inngest durable layer deployed + app connected** — retention-purge + daily-digest crons + score-pipeline (event-triggered).
+- **Analyst-of-Record identity wired** (`web/src/lib/analyst.mjs`, single source of truth): Ali F. Ansari, Founder & Analyst of Record, ali@plaintiffops.com, (949) 636-6918 — on every sign-off/attestation/cover-memo/PDF. No more `[last name]`/`[contact]` placeholders.
+- **Firm-code auto-generated** from firm name (`deriveFirmCode`) for `[FIRM-CODE]-[YYYY]-[NN]` IDs — no manual assignment needed.
+- **ZDR: NOT claimed anywhere** (confirmed by grep). SECURITY.md guardrail forbids claiming ZDR/SOC 2/HIPAA without a signed agreement — correct as-is.
+- Contingency %: defaulted to **33⅓%** (standard CA pre-litigation; ~40% litigation). Firm rate overrides when provided. **Confirmed by Ali.**
 - Phone-export formats: standardizing on **mp3 + wav** (RingCentral/CallRail/8x8/Dialpad all export these); convert others before upload.
 - SLOs: **committed** — Leak Audit within 3 business days; monthly statement by the 5th business day.
 - Analyst-of-record: **confirmed** you review 100% of statements/readouts at current scale.
@@ -18,8 +22,8 @@ in code; each is a literal `TODO(Ali):` marker where it lives. Answer these and 
 - [ ] Confirm **SUPABASE_SERVICE_ROLE_KEY** and **RESEND_API_KEY** are set in Vercel (needed for the deletion cascade + digest/receipt emails).
 
 ## Blocking before a real firm's data flows through production
-- [ ] **Anthropic retention tier** for this workspace (default 7-day, or a signed ZDR agreement?). Do NOT claim ZDR unless signed. (Security docs + deletion receipt.)
-- [ ] **AssemblyAI plan** — confirm it includes Universal-3 Pro, code-switching, and PII redaction policies. Confirm the backend AWS-TTL purge SLA in writing for a legal deployment.
+- [x] **Anthropic retention tier** — Ali confirmed **7-day standard, NO ZDR**. Copy/docs must not claim ZDR (already enforced). Fine for the pilot.
+- [ ] **AssemblyAI PII redaction + code-switching** — Ali doesn't have this set up yet. These are REQUEST parameters, not a plan gate: redaction = `redact_pii: true` + policies; code-switching = `language_detection`/`language_code`. Turning them on means editing the FROZEN engine (`lib/transcribe.js`), so it needs a deliberate, separately-tested change before real (non-demo) confidential calls flow. Until then: demos only, and transcripts are already treated confidential + purged. **Flag me when you want the redaction pass built.**
 - [ ] **Pilot firms' dominant language(s)** per firm/channel (`en` / `es` / `es-en-codeswitch`) — forced-language routing, not auto-detect.
 - [ ] **Phone-system export formats** each pilot firm actually has on hand (RingCentral mp3/wav, CallRail mp3, 8x8/Dialpad vary).
 
