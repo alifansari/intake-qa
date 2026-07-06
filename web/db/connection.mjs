@@ -37,7 +37,10 @@ export function migrate(db) {
     db.prepare("SELECT filename FROM _migrations").all().map((r) => r.filename)
   );
   const files = readdirSync(MIGRATIONS_DIR)
-    .filter((f) => f.endsWith(".sql"))
+    // Ignore stray macOS/Finder duplicates like "0016_report_status 2.sql" — real
+    // migration filenames never contain a space. Prevents non-idempotent migrations
+    // (e.g. ADD COLUMN) from running twice.
+    .filter((f) => f.endsWith(".sql") && !f.includes(" "))
     .sort();
 
   const ran = [];

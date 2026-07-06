@@ -7,6 +7,7 @@
 import type { Metadata } from "next";
 import { money } from "@/lib/format";
 import { AuditEmailCapture } from "@/components/audit-email-capture";
+import { ReportActions } from "@/components/audit/ReportActions";
 import type { AuditReport } from "@/lib/audit-types";
 
 export const runtime = "nodejs";
@@ -103,10 +104,13 @@ export default async function AuditReportPage({
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10 print:py-2">
+      {/* Save-as-PDF + view logging (Stage 5) */}
+      <ReportActions token={token} />
+
       {/* Masthead */}
       <header className="border-b border-ink pb-4">
-        <p className="eyebrow">Intake QA · Intake Quality Audit</p>
-        <h1 className="font-display text-3xl font-bold text-ink">Intake Quality Audit</h1>
+        <p className="eyebrow">Intake QA · Intake Leak Report</p>
+        <h1 className="font-display text-3xl font-bold text-ink">Intake Leak Report</h1>
         <p className="mt-1 text-sm text-muted">
           {callCount} call{callCount === 1 ? "" : "s"} reviewed
           {report.pending ? ` · ${report.pending} still processing` : ""}
