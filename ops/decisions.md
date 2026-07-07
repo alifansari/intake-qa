@@ -31,6 +31,35 @@
 
 ---
 
+## 2026-07-07 — Full-product improvement sweep: reconcile + P0 fixes + conversion + deliverables (PR #3)  ·  agent: orchestrator · lane: all
+
+- **Change:** Six deep-research audits (offer strategy, operations, copy/conversion, backend, LiveCoach,
+  deliverables) → one build+test-verified release on PR #3 (`offer/charter-and-checkout`, 215/215 tests):
+  1. **Reconciled the offer story sitewide** to one narrative (free Leak Audit = 10 of your own calls →
+     Founding-5 Charter $1,500→$2,500 → flat monthly); "Intake Quality Audit"→"Leak Audit" everywhere.
+  2. **Wave 1 P0 backend/compliance:** wired the DEAD scoring trigger (CallRail calls were never scored —
+     product inert on real data); LiveCoach §632 consent gate + Pro-gate + demo label; enforced retention
+     (matches the DPA); Stripe idempotency + fail-closed + portal 401; RLS for recovery-desk tables;
+     per-call error isolation; CallRail Zod/E.164; deleted 59 `* 2.*` duplicates.
+  3. **Wave 2 make-the-buy-obvious:** two-path CTA everywhere; Charter as single dominant buy; outcome
+     hero; forward scarcity; FAQ objection; role-based trust lines (no named reviewer per §V).
+  4. **Wave 3 deliverables:** unified the three contradicting sample figures into one source; real
+     citations + fee ranges + published error-rate footer on the shipping report; confidence chips;
+     structured transcript excerpt; dated action box.
+- **Hypothesis:** these remove the reasons the funnel leaks at every stage — the product now actually
+  works on real calls, the buy is obvious, the deliverable is McKinsey-grade and internally consistent,
+  and the compliance code matches the compliance copy.
+- **Expected effect:** unblocks real revenue (scoring works, checkout provisions, buy is findable);
+  removes legal exposure (consent gate, retention, RLS, fail-closed).
+- **Status:** staged in PR #3 (public + pricing → Ali merges = approval). Build + 215 tests green.
+- **Review date:** 2026-08-06.
+- **Result:** —
+- **Open items needing Ali (in PR #3 body):** connect Stripe + run migrations 0019–0021; confirm CallRail's
+  real webhook signature; approve a font package (PDFs still on system fonts); attorney-bless MSA/DPA;
+  close the citation seam (audit result discards per-quote timing → few live citations today).
+- **Operator kit staged:** `ops/drafts/outreach-operator-setup.md` (affiliate-membership email, SPF/DKIM/
+  DMARC setup, daily how-to-run) — for Ali, pairs with `zero-budget-outreach-kit.md`.
+
 ## 2026-07-07 — Physical mailer retired → zero-budget outreach motion (plan of record)  ·  agent: orchestrator · lane: outreach
 
 - **Change:** Founder has ~$0 outreach budget, so the physical Dream-25 mailer (its "strongest asset") is
