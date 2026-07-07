@@ -57,9 +57,11 @@ export default function FounderPage() {
           worth much.
         </p>
         <p>
-          The founding cohort is small on purpose: three to five Southern California PI firms who
-          use it on real calls and tell me where it&apos;s wrong. You&apos;d get direct access to me
-          and a say in what the desk becomes. No sales team, no logos to show you yet, just the work.
+          So I&apos;m taking five Southern California PI firms into a free 30-day Leak Audit: I score
+          your real recorded intake calls, hand you a signed Missed-Revenue Statement, and charge
+          nothing until the number survives your scrutiny. If you continue after that, the fee is
+          flat and never touches your outcomes. You&apos;d get direct access to me and a say in what
+          the desk becomes. No sales team, no logos to show you yet, just the work.
         </p>
         <p className="font-display text-base font-semibold text-ink">
           Ali, Founder, Intake QA · Orange County, CA

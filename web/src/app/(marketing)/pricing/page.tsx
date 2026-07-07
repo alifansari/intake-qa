@@ -1,20 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
-import { GuaranteeBadge } from "@/components/marketing/GuaranteeBadge";
 import {
   PRICING_TIERS,
   PRICING_COMPLIANCE_ARGUMENT,
   PRICING_ANCHOR_LINE,
-  FUNNEL_LINE,
-  GUARANTEE_THRESHOLD,
+  STAKE_LINE,
   CTA_PRIMARY,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "Pricing: flat monthly, never a share of the fee | Intake QA",
+  title: "Pricing: a free founding pilot, then flat monthly | Intake QA",
   description:
-    "A flat monthly subscription tiered by call volume. No per-case fee, no percentage of any recovery, no charge tied to whether you sign a client. The founding-cohort pilot is free.",
+    "The founding pilot is free: five Southern California PI firms, a 30-day Leak Audit, no fee. If you continue, a flat monthly fee tiered by call volume, never per case and never a share of any recovery.",
   alternates: { canonical: "/pricing" },
 };
 
@@ -35,9 +33,35 @@ export default function PricingPage() {
         One flat monthly fee. Never per case, never a percentage. That&apos;s the whole point.
       </p>
 
-      <div className="mt-8">
-        <PilotCohortBanner />
-      </div>
+      {/* STAGE 1 — the free founding pilot */}
+      <section className="mt-12 border-t border-hairline pt-8">
+        <p className="eyebrow">Stage 1 · The founding pilot (free)</p>
+        <h2 className="mt-2 max-w-[28ch] font-display text-3xl font-semibold text-ink text-balance">
+          Five founding firms. Thirty days. No fee.
+        </h2>
+        <p className="mt-4 max-w-[72ch] text-ink-muted">
+          A free 30-day Leak Audit of your real recorded intake calls, everything included, ending in
+          a signed Missed-Revenue Statement. This is not a trial with features withheld. It is the
+          full engagement, free, because the first five firms are how the number earns its
+          reputation. {STAKE_LINE}
+        </p>
+        <div className="mt-6">
+          <PilotCohortBanner />
+        </div>
+      </section>
+
+      {/* STAGE 2 — after the pilot, flat monthly */}
+      <section className="mt-12 border-t border-hairline pt-8">
+        <p className="eyebrow">Stage 2 · After the pilot (flat monthly, optional)</p>
+        <h2 className="mt-2 max-w-[30ch] font-display text-3xl font-semibold text-ink text-balance">
+          If the Statement earns its keep, this is what continuing costs.
+        </h2>
+        <p className="mt-4 max-w-[72ch] text-ink-muted">
+          Flat, tiered by call volume, and never tied to cases signed, cases recovered, or any
+          outcome. Optional, cancel anytime. Nothing here is owed unless you choose to continue after
+          the free pilot.
+        </p>
+      </section>
 
       <div className="mt-8 grid gap-4 lg:grid-cols-4">
         {PRICING_TIERS.map((p) => (
@@ -76,22 +100,9 @@ export default function PricingPage() {
       </div>
 
       <p className="mt-6 max-w-[72ch] text-sm text-faint">
-        Founding-cohort firms start free for 30 days, then lock in a founding rate.
+        Founding-cohort firms start with the free 30-day pilot. A flat monthly fee begins only if you
+        choose to continue, and it is quoted to you in writing before your pilot ends.
       </p>
-
-      {/* The one journey */}
-      <section className="mt-8 rounded-card border border-hairline bg-surface p-6">
-        <h2 className="font-display text-xl font-semibold text-ink">How a firm gets here</h2>
-        <p className="mt-3 max-w-[72ch] text-ink-muted">
-          One path, no surprises: {FUNNEL_LINE} The audit is free, the founding-cohort pilot is free,
-          and only then does a flat monthly subscription begin.
-        </p>
-        <p className="mt-3 max-w-[72ch] text-sm text-faint">
-          {GUARANTEE_THRESHOLD} find-it-free guarantee: if the free audit doesn&apos;t surface at
-          least {GUARANTEE_THRESHOLD} in estimated missed signable case value, we won&apos;t pitch a
-          subscription. And if you start one anyway, your first month is free.
-        </p>
-      </section>
 
       {/* The why: the compliance argument, in lawyer-grade language */}
       <section className="mt-10 rounded-card border border-hairline bg-canvas p-6">
@@ -109,10 +120,6 @@ export default function PricingPage() {
       </section>
 
       <p className="mt-8 max-w-[72ch] text-ink-muted">{PRICING_ANCHOR_LINE}</p>
-
-      <div className="mt-8 max-w-[720px]">
-        <GuaranteeBadge />
-      </div>
     </div>
   );
 }

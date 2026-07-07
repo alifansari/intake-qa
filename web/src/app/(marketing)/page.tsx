@@ -3,14 +3,15 @@ import Link from "next/link";
 import { StatBar } from "@/components/marketing/StatBar";
 import { ROICalculator } from "@/components/marketing/ROICalculator";
 import { ComparisonTable } from "@/components/marketing/ComparisonTable";
-import { GuaranteeBadge } from "@/components/marketing/GuaranteeBadge";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 import { FounderNote } from "@/components/marketing/FounderNote";
 import { StateOfIntakeSignup } from "@/components/marketing/StateOfIntakeSignup";
 import { SampleStatement } from "@/components/marketing/SampleStatement";
 import { SampleAlert } from "@/components/marketing/SampleAlert";
+import { SEAT_LINE } from "@/lib/cohort";
 import {
   CTA_PRIMARY,
+  STAKE_LINE,
   INDEPENDENCE_LINE,
   INDEPENDENCE_STATEMENT,
   DIFFERENTIATORS,
@@ -19,9 +20,6 @@ import {
   MONTH_6_INTRO,
   FUNNEL_LINE,
   ACCOUNTABLE_PARTY_LINE,
-  GUARANTEE_THRESHOLD,
-  COHORT_MIN,
-  COHORT_MAX,
   STAT_PI_COST_PER_CASE,
   STAT_ANSWER_RATE,
   STAT_SPEED_TO_LEAD,
@@ -94,19 +92,20 @@ export default function HomePage() {
           Everyone you pay to handle your intake tells you they&apos;re doing a great job.
         </h1>
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
-          The AI receptionist grades its own calls. The agency grades its own leads. Your staff grade
-          their own follow-up. Nobody checks the whole board against what actually got signed. Intake
-          QA is the independent desk that does, and finds the signable cases that walked.
+          The AI receptionist grades its own calls, the agency grades its own leads, your staff grade
+          their own follow-up, and nobody checks the whole board against what actually got signed. So
+          I&apos;m taking five Southern California PI firms into a free 30-day Leak Audit of your real
+          recorded intake calls, with a signed Missed-Revenue Statement at the end. {STAKE_LINE}
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-5">
           <CTA />
-          <Link href="/how-it-works" className="text-sm font-semibold text-accent hover:text-accent-hover">
-            See how the desk works →
+          <Link href="/letter" className="text-sm font-semibold text-accent hover:text-accent-hover">
+            Read the letter →
           </Link>
         </div>
-        <p className="mt-4 text-sm text-faint">
-          Free for qualifying Southern California PI firms. A real analyst reviews every call. You
-          keep the report whether or not we work together.
+        <p className="mt-4 text-sm text-faint tnum">
+          {SEAT_LINE} A real analyst reviews every call. You keep the Statement whether or not you
+          continue.
         </p>
       </Section>
 
@@ -326,19 +325,34 @@ export default function HomePage() {
         <ComparisonTable />
       </Section>
 
-      {/* GUARANTEE */}
+      {/* FOUNDING COHORT */}
       <Section className="py-14">
-        <div className="max-w-[68ch]">
-          <h2 className="font-display text-3xl font-semibold text-ink text-balance">
-            The {GUARANTEE_THRESHOLD} find-it-free guarantee.
+        <div className="max-w-[70ch]">
+          <p className="eyebrow">Founding cohort</p>
+          <h2 className="mt-2 font-display text-3xl font-semibold text-ink text-balance">
+            Five founding firms. A free 30-day Leak Audit.
           </h2>
-          <p className="mt-5 mb-6 text-lg leading-relaxed text-ink-muted">
-            If your free audit doesn&apos;t surface at least {GUARANTEE_THRESHOLD} in estimated missed
-            signable case value, we won&apos;t pitch you a subscription, and if you start one anyway,
-            your first month is free. It&apos;s an estimate of what walked, not a promise of what
-            we&apos;ll recover.
+          <p className="mt-5 text-lg leading-relaxed text-ink-muted">
+            {STAKE_LINE} Everyone selling to law firms asks to be paid before they prove anything. I
+            prove first, and I sign my name to the result. The free pilot is the commercial version
+            of the error rate I publish on the calibration page.
           </p>
-          <GuaranteeBadge />
+          <div className="mt-8 grid gap-px overflow-hidden rounded-card border border-hairline bg-hairline sm:grid-cols-2">
+            {[
+              ["What the pilot includes", "Thirty days of your real recorded intake calls, scored against the published rubric: moment-of-leak taxonomy, confidence-tiered flags, and a signed Monthly Missed-Revenue Statement at the end."],
+              ["What it costs", "Nothing. No fee, no obligation, no contract to continue. This is the full engagement, free, not a trial with features withheld."],
+              ["What happens after", "If the Statement earns its keep, continuing is a flat monthly fee, tiered by call volume and never tied to any outcome. Optional, cancel anytime."],
+              ["What I ask in return", "Candid feedback on the work. Nothing else."],
+            ].map(([h, b]) => (
+              <div key={h} className="bg-surface p-5">
+                <p className="font-display text-base font-semibold text-ink">{h}</p>
+                <p className="mt-1.5 text-sm text-ink-muted">{b}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6">
+            <PilotCohortBanner />
+          </div>
         </div>
       </Section>
 
@@ -394,16 +408,16 @@ export default function HomePage() {
         <StateOfIntakeSignup />
       </Section>
 
-      {/* PILOT COHORT + FINAL CTA */}
+      {/* FINAL CTA */}
       <Section className="py-16 border-t border-hairline">
-        <PilotCohortBanner />
-        <div className="mt-10 max-w-[68ch]">
+        <div className="max-w-[68ch]">
           <h2 className="font-display text-3xl font-semibold text-ink text-balance">
-            A founding cohort of {COHORT_MIN}-{COHORT_MAX} Southern California PI firms.
+            Five founding seats. A free 30-day Leak Audit.
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">
-            Free audit, free 30-day pilot, locked founding-cohort pricing, and a say in what the desk
-            becomes. We&apos;ll even work your first recovered saves alongside you.
+            A signed Missed-Revenue Statement at the end, a say in what the desk becomes, and no
+            obligation to continue. {STAKE_LINE}{" "}
+            <span className="tnum font-medium text-ink">{SEAT_LINE}</span>
           </p>
           <CTA />
         </div>

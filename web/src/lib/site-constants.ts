@@ -8,6 +8,8 @@
 // (marketing pages) and client components (ROICalculator, PilotCohortBanner)
 // can import it.
 //
+import { COHORT_CTA_LABEL } from "./cohort";
+//
 // ROUND 4 (v3 report): the Leak Audit is FREE again (no $500/credit); the
 // guarantee is a $25k find-it-free / first-month-free structure; positioning is
 // "the independent recovery desk" (service with software inside, Ali as analyst
@@ -81,8 +83,10 @@ export const WHAT_WE_DO =
 
 // ─── The Leak Audit offer (FREE) ─────────────────────────────────────────────
 export const AUDIT_NAME = "Intake Quality Audit";
-// Single primary CTA sitewide.
-export const CTA_PRIMARY = "Run your free Intake Quality Audit";
+// Single primary CTA sitewide, waitlist-aware (see lib/cohort.ts).
+export const CTA_PRIMARY = COHORT_CTA_LABEL;
+// The stake: free is not a discount, it is the wager. Anchor line, used verbatim.
+export const STAKE_LINE = "I charge nothing until the number survives your scrutiny.";
 export const AUDIT_FREE_LINE =
   "Send us up to 10 recent intake calls. A real analyst, not just a model, reviews every one against our calibrated PI rubric and hands you a written report: the signable cases that didn't sign, the evidence behind each flag, and what that walked-away fee revenue is worth in dollars. You keep the report whether or not we ever work together.";
 // Honest capacity, not fake scarcity. Confirmed by Ali (July 2026): 8/month.
