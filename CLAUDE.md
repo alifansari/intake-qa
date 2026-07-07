@@ -164,6 +164,14 @@ enabled with a policy** — this is a hard requirement, not optional.
 builder agent preloads it. If any task, backlog item, or clever idea conflicts with it, the
 task loses. Flag plainly, propose the compliant path, never smooth it over.
 
+## How we work (read every session)
+
+`ops/OPERATING-PROTOCOL.md` defines the standing operating agreement: the $1M-in-one-year goal
+as the sole yardstick, the approval routing (backend/internal = ship autonomously; anything
+public/outbound = staged, only final ready-to-ship items go to Ali), the mandatory two
+adversarial deep-research QC passes before anything is called ready to ship, and Yang's
+status (warm contact, not retained). Follow it.
+
 ## Mission
 
 Intake QA is the **independent recovery desk** for Northern California personal-injury firms:
