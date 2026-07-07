@@ -19,6 +19,7 @@ import {
   createInvoice,
   addInvoiceLine,
   setInvoiceTotal,
+  getInvoiceByFirmPeriod,
 } from "../ingest/store.mjs";
 import { applyGuarantee } from "./guarantee.mjs";
 
@@ -72,6 +73,19 @@ export async function generateInvoice({ db, firmId, period }) {
   const billing = await getFirmBilling(db, firmId);
   if (!billing) return { skipped: true, reason: "no_billing_config" };
 
+  // P0-4b IDEMPOTENCY: one invoice per firm per period. If a live invoice already
+  // exists for this period, return it instead of minting a second one (a re-close
+  // / retry). The DB also enforces this with UNIQUE(firm_id, period) (0020/0021).
+  const existing = await getInvoiceByFirmPeriod(db, firmId, period);
+  if (existing) {
+    return {
+      invoiceId: existing.id,
+      total_cents: existing.total_cents,
+      lineCount: null,
+      existed: true,
+    };
+  }
+
   const prorate = prorationFraction({
     period,
     anchorDay: billing.billing_anchor_day,
@@ -99,6 +113,19 @@ export async function generateInvoice({ db, firmId, period }) {
 export async function closePeriod({ db, firmId, period, now = new Date(), stripe } = {}) {
   const gen = await generateInvoice({ db, firmId, period, now });
   if (gen.skipped) return gen;
+
+  // P0-4b IDEMPOTENCY: a re-close of an already-generated period returns the
+  // existing (already finalized, already guarantee-credited) invoice untouched.
+  // Re-applying the guarantee here would double-credit; re-syncing Stripe would
+  // double-charge/refund. So short-circuit.
+  if (gen.existed) {
+    return {
+      invoiceId: gen.invoiceId,
+      total_cents: gen.total_cents,
+      guaranteeApplied: false,
+      existed: true,
+    };
+  }
 
   const guarantee = await applyGuarantee({ db, firmId, period, invoiceId: gen.invoiceId, now });
 

@@ -16,6 +16,7 @@ import {
   createDemoCall,
   countAuditSessionCalls,
   attachDemoCallToSession,
+  logError,
 } from "../../../../../ingest/store.mjs";
 import { runDemoPipeline, checkDemoRateLimit, purgeDemo } from "../../../../../ingest/demo.mjs";
 import { resolveSession, MAX_CALLS_PER_SESSION } from "../../../../../ingest/audit.mjs";
@@ -117,8 +118,13 @@ export async function POST(req: Request) {
 
     return Response.json({ id: String(id) }, { status: 202 });
   } catch (err: unknown) {
+    // P1(c): log details server-side, return a generic message to the client.
+    await logError(db, {
+      source: "api.demo.upload",
+      message: err instanceof Error ? err.message : "upload failed",
+      firm_id: null,
+    }).catch(() => {});
     await closePipelineDb(db).catch(() => {});
-    const message = err instanceof Error ? err.message : "upload failed";
-    return Response.json({ error: message }, { status: 500 });
+    return Response.json({ error: "upload failed" }, { status: 500 });
   }
 }

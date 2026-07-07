@@ -970,6 +970,16 @@ export function createInvoice(db, { firm_id, period, total_cents = 0, status = "
   return Number(info.lastInsertRowid);
 }
 
+// P0-4b: the live (non-void) invoice for a firm+period, if any. Used to make
+// invoice generation idempotent (one invoice per firm per period).
+export function getInvoiceByFirmPeriod(db, firmId, period) {
+  return db
+    .prepare(
+      "SELECT * FROM invoices WHERE firm_id = ? AND period = ? AND status <> 'void' ORDER BY id DESC LIMIT 1"
+    )
+    .get(firmId, period);
+}
+
 export function addInvoiceLine(db, line) {
   const { invoice_id, kind, description, amount_cents, outcome_id = null, snapshot = null } = line;
   const info = db
@@ -1321,4 +1331,58 @@ export function listReviewableSessions(db) {
       "SELECT id, token, email, report_status, created_at FROM audit_sessions WHERE report_status IN ('draft','analyst_review') ORDER BY created_at DESC LIMIT 100"
     )
     .all();
+}
+
+// P0-2 — consent log. Write a ConsentEvent before any consent-relevant workflow
+// (e.g. the Live Coach opening the mic). firm_id/conversation_id may be null in
+// the single-tenant pilot; `basis` is required (non-empty).
+export function createConsentEvent(db, { firm_id = null, conversation_id = null, basis, detail = null, actor = null }) {
+  const info = db
+    .prepare(
+      `INSERT INTO consent_events (firm_id, conversation_id, basis, detail, actor)
+       VALUES (?, ?, ?, ?, ?)`
+    )
+    .run(firm_id, conversation_id, basis, detail, actor);
+  return Number(info.lastInsertRowid);
+}
+
+// P0-4a — Stripe webhook idempotency. Returns true if this event_id was recorded
+// for the FIRST time (caller should process it), false if it was already seen
+// (caller should ack without dispatching). Atomic via the PRIMARY KEY.
+export function recordStripeEventProcessed(db, eventId, eventType = null) {
+  const info = db
+    .prepare(
+      "INSERT OR IGNORE INTO processed_stripe_events (event_id, event_type) VALUES (?, ?)"
+    )
+    .run(eventId, eventType);
+  return Number(info.changes ?? 0) > 0; // true => newly inserted (not a replay)
+}
+
+// P0-3 / CLAUDE.md §(h): purge confidential content from REAL firm data once it
+// is past the retention window. Nulls `transcript` + `recording_url` on `calls`
+// received before `beforeIso`, and nulls the `body` of outbound/inbound messages
+// created before `beforeIso` (stamping `purged_at` so the log row survives — a
+// message is NEVER hard-deleted, only its confidential body is scrubbed).
+// Idempotent: rows already purged (content already null) are skipped, so the
+// returned count reflects only rows actually scrubbed this run.
+export function purgeExpiredCalls(db, beforeIso) {
+  const calls = db
+    .prepare(
+      `UPDATE calls
+          SET transcript = NULL, recording_url = NULL
+        WHERE received_at < ?
+          AND (transcript IS NOT NULL OR recording_url IS NOT NULL)`
+    )
+    .run(beforeIso);
+  const messages = db
+    .prepare(
+      `UPDATE messages
+          SET body = NULL, purged_at = ?
+        WHERE created_at < ? AND body IS NOT NULL`
+    )
+    .run(beforeIso, beforeIso);
+  return {
+    calls: Number(calls.changes ?? 0),
+    messages: Number(messages.changes ?? 0),
+  };
 }

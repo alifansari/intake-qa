@@ -3,9 +3,9 @@
 // middleware (src/middleware.ts) — reaching here means there's a signed-in session.
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/supabase/server";
+import { isLiveCoachEntitled } from "@/lib/coach-entitlement";
 
-const NAV = [
-  { href: "/desk/coach", label: "Live coach" },
+const BASE_NAV = [
   { href: "/desk/queue", label: "Leaked-case queue" },
   { href: "/desk/documents", label: "Statements & readouts" },
   { href: "/desk/reconciliation", label: "Calls & reconciliation" },
@@ -15,6 +15,11 @@ const NAV = [
 
 export default async function DeskLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
+  // P0-2: only surface the Live Coach nav item when the firm is entitled (Pro).
+  const { entitled: coachEntitled } = await isLiveCoachEntitled();
+  const NAV = coachEntitled
+    ? [{ href: "/desk/coach", label: "Live coach" }, ...BASE_NAV]
+    : BASE_NAV;
   return (
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-hairline bg-surface">

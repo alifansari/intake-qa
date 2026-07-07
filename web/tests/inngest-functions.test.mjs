@@ -8,8 +8,10 @@ import assert from "node:assert/strict";
 import { functions } from "../inngest/functions.mjs";
 import { inngest } from "../inngest/client.mjs";
 
-test("the three durable functions construct and export cleanly", () => {
-  assert.equal(functions.length, 3);
+test("the durable functions construct and export cleanly", () => {
+  // scorePipeline (event), scheduledScoreSweep (cron fallback), retentionPurge,
+  // dailyDigest.
+  assert.equal(functions.length, 4);
   for (const f of functions) {
     assert.ok(f && typeof f === "object", "each is an InngestFunction object");
   }

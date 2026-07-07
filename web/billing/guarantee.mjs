@@ -63,8 +63,17 @@ export async function applyGuarantee({ db, firmId, period, invoiceId, now = new 
     return { applied: false, creditCents: 0, met: true };
   }
 
-  // Unmet at the deadline: credit back the base fee on this invoice.
+  // P0-4b IDEMPOTENCY: if a guarantee_credit line already exists on this invoice,
+  // the guarantee was already applied (a re-close / retry). Short-circuit so we
+  // never stack a second credit and double-waive the fee.
   const lines = await getInvoiceLines(db, invoiceId);
+  const existingCredit = lines.filter((l) => l.kind === "guarantee_credit");
+  if (existingCredit.length > 0) {
+    const creditCents = existingCredit.reduce((a, l) => a + Number(l.amount_cents), 0);
+    return { applied: false, creditCents, met: false, alreadyApplied: true };
+  }
+
+  // Unmet at the deadline: credit back the base fee on this invoice.
   const baseTotal = lines
     .filter((l) => l.kind === "base")
     .reduce((a, l) => a + Number(l.amount_cents), 0);

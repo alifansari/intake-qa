@@ -14,6 +14,7 @@ import {
   createDemoCall,
   countAuditSessionCalls,
   attachDemoCallToSession,
+  logError,
 } from "../../../../../ingest/store.mjs";
 import { checkDemoRateLimit, purgeDemo } from "../../../../../ingest/demo.mjs";
 import { resolveSession, MAX_CALLS_PER_SESSION } from "../../../../../ingest/audit.mjs";
@@ -119,8 +120,13 @@ export async function POST(req: Request) {
       { status: 200 },
     );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "could not start demo";
-    return Response.json({ error: message }, { status: 500 });
+    // P1(c): generic message to the client; details to the server log only.
+    await logError(db, {
+      source: "api.demo.upload-url",
+      message: err instanceof Error ? err.message : "could not start demo",
+      firm_id: null,
+    }).catch(() => {});
+    return Response.json({ error: "could not start demo" }, { status: 500 });
   } finally {
     await closePipelineDb(db).catch(() => {});
   }

@@ -875,6 +875,15 @@ export async function createInvoice(db, { firm_id, period, total_cents = 0, stat
   return r.rows[0].id;
 }
 
+// P0-4b twin: live (non-void) invoice for a firm+period, if any.
+export async function getInvoiceByFirmPeriod(db, firmId, period) {
+  const r = await db.query(
+    "SELECT * FROM invoices WHERE firm_id = $1 AND period = $2 AND status <> 'void' ORDER BY created_at DESC LIMIT 1",
+    [firmId, period]
+  );
+  return r.rows[0] ?? null;
+}
+
 export async function addInvoiceLine(db, line) {
   const { invoice_id, kind, description, amount_cents, outcome_id = null, snapshot = null } = line;
   const r = await db.query(
@@ -1220,4 +1229,47 @@ export async function countReportAccess(db, token) {
     [token]
   );
   return r.rows[0] ?? { views: 0, downloads: 0, distinct_viewers: 0 };
+}
+
+// P0-2 — consent log (twin of ingest/db.mjs#createConsentEvent).
+export async function createConsentEvent(db, { firm_id = null, conversation_id = null, basis, detail = null, actor = null }) {
+  const r = await db.query(
+    `INSERT INTO consent_events (firm_id, conversation_id, basis, detail, actor)
+     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+    [firm_id, conversation_id, basis, detail, actor]
+  );
+  return r.rows[0]?.id ?? null;
+}
+
+// P0-4a — Stripe webhook idempotency (twin). Returns true when first seen.
+export async function recordStripeEventProcessed(db, eventId, eventType = null) {
+  const r = await db.query(
+    `INSERT INTO processed_stripe_events (event_id, event_type)
+     VALUES ($1, $2) ON CONFLICT (event_id) DO NOTHING`,
+    [eventId, eventType]
+  );
+  return (r.rowCount ?? 0) > 0;
+}
+
+// P0-3 / CLAUDE.md §(h): purge confidential content from REAL firm data past the
+// retention window. Twin of ingest/db.mjs#purgeExpiredCalls. `purged_at` is added
+// to messages by migration 0021. Idempotent (already-scrubbed rows skipped).
+export async function purgeExpiredCalls(db, beforeIso) {
+  const calls = await db.query(
+    `UPDATE calls
+        SET transcript = NULL, recording_url = NULL
+      WHERE received_at < $1
+        AND (transcript IS NOT NULL OR recording_url IS NOT NULL)`,
+    [beforeIso]
+  );
+  const messages = await db.query(
+    `UPDATE messages
+        SET body = NULL, purged_at = $1
+      WHERE created_at < $2 AND body IS NOT NULL`,
+    [beforeIso, beforeIso]
+  );
+  return {
+    calls: calls.rowCount ?? 0,
+    messages: messages.rowCount ?? 0,
+  };
 }

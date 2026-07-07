@@ -6,6 +6,7 @@
 // server-only ANTHROPIC_API_KEY, extracts the JSON, and returns it. Because the
 // prompts are fixed here, the endpoint can't be repurposed for arbitrary prompts.
 import Anthropic from "@anthropic-ai/sdk";
+import { isLiveCoachEntitled } from "@/lib/coach-entitlement";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -78,6 +79,14 @@ function extractJson(text: string): unknown {
 }
 
 export async function POST(req: Request) {
+  // P0-2: the Live Coach is a Pro-tier, consent-gated feature. Deny by default
+  // when the caller's firm is not entitled (§II — recording/analysis must be a
+  // deliberate, paid capability, never on for everyone).
+  const { entitled } = await isLiveCoachEntitled();
+  if (!entitled) {
+    return Response.json({ error: "not_entitled" }, { status: 403 });
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return Response.json({ error: "analysis_unconfigured" }, { status: 503 });

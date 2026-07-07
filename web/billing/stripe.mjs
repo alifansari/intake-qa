@@ -52,7 +52,12 @@ export async function syncInvoiceToStripe({ db, firmId, invoiceId, totalCents, s
         return new Stripe(env.STRIPE_SECRET_KEY);
       })());
     // Intentionally minimal — the real finalize/collection flow is a go-live task.
-    await client.invoices.create({ metadata: { invoiceId: String(invoiceId), firmId: String(firmId) } });
+    // P0-4c: pass a Stripe idempotency key derived from the invoice id so a retry
+    // (webhook replay, cron re-close) can never create a duplicate charge.
+    await client.invoices.create(
+      { metadata: { invoiceId: String(invoiceId), firmId: String(firmId) } },
+      { idempotencyKey: `invoice-create-${invoiceId}` },
+    );
 
     // Guarantee refund: when the net is <= 0, the flat month was already collected
     // on the subscription, so issue a customer balance credit for the refunded
@@ -64,11 +69,17 @@ export async function syncInvoiceToStripe({ db, firmId, invoiceId, totalCents, s
       const billing = await getFirmBilling(db, firmId).catch(() => null);
       const customerId = billing?.stripe_customer_id ?? null;
       if (customerId && refundCents > 0) {
-        await client.customers.createBalanceTransaction(customerId, {
-          amount: -refundCents, // negative = credit to the customer
-          currency: "usd",
-          description: `Find-it-free guarantee credit (invoice ${invoiceId})`,
-        });
+        // P0-4c: idempotency key derived from the invoice id so a replayed close
+        // cannot issue the guarantee credit twice.
+        await client.customers.createBalanceTransaction(
+          customerId,
+          {
+            amount: -refundCents, // negative = credit to the customer
+            currency: "usd",
+            description: `Find-it-free guarantee credit (invoice ${invoiceId})`,
+          },
+          { idempotencyKey: `guarantee-credit-${invoiceId}` },
+        );
       } else {
         await appendStripeSimLog(db, {
           firm_id: firmId,
