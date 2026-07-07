@@ -68,7 +68,7 @@ export default function CompliancePage() {
           the question from arising.
         </p>
         <p>
-          The same logic governs our guarantee. The Intake Quality Audit is free, and the $25,000
+          The same logic governs our guarantee. The Leak Audit is free, and the $25,000
           find-it-free guarantee attaches to a <em>diagnostic threshold and the first paid month</em>,
           not to any recovery. It triggers on estimated value <em>identified</em> in your own
           calls; if the audit doesn&apos;t surface at least $25,000, we won&apos;t pitch a

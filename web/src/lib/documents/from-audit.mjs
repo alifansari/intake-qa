@@ -59,7 +59,7 @@ export function auditReportToDocData(report, opts = {}) {
   return {
     firmName: opts.firmName || "Your intake calls",
     firmCode: opts.firmCode || "AUDIT",
-    periodLabel: opts.periodLabel || "Intake Quality Audit",
+    periodLabel: opts.periodLabel || "Leak Audit",
     periodStart: opts.periodStart || "",
     periodEnd: opts.periodEnd || "",
     analystName: opts.analystName, // undefined -> compose/PDF default to ANALYST.name

@@ -4,9 +4,9 @@ import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 import { CTA_PRIMARY } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "Concierge pilot setup | Intake QA",
+  title: "Concierge setup | Intake QA",
   description:
-    "We handle setup so your team barely lifts a finger. Start with a free Intake Quality Audit, then a founding-cohort pilot.",
+    "We handle setup so your team barely lifts a finger. Start with a free Leak Audit, then the Founding 5 Charter.",
   alternates: { canonical: "/concierge" },
 };
 
@@ -15,12 +15,11 @@ export default function ConciergePage() {
     <div className="mx-auto max-w-[820px] px-5 py-16">
       <p className="eyebrow">Concierge</p>
       <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink text-balance sm:text-5xl">
-        White-glove recovery for founding-cohort firms.
+        White-glove recovery for founding firms.
       </h1>
       <p className="mt-6 max-w-[68ch] text-lg leading-relaxed text-ink-muted">
-        During your pilot, we don&apos;t just hand you a dashboard. We&apos;ll personally help work
-        your first recovered callbacks with you, so you see signed cases before you commit to
-        anything.
+        Once you continue on the Charter, we don&apos;t just hand you a dashboard. We&apos;ll
+        personally help work your first recovered callbacks with you, so you see signed cases early.
       </p>
       <div className="mt-10">
         <PilotCohortBanner />

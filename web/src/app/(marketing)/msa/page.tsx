@@ -47,7 +47,7 @@ export default function MsaPage() {
       <p className="mt-6 max-w-[72ch] text-lg text-ink-muted">
         This Master Services Agreement (&quot;MSA&quot;) would govern the paid subscription service
         provided by {LEGAL_ENTITY} (&quot;{LEGAL_DBA}&quot;, &quot;we&quot;) to a subscribing law firm
-        (&quot;Firm&quot;, &quot;you&quot;). The free Intake Quality Audit is governed by the{" "}
+        (&quot;Firm&quot;, &quot;you&quot;). The free Leak Audit is governed by the{" "}
         <Link href="/terms" className="font-semibold text-accent hover:text-accent-hover">
           Terms of Service
         </Link>

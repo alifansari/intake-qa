@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://plaintiffops.com"),
   title: "Intake QA: the independent recovery desk for PI firms",
   description:
-    "Everyone you pay to handle your intake grades their own work. Intake QA is the independent desk that checks the whole board against what actually got signed, and finds the signable cases that walked. Run your free Intake Quality Audit.",
+    "Everyone you pay to handle your intake grades their own work. Intake QA is the independent desk that checks the whole board against what actually got signed, and finds the signable cases that walked. Run your free Leak Audit.",
 };
 
 export default function RootLayout({

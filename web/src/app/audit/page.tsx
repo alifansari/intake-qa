@@ -1,6 +1,6 @@
 "use client";
 
-// Intake Quality Audit uploader (public, no-auth). Upload up to 10 calls under
+// Leak Audit uploader (public, no-auth). Upload up to 10 calls under
 // one session, each processed by the UNCHANGED demo pipeline, then land on the
 // shareable /audit/[token] report. Mirrors the demo upload mechanic (storage or
 // direct), but every upload carries the session token so the calls aggregate.
@@ -139,9 +139,9 @@ export default function AuditUploaderPage() {
       <MarketingNav />
       <main className="mx-auto max-w-3xl px-6 py-12">
       <div className="mb-8">
-        <p className="eyebrow">The independent recovery desk · Intake Quality Audit</p>
+        <p className="eyebrow">The independent recovery desk · Leak Audit</p>
         <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance">
-          Your free Intake Quality Audit
+          Your free Leak Audit
         </h1>
         <p className="mt-4 max-w-[66ch] text-lg text-ink-muted">
           Send us up to {MAX} recent intake calls. A real analyst, not just a model, reviews every

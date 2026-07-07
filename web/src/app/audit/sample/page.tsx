@@ -1,4 +1,4 @@
-// Public SAMPLE Intake Quality Audit — synthetic calls, clearly labeled, using
+// Public SAMPLE Leak Audit — synthetic calls, clearly labeled, using
 // the post-Change-1 layout: sample-anchored headline, per-call evidence as the
 // primary content, monthly figure as a labeled range. No DB, safe to share.
 
@@ -14,9 +14,9 @@ import {
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "Sample Intake Quality Audit | Intake QA",
+  title: "Sample Leak Audit | Intake QA",
   description:
-    "A sample Intake Quality Audit report on synthetic calls. See the signable fees that walked, with per-call evidence.",
+    "A sample Leak Audit report on synthetic calls. See the signable fees that walked, with per-call evidence.",
   alternates: { canonical: "/audit/sample" },
 };
 
@@ -60,8 +60,8 @@ export default function SampleAuditPage() {
 
       {/* Masthead */}
       <header className="border-b border-ink pb-4">
-        <p className="eyebrow">Intake QA · Intake Quality Audit</p>
-        <h1 className="font-display text-3xl font-bold text-ink">Intake Quality Audit</h1>
+        <p className="eyebrow">Intake QA · Leak Audit</p>
+        <h1 className="font-display text-3xl font-bold text-ink">Leak Audit</h1>
         <p className="mt-1 text-sm text-muted">{CALL_COUNT} calls reviewed</p>
       </header>
 
@@ -188,7 +188,7 @@ export default function SampleAuditPage() {
           href="/audit"
           className="mt-4 inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
         >
-          Run your free Intake Quality Audit
+          Run your free Leak Audit
         </Link>
       </section>
 

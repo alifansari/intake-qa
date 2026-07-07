@@ -1,4 +1,6 @@
 // Founding-cohort seat count — the SINGLE, manually-updated source of truth.
+// This is the "Founding 5" Charter cap: 5 firms, hard cap, closes at the 5th
+// firm or Aug 31, 2026 (see CHARTER_CLOSES in site-constants).
 // Real scarcity only: update SEATS_TAKEN by hand as founding firms sign on.
 // Never auto-decrement, never fake a number, never add a countdown timer.
 // When SEATS_TAKEN === SEATS_TOTAL, every cohort CTA flips to a waitlist state.

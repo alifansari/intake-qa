@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FAQAccordion, type QA } from "@/components/marketing/FAQAccordion";
-import { COHORT_MIN, COHORT_MAX, PILOT_DAYS, DELETION_HOURS, CTA_PRIMARY, GUARANTEE_THRESHOLD } from "@/lib/site-constants";
+import { COHORT_MAX, DELETION_HOURS, CTA_PRIMARY, GUARANTEE_THRESHOLD, CHARTER_INTRO_PRICE, CHARTER_INTRO_DAYS, CHARTER_STEP_UP_PRICE } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "FAQ | Intake QA",
@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 // Ordered by the new objection stack (v3 report).
 const ITEMS: QA[] = [
   {
-    q: "Why is the audit free?",
-    a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Intake Quality Audit is free for qualifying Northern California PI firms. A real analyst reviews up to 10 of your recent calls and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. Ali",
+    q: "Why is the Leak Audit free?",
+    a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Leak Audit is free for qualifying Northern California PI firms. A real analyst scores up to 10 of your own recorded calls and walks you through the signable cases that slipped, live, and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. Ali",
   },
   {
     q: `What does the ${GUARANTEE_THRESHOLD} find-it-free guarantee actually back?`,
-    a: `A diagnostic threshold, not a case outcome. If the free audit doesn't surface at least ${GUARANTEE_THRESHOLD} in estimated missed signable case value in your own calls, we won't pitch you a subscription, and if you start one anyway, your first month is free. "Estimated missed signable case value" is calculated from your own average fee per case type (or named industry benchmarks where we don't have it), and it's an estimate of what walked, never a promise of what we'll recover. That distinction is deliberate: a promise tied to recovered fees would raise runner/capper and earnings-claim problems. See how we calculate it on the calibration page.`,
+    a: `A diagnostic threshold, not a case outcome. If the free Leak Audit doesn't surface at least ${GUARANTEE_THRESHOLD} in estimated missed signable case value in your own calls, we won't pitch you a subscription, and if you start one anyway, your first month is free. "Estimated missed signable case value" is calculated from your own average fee per case type (or named industry benchmarks where we don't have it), and it's an estimate of what walked, never a promise of what we'll recover. That distinction is deliberate: a promise tied to recovered fees would raise runner/capper and earnings-claim problems. See how we calculate it on the calibration page.`,
   },
   {
     q: "I already have an AI receptionist / answering service / Lead Docket / a marketing agency that reports on this.",
@@ -46,7 +46,7 @@ const ITEMS: QA[] = [
   },
   {
     q: "You're a solo founder. Will this be around in a year?",
-    a: `Straight answer: it's early, and I'm honest about it. No logos, no case studies yet. The product logic is complete and version-locked, so the scoring doesn't drift under you. The founding cohort is ${COHORT_MIN}-${COHORT_MAX} firms on purpose, you get direct access to me, and the ${PILOT_DAYS}-day pilot is free and cancel-anytime, so you can prove the value before you commit a dollar. Your data is deletable on request at any point, so you're never locked in. Ali`,
+    a: `Straight answer: it's early, and I'm honest about it. No logos, no case studies yet. The product logic is complete and version-locked, so the scoring doesn't drift under you. The founding cohort is capped at ${COHORT_MAX} firms on purpose, you get direct access to me, and the Leak Audit is free, so you can prove the value before you commit a dollar. If you continue, the first five firms start on the Founding 5 Charter at ${CHARTER_INTRO_PRICE} for ${CHARTER_INTRO_DAYS} days, then the flat ${CHARTER_STEP_UP_PRICE} Core price, cancel-anytime. Your data is deletable on request at any point, so you're never locked in. Ali`,
   },
   {
     q: "Isn't our fee to you basically fee-splitting?",

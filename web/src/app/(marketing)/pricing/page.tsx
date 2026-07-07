@@ -15,9 +15,9 @@ import {
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "Pricing: a free founding pilot, then flat monthly | Intake QA",
+  title: "Pricing: a free Leak Audit, then flat monthly | Intake QA",
   description:
-    "The founding pilot is free: five Northern California PI firms, a 30-day Leak Audit, no fee. If you continue, a flat monthly fee tiered by call volume, never per case and never a share of any recovery.",
+    "Start with a free Leak Audit. If you continue, a flat monthly fee tiered by call volume, never per case and never a share of any recovery. The first five firms can start on the Founding 5 Charter.",
   alternates: { canonical: "/pricing" },
 };
 
@@ -38,33 +38,32 @@ export default function PricingPage() {
         One flat monthly fee. Never per case, never a percentage. That&apos;s the whole point.
       </p>
 
-      {/* STAGE 1 — the free founding pilot */}
+      {/* STAGE 1 — the free Leak Audit wedge */}
       <section className="mt-12 border-t border-hairline pt-8">
-        <p className="eyebrow">Stage 1 · The founding pilot (free)</p>
+        <p className="eyebrow">Stage 1 · The Leak Audit (free)</p>
         <h2 className="mt-2 max-w-[28ch] font-display text-3xl font-semibold text-ink text-balance">
-          Five founding firms. Thirty days. No fee.
+          Send us 10 calls. We find what walked. Free.
         </h2>
         <p className="mt-4 max-w-[72ch] text-ink-muted">
-          A free 30-day Leak Audit of your real recorded intake calls, everything included, ending in
-          a signed Missed-Revenue Statement. This is not a trial with features withheld. It is the
-          full engagement, free, because the first five firms are how the number earns its
-          reputation. {STAKE_LINE}
+          Send up to 10 of your own recorded intake calls. A real analyst scores them and walks you
+          through the signable cases that slipped, live and free, and you keep the written report
+          whether or not we ever work together. No card, no obligation. {STAKE_LINE}
         </p>
         <div className="mt-6">
           <PilotCohortBanner />
         </div>
       </section>
 
-      {/* STAGE 2 — after the pilot, flat monthly */}
+      {/* STAGE 2 — after the audit, flat monthly */}
       <section className="mt-12 border-t border-hairline pt-8">
-        <p className="eyebrow">Stage 2 · After the pilot (flat monthly, optional)</p>
+        <p className="eyebrow">Stage 2 · After the audit (flat monthly, optional)</p>
         <h2 className="mt-2 max-w-[30ch] font-display text-3xl font-semibold text-ink text-balance">
           If the Statement earns its keep, this is what continuing costs.
         </h2>
         <p className="mt-4 max-w-[72ch] text-ink-muted">
           Flat, tiered by call volume, and never tied to cases signed, cases recovered, or any
           outcome. Optional, cancel anytime. Nothing here is owed unless you choose to continue after
-          the free pilot.
+          the free Leak Audit. The first five firms can start on the Founding 5 Charter below.
         </p>
       </section>
 
@@ -123,7 +122,7 @@ export default function PricingPage() {
       </section>
 
       <p className="mt-6 max-w-[72ch] text-sm text-faint">
-        Founding-cohort firms start with the free 30-day pilot. A flat monthly fee begins only if you
+        Every firm starts with the free Leak Audit. A flat monthly fee begins only if you
         choose to continue. Prefer to pay by invoice or forward this to your bookkeeper? Email{" "}
         <a href="mailto:ali@plaintiffops.com" className="font-semibold text-accent hover:text-accent-hover">
           ali@plaintiffops.com

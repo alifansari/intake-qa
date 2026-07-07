@@ -82,13 +82,15 @@ export const WHAT_WE_DO =
   "We measure what happens to a signable case after the phone rings: which qualified callers didn't sign, across every channel, and what that walked-away fee revenue is worth.";
 
 // ─── The Leak Audit offer (FREE) ─────────────────────────────────────────────
-export const AUDIT_NAME = "Intake Quality Audit";
+// ONE public wedge name sitewide: the "Leak Audit". (The internal "10-Call
+// Autopsy" is the same thing — public copy always says "Leak Audit".)
+export const AUDIT_NAME = "Leak Audit";
 // Single primary CTA sitewide, waitlist-aware (see lib/cohort.ts).
 export const CTA_PRIMARY = COHORT_CTA_LABEL;
 // The stake: free is not a discount, it is the wager. Anchor line, used verbatim.
 export const STAKE_LINE = "I charge nothing until the number survives your scrutiny.";
 export const AUDIT_FREE_LINE =
-  "Send us up to 10 recent intake calls. A real analyst, not just a model, reviews every one against our calibrated PI rubric and hands you a written report: the signable cases that didn't sign, the evidence behind each flag, and what that walked-away fee revenue is worth in dollars. You keep the report whether or not we ever work together.";
+  "Send us up to 10 of your own recorded intake calls. A real analyst, not just a model, scores every one against our calibrated PI rubric and walks you through the signable cases that slipped, live and free. You keep the written report whether or not we ever work together.";
 // Honest capacity, not fake scarcity. Confirmed by Ali (July 2026): 8/month.
 export const AUDIT_CAPACITY = 8;
 export const AUDIT_CAPACITY_LINE = `Because a real analyst reviews every call, we take on up to ${AUDIT_CAPACITY} audits each month.`;
@@ -101,14 +103,14 @@ export const AUDIT_DELIVERABLES: string[] = [
 ];
 // The one funnel (present as a single path, no competing offers).
 export const FUNNEL_LINE =
-  "Free Intake Quality Audit → a live readout with Ali → a free 30-day founding-cohort pilot → a flat monthly subscription.";
+  "Free Leak Audit → a live readout with Ali → the Founding 5 Charter ($1,500/mo for 90 days) → the flat $2,500/mo Core subscription.";
 
 // ─── The $25,000 find-it-free guarantee (backs the diagnostic + first month) ──
 // Attaches to the SUBSCRIPTION decision, never to recovered fees (keeps clear of
 // FTC §5 / CA §17500 earnings claims and §§6151–6152 / SB 37 outcome-fee optics).
 export const GUARANTEE_THRESHOLD = "$25,000";
 export const GUARANTEE_CANONICAL =
-  "The $25,000 find-it-free guarantee: if your free Intake Quality Audit doesn't identify at least $25,000 in estimated missed signable case value, we won't pitch you a subscription, and if you start one anyway, your first month is free. “Estimated missed signable case value” is an estimate of what walked, calculated from your own average fee per case type (or named industry benchmarks where we don't have it). It is not a promise of what we'll recover.";
+  "The $25,000 find-it-free guarantee: if your free Leak Audit doesn't identify at least $25,000 in estimated missed signable case value, we won't pitch you a subscription, and if you start one anyway, your first month is free. “Estimated missed signable case value” is an estimate of what walked, calculated from your own average fee per case type (or named industry benchmarks where we don't have it). It is not a promise of what we'll recover.";
 export const GUARANTEE_BADGE_LINE =
   "$25,000 find-it-free guarantee: if the audit doesn't surface at least $25k in estimated missed signable case value, we won't pitch you, and if you subscribe anyway your first month is free. An estimate of what walked, not a promise of recovery.";
 export const GUARANTEE_METHODOLOGY =
@@ -116,10 +118,10 @@ export const GUARANTEE_METHODOLOGY =
 // TODO(Ali): collect each firm's average fee per case type (guarantee methodology input).
 
 // ─── Founding cohort (honest, durable language — no countdown, no "N seats left") ───
-export const COHORT_MIN = 3;
+// The founding cohort IS the Charter (Founding 5): a hard cap of 5 firms, the paid
+// pilot at the Charter intro rate. See the Charter block below for terms.
 export const COHORT_MAX = 5;
-export const PILOT_DAYS = 30;
-export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MIN} to ${COHORT_MAX} Northern California PI firms onto free ${PILOT_DAYS}-day pilots.`;
+export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MAX} Northern California PI firms onto the Founding 5 Charter, after each firm's free Leak Audit.`;
 
 // ─── Data handling (one reconciled promise) ──────────────────────────────────
 // Canonical retention (Round 7 master): audio deleted at transcription; transcripts
@@ -262,20 +264,20 @@ export type PricingTier = {
   sub: string;
   featured: boolean;
   // Plan id sent to POST /api/checkout ("core" | "pro" | "charter"). Empty string
-  // means this card has no direct checkout (e.g. the free pilot) and links to /audit.
+  // means this card has no direct checkout (e.g. the free Leak Audit) and links to /audit.
   checkoutPlan: "core" | "pro" | "charter" | "";
 };
 export const PRICING_TIERS: PricingTier[] = [
   {
-    name: "Founding pilot",
-    planName: "pilot",
+    name: "Free Leak Audit",
+    planName: "audit",
     price: "$0",
     priceCents: 0,
     callCap: null,
-    volume: `${PILOT_DAYS}-day pilot`,
-    sub: "Free 30-day pilot for the founding cohort, after your free audit. Then a flat monthly subscription. Cancel anytime.",
+    volume: "the wedge, no card",
+    sub: "Send up to 10 of your own recorded intake calls. A real analyst scores them and walks you through the signable cases that slipped, live and free. You keep the report either way.",
     featured: false,
-    checkoutPlan: "", // the pilot starts with the free audit, not a subscription checkout
+    checkoutPlan: "", // the wedge starts at /audit, not a subscription checkout
   },
   {
     name: "Core",
