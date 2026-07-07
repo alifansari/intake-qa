@@ -38,6 +38,7 @@ export default async function WelcomePage({
         <div className="mt-8 rounded-card border border-hairline bg-surface p-6">
           <p className="text-sm font-semibold text-ink">What happens next</p>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-ink-muted">
+            <li>Ali will email you personally within one business day to set up your kickoff.</li>
             <li>We set up your firm&apos;s workspace and send your magic login link by email.</li>
             <li>You sign in and connect your call source (or upload recordings).</li>
             <li>Your first monthly missed-revenue statement lands after your first scoring cycle.</li>

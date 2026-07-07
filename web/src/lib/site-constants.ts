@@ -87,6 +87,25 @@ export const WHAT_WE_DO =
 export const AUDIT_NAME = "Leak Audit";
 // Single primary CTA sitewide, waitlist-aware (see lib/cohort.ts).
 export const CTA_PRIMARY = COHORT_CTA_LABEL;
+// Persistent SECONDARY action for a buyer who is already convinced and wants to
+// pay now instead of running the free audit. Quieter styling; points at /pricing.
+export const CTA_SECONDARY = "Already convinced? Start a subscription →";
+export const CTA_SECONDARY_HREF = "/pricing";
+// Risk-reversal sub-CTA line, leads with what the buyer keeps. Flat-fee-safe:
+// no outcome promise, no card required to start.
+export const SUB_CTA_LINE =
+  "A real analyst reviews every call. You keep the report whether or not you continue. No card, no contract to start.";
+// One-line reassurance shown under each paid buy button.
+export const CHECKOUT_REASSURANCE =
+  "Flat monthly, cancel anytime. You'll get a login link by email and a kickoff with Ali before your first statement.";
+// The lift line (staff time), pulled near pricing/audit CTAs.
+export const LIFT_LINE =
+  "About 20 minutes from you and a one-time ~2 hours from your office manager to forward recordings. Built to make your intake manager look good.";
+// Trust strip: we publish our error rate. Points at the calibration page.
+export const HONESTY_STRIP_LINE = "We publish how often we're wrong.";
+// Reviewer line near buy buttons (role, not a named person — see compliance §V).
+// Matches WHO_DOES_THE_WORK: Ali is a former PI paralegal who sat in the intake seat.
+export const REVIEWER_LINE = "A former PI paralegal who sat in the intake seat reviews every score.";
 // The stake: free is not a discount, it is the wager. Anchor line, used verbatim.
 export const STAKE_LINE = "I charge nothing until the number survives your scrutiny.";
 export const AUDIT_FREE_LINE =

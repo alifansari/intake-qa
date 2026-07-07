@@ -11,6 +11,10 @@ import { SampleAlert } from "@/components/marketing/SampleAlert";
 import { SEAT_LINE } from "@/lib/cohort";
 import {
   CTA_PRIMARY,
+  CTA_SECONDARY,
+  CTA_SECONDARY_HREF,
+  SUB_CTA_LINE,
+  HONESTY_STRIP_LINE,
   STAKE_LINE,
   INDEPENDENCE_LINE,
   INDEPENDENCE_STATEMENT,
@@ -57,14 +61,33 @@ const STEPS = [
   "A monthly missed-revenue statement: what walked, in dollars, trending over time",
 ];
 
-function CTA({ children = CTA_PRIMARY, href = "/audit" }: { children?: string; href?: string }) {
+// Two-path CTA: emerald primary (free audit) + a quieter secondary for the
+// already-convinced buyer (→ /pricing). `onDark` recolors the secondary for the
+// navy blocks.
+function CTA({
+  children = CTA_PRIMARY,
+  href = "/audit",
+  onDark = false,
+}: {
+  children?: string;
+  href?: string;
+  onDark?: boolean;
+}) {
   return (
-    <Link
-      href={href}
-      className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
-    >
-      {children}
-    </Link>
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+      <Link
+        href={href}
+        className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
+      >
+        {children}
+      </Link>
+      <Link
+        href={CTA_SECONDARY_HREF}
+        className={`text-sm font-medium ${onDark ? "text-white/75 hover:text-white" : "text-ink-muted hover:text-ink"}`}
+      >
+        {CTA_SECONDARY}
+      </Link>
+    </div>
   );
 }
 
@@ -78,25 +101,33 @@ export default function HomePage() {
       {/* HERO: independence + closed-loop recovery (no category-king claim) */}
       <Section className="pt-16 pb-12 sm:pt-24">
         <p className="eyebrow">The independent recovery desk for personal injury firms</p>
-        <h1 className="mt-3 max-w-[20ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
-          Everyone you pay to handle your intake tells you they&apos;re doing a great job.
+        <h1 className="mt-3 max-w-[22ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
+          Find the signable cases your intake team let walk &mdash; and what they cost you.
         </h1>
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
-          The AI receptionist grades its own calls, the agency grades its own leads, your staff grade
-          their own follow-up, and nobody checks the whole board against what actually got signed. So
-          send me up to 10 of your own recorded intake calls: a real analyst scores them and walks you
-          through the signable cases that slipped, live and free. The first five firms can continue on
-          the Founding 5 Charter. {STAKE_LINE}
+          Everyone you pay to handle intake grades their own work. Intake QA is the independent desk
+          that scores every call against who actually signed, puts a dollar figure on what walked, and
+          hands you the report to keep. Start with a free audit of your own calls. {STAKE_LINE}
         </p>
-        <div className="mt-8 flex flex-wrap items-center gap-5">
+        <div className="mt-8">
           <CTA />
-          <Link href="/letter" className="text-sm font-semibold text-accent hover:text-accent-hover">
-            Read the letter →
-          </Link>
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link href="/statement" className="text-sm font-medium text-accent hover:text-accent-hover">
+              See a real sample Statement →
+            </Link>
+            <Link href="/letter" className="text-sm font-medium text-accent hover:text-accent-hover">
+              Read the letter →
+            </Link>
+          </div>
         </div>
-        <p className="mt-4 text-sm text-faint tnum">
-          {SEAT_LINE} A real analyst reviews every call. You keep the Statement whether or not you
-          continue.
+        <p className="mt-4 max-w-[66ch] text-sm text-faint">
+          <span className="tnum font-medium text-ink">{SEAT_LINE}</span> {SUB_CTA_LINE}
+        </p>
+        <p className="mt-2 text-sm text-faint">
+          {HONESTY_STRIP_LINE}{" "}
+          <Link href="/honesty" className="font-semibold text-accent hover:text-accent-hover">
+            See our error rate →
+          </Link>
         </p>
       </Section>
 
@@ -268,9 +299,7 @@ export default function HomePage() {
             the evidence behind each flag. You keep the report either way. Then: {FUNNEL_LINE}
           </p>
           <div className="mt-7">
-            <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-              {CTA_PRIMARY}
-            </Link>
+            <CTA onDark />
           </div>
         </div>
       </Section>

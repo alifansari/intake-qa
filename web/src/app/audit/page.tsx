@@ -150,11 +150,14 @@ export default function AuditUploaderPage() {
           worth in dollars. You keep the report whether or not we ever work together.
         </p>
         <p className="mt-3 text-sm text-faint">{AUDIT_CAPACITY_LINE}</p>
-        <p className="mt-3 text-sm">
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
           <a href="/audit/sample" className="font-semibold text-accent hover:text-accent-hover">
             See a sample report →
           </a>
-        </p>
+          <a href="/pricing" className="font-medium text-ink-muted hover:text-ink">
+            Ready to start without the audit? See pricing →
+          </a>
+        </div>
 
         {/* What you receive */}
         <div className="mt-6 rounded-card border border-hairline bg-surface p-5">

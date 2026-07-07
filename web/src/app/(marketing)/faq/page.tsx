@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FAQAccordion, type QA } from "@/components/marketing/FAQAccordion";
-import { COHORT_MAX, DELETION_HOURS, CTA_PRIMARY, GUARANTEE_THRESHOLD, CHARTER_INTRO_PRICE, CHARTER_INTRO_DAYS, CHARTER_STEP_UP_PRICE } from "@/lib/site-constants";
+import { COHORT_MAX, DELETION_HOURS, CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF, LIFT_LINE, GUARANTEE_THRESHOLD, CHARTER_INTRO_PRICE, CHARTER_INTRO_DAYS, CHARTER_STEP_UP_PRICE } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "FAQ | Intake QA",
@@ -10,8 +10,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/faq" },
 };
 
-// Ordered by the new objection stack (v3 report).
+// Ordered by the new objection stack (v3 report). The top unspoken objection
+// leads: does this recover money, or only tell me I'm losing it?
 const ITEMS: QA[] = [
+  {
+    q: "Will this actually recover money, or just tell me I'm losing it?",
+    a: "Honest answer: today the desk finds the money and hands it to your team to recover, it doesn't recover it for you. Every flagged signable lead lands on one screen so your own team can call back the same day, while the lead is still warm, that's where recovery happens. The monthly statement then shows whether last month's leak is shrinking, so next month's intake gets better. The compliant SMS win-back, where the desk drafts a text and a person at your firm approves it, is on the roadmap and gated on A2P 10DLC registration; you don't pay for it until it's live and we'll tell you plainly what's running versus in development.",
+  },
   {
     q: "Why is the Leak Audit free?",
     a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Leak Audit is free for qualifying Northern California PI firms. A real analyst scores up to 10 of your own recorded calls and walks you through the signable cases that slipped, live, and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. Ali",
@@ -84,11 +89,15 @@ export default function FaqPage() {
       <div className="mt-10">
         <FAQAccordion items={ITEMS} />
       </div>
-      <div className="mt-10">
+      <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
           {CTA_PRIMARY}
         </Link>
+        <Link href={CTA_SECONDARY_HREF} className="text-sm font-medium text-ink-muted hover:text-ink">
+          {CTA_SECONDARY}
+        </Link>
       </div>
+      <p className="mt-3 max-w-[66ch] text-sm text-faint">{LIFT_LINE}</p>
     </div>
   );
 }
