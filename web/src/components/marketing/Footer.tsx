@@ -2,6 +2,7 @@ import Link from "next/link";
 import { COPYRIGHT_YEAR, CTA_PRIMARY } from "@/lib/site-constants";
 
 const LINKS = [
+  { href: "/letter", label: "The letter" },
   { href: "/security", label: "Security" },
   { href: "/founder", label: "Founder" },
   { href: "/faq", label: "FAQ" },

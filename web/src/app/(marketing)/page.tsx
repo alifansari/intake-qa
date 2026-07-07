@@ -57,16 +57,6 @@ const STEPS = [
   "A monthly missed-revenue statement: what walked, in dollars, trending over time",
 ];
 
-// Illustrative Monthly Missed-Revenue Statement. Every figure is a labeled EXAMPLE.
-const STATEMENT_ROWS: [string, string][] = [
-  ["Signable calls analyzed", "128"],
-  ["Cases that signed", "31"],
-  ["Signable cases that walked", "12"],
-  ["Estimated missed fee value", "$96,000"],
-  ["Saves your team recovered", "4"],
-  ["Recovered fee value", "$32,000"],
-];
-
 function CTA({ children = CTA_PRIMARY, href = "/audit" }: { children?: string; href?: string }) {
   return (
     <Link
@@ -111,7 +101,9 @@ export default function HomePage() {
 
       {/* HERO ARTIFACT: show the document immediately */}
       <Section className="pb-16">
-        <SampleStatement />
+        <div className="iq-fade-up">
+          <SampleStatement />
+        </div>
         <p className="mt-3 text-xs text-faint">
           Page one of a sample Missed-Revenue Statement. Figures are illustrative and names are
           redacted; your own Statement is built from your calls.
@@ -124,9 +116,9 @@ export default function HomePage() {
       </Section>
 
       {/* INDEPENDENCE / self-graded homework */}
-      <Section className="py-14">
+      <Section className="py-20">
         <div className="max-w-[68ch]">
-          <h2 className="font-display text-3xl font-semibold text-ink text-balance">
+          <h2 className="font-display text-4xl font-semibold leading-[1.1] text-ink text-balance">
             Every report you get on your intake is self-graded homework.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
@@ -138,8 +130,8 @@ export default function HomePage() {
       </Section>
 
       {/* FOUR-POINT DIFFERENTIATION */}
-      <Section className="py-14 border-t border-hairline">
-        <h2 className="mb-7 max-w-[24ch] font-display text-3xl font-semibold text-ink text-balance">
+      <Section className="py-20 border-t border-hairline">
+        <h2 className="mb-7 max-w-[24ch] font-display text-4xl font-semibold leading-[1.1] text-ink text-balance">
           What the desk does that the tools handling your calls don&apos;t.
         </h2>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -156,8 +148,8 @@ export default function HomePage() {
       </Section>
 
       {/* CLOSED LOOP / mechanism */}
-      <Section className="py-14 border-t border-hairline">
-        <h2 className="max-w-[26ch] font-display text-3xl font-semibold text-ink text-balance">
+      <Section className="py-20 border-t border-hairline">
+        <h2 className="max-w-[26ch] font-display text-4xl font-semibold leading-[1.1] text-ink text-balance">
           The closed loop: read every call, reconcile against what signed, recover what walked.
         </h2>
         <ol className="mt-8 grid gap-px overflow-hidden rounded-card border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-3">
@@ -173,7 +165,7 @@ export default function HomePage() {
       {/* THE FOUR DELIVERABLES + the lead-product artifact */}
       <Section className="py-14 border-t border-hairline">
         <p className="eyebrow">What lands on your desk</p>
-        <h2 className="mt-2 max-w-[26ch] font-display text-3xl font-semibold text-ink text-balance">
+        <h2 className="mt-2 max-w-[26ch] font-display text-2xl font-semibold text-ink text-balance">
           Four plain deliverables, in the order they matter.
         </h2>
         <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-start">
@@ -216,7 +208,7 @@ export default function HomePage() {
       <Section className="py-14 border-t border-hairline">
         <div className="max-w-[72ch]">
           <p className="eyebrow">Marketing-agency accountability</p>
-          <h2 className="mt-2 font-display text-3xl font-semibold text-ink text-balance">
+          <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">
             Finally know whether your ad spend produces signable callers or tire-kickers.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
@@ -234,45 +226,26 @@ export default function HomePage() {
       </Section>
 
       {/* MONTHLY MISSED-REVENUE STATEMENT: flagship deliverable (illustrative) */}
-      <Section className="py-14 border-t border-hairline">
-        <div className="grid gap-8 lg:grid-cols-[1fr_minmax(0,420px)] lg:items-center">
-          <div className="max-w-[60ch]">
-            <p className="eyebrow">The deliverable</p>
-            <h2 className="mt-2 font-display text-3xl font-semibold text-ink text-balance">
-              Your monthly missed-revenue statement.
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-ink-muted">
-              Every month you get one readout that reads like a P&amp;L for your intake: signable
-              calls analyzed, cases that signed, cases that walked, estimated missed fee value, the
-              saves your team recovered, and the trend line. A written deliverable, not another
-              dashboard to log into.
-            </p>
-          </div>
-          <div className="rounded-card border border-hairline bg-surface p-6 shadow-card">
-            <div className="flex items-baseline justify-between border-b border-hairline pb-3">
-              <p className="font-display text-sm font-semibold text-ink">Missed-Revenue Statement</p>
-              <p className="text-xs text-faint">Example · illustrative figures</p>
-            </div>
-            <dl className="mt-3 flex flex-col gap-2 text-sm">
-              {STATEMENT_ROWS.map(([k, v]) => (
-                <div key={k} className="flex justify-between">
-                  <dt className="text-ink-muted">{k}</dt>
-                  <dd className="tnum font-semibold text-ink">{v}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className="mt-4 text-xs text-faint">
-              Sample only. Your statement is built from your own recordings; figures are estimates,
-              not promises.
-            </p>
-          </div>
+      <Section className="py-16 border-t border-hairline">
+        <div className="max-w-[68ch]">
+          <p className="eyebrow">The deliverable</p>
+          <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">
+            Your monthly missed-revenue statement.
+          </h2>
+          <p className="mt-5 text-lg leading-relaxed text-ink-muted">
+            Every month you get one readout that reads like a P&amp;L for your intake: signable
+            calls analyzed, cases that signed, cases that walked, estimated missed fee value, the
+            saves your team recovered, and the trend line. A written deliverable, not another
+            dashboard to log into. The sample Statement at the top of this page is page one of
+            exactly what lands on your desk.
+          </p>
         </div>
       </Section>
 
       {/* MONTHS 2-12 value strip */}
       <Section className="py-14 border-t border-hairline">
         <div className="max-w-[72ch]">
-          <h2 className="font-display text-3xl font-semibold text-ink text-balance">
+          <h2 className="font-display text-2xl font-semibold text-ink text-balance">
             What months 2-12 look like.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">{MONTH_6_INTRO}</p>
@@ -285,7 +258,7 @@ export default function HomePage() {
       {/* AUDIT CTA */}
       <Section className="py-14">
         <div className="rounded-card border border-hairline bg-navy px-6 py-10 text-white sm:px-12">
-          <h2 className="max-w-[24ch] font-display text-3xl font-semibold text-balance">
+          <h2 className="max-w-[24ch] font-display text-2xl font-semibold text-balance">
             Start with a free Intake Quality Audit.
           </h2>
           <p className="mt-4 max-w-[64ch] text-white/75">
@@ -303,7 +276,7 @@ export default function HomePage() {
 
       {/* ROI */}
       <Section className="py-14">
-        <h2 className="font-display text-3xl font-semibold text-ink text-balance">
+        <h2 className="font-display text-2xl font-semibold text-ink text-balance">
           Do the math on your own numbers.
         </h2>
         <p className="mt-3 mb-7 max-w-[60ch] text-ink-muted">
@@ -314,7 +287,7 @@ export default function HomePage() {
 
       {/* COMPARISON */}
       <Section className="py-14 border-t border-hairline">
-        <h2 className="mb-3 font-display text-3xl font-semibold text-ink text-balance">
+        <h2 className="mb-3 font-display text-2xl font-semibold text-ink text-balance">
           Where the desk fits alongside what you already run.
         </h2>
         <p className="mb-7 max-w-[68ch] text-sm text-ink-muted">
@@ -329,7 +302,7 @@ export default function HomePage() {
       <Section className="py-14">
         <div className="max-w-[70ch]">
           <p className="eyebrow">Founding cohort</p>
-          <h2 className="mt-2 font-display text-3xl font-semibold text-ink text-balance">
+          <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">
             Five founding firms. A free 30-day Leak Audit.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
@@ -359,7 +332,7 @@ export default function HomePage() {
       {/* WHO DOES THE WORK */}
       <Section className="py-14 border-t border-hairline">
         <div className="max-w-[68ch]">
-          <h2 className="font-display text-3xl font-semibold text-ink text-balance">Who does the work.</h2>
+          <h2 className="font-display text-2xl font-semibold text-ink text-balance">Who does the work.</h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">{WHO_DOES_THE_WORK}</p>
           <Link href="/founder" className="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-hover">
             More about Ali →
@@ -369,7 +342,7 @@ export default function HomePage() {
 
       {/* COMPLIANCE STRIP */}
       <Section className="py-14 border-t border-hairline">
-        <h2 className="mb-7 font-display text-3xl font-semibold text-ink text-balance">
+        <h2 className="mb-7 font-display text-2xl font-semibold text-ink text-balance">
           Built to survive your ethics counsel.
         </h2>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -409,9 +382,9 @@ export default function HomePage() {
       </Section>
 
       {/* FINAL CTA */}
-      <Section className="py-16 border-t border-hairline">
+      <Section className="py-20 border-t border-hairline">
         <div className="max-w-[68ch]">
-          <h2 className="font-display text-3xl font-semibold text-ink text-balance">
+          <h2 className="font-display text-4xl font-semibold leading-[1.1] text-ink text-balance">
             Five founding seats. A free 30-day Leak Audit.
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">

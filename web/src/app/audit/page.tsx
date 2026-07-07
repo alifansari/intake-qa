@@ -8,15 +8,17 @@
 
 import { useCallback, useRef, useState } from "react";
 import { getSupabaseBrowser } from "../../lib/supabase/client";
+import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { Footer } from "@/components/marketing/Footer";
 import {
   DELETION_HOURS,
   FOUNDER_NAME,
   FOUNDER_EMAIL,
-  AUDIT_FREE_LINE,
   AUDIT_CAPACITY_LINE,
   AUDIT_DELIVERABLES,
   GUARANTEE_CANONICAL,
   GUARANTEE_METHODOLOGY,
+  CTA_PRIMARY,
 } from "@/lib/site-constants";
 
 const MAX = 10;
@@ -121,19 +123,21 @@ export default function AuditUploaderPage() {
   }, [files, volume, uploadOne, pollUntilComplete]);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10">
+    <div className="min-h-screen bg-canvas text-ink">
+      <MarketingNav />
+      <main className="mx-auto max-w-3xl px-6 py-12">
       <div className="mb-8">
         <p className="eyebrow">The independent recovery desk · Intake Quality Audit</p>
-        <h1 className="font-display text-3xl font-bold text-ink">
+        <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance">
           Your free Intake Quality Audit
         </h1>
-        <p className="mt-2 text-muted">
+        <p className="mt-4 max-w-[66ch] text-lg text-ink-muted">
           Send us up to {MAX} recent intake calls. A real analyst, not just a model, reviews every
           one against our calibrated PI rubric and hands you a written report: the signable cases that
           didn&apos;t sign, the evidence behind each flag, and what that walked-away fee revenue is
           worth in dollars. You keep the report whether or not we ever work together.
         </p>
-        <p className="mt-2 text-sm text-faint">{AUDIT_CAPACITY_LINE}</p>
+        <p className="mt-3 text-sm text-faint">{AUDIT_CAPACITY_LINE}</p>
         <p className="mt-3 text-sm">
           <a href="/audit/sample" className="font-semibold text-accent hover:text-accent-hover">
             See a sample report →
@@ -141,23 +145,23 @@ export default function AuditUploaderPage() {
         </p>
 
         {/* What you receive */}
-        <div className="mt-6 rounded-sm border border-line bg-paper p-4">
+        <div className="mt-6 rounded-card border border-hairline bg-surface p-5">
           <p className="text-sm font-semibold text-ink">What you receive</p>
-          <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-muted">
+          <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-ink-muted">
             {AUDIT_DELIVERABLES.map((d) => (
               <li key={d}>{d}</li>
             ))}
           </ul>
-          <p className="mt-3 text-sm text-muted">
+          <p className="mt-3 text-sm text-ink-muted">
             The audit is free. A real analyst reviews every call, so we take on up to 8 each month.
           </p>
         </div>
 
         {/* $25,000 find-it-free guarantee — full mechanics, no buried conditions */}
-        <div className="mt-4 rounded-sm border border-gold/50 bg-gold-tint/40 p-4">
+        <div className="mt-4 rounded-card border border-gold/50 bg-gold-tint/40 p-5">
           <p className="text-sm font-semibold text-ink">The $25,000 find-it-free guarantee</p>
-          <p className="mt-2 text-sm text-muted">{GUARANTEE_CANONICAL}</p>
-          <p className="mt-2 text-xs text-muted">{GUARANTEE_METHODOLOGY}</p>
+          <p className="mt-2 text-sm text-ink-muted">{GUARANTEE_CANONICAL}</p>
+          <p className="mt-2 text-xs text-ink-muted">{GUARANTEE_METHODOLOGY}</p>
           <p className="mt-2 text-xs text-faint">
             Full methodology and our model&apos;s precision/recall are on the{" "}
             <a href="/honesty" className="font-semibold text-navy underline">calibration page</a>.
@@ -179,19 +183,19 @@ export default function AuditUploaderPage() {
               value={volume}
               onChange={(e) => setVolume(e.target.value)}
               placeholder="e.g. 120"
-              className="mt-1 block w-40 rounded-sm border border-line bg-paper px-3 py-2 text-sm"
+              className="mt-1 block w-40 rounded-base border border-hairline bg-surface px-3 py-2 text-sm"
             />
           </label>
 
           <label
-            className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-line-strong bg-paper p-10 text-center"
+            className="flex cursor-pointer flex-col items-center justify-center rounded-card border-2 border-dashed border-line-strong bg-surface p-10 text-center hover:border-accent"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
           >
             <span className="font-display text-lg font-semibold text-ink">
               Drag &amp; drop up to {MAX} recordings
             </span>
-            <span className="mt-1 text-sm text-muted">or click to choose files</span>
+            <span className="mt-1 text-sm text-ink-muted">or click to choose files</span>
             <span className="mt-3 text-xs text-faint">MP3, M4A, or WAV · up to 25MB each</span>
             <input
               type="file"
@@ -203,11 +207,11 @@ export default function AuditUploaderPage() {
           </label>
 
           {/* Where to get your recordings (Change 4) */}
-          <details className="rounded-sm border border-line bg-paper px-4">
+          <details className="rounded-card border border-hairline bg-surface px-4">
             <summary className="cursor-pointer py-3 text-sm font-semibold text-ink">
               Where to get your recordings
             </summary>
-            <ul className="space-y-1.5 pb-4 text-sm text-muted">
+            <ul className="space-y-1.5 pb-4 text-sm text-ink-muted">
               <li><b className="text-ink">CallRail:</b> Analytics → Activity → open the call&apos;s timeline → Download MP3.</li>
               <li><b className="text-ink">RingCentral:</b> Admin Portal → Call Log → open the call → download the recording.</li>
               <li><b className="text-ink">8x8:</b> Admin Console → Recordings → select the call → Download.</li>
@@ -218,9 +222,9 @@ export default function AuditUploaderPage() {
           </details>
 
           {/* De-risk block: the deal, in plain terms */}
-          <div className="rounded-sm border border-line bg-paper p-4">
+          <div className="rounded-card border border-hairline bg-surface p-5">
             <p className="text-sm font-semibold text-ink">Here&apos;s the deal, in plain terms</p>
-            <p className="mt-2 text-sm text-muted">
+            <p className="mt-2 text-sm text-ink-muted">
               You send up to 10 recorded intake calls. We score them and show you, in dollars, how
               much signable fee revenue didn&apos;t convert, with the evidence behind every flag. Your
               recordings and transcripts are purged within {DELETION_HOURS} hours of your readout, and
@@ -239,14 +243,14 @@ export default function AuditUploaderPage() {
           </div>
 
           {files.length > 0 && (
-            <ul className="divide-y divide-line rounded-sm border border-line">
+            <ul className="divide-y divide-hairline rounded-card border border-hairline">
               {files.map((f, i) => (
                 <li key={`${f.name}-${i}`} className="flex items-center justify-between px-3 py-2 text-sm">
                   <span className="truncate text-ink">{f.name}</span>
                   <button
                     type="button"
                     onClick={() => removeFile(i)}
-                    className="ml-3 text-xs font-semibold text-red"
+                    className="ml-3 text-xs font-semibold text-alert"
                   >
                     Remove
                   </button>
@@ -255,21 +259,26 @@ export default function AuditUploaderPage() {
             </ul>
           )}
 
-          {err && <p className="text-sm text-red">{err}</p>}
+          {err && <p className="text-sm text-alert">{err}</p>}
 
-          <button
-            type="button"
-            onClick={start}
-            disabled={files.length === 0}
-            className="rounded-sm bg-navy px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
-          >
-            Start my Leak Audit ({files.length}/{MAX})
-          </button>
+          <div>
+            <button
+              type="button"
+              onClick={start}
+              disabled={files.length === 0}
+              className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover disabled:opacity-50"
+            >
+              {files.length > 0 ? `${CTA_PRIMARY} (${files.length}/${MAX})` : CTA_PRIMARY}
+            </button>
+            <p className="mt-3 text-xs text-faint">
+              A real analyst reviews every call · Your report to keep · Purged within {DELETION_HOURS} hours
+            </p>
+          </div>
         </div>
       )}
 
       {phase === "processing" && (
-        <div className="rounded-lg border border-line bg-paper p-8">
+        <div className="rounded-card border border-hairline bg-surface p-8">
           <p className="eyebrow mb-3">Auditing your calls</p>
           <p className="text-ink">
             Scored <span className="font-semibold">{done}</span> of{" "}
@@ -283,18 +292,20 @@ export default function AuditUploaderPage() {
       )}
 
       {phase === "error" && (
-        <div className="rounded-lg border border-red bg-red-tint p-6">
-          <p className="font-display text-lg font-semibold text-red">We couldn&apos;t run the audit</p>
+        <div className="rounded-card border border-alert bg-red-tint p-6">
+          <p className="font-display text-lg font-semibold text-alert">We couldn&apos;t run the audit</p>
           <p className="mt-1 text-sm text-ink">{err}</p>
           <button
             type="button"
             onClick={() => setPhase("setup")}
-            className="mt-4 rounded-sm border border-line bg-paper px-4 py-2 text-sm font-semibold"
+            className="mt-4 rounded-base border border-hairline bg-surface px-4 py-2 text-sm font-semibold"
           >
             Try again
           </button>
         </div>
       )}
+      </main>
+      <Footer />
     </div>
   );
 }

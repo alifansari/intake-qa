@@ -76,12 +76,6 @@ export default function LetterPage() {
 
         <div className={styles.body}>{renderBody(ESSAY_BODY)}</div>
 
-        {/* TODO(Ali): drop an English narration file at /public and wire <audio> here.
-            No audio file is committed. This slot is hidden in print. */}
-        <figure className={styles.audioSlot}>
-          A narrated reading of this letter will be available here. (Audio not yet published.)
-        </figure>
-
         <footer className={styles.attestation}>
           {/* TODO(Ali): replace with a purpose-drawn STYLIZED public mark at
               /public/letter-signature.svg. It must be a distinct public mark, NOT a
