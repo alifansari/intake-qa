@@ -31,6 +31,33 @@
 
 ---
 
+## 2026-07-07 — Offer decided + click-to-buy checkout built (staged, PR #3)  ·  agent: orchestrator · lane: product+website
+
+- **Change:** Two deep-research passes (offer-decision memo + operational blueprint) locked the offer and
+  the sign-to-pay flow. Built and staged in PR #3 (`offer/charter-and-checkout`), all TEST_MODE-safe:
+  - **Offer:** free 10-Call Autopsy gated behind a booked decision-maker readout; **Charter $1,500/mo for
+    90 days → $2,500 Core**, "Founding 5" hard cap, closes at 5th firm or Aug 31 2026; month-to-month,
+    auto-renew, 30-day cancel, rate locked for life of subscription. Tiers **Core $2,500 / Pro $5,000**
+    (Pro's recovery workflow gated/roadmap, not sold live). **$25k find-it-free guarantee** kept
+    (value-found, first-month-free).
+  - **PRICING CORRECTION:** replaced the live $500/$900/$1,500 tiers with $2,500/$5,000. At $500 the $1M
+    math needs 55–165 firms vs 24 — flagged to Ali; the 5x correction is the single most important move.
+  - **Checkout plumbing:** added the missing `POST /api/webhooks/stripe` (payment → provision firm +
+    billing + Supabase auth + magic-link + Resend welcome), `POST /api/checkout` (subscription mode,
+    in-checkout terms, auto tax, card + ACH), `/welcome`, Customer Portal (self-serve cancel), guarantee
+    balance-credit refund, failed-payment → paused.
+  - **Logistics closed:** required CIPA consent checkbox on audit upload; draft `/dpa` + `/msa` (marked
+    pending attorney review) with real subprocessor list + actual (non-overclaimed) deletion behavior.
+- **Hypothesis:** a two-click charge-on-click flow + the corrected price maximize audit→paid and make
+  first revenue collectible the moment a firm says yes.
+- **Expected effect:** removes the operational blocker to first revenue; corrects the pricing that made
+  $1M unreachable.
+- **Status:** staged in PR #3 (public + pricing → Ali merges = approval). Build green, 190/190 tests pass.
+  Human setup required before real money: Stripe account/keys/products, enable Tax+Portal+Smart Retries,
+  register webhook, run migration 0019, attorney bless MSA/DPA, W-9, `npm i stripe`.
+- **Review date:** 2026-08-06.
+- **Result:** —
+
 ## 2026-07-07 — Strategic reprioritization: autopsy-first, paid charter, benchmark demoted (plan of record)  ·  agent: orchestrator · lane: all
 
 - **Change:** Two confirming deep-research passes (a full-product quality audit + a fastest-path-to-$1M
