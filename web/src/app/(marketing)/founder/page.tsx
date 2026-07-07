@@ -64,7 +64,7 @@ export default function FounderPage() {
           the desk becomes. No sales team, no logos to show you yet, just the work.
         </p>
         <p className="font-display text-base font-semibold text-ink">
-          Ali, Founder, Intake QA · Orange County, CA
+          Ali, Founder, Intake QA · Sacramento, CA
         </p>
       </div>
 

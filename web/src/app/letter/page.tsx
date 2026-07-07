@@ -70,7 +70,7 @@ export default function LetterPage() {
           <h1 className={styles.title}>The Unscored Conversation</h1>
           <p className={styles.deck}>{DECK}</p>
           <hr className={styles.rule} />
-          <p className={styles.dateline}>Orange County, California · {PUBLICATION_DATE}</p>
+          <p className={styles.dateline}>Sacramento, California · {PUBLICATION_DATE}</p>
           <p className={styles.salutation}>To the managing partner reading this at the end of a long day,</p>
         </header>
 
@@ -89,7 +89,7 @@ export default function LetterPage() {
           <img className={styles.sigMark} src="/letter-signature.svg" alt="Signature of Ali Ansari" />
           <p className={styles.attName}>Ali Ansari</p>
           <p className={styles.attLine}>Analyst of Record</p>
-          <p className={styles.attLine}>Plaintiff Ops LLC · Orange County, California</p>
+          <p className={styles.attLine}>Plaintiff Ops LLC · Sacramento, California</p>
           <p className={styles.attLine}>{PUBLICATION_DATE}</p>
 
           <p className={styles.attMeta}>

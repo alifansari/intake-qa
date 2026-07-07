@@ -24,7 +24,7 @@ export function FounderNote({ full = false }: { full?: boolean }) {
           before it sends.
         </p>
         <p className="mt-4 font-display text-base font-semibold text-ink">
-          Ali, Founder, Intake QA · Orange County, CA
+          Ali, Founder, Intake QA · Sacramento, CA
         </p>
       </div>
     </div>

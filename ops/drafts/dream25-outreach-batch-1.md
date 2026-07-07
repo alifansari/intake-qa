@@ -8,7 +8,7 @@
 >
 > One deliberate change from the hosted letter: that letter is signed "Orange County." This
 > batch targets NORTHERN California, so every asset is NorCal-framed (Bay Area / Sacramento /
-> San Jose) and the return origin is left as `{{ORIGIN_CITY}}` for Ali to set. Do NOT ship a
+> San Jose) and the return origin is left as `Sacramento` for Ali to set. Do NOT ship a
 > NorCal mailer that says Orange County.
 
 ---
@@ -26,7 +26,7 @@ Attn: {{MANAGING PARTNER NAME}}, Managing Partner
 {{FIRM STREET ADDRESS}}
 {{CITY}}, CA {{ZIP}}
 
-{{ORIGIN_CITY}}, California · {{DATE}}
+Sacramento, California · {{DATE}}
 
 Dear {{MANAGING PARTNER FIRST NAME}},
 
@@ -72,7 +72,7 @@ Let me measure you. Then argue with the number.
 
 — Ali Ansari
 Analyst of Record, Intake QA · Plaintiff Ops LLC
-{{ORIGIN_CITY}}, California
+Sacramento, California
 I publish my own error rate at {{CALIBRATION_PAGE_URL}}
 
 *P.S. I am also preparing an independent, methodology-published benchmark — "The State of NorCal
@@ -86,7 +86,7 @@ I ask to hold yours to it.*
 > our own published error rate ✔. §V no superlative ("a few founding firms," not "the only/best");
 > benchmark described as *forthcoming*, no results quoted (per benchmark-outline §5) ✔. §II
 > all-party-consent stated as our discipline ✔. Physical mail needs no CAN-SPAM opt-out. NorCal
-> framing throughout; `{{ORIGIN_CITY}}` must NOT be filled as an SoCal city.
+> framing throughout; `Sacramento` must NOT be filled as an SoCal city.
 
 ---
 
@@ -121,7 +121,7 @@ Worth fifteen minutes? Reply with a time and I'll call you.
 Analyst of Record, Intake QA · Plaintiff Ops LLC
 {{ALI_PHONE}} · {{ALI_EMAIL}}
 
-Plaintiff Ops LLC, {{FULL_MAILING_ADDRESS_STREET_CITY_STATE_ZIP}}
+Plaintiff Ops LLC, 2108 N St, Ste N, Sacramento, CA 95816
 I'm sending this to you personally, not from a list. If you'd rather I not write again, just reply
 "no thanks" (or "STOP") and I won't — you have my word.
 
@@ -195,7 +195,7 @@ each touch is a different channel so the firm meets the same voice three ways.*
 1. **Ali approves each asset and fills every `{{placeholder}}`** per firm (§VII gate).
 2. **Real postal address** must replace `{{FULL_MAILING_ADDRESS...}}` in Asset B before any email
    sends — CAN-SPAM requires a valid physical address (§III).
-3. **`{{ORIGIN_CITY}}` must be a NorCal origin**, not Orange County — do not contradict the
+3. **`Sacramento` must be a NorCal origin**, not Orange County — do not contradict the
    NorCal targeting.
 4. **`{{CALIBRATION_PAGE_URL}}`** must point to a live Calibration & Honesty page with a real,
    current false-alarm rate before we tell partners to go read it (§IV — no citation, no claim).
