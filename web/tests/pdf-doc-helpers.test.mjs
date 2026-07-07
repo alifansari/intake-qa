@@ -15,9 +15,54 @@ import {
   statementId,
   readoutId,
   deriveFirmCode,
+  msToTimestamp,
+  citeFromTiming,
+  feeDerivationLine,
+  falseAlarmFooter,
   ATTESTATION,
   SAVE_STATUSES,
 } from "../src/pdf/doc-helpers.mjs";
+
+test("msToTimestamp: ms -> [mm:ss], invalid -> empty", () => {
+  assert.equal(msToTimestamp(192000), "[03:12]");
+  assert.equal(msToTimestamp(341000), "[05:41]");
+  assert.equal(msToTimestamp(0), "[00:00]");
+  assert.equal(msToTimestamp(null), "");
+  assert.equal(msToTimestamp(-5), "");
+  assert.equal(msToTimestamp("nope"), "");
+});
+
+test("citeFromTiming: prefers start_ms, accepts a timestamp string, else empty", () => {
+  assert.equal(citeFromTiming({ start_ms: 192000 }), "[03:12]");
+  assert.equal(citeFromTiming({ timestamp: "04:12" }), "[04:12]");
+  assert.equal(citeFromTiming({ timestamp: "[04:12]" }), "[04:12]");
+  assert.equal(citeFromTiming({ timestamp: "00:38-01:10" }), "[00:38]");
+  assert.equal(citeFromTiming({}), "");
+  assert.equal(citeFromTiming(), "");
+});
+
+test("feeDerivationLine shows the arithmetic and the basis, ranges only", () => {
+  const line = feeDerivationLine({
+    feeLowCents: 1800000,
+    feeHighCents: 4500000,
+    caseLowCents: 5400000,
+    caseHighCents: 13500000,
+    basis: "your 2025 auto average",
+  });
+  assert.match(line, /Est\. fee value: \$18,000 to \$45,000/);
+  assert.match(line, /case value \$54,000 to \$135,000/);
+  assert.match(line, /33⅓% contingency/);
+  assert.match(line, /your 2025 auto average/);
+});
+
+test("falseAlarmFooter: rate present -> published line; null -> source-only fallback", () => {
+  assert.equal(
+    falseAlarmFooter({ ratePct: 7, updatedDate: "Jul 7, 2026" }),
+    "Our current published false-alarm rate is 7% (plaintiffops.com/calibration, updated Jul 7, 2026).",
+  );
+  assert.match(falseAlarmFooter({ ratePct: null }), /published at plaintiffops\.com\/calibration/);
+  assert.match(falseAlarmFooter(), /published at plaintiffops\.com\/calibration/);
+});
 
 test("money: no cents, thousands separators, human 'to' ranges", () => {
   assert.equal(fmtMoney(1800000), "$18,000");

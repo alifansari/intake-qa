@@ -17,6 +17,65 @@ export function fmtMoneyRange(lowCents, highCents) {
   return `${fmtMoney(lowCents)} to ${fmtMoney(highCents)}`;
 }
 
+// Citation timestamp: milliseconds -> "[mm:ss]" (bracketed, mm:ss like the
+// transcript). Used to turn a transcript_citations start_ms into a printable
+// cite. Returns "" for a null/NaN input so callers can DROP an uncited fact.
+export function msToTimestamp(ms) {
+  if (ms == null) return ""; // null/undefined is "no timing", not 0
+  const n = Number(ms);
+  if (!Number.isFinite(n) || n < 0) return "";
+  const total = Math.floor(n / 1000);
+  const mm = Math.floor(total / 60);
+  const ss = total % 60;
+  return `[${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}]`;
+}
+
+// Normalize a citation into a printable "[mm:ss]" cite string, from whatever the
+// upstream carries: a start_ms (transcript_citations), or an already-formatted
+// "mm:ss" / "[mm:ss]" / "mm:ss-mm:ss" timestamp string (scoring output). Returns
+// "" when there is no usable time source — the signal to DROP the fact rather
+// than ship it uncited (compliance §IV: no citation, no claim).
+/** @param {{ start_ms?: number | null, startMs?: number | null, timestamp?: string | null }} [c] */
+export function citeFromTiming({ start_ms, startMs, timestamp } = {}) {
+  const ms = start_ms ?? startMs;
+  if (ms != null) {
+    const t = msToTimestamp(ms);
+    if (t) return t;
+  }
+  if (typeof timestamp === "string") {
+    // Accept "04:12", "[04:12]", or a range "00:38-01:10" -> take the first.
+    const m = timestamp.match(/(\d{1,2}):(\d{2})/);
+    if (m) return `[${m[1].padStart(2, "0")}:${m[2]}]`;
+  }
+  return "";
+}
+
+// Per-exhibit one-line fee derivation (item P0-C). Shows the arithmetic so a
+// partner can check it: fee range = case-value range × contingency, with the
+// stated basis. Ranges only; never a point estimate. e.g.
+// "Est. fee value: $18,000 to $45,000 = case value $54,000 to $135,000 × 33⅓%
+//  contingency (your 2025 auto average)."
+/** @param {{ feeLowCents: number, feeHighCents: number, caseLowCents: number, caseHighCents: number, contingencyLabel?: string, basis?: string | null }} a */
+export function feeDerivationLine({ feeLowCents, feeHighCents, caseLowCents, caseHighCents, contingencyLabel = "33⅓% contingency", basis }) {
+  const fee = fmtMoneyRange(feeLowCents, feeHighCents);
+  const cas = fmtMoneyRange(caseLowCents, caseHighCents);
+  const basisSuffix = basis ? ` (${basis})` : "";
+  return `Est. fee value: ${fee} = case value ${cas} × ${contingencyLabel}${basisSuffix}`;
+}
+
+// Published false-alarm-rate footer (item P0-D). Rides on EVERY deliverable.
+// `ratePct` is a number 0..100 (already rounded) or null. `updatedDate` is a
+// "Mon D, YYYY" string or null. When the rate is null we still point to the
+// published source rather than assert a number we cannot back.
+/** @param {{ ratePct?: number | null, updatedDate?: string | null }} [a] */
+export function falseAlarmFooter({ ratePct = null, updatedDate = null } = {}) {
+  if (ratePct == null) {
+    return "Our current false-alarm rate is published at plaintiffops.com/calibration.";
+  }
+  const when = updatedDate ? `, updated ${updatedDate}` : "";
+  return `Our current published false-alarm rate is ${ratePct}% (plaintiffops.com/calibration${when}).`;
+}
+
 // "Jul 5, 2026" from an ISO date/string.
 export function fmtDate(iso) {
   const d = new Date(iso);

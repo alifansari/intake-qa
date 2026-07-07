@@ -55,7 +55,10 @@ export function ReadoutDoc({ d }: { d: DocData }) {
               {l.excerpt ? (
                 <View style={{ marginTop: 4, marginLeft: 8, borderLeftWidth: 1.5, borderLeftColor: COLORS.rule, paddingLeft: 6 }}>
                   <Text style={{ ...S.faint, marginBottom: 2 }}>Excerpt (internal use; redacted).</Text>
-                  {l.excerpt.split("\n").map((line, i) => (
+                  {(Array.isArray(l.excerpt)
+                    ? l.excerpt.map((e) => `${e.ts} ${e.speaker}: ${e.text}`)
+                    : l.excerpt.split("\n")
+                  ).map((line, i) => (
                     <Text key={i} style={{ fontSize: 8, color: COLORS.ink }}>{line}</Text>
                   ))}
                 </View>

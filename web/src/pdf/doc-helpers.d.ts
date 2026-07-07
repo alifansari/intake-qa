@@ -2,6 +2,17 @@
 export function fmtMoney(cents: number): string;
 export function fmtMoneyRange(lowCents: number, highCents: number): string;
 export function fmtDate(iso: string): string;
+export function msToTimestamp(ms: number | null | undefined): string;
+export function citeFromTiming(c: { start_ms?: number | null; startMs?: number | null; timestamp?: string | null } | undefined | null): string;
+export function feeDerivationLine(a: {
+  feeLowCents: number;
+  feeHighCents: number;
+  caseLowCents: number;
+  caseHighCents: number;
+  contingencyLabel?: string;
+  basis?: string | null;
+}): string;
+export function falseAlarmFooter(a?: { ratePct?: number | null; updatedDate?: string | null }): string;
 export function statuteClock(daysRemaining: number): string;
 export function statuteBand(daysRemaining: number): "red" | "amber" | "neutral";
 export function reconciles(r: { received: number; processed: number; excluded: number; failed: number }): boolean;

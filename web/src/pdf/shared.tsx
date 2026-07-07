@@ -1,9 +1,18 @@
 /* eslint-disable jsx-a11y/alt-text */
 // Shared react-pdf primitives + styles for the recovery-desk documents.
 // Uses built-in PDF fonts (Times-Roman serif for document headings, Helvetica
-// sans for tables/UI) so the bundle stays self-contained — no font files needed.
-// TODO(Ali): register branded fonts (e.g., Source Serif 4) with Font.register if
-// you want a custom typeface; built-ins keep this dependency-free for now.
+// sans for tables/UI, Courier mono for excerpts) so the bundle stays
+// self-contained — no font files needed.
+//
+// FONT UPGRADE — DEFERRED (checked this session): registering branded OFL fonts
+// via Font.register requires LOCAL .ttf files bundled in the repo (never fetched —
+// CSP/offline-safe, and an async source is the cause of the "permanent loading"
+// hang). A repo/node_modules scan found NO usable serif+sans+mono .ttf set (only
+// a single next-bundled Geist-Regular.ttf — one weight, sans only, not ours to
+// vendor). Per the no-network rule we did NOT fetch fonts. TODO(Ali): add local
+// .ttf files, or approve `npm i @fontsource/source-serif-4 @fontsource/ibm-plex-sans
+// @fontsource/jetbrains-mono`, then register ALL used weights here (regular +
+// bold for each family) with Font.register({ family, fonts: [{ src, fontWeight }] }).
 
 import React from "react";
 import { Page, View, Text, StyleSheet } from "@react-pdf/renderer";
