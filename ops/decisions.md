@@ -31,6 +31,43 @@
 
 ---
 
+## 2026-07-07 — Strategic reprioritization: autopsy-first, paid charter, benchmark demoted (plan of record)  ·  agent: orchestrator · lane: all
+
+- **Change:** Two confirming deep-research passes (a full-product quality audit + a fastest-path-to-$1M
+  strategy pass) reset the near-term sequence. The binding constraint is **proof-of-value velocity**
+  (founder-hours per closed firm), not market size or the benchmark. New order of operations for the
+  next ~60 days:
+  1. **The "10-Call Autopsy" wedge** — ask a firm for 10 of *their own* recorded intake calls (their
+     consent chain; we never dial, staying clean on CIPA §632), score them, and walk the owner through
+     the 2–3 leaked signable cases live, with the verbatim transcript and fee-at-risk. The diagnostic
+     *is* the close. Attacks the two conversions that decide everything (audit→pilot, pilot→paid).
+  2. **Paid "Charter Firm" offer replaces the free pilot** — a flat, stepped, never-outcome-tied charter
+     (illustratively ~$1,500/mo → $2,500 Core after 90 days), capped at 5 firms, real deadline. Pulls
+     first revenue to month 1 and tests the weakest assumption (pilot→paid) with real money instead of
+     a free pilot that selects for tire-kickers. **PRICING/OFFER CHANGE → staged for Ali; §VII gate;
+     stays flat-monthly, never outcome-tied (§I).**
+  3. **$25k find-it-free guarantee becomes the offer centerpiece** (risk reversal), reframed as
+     value-found, never recovery-guaranteed (§IV). Copy change, not a rebuild. **Route framing to Yang.**
+  4. **Dream 12, not Dream 25**, for the first closes — concentrate founder-hours on the tightest ICP;
+     lead outreach with the autopsy offer, benchmark as air cover (touch 3), not the opener.
+  5. **Benchmark (B-006/B-001) DEMOTED below the revenue work** — it is a months-to-pay-off authority
+     asset, not a first-revenue lever, and was absorbing the hours the first 5 closes need. Let the
+     autopsy data from the first *paying* firms (consented, aggregated) seed the benchmark later — one
+     motion, both jobs.
+- **Hypothesis:** Charging from day one + live autopsies on real calls converts audit→paid far faster
+  than free-pilot→hope, pulling the $1M curve left by months. The benchmark still compounds, but funded
+  by leftover hours and seeded by paying-firm data.
+- **Expected effect:** first revenue in ~30–45 days (vs month 3–4); higher audit→paid conversion;
+  founder-hours concentrated on the ~5 closes that start the flywheel.
+- **Status:** plan of record for sequencing/strategy. The **pricing, offer, guarantee-copy, seal, and
+  index** items are PUBLIC/regulated → staged for Ali and, where novel, Yang; nothing shipped here.
+- **Review date:** 2026-08-06 (revisit after first autopsies + first charter conversations).
+- **Result:** —
+- **Also surfaced (novel, queued):** an "Intake Integrity Standard" (rating → named public standard);
+  an "Intake-Verified" displayable seal (customers become distribution, Michelin-star loop); a public
+  Spanish-Intake Justice Index (uncopyable PR franchise); a public-signal cold-open ("I scored your
+  public intake — want the full autopsy?"). All cross §VII and route through Yang before anything public.
+
 ## 2026-07-07 — GTM re-scope: audit-led, recovered-lead re-engagement GATED behind retained legal clearance  ·  agent: orchestrator · lane: product+outreach (plan of record)
 
 - **Change:** Plan of record going forward. (1) The independent-scorer **free Leak Audit leads all

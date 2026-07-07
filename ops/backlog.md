@@ -20,14 +20,26 @@
 - Every item names the insight it rests on (from `ops/insights.md`). No insight → weak hypothesis.
 - Builders stage; they never publish. "Done" = staged for Ali's approval + logged in decisions.
 
-## Current priority order (re-sorted 2026-07-07 by ICE)
+## Current priority order (re-sequenced 2026-07-07 — REVENUE-FIRST)
 
-1. **B-006** (320) — independent CIPA-safe NorCal benchmark [NEW; the one asset, four jobs]
-2. **B-005** (315) — regulatory-clearance memo → Yang [NEW; blocks public compliance claims]
-3. **B-001** (288) — benchmark report as second-touch authority asset [raised 252→288]
-4. **B-002** (280) — Spanish-intake gap earned-PR pillar [raised 240→280; anchored to Census]
-5. **B-004** (240) — self-improving agent architecture [standing]
-6. **B-003** (210) — live in-call coaching hardening
+Speed-to-first-revenue now outranks authority-building. Rationale + full item specs in
+`decisions.md` → "2026-07-07 Strategic reprioritization." Benchmark demoted: it's a
+months-to-pay-off authority asset, not a first-revenue lever, and will be seeded by
+paying-firm autopsy data later.
+
+1. **B-007** — 10-Call Autopsy wedge (score their OWN recorded calls live; the diagnostic IS the close)
+2. **B-008** — Paid "Charter Firm" offer replaces the free pilot [PRICING → Ali / §VII]
+3. **B-010** — $25k find-it-free guarantee as the offer centerpiece (risk reversal) [→ Yang framing]
+4. **B-009** — Dream 12 (concentrate founder-hours) + autopsy-led outreach
+5. **B-005** (315) — regulatory-clearance memo → retained review (gates public claims/seal/index)
+6. **B-011** — public-signal cold-open ("I scored your public intake — want the full autopsy?")
+7. **B-012** — Intake Integrity Standard (rating → named public standard) [→ Yang]
+8. **B-013** — Intake-Verified displayable seal (customers → distribution; Michelin-star loop) [→ Yang]
+9. **B-006** (320) — independent CIPA-safe benchmark [DEMOTED; seed from paying-firm data]
+10. **B-001** — benchmark report [rides on B-006]
+11. **B-002** — Spanish-Intake Justice Index [PR franchise; rides on B-006]
+12. **B-004** (240) — self-improving agent architecture [standing]
+13. **B-003** (210) — live in-call coaching hardening
 
 ---
 
