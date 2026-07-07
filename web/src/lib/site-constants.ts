@@ -245,11 +245,13 @@ export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = 
 export const CHAMPION_LINE =
   "This isn't a gotcha. High-volume intake means good cases slip. That's math, not a character flaw. The desk gives your manager proof of the workload, coaching clips built from your team's own best calls, and a monthly scorecard that shows the improvement so the credit lands where it's earned.";
 
-// ─── Pricing (outcome-decoupled: flat monthly, tiered by analyzed-call volume) ───
+// ─── Pricing (outcome-decoupled: FLAT MONTHLY, tiered by capability/volume) ───
 // NEVER a per-recovered-case, per-signed-client, or percentage-of-recovery fee.
-// Source of truth for the billing plans seeded in db/migrations/0013 +
-// supabase/migrations/0013 (keep in sync). Tier prices confirmed unchanged by Ali
-// (July 2026): $500 / $900 / $1,500.
+// Source of truth for the billing plans seeded in db/migrations/0019 +
+// supabase/migrations/0019 (keep in sync). DECIDED July 2026:
+//   Core $2,500/mo · Pro $5,000/mo · Charter intro $1,500/mo for 90 days -> Core.
+// The buy button POSTs `checkoutPlan` to /api/checkout (Stripe subscription-mode
+// Checkout); there is no raw Payment Link as the primary path anymore.
 export type PricingTier = {
   name: string;
   planName: string | null;
@@ -259,9 +261,9 @@ export type PricingTier = {
   volume: string;
   sub: string;
   featured: boolean;
-  // Stripe subscription Payment Link for this tier (empty = no direct checkout).
-  // Confirmed by Ali (July 2026): all links are LIVE mode and amounts match `price`.
-  checkoutUrl: string;
+  // Plan id sent to POST /api/checkout ("core" | "pro" | "charter"). Empty string
+  // means this card has no direct checkout (e.g. the free pilot) and links to /audit.
+  checkoutPlan: "core" | "pro" | "charter" | "";
 };
 export const PRICING_TIERS: PricingTier[] = [
   {
@@ -271,46 +273,52 @@ export const PRICING_TIERS: PricingTier[] = [
     priceCents: 0,
     callCap: null,
     volume: `${PILOT_DAYS}-day pilot`,
-    sub: "Free 30-day pilot for the founding cohort, after your free audit. Then a locked founding rate. Cancel anytime.",
+    sub: "Free 30-day pilot for the founding cohort, after your free audit. Then a flat monthly subscription. Cancel anytime.",
     featured: false,
-    checkoutUrl: "", // the pilot starts with the free audit, not a subscription checkout
+    checkoutPlan: "", // the pilot starts with the free audit, not a subscription checkout
   },
   {
-    name: "Tier 1",
-    planName: "tier_1",
-    price: "$500/mo",
-    priceCents: 50000,
-    callCap: 150,
-    volume: "up to ~150 analyzed calls/mo",
-    sub: "For smaller-volume firms who want every call reviewed.",
-    featured: true,
-    checkoutUrl: "https://buy.stripe.com/3cIcN5bqafZL4M69Dlebu02",
-  },
-  {
-    name: "Tier 2",
-    planName: "tier_2",
-    price: "$900/mo",
-    priceCents: 90000,
+    name: "Core",
+    planName: "core",
+    price: "$2,500/mo",
+    priceCents: 250000,
     callCap: 400,
-    volume: "up to ~400 analyzed calls/mo",
-    sub: "For firms running steady intake volume.",
-    featured: false,
-    checkoutUrl: "https://buy.stripe.com/5kQ3cvam6eVH6Ue2aTebu03",
+    volume: "independent scoring of your intake calls",
+    sub: "Full-population scoring of your intake calls, monthly missed-revenue statement, and the analyst-of-record readout. Where most firms start.",
+    featured: true,
+    checkoutPlan: "core",
   },
   {
-    name: "Tier 3",
-    planName: "tier_3",
-    price: "$1,500/mo",
-    priceCents: 150000,
+    name: "Pro",
+    planName: "pro",
+    price: "$5,000/mo",
+    priceCents: 500000,
     callCap: 800,
-    volume: "up to ~800 analyzed calls/mo",
-    sub: "For high-volume intake operations.",
+    volume: "everything in Core, plus higher volume",
+    sub: "Everything in Core at higher call volume. The recovered-lead recovery workflow is included once it is legally cleared (on the roadmap, not yet live).",
     featured: false,
-    checkoutUrl: "https://buy.stripe.com/aFa28r79U4h31zUg1Jebu04",
+    checkoutPlan: "pro",
   },
 ];
-// Numeric reference monthly fee used only by the ROI calculator (mirrors Tier 2).
-export const REF_MONTHLY_USD = 900;
+
+// ─── The Charter ("Founding 5") intro offer ──────────────────────────────────
+// A flat $1,500/mo for the first 90 days, then the flat $2,500/mo Core price.
+// Hard cap of 5 firms; closes at the 5th firm or Aug 31, 2026, whichever first.
+// Sold on Core's INDEPENDENT SCORING value — never on the (gated) Pro recovery
+// workflow. Flat monthly at every phase; never outcome-tied.
+export const CHARTER_NAME = "Charter (Founding 5)";
+export const CHARTER_PLAN_ID = "charter" as const;
+export const CHARTER_INTRO_PRICE = "$1,500/mo";
+export const CHARTER_INTRO_PRICE_CENTS = 150000;
+export const CHARTER_INTRO_DAYS = 90;
+export const CHARTER_STEP_UP_PRICE = "$2,500/mo"; // -> Core after the intro window
+export const CHARTER_CAP = 5;
+export const CHARTER_CLOSES = "August 31, 2026";
+export const CHARTER_HEADLINE = `${CHARTER_INTRO_PRICE} for your first ${CHARTER_INTRO_DAYS} days, then the flat ${CHARTER_STEP_UP_PRICE} Core price.`;
+export const CHARTER_SUB = `For the first ${CHARTER_CAP} founding firms only. The Charter is our independent intake-call scoring at a flat founding rate; it closes at the ${CHARTER_CAP}th firm or on ${CHARTER_CLOSES}, whichever comes first. Flat monthly, cancel anytime, never a share of any recovery.`;
+
+// Numeric reference monthly fee used only by the ROI calculator (mirrors Core).
+export const REF_MONTHLY_USD = 2500;
 // The compliance argument for the pricing model, in lawyer-grade language.
 export const PRICING_COMPLIANCE_ARGUMENT =
   "We deliberately do not charge per case, per signed client, or per recovered dollar. Our fee is a flat monthly subscription for a QA and recovery service on your own existing callers. It does not change whether you sign zero cases or fifty. Because our compensation is not tied to procuring or recovering any case, it isn't a share of a fee under CA Rule 5.4 and can't be characterized as paying a runner or capper under California Business & Professions Code §§6151-6152 (as strengthened by SB 37). You pay us a flat fee for a service, the same way you pay your answering service or your CRM.";

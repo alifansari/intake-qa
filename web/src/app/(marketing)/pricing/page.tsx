@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
+import { CheckoutButton } from "@/components/marketing/CheckoutButton";
 import {
   PRICING_TIERS,
   PRICING_COMPLIANCE_ARGUMENT,
   PRICING_ANCHOR_LINE,
   STAKE_LINE,
   CTA_PRIMARY,
+  CHARTER_NAME,
+  CHARTER_HEADLINE,
+  CHARTER_SUB,
+  CHARTER_INTRO_PRICE,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
@@ -63,7 +68,7 @@ export default function PricingPage() {
         </p>
       </section>
 
-      <div className="mt-8 grid gap-4 lg:grid-cols-4">
+      <div className="mt-8 grid gap-4 lg:grid-cols-3">
         {PRICING_TIERS.map((p) => (
           <div
             key={p.name}
@@ -78,15 +83,12 @@ export default function PricingPage() {
             <p className="tnum mt-2 font-display text-2xl font-semibold text-ink">{p.price}</p>
             <p className="mt-1 text-xs font-medium uppercase tracking-wide text-faint">{p.volume}</p>
             <p className="mt-3 flex-1 text-sm text-ink-muted">{p.sub}</p>
-            {p.checkoutUrl ? (
-              <a
-                href={p.checkoutUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`mt-6 inline-flex justify-center rounded-pill px-5 py-2.5 text-sm font-semibold ${p.featured ? "bg-accent text-white hover:bg-accent-hover" : "border border-hairline text-ink hover:border-accent"}`}
-              >
-                Subscribe · {p.price}
-              </a>
+            {p.checkoutPlan ? (
+              <CheckoutButton
+                plan={p.checkoutPlan}
+                label={`Subscribe · ${p.price}`}
+                className={`mt-6 inline-flex w-full justify-center rounded-pill px-5 py-2.5 text-sm font-semibold disabled:opacity-60 ${p.featured ? "bg-accent text-white hover:bg-accent-hover" : "border border-hairline text-ink hover:border-accent"}`}
+              />
             ) : (
               <Link
                 href="/audit"
@@ -99,9 +101,46 @@ export default function PricingPage() {
         ))}
       </div>
 
+      {/* The Charter — Founding 5 intro that steps up to Core */}
+      <section className="mt-6 rounded-card border border-gold/60 bg-gold-tint/40 p-7">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <p className="eyebrow">{CHARTER_NAME}</p>
+            <h2 className="mt-1 max-w-[40ch] font-display text-2xl font-semibold text-ink">
+              {CHARTER_HEADLINE}
+            </h2>
+          </div>
+          <p className="tnum font-display text-2xl font-semibold text-ink">{CHARTER_INTRO_PRICE}</p>
+        </div>
+        <p className="mt-3 max-w-[72ch] text-sm text-ink-muted">{CHARTER_SUB}</p>
+        <div className="mt-5 max-w-xs">
+          <CheckoutButton
+            plan="charter"
+            label={`Claim a Charter seat · ${CHARTER_INTRO_PRICE}`}
+            className="inline-flex w-full justify-center rounded-pill bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-hover disabled:opacity-60"
+          />
+        </div>
+      </section>
+
       <p className="mt-6 max-w-[72ch] text-sm text-faint">
         Founding-cohort firms start with the free 30-day pilot. A flat monthly fee begins only if you
-        choose to continue, and it is quoted to you in writing before your pilot ends.
+        choose to continue. Prefer to pay by invoice or forward this to your bookkeeper? Email{" "}
+        <a href="mailto:ali@plaintiffops.com" className="font-semibold text-accent hover:text-accent-hover">
+          ali@plaintiffops.com
+        </a>{" "}
+        and we&apos;ll send an invoice instead of a card checkout.
+      </p>
+      <p className="mt-3 max-w-[72ch] text-xs text-faint">
+        Subscribing is governed by our{" "}
+        <Link href="/msa" className="font-semibold text-accent hover:text-accent-hover">
+          Master Services Agreement
+        </Link>{" "}
+        and{" "}
+        <Link href="/dpa" className="font-semibold text-accent hover:text-accent-hover">
+          Data Processing Addendum
+        </Link>{" "}
+        (both currently in draft, pending attorney review). You accept the terms of service at
+        checkout.
       </p>
 
       {/* The why: the compliance argument, in lawyer-grade language */}

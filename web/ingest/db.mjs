@@ -838,6 +838,7 @@ export function upsertFirmBilling(db, cfg) {
     status = "trialing",
     billing_anchor_day = 1,
     stripe_customer_id = null,
+    stripe_subscription_id = null,
     guarantee_type = "none",
     guarantee_threshold_cents = null,
     guarantee_deadline = null,
@@ -845,13 +846,14 @@ export function upsertFirmBilling(db, cfg) {
   db.prepare(
     `INSERT INTO firm_billing
        (firm_id, plan_id, status, billing_anchor_day, stripe_customer_id,
-        guarantee_type, guarantee_threshold_cents, guarantee_deadline)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        stripe_subscription_id, guarantee_type, guarantee_threshold_cents, guarantee_deadline)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT (firm_id) DO UPDATE SET
        plan_id = excluded.plan_id,
        status = excluded.status,
        billing_anchor_day = excluded.billing_anchor_day,
        stripe_customer_id = excluded.stripe_customer_id,
+       stripe_subscription_id = excluded.stripe_subscription_id,
        guarantee_type = excluded.guarantee_type,
        guarantee_threshold_cents = excluded.guarantee_threshold_cents,
        guarantee_deadline = excluded.guarantee_deadline`
@@ -861,11 +863,36 @@ export function upsertFirmBilling(db, cfg) {
     status,
     billing_anchor_day,
     stripe_customer_id,
+    stripe_subscription_id,
     guarantee_type,
     guarantee_threshold_cents,
     guarantee_deadline
   );
   return getFirmBilling(db, firm_id);
+}
+
+// Set ONLY the lifecycle status on a firm's billing row (e.g. pause on a failed
+// payment / past_due). Leaves stripe ids and plan untouched. Returns the row.
+export function setFirmBillingStatus(db, firmId, status) {
+  db.prepare(`UPDATE firm_billing SET status = ? WHERE firm_id = ?`).run(status, firmId);
+  return getFirmBilling(db, firmId);
+}
+
+// Find a firm's billing row by its Stripe subscription id (for lifecycle webhook
+// events that only carry the subscription). Returns the joined row or undefined.
+export function getFirmBillingBySubscription(db, subscriptionId) {
+  return db
+    .prepare(
+      `SELECT fb.*, p.name AS plan_name, p.base_monthly_cents
+         FROM firm_billing fb JOIN billing_plans p ON p.id = fb.plan_id
+        WHERE fb.stripe_subscription_id = ?`
+    )
+    .get(subscriptionId);
+}
+
+// Find a firm by exact name (idempotent firm matching in the checkout webhook).
+export function getFirmByName(db, name) {
+  return db.prepare("SELECT * FROM firms WHERE name = ?").get(name);
 }
 
 // Accrue ONE billable event for a signed outcome (idempotent on outcome_id).

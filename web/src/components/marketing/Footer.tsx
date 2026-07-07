@@ -11,6 +11,8 @@ const LINKS = [
   { href: "/for-callers", label: "For callers" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
+  { href: "/msa", label: "MSA (draft)" },
+  { href: "/dpa", label: "DPA (draft)" },
 ];
 
 export function Footer() {

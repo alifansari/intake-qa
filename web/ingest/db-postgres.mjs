@@ -766,6 +766,7 @@ export async function upsertFirmBilling(db, cfg) {
     status = "trialing",
     billing_anchor_day = 1,
     stripe_customer_id = null,
+    stripe_subscription_id = null,
     guarantee_type = "none",
     guarantee_threshold_cents = null,
     guarantee_deadline = null,
@@ -773,20 +774,44 @@ export async function upsertFirmBilling(db, cfg) {
   await db.query(
     `INSERT INTO firm_billing
        (firm_id, plan_id, status, billing_anchor_day, stripe_customer_id,
-        guarantee_type, guarantee_threshold_cents, guarantee_deadline)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+        stripe_subscription_id, guarantee_type, guarantee_threshold_cents, guarantee_deadline)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
      ON CONFLICT (firm_id) DO UPDATE SET
        plan_id = excluded.plan_id,
        status = excluded.status,
        billing_anchor_day = excluded.billing_anchor_day,
        stripe_customer_id = excluded.stripe_customer_id,
+       stripe_subscription_id = excluded.stripe_subscription_id,
        guarantee_type = excluded.guarantee_type,
        guarantee_threshold_cents = excluded.guarantee_threshold_cents,
        guarantee_deadline = excluded.guarantee_deadline`,
     [firm_id, plan_id, status, billing_anchor_day, stripe_customer_id,
-     guarantee_type, guarantee_threshold_cents, guarantee_deadline]
+     stripe_subscription_id, guarantee_type, guarantee_threshold_cents, guarantee_deadline]
   );
   return getFirmBilling(db, firm_id);
+}
+
+// Set ONLY the lifecycle status on a firm's billing row. Returns the row.
+export async function setFirmBillingStatus(db, firmId, status) {
+  await db.query(`UPDATE firm_billing SET status = $1 WHERE firm_id = $2`, [status, firmId]);
+  return getFirmBilling(db, firmId);
+}
+
+// Find a firm's billing row by its Stripe subscription id. Returns row or undefined.
+export async function getFirmBillingBySubscription(db, subscriptionId) {
+  const r = await db.query(
+    `SELECT fb.*, p.name AS plan_name, p.base_monthly_cents
+       FROM firm_billing fb JOIN billing_plans p ON p.id = fb.plan_id
+      WHERE fb.stripe_subscription_id = $1`,
+    [subscriptionId]
+  );
+  return r.rows[0];
+}
+
+// Find a firm by exact name. Returns row or undefined.
+export async function getFirmByName(db, name) {
+  const r = await db.query("SELECT * FROM firms WHERE name = $1", [name]);
+  return r.rows[0];
 }
 
 export async function accrueBillableEvent(db, ev) {
