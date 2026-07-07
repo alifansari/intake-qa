@@ -16,9 +16,9 @@ const PUBLICATION_ISO = "2026-07-06";
 const CARTA_READY = false;
 
 export const metadata: Metadata = {
-  title: "The Unscored Conversation — An open letter to Southern California PI managing partners",
+  title: "The Unscored Conversation — An open letter to Northern California PI managing partners",
   description:
-    "A signed open letter on the four minutes of intake that decide a case, and a free 30-day founding-cohort Leak Audit for the first five Southern California PI firms.",
+    "A signed open letter on the four minutes of intake that decide a case, and a free 30-day founding-cohort Leak Audit for the first five Northern California PI firms.",
   authors: [{ name: "Ali Ansari" }],
   alternates: {
     canonical: "https://plaintiffops.com/letter",
@@ -65,7 +65,7 @@ export default function LetterPage() {
       <article className={styles.letter} lang="en">
         <header className={styles.masthead}>
           <p className={styles.kicker}>
-            An open letter to the managing partners of Southern California&rsquo;s personal-injury firms
+            An open letter to the managing partners of Northern California&rsquo;s personal-injury firms
           </p>
           <h1 className={styles.title}>The Unscored Conversation</h1>
           <p className={styles.deck}>{DECK}</p>

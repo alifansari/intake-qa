@@ -119,7 +119,7 @@ export const GUARANTEE_METHODOLOGY =
 export const COHORT_MIN = 3;
 export const COHORT_MAX = 5;
 export const PILOT_DAYS = 30;
-export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MIN} to ${COHORT_MAX} Southern California PI firms onto free ${PILOT_DAYS}-day pilots.`;
+export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MIN} to ${COHORT_MAX} Northern California PI firms onto free ${PILOT_DAYS}-day pilots.`;
 
 // ─── Data handling (one reconciled promise) ──────────────────────────────────
 // Canonical retention (Round 7 master): audio deleted at transcription; transcripts
@@ -176,12 +176,13 @@ export const STAT_WEBRIS_DISTRUST = {
   label: "of PI firms one legal-marketing agency audited could state their true client-acquisition cost with confidence",
   source: "WEBRIS, \"Personal Injury Leads: How Much Should They Cost?\" (after auditing 500+ PI firms)",
 };
-// Spanish-language / SoCal — ONE figure, LA-metro (SoCal relevance).
-// Confirmed by Ali (July 2026): publish LA-metro 34.5% (USAFacts/ACS 2019–2023).
-export const STAT_LA_SPANISH = {
-  value: "34.5%",
-  label: "of people age 5+ in the Los Angeles-Long Beach-Anaheim metro speak Spanish at home (about 4.2M people)",
-  source: "USAFacts, 2019-2023 American Community Survey",
+// Spanish-language / NorCal — ONE figure, Bay Area metro (NorCal relevance).
+// TODO(Ali): confirm — Bay Area metro 16.7% (Census ACS 2024 1-year, table C16001:
+// 739,982 Spanish-at-home of 4,422,876 age 5+). Swapped from the prior LA-metro figure.
+export const STAT_BAY_SPANISH = {
+  value: "16.7%",
+  label: "of people age 5+ in the San Francisco-Oakland-Fremont metro speak Spanish at home (about 740,000 people)",
+  source: "U.S. Census Bureau, 2024 American Community Survey (1-year), table C16001",
 };
 
 // ─── Calibration / test corpus ───

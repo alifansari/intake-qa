@@ -57,7 +57,7 @@ export default function FounderPage() {
           worth much.
         </p>
         <p>
-          So I&apos;m taking five Southern California PI firms into a free 30-day Leak Audit: I score
+          So I&apos;m taking five Northern California PI firms into a free 30-day Leak Audit: I score
           your real recorded intake calls, hand you a signed Missed-Revenue Statement, and charge
           nothing until the number survives your scrutiny. If you continue after that, the fee is
           flat and never touches your outcomes. You&apos;d get direct access to me and a say in what

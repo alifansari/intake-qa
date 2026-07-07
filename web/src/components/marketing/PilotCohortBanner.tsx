@@ -14,7 +14,7 @@ export function PilotCohortBanner() {
           Founding cohort
         </span>
         <p className="text-sm font-medium text-ink">
-          A free 30-day Leak Audit for five Southern California PI firms.{" "}
+          A free 30-day Leak Audit for five Northern California PI firms.{" "}
           <span className="text-ink-muted">{STAKE_LINE}</span>{" "}
           <span className="tnum font-semibold text-ink">{SEAT_LINE}</span>
         </p>

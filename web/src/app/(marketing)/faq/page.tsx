@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 const ITEMS: QA[] = [
   {
     q: "Why is the audit free?",
-    a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Intake Quality Audit is free for qualifying Southern California PI firms. A real analyst reviews up to 10 of your recent calls and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. Ali",
+    a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Intake Quality Audit is free for qualifying Northern California PI firms. A real analyst reviews up to 10 of your recent calls and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. Ali",
   },
   {
     q: `What does the ${GUARANTEE_THRESHOLD} find-it-free guarantee actually back?`,
@@ -70,7 +70,7 @@ const ITEMS: QA[] = [
   },
   {
     q: "Do you handle Spanish-language calls?",
-    a: "Yes, the desk analyzes and drafts in English and Spanish, natively, not translated afterward. In Southern California that matters: in the Los Angeles metro, 34.5% of people age 5 and older speak Spanish at home (USAFacts, 2019-2023 American Community Survey), and a signable Spanish-speaking caller is worth exactly as much as any other. Ali is bilingual and built the scoring against real calls in both languages.",
+    a: "Yes, the desk analyzes and drafts in English and Spanish, natively, not translated afterward. In Northern California that matters: in the San Francisco-Oakland-Fremont metro, 16.7% of people age 5 and older speak Spanish at home (U.S. Census Bureau, 2024 American Community Survey 1-year, table C16001), and a signable Spanish-speaking caller is worth exactly as much as any other. Ali is bilingual and built the scoring against real calls in both languages.",
   },
 ];
 

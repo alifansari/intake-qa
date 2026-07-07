@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ComplianceGateDiagram } from "@/components/marketing/ComplianceGateDiagram";
 import {
   CTA_PRIMARY,
-  STAT_LA_SPANISH,
+  STAT_BAY_SPANISH,
   MONTH_6_INTRO,
   MONTH_6_ITEMS,
   CHAMPION_LINE,
@@ -113,14 +113,14 @@ export default function HowItWorksPage() {
         </p>
       </section>
 
-      {/* Spanish-language intake (SoCal edge) */}
+      {/* Spanish-language intake (NorCal edge) */}
       <section className="mt-6 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-xl font-semibold text-ink">Spanish-language calls, analyzed natively</h2>
         <p className="mt-2 max-w-[72ch] text-ink-muted">
-          We analyze Spanish-language intake calls natively, not translated afterward. In the Los
-          Angeles metro, {STAT_LA_SPANISH.value} of people age 5 and older speak Spanish at home
-          ({STAT_LA_SPANISH.source}), and a signable Spanish-speaking caller is worth exactly as much
-          as any other. Ali is bilingual and built the scoring against real calls in both languages.
+          We analyze Spanish-language intake calls natively, not translated afterward. In the San
+          Francisco-Oakland-Fremont metro, {STAT_BAY_SPANISH.value} of people age 5 and older speak
+          Spanish at home ({STAT_BAY_SPANISH.source}), and a signable Spanish-speaking caller is worth
+          exactly as much as any other. Ali is bilingual and built the scoring against real calls in both languages.
         </p>
       </section>
 

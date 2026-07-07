@@ -94,7 +94,7 @@ export default function HomePage() {
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
           The AI receptionist grades its own calls, the agency grades its own leads, your staff grade
           their own follow-up, and nobody checks the whole board against what actually got signed. So
-          I&apos;m taking five Southern California PI firms into a free 30-day Leak Audit of your real
+          I&apos;m taking five Northern California PI firms into a free 30-day Leak Audit of your real
           recorded intake calls, with a signed Missed-Revenue Statement at the end. {STAKE_LINE}
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-5">

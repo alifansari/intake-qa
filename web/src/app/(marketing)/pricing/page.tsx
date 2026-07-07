@@ -12,7 +12,7 @@ import {
 export const metadata: Metadata = {
   title: "Pricing: a free founding pilot, then flat monthly | Intake QA",
   description:
-    "The founding pilot is free: five Southern California PI firms, a 30-day Leak Audit, no fee. If you continue, a flat monthly fee tiered by call volume, never per case and never a share of any recovery.",
+    "The founding pilot is free: five Northern California PI firms, a 30-day Leak Audit, no fee. If you continue, a flat monthly fee tiered by call volume, never per case and never a share of any recovery.",
   alternates: { canonical: "/pricing" },
 };
 
