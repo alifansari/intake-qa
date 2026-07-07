@@ -44,4 +44,15 @@
 - **Deliverable:** product-dev PR + a Calibration note on its false-alarm rate.
 - **Status:** queued
 
+### B-004 — Self-improving agent architecture (standing meta-item)  ·  ICE: 8×5×6 = 240  ·  lane: research
+- **Hypothesis:** If each cycle the analyst spends one beat auditing the agent system itself —
+  where the loop lost value, which agent/prompt/ledger is the weakest link, what capability no
+  competitor could replicate — then output quality compounds because the machine that builds the
+  product also rebuilds itself. Ali's standing directive: run at max value/productivity and build
+  what no one else could.
+- **Deliverable:** a dated `ops/insights.md` entry with concrete, ICE-scored proposals to improve
+  an agent prompt, a ledger, the compliance skill, or the loop — staged as edits for Ali's approval,
+  never self-applied to `.claude/` without a logged decision.
+- **Status:** standing (revisit every cycle)
+
 <!-- Add new hypotheses below; re-sort by ICE score after each cycle. -->

@@ -1,0 +1,91 @@
+name: Rocketship — daily compounding loop
+
+# Runs the full /rocketship loop once a day in the cloud (no laptop needed),
+# then opens a Pull Request whose description is the plain-English digest of
+# what the machine did. It NEVER sends, posts, publishes, or deploys — every
+# builder agent stages its work and stops at the human-approval gate
+# (see .claude/skills/compliance-invariants/SKILL.md §VII). The PR is where
+# Ali gives the one yes/no that anything outward-facing legally requires.
+
+on:
+  schedule:
+    # 01:00 UTC = ~6pm Pacific (evening, so the digest lands at end of day).
+    # Cron is always UTC. To change cadence, edit this line — e.g.
+    #   '0 17 * * 1'  = weekly, Monday 9am Pacific
+    - cron: '0 1 * * *'
+  workflow_dispatch: {}   # also lets Ali run it on demand from the Actions tab
+
+# Least privilege: only what's needed to push a branch and open a PR.
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: rocketship
+  cancel-in-progress: false
+
+jobs:
+  rocketship:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run the rocketship loop (stages only — never sends/publishes)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          set -o pipefail
+          # Headless run. --dangerously-skip-permissions is safe HERE because:
+          #  (1) this is an ephemeral, isolated CI runner,
+          #  (2) no production/Twilio/Resend/deploy secrets are present, so the
+          #      agents physically cannot send/publish even if asked, and
+          #  (3) the output is a PR for human review, not a live action.
+          claude -p "/rocketship" \
+            --dangerously-skip-permissions \
+            --output-format text 2>&1 | tee ops/loop-output.md || true
+
+          # Guarantee a digest file exists even if the run errored, so the PR
+          # body is never empty and failures are reported honestly.
+          if [ ! -s ops/loop-output.md ]; then
+            echo "# Rocketship run produced no output" > ops/loop-output.md
+            echo "" >> ops/loop-output.md
+            echo "The loop ran but returned nothing. Check the Actions log for errors." >> ops/loop-output.md
+          fi
+
+      - name: Open / update the daily Pull Request with the digest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          BRANCH="rocketship/$DATE"
+          git config user.name "rocketship-bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "$BRANCH"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No staged changes today; skipping PR."
+            exit 0
+          fi
+          git commit -m "Rocketship daily loop — $DATE (staged; needs Ali's approval to ship anything outward-facing)"
+          git push --force-with-lease -u origin "$BRANCH"
+
+          if gh pr view "$BRANCH" >/dev/null 2>&1; then
+            gh pr edit "$BRANCH" --title "Rocketship — $DATE" --body-file ops/loop-output.md
+          else
+            gh pr create --base main --head "$BRANCH" \
+              --title "Rocketship — $DATE" \
+              --body-file ops/loop-output.md
+          fi
