@@ -31,6 +31,28 @@
 
 ---
 
+## 2026-07-07 — Physical mailer retired → zero-budget outreach motion (plan of record)  ·  agent: orchestrator · lane: outreach
+
+- **Change:** Founder has ~$0 outreach budget, so the physical Dream-25 mailer (its "strongest asset") is
+  DEAD. Two deep-research passes replace it with a free, human, 1:1 motion, staged in
+  `ops/drafts/zero-budget-outreach-kit.md`. Spine: (1) **join ONE trial-lawyer association** (SCCTLA /
+  Capitol City / SFTLA) so all outreach goes out as "fellow member" — warm converts 10–20× cold; (2) the
+  father's network for warm intros; (3) a 5-touch, 14-day, hand-sent sequence per firm (LinkedIn connect →
+  email w/ public-signal open → value DM → one manual call → break-up); (4) the **public-signal cold-open**
+  ("I looked at your public intake and noticed X" — public/automated signals only, records nothing,
+  CIPA-safe); (5) podcasts/earned media on the Spanish-intake-justice angle for authority.
+- **Hypothesis:** for a solo, hours-constrained founder, trust (warmth + hyper-personalization) beats
+  send-volume; ~5 firms worked deeply/week at the funnel's ~8% touch→qualified yields the first 3–5
+  meetings in 4–6 weeks. Volume-grinding is the trap (can't out-send a 2% cold rate, and blast violates §III).
+- **Expected effect:** first qualified conversations without spending a dollar; every touch rides the
+  independent-scorer + Spanish-gap moats.
+- **Status:** kit staged for Ali (outbound → he sends; §III/§VII human-send chokepoint). Pre-flight: real
+  CAN-SPAM address, a live Calibration page, SPF/DKIM/DMARC, and per-firm recon before Touch 1.
+- **Review date:** 2026-08-06.
+- **Result:** —
+- **Flag:** offer-name inconsistency — hosted letter/site still say "30-day Leak Audit / five founding
+  firms"; the kit + Charter use "10-Call Autopsy." Reconcile the public copy before sending.
+
 ## 2026-07-07 — Offer decided + click-to-buy checkout built (staged, PR #3)  ·  agent: orchestrator · lane: product+website
 
 - **Change:** Two deep-research passes (offer-decision memo + operational blueprint) locked the offer and
