@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/supabase/server";
 
 const NAV = [
+  { href: "/desk/coach", label: "Live coach" },
   { href: "/desk/queue", label: "Leaked-case queue" },
   { href: "/desk/documents", label: "Statements & readouts" },
   { href: "/desk/reconciliation", label: "Calls & reconciliation" },
