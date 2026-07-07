@@ -20,23 +20,62 @@
 - Every item names the insight it rests on (from `ops/insights.md`). No insight → weak hypothesis.
 - Builders stage; they never publish. "Done" = staged for Ali's approval + logged in decisions.
 
+## Current priority order (re-sorted 2026-07-07 by ICE)
+
+1. **B-006** (320) — independent CIPA-safe NorCal benchmark [NEW; the one asset, four jobs]
+2. **B-005** (315) — regulatory-clearance memo → Yang [NEW; blocks public compliance claims]
+3. **B-001** (288) — benchmark report as second-touch authority asset [raised 252→288]
+4. **B-002** (280) — Spanish-intake gap earned-PR pillar [raised 240→280; anchored to Census]
+5. **B-004** (240) — self-improving agent architecture [standing]
+6. **B-003** (210) — live in-call coaching hardening
+
 ---
 
-### B-001 — Benchmark report as second-touch authority asset  ·  ICE: 9×7×4 = 252  ·  lane: research→outreach
-- **Hypothesis:** If we ship "State of NorCal PI Intake" grounded in the CIPA-safe mystery-shop
-  dataset, then qualified conversations rise because independent-scorer authority (Moody's/J.D.
-  Power model) earns the first meeting.
-- **Deliverable:** research analyst assembles the dataset spec + findings draft; outreach drafts
-  the distribution plan. Yang sign-off before any dialing.
-- **Status:** in-dev
+### B-006 — Independent CIPA-safe NorCal PI intake benchmark (the one asset that does 4 jobs)  ·  ICE: 10×8×4 = 320  ·  lane: research→product→outreach
+- **Hypothesis:** If we run and publish our OWN independent, CIPA-safe, Yang-signed mystery-shop
+  benchmark of NorCal PI intake (fixed scenario, tiered confidence, PUBLISHED false-alarm rate),
+  then (a) qualified conversations rise, (b) we replace self-interested vendor stats with OUR
+  citable number, (c) we get the Spanish-gap PR vehicle, and (d) we instantiate the
+  independent-scorer moat competitors structurally cannot copy — because independence + published
+  methodology is the Moody's/J.D. Power source of pricing power [insight 2026-07-07 D1/D2, B4].
+- **Deliverable:** analyst drafts the sampling frame + rubric + methodology note; Yang signs the
+  §632-safe protocol BEFORE any dialing (compliance §II). No live claimants. Nothing published
+  until Ali + Yang approve.
+- **Status:** queued (feeds B-001)
+- **Result:** —
 
-### B-002 — Spanish-intake quality gap as earned-PR pillar  ·  ICE: 8×6×5 = 240  ·  lane: outreach
+### B-001 — Benchmark report as second-touch authority asset  ·  ICE: 9×8×4 = 288  ·  lane: research→outreach
+- **Hypothesis:** If we ship "State of NorCal PI Intake" grounded in the CIPA-safe mystery-shop
+  dataset (B-006), then qualified conversations rise because independent-scorer authority (Moody's/J.D.
+  Power model) earns the first meeting. Confidence raised: competitor scan (2026-07-07 D1) confirms
+  NO independent benchmark exists — the category slot is empty and ours to own.
+- **Deliverable:** research analyst assembles the dataset spec + findings draft; outreach drafts
+  the distribution plan (CAOC NorCal chapters, county TLAs, trial-lawyer media). Yang sign-off before any dialing.
+- **Status:** in-dev
+- **Result:** —
+
+### B-005 — Regulatory-clearance memo: flat-fee model vs AB 931 / SB 37 / Rule 5.4-7.2 (route to Yang)  ·  ICE: 9×7×5 = 315  ·  lane: research→compliance
+- **Hypothesis:** If Yang reviews and blesses a one-page memo establishing that Intake QA's
+  flat-monthly, outcome-agnostic, non-client-steering model sits OUTSIDE AB 931's "anything of
+  value for recommending/securing services," SB 37's anti-capping regime, and Rule 5.4/7.2(b)
+  fee-sharing prohibitions, then we unlock confident public compliance positioning and de-risk the
+  whole GTM — because a rule change here overrides everything [insight 2026-07-07 A1/A2].
+- **Deliverable:** analyst drafts the memo (statute cites + our-structure-vs-prohibition analysis);
+  Yang reviews/signs. Also folds in an SB 37 copy-audit (no unverifiable claims/guarantees) and a
+  pen-register/tracker audit of plaintiffops.com (CIPA §638.51, insight A3). Staged, not shipped.
+- **Status:** queued (BLOCKS any "we're AB 931-compliant" public claim per compliance §VII)
+- **Result:** —
+
+### B-002 — Spanish-intake quality gap as earned-PR pillar  ·  ICE: 8×7×5 = 280  ·  lane: outreach
 - **Hypothesis:** If we quantify and publish the Spanish-intake quality gap (Fricker testimonial
   injustice framing), then earned media + inbound interest rise because it's a justice story with
-  a number attached.
+  a number attached. Now anchored: ~28.8% of Californians speak Spanish at home; SF-Oakland-Fremont
+  metro 43.4% non-English-at-home (~15–17% Spanish) [VERIFIED Census/ACS, insight 2026-07-07 C4].
+  Defensibility raised because only the INDEPENDENT scorer (D1) has incentive to publish it.
 - **Deliverable:** outreach drafts the angle + target outlets; research analyst supplies the
-  defensible number. No claimant data used without consent.
-- **Status:** queued
+  defensible number (measured via B-006 benchmark, not asserted). No claimant data used without consent.
+- **Status:** queued (measurement rides on B-006)
+- **Result:** —
 
 ### B-003 — Live in-call coaching component hardening  ·  ICE: 7×6×5 = 210  ·  lane: product
 - **Hypothesis:** If `IntakeCoach.jsx` is production-hardened (latency, false-positive rate,
