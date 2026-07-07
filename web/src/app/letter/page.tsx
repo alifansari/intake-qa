@@ -96,6 +96,11 @@ export default function LetterPage() {
             I publish my own error rate at <a href="/honesty">/honesty</a>.
           </p>
 
+          <p className={styles.attMeta}>
+            When you are ready to be measured, start your firm&rsquo;s free Leak Audit at{" "}
+            <a href="/audit">/audit</a>.
+          </p>
+
           <div className={styles.monogramRow}>
             <span className={styles.monogram} aria-hidden="true">
               IQ
