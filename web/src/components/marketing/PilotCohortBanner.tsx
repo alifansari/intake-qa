@@ -1,8 +1,10 @@
-// Founding-cohort banner. Honest, durable language. No countdown, no "N seats
-// left" that stops being true in six months. Copy comes from site-constants.
+// Founding-cohort banner. Real scarcity only: the seat count comes from the single
+// manually-updated constant in lib/cohort.ts. No countdown, no faked number. When
+// the cohort is full, the CTA flips to a waitlist state automatically.
 
 import Link from "next/link";
-import { COHORT_LINE, CTA_PRIMARY } from "@/lib/site-constants";
+import { STAKE_LINE } from "@/lib/site-constants";
+import { SEAT_LINE, COHORT_CTA_LABEL, COHORT_CTA_HREF, COHORT_FULL } from "@/lib/cohort";
 
 export function PilotCohortBanner() {
   return (
@@ -12,15 +14,17 @@ export function PilotCohortBanner() {
           Founding cohort
         </span>
         <p className="text-sm font-medium text-ink">
-          {COHORT_LINE}
-          <span className="text-ink-muted"> Find-it-free guarantee. Cancel anytime.</span>
+          A free 30-day Leak Audit for five Southern California PI firms.{" "}
+          <span className="text-ink-muted">{STAKE_LINE}</span>{" "}
+          <span className="tnum font-semibold text-ink">{SEAT_LINE}</span>
         </p>
       </div>
       <Link
-        href="/audit"
+        href={COHORT_CTA_HREF}
         className="flex-none rounded-pill bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
+        aria-disabled={COHORT_FULL || undefined}
       >
-        {CTA_PRIMARY}
+        {COHORT_CTA_LABEL}
       </Link>
     </div>
   );

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GUARANTEE_METHODOLOGY, CTA_PRIMARY } from "@/lib/site-constants";
+import { GUARANTEE_METHODOLOGY, CTA_PRIMARY, STAKE_LINE } from "@/lib/site-constants";
 import { ConfidenceTierTable } from "@/components/marketing/ConfidenceTierTable";
 
 export const metadata: Metadata = {
@@ -89,7 +89,10 @@ export default function HonestyPage() {
         </p>
       </section>
 
-      <div className="mt-12">
+      <p className="mt-12 max-w-[72ch] font-display text-xl leading-relaxed text-ink">
+        The founding cohort is the commercial version of this page: {STAKE_LINE}
+      </p>
+      <div className="mt-6">
         <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
           {CTA_PRIMARY}
         </Link>

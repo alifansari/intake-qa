@@ -17,7 +17,8 @@ const CARTA_READY = false;
 
 export const metadata: Metadata = {
   title: "The Unscored Conversation — An open letter to Southern California PI managing partners",
-  description: DECK,
+  description:
+    "A signed open letter on the four minutes of intake that decide a case, and a free 30-day founding-cohort Leak Audit for the first five Southern California PI firms.",
   authors: [{ name: "Ali Ansari" }],
   alternates: {
     canonical: "https://plaintiffops.com/letter",
@@ -99,11 +100,15 @@ export default function LetterPage() {
             <span className={styles.monogram} aria-hidden="true">
               IQ
             </span>
-            <span className={styles.version}>Version 1.0 · published {PUBLICATION_DATE}</span>
+            <span className={styles.version}>Version 1.1 · updated {PUBLICATION_DATE}</span>
           </div>
         </footer>
 
         <aside className={styles.colophon}>
+          <p>
+            Changelog. 1.1: the invitation changed from a flat-fee audit to a free founding-cohort
+            pilot for the first five firms. The post-pilot fee remains flat and outcome-decoupled.
+          </p>
           <p>
             Set in Source Serif 4, a contemporary text face in the tradition of book and
             legal-document types chosen for long-form reading, not screens. The text is
