@@ -31,6 +31,29 @@
 
 ---
 
+## 2026-07-07 — GTM re-scope: audit-led, recovered-lead re-engagement GATED behind retained legal clearance  ·  agent: orchestrator · lane: product+outreach (plan of record)
+
+- **Change:** Plan of record going forward. (1) The independent-scorer **free Leak Audit leads all
+  go-to-market** — it sits on the firmest legal ground (strongest on Rule 5.4: a flat, outcome-
+  decoupled fee is not tied to any case's fees). (2) The **recovered-lead SMS re-engagement feature
+  is GATED**: not shipped, marketed, demoed as available, or sold until a *retained* CA legal-ethics
+  review clears it. It may still be built/tested internally (backend) behind the gate.
+- **Hypothesis:** Legal analysis (Yang memo drafts + insight 2026-07-07) identifies re-engagement —
+  helping a firm re-contact its own leads — as the **single softest surface** against AB 931
+  ("anything of value for securing services") and B&P §§6151–6152 (capping/running), and **SB 37's
+  new private right of action ($5,000–$100,000 per violation, VERIFIED)** is a risk multiplier that
+  invites plaintiff-side theories aimed at a novel vendor. Leading with the audit books qualified
+  conversations without exposing that surface; gating re-engagement removes the biggest legal tail
+  risk to the $1M plan.
+- **Expected effect:** protects the whole GTM from a catastrophic SB 37 enforcement tail while
+  keeping the qualified-conversations funnel intact (the audit is already the wedge). No revenue-lever
+  loss near-term — re-engagement was never going to be the first-touch anyway.
+- **Status:** shipped (documented as plan of record; supersedes any framing that markets
+  re-engagement pre-clearance).
+- **Review date:** when Yang / retained counsel returns a clearance read on re-engagement (no fixed
+  date; blocks on B-005 becoming a *retained* review, not a warm pass).
+- **Result:** —
+
 ## 2026-07-07 — Staged Dream-25 outreach batch 1 + benchmark spine + targeting method  ·  agent: outreach · lane: outreach
 
 - **Change:** Staged three drafts under `ops/drafts/` (nothing sent/published):
