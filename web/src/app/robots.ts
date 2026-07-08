@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE = "https://intake-qa.vercel.app";
+const BASE = "https://plaintiffops.com";
 
 // Marketing is indexable; authenticated / product / operator routes are not.
 export default function robots(): MetadataRoute.Robots {

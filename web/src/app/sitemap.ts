@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE = "https://intake-qa.vercel.app";
+const BASE = "https://plaintiffops.com";
 
 // Public, indexable marketing surfaces only. Authenticated/product routes are
 // disallowed in robots.ts and omitted here.
