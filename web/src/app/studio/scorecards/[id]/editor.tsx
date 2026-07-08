@@ -157,11 +157,19 @@ export function ScorecardEditor({
         </div>
       ) : null}
 
+      {!locked ? (
+        <div className="rounded-sm border border-accent/30 bg-accent-tint px-3 py-2 text-xs text-accent">
+          Auto-built from the leak-audit engine&apos;s analysis of this intake call. Every
+          field below is pre-filled and editable — review and override anything, then finalize.
+          Nothing requires manual entry.
+        </div>
+      ) : null}
+
       {/* Live headline preview */}
       <Card>
         <CardContent className="flex items-center justify-between py-5">
           <div>
-            <div className="eyebrow">Headline (deterministic — not AI)</div>
+            <div className="eyebrow">Headline (deterministic rubric — auto-derived inputs)</div>
             <div className="tnum text-3xl font-bold text-ink">
               {preview.score}
               <span className="ml-2 text-xl text-muted">/ 100</span>
@@ -183,7 +191,7 @@ export function ScorecardEditor({
       {/* Rubric inputs */}
       <Card>
         <CardContent className="py-5">
-          <h2 className="eyebrow mb-4">Rubric inputs (you fill these from the call)</h2>
+          <h2 className="eyebrow mb-4">Rubric dimensions (auto-derived — edit to override)</h2>
           <div className="flex flex-col gap-3">
             {DIMENSIONS.map((d) => (
               <div key={d.key} className="flex items-center justify-between gap-3">
@@ -217,7 +225,9 @@ export function ScorecardEditor({
       {/* Critical fails */}
       <Card>
         <CardContent className="py-5">
-          <h2 className="eyebrow mb-3">Critical fails (any one caps the grade at F)</h2>
+          <h2 className="eyebrow mb-3">
+            Critical fails (auto-flagged by the engine — any one caps the grade at F)
+          </h2>
           <div className="flex flex-col gap-2">
             {CRITICAL_FAILS.map((c) => (
               <label key={c.key} className="flex items-center gap-2 text-sm text-ink">
@@ -237,7 +247,10 @@ export function ScorecardEditor({
       {/* Leakage */}
       <Card>
         <CardContent className="py-5">
-          <h2 className="eyebrow mb-3">Leakage inputs (all shown on the report)</h2>
+          <h2 className="eyebrow mb-3">
+            Leakage (auto-derived from the detected case type — edit to override; all shown on
+            the report)
+          </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 text-sm text-ink">
               Average signed case fee (USD)
@@ -247,7 +260,7 @@ export function ScorecardEditor({
                 disabled={locked}
                 value={fee}
                 onChange={(e) => setFee(e.target.value)}
-                placeholder={`e.g. ${AVERAGE_SIGNED_CASE_FEE_PLACEHOLDER} (conservative placeholder — replace with the firm's number)`}
+                placeholder={`auto-derived from case type (e.g. ${AVERAGE_SIGNED_CASE_FEE_PLACEHOLDER}) — edit to the firm's number`}
                 className="rounded-sm border border-line-strong bg-paper p-2 text-sm"
               />
             </label>
@@ -277,14 +290,14 @@ export function ScorecardEditor({
       {/* Notes */}
       <Card>
         <CardContent className="py-5">
-          <h2 className="eyebrow mb-3">Notes (feed the AI draft; not printed verbatim)</h2>
+          <h2 className="eyebrow mb-3">Notes (optional — feed an AI rewrite; not printed verbatim)</h2>
           <textarea
             disabled={locked}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={4}
             className="w-full rounded-sm border border-line-strong bg-paper p-2 text-sm"
-            placeholder="What you observed on the call."
+            placeholder="Anything you observed that the engine missed (optional)."
           />
         </CardContent>
       </Card>
@@ -293,24 +306,24 @@ export function ScorecardEditor({
       <Card>
         <CardContent className="py-5">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="eyebrow">Narrative (AI drafts; you approve)</h2>
+            <h2 className="eyebrow">Narrative (auto-drafted from the engine — edit freely)</h2>
             <Button
               variant="outline"
               size="sm"
               disabled={locked || drafting || !hasEvidence}
               onClick={draftNarrative}
             >
-              {drafting ? "Drafting…" : "AI: draft narrative"}
+              {drafting ? "Drafting…" : "AI: rewrite narrative"}
             </Button>
           </div>
-          {!hasEvidence ? (
-            <p className="mb-3 text-xs text-faint">
-              Attach a processed recording to enable AI drafting.
-            </p>
-          ) : null}
+          <p className="mb-3 text-xs text-faint">
+            {hasEvidence
+              ? "Pre-drafted from the engine's flagged failure and cited evidence. Edit if you want; an edit re-opens the approval box below. Optionally use AI to rewrite."
+              : "Attach a processed intake call to enable AI rewriting."}
+          </p>
 
           <label className="mb-1 block text-xs font-medium text-muted">
-            The one expensive failure {reviewed ? "" : "— DRAFT (unreviewed)"}
+            The one expensive failure {reviewed ? "" : "— edited (needs re-approval)"}
           </label>
           <textarea
             disabled={locked}
@@ -324,7 +337,7 @@ export function ScorecardEditor({
           />
 
           <label className="mb-1 block text-xs font-medium text-muted">
-            Recommended fix {reviewed ? "" : "— DRAFT (unreviewed)"}
+            Recommended fix {reviewed ? "" : "— edited (needs re-approval)"}
           </label>
           <textarea
             disabled={locked}
@@ -344,7 +357,8 @@ export function ScorecardEditor({
               checked={reviewed}
               onChange={(e) => setReviewed(e.target.checked)}
             />
-            I have reviewed and approve this narrative (required to finalize/print).
+            I have reviewed and approve this narrative. This is pre-checked on the
+            auto-generated draft — you only need to re-check it if you edit the text above.
           </label>
         </CardContent>
       </Card>
@@ -359,7 +373,8 @@ export function ScorecardEditor({
         </Button>
         {!canFinalize && !locked ? (
           <span className="text-xs text-faint">
-            Finalize needs an approved narrative (both fields + the review box).
+            Ready to finalize once the narrative is approved. If you edited the narrative,
+            re-check the approval box above.
           </span>
         ) : null}
         {msg ? <span className="text-xs text-muted">{msg}</span> : null}

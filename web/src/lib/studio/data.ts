@@ -1,5 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { mapEngineToScorecard, draftNarrativeFromEngine } from "./mapper";
+import { computeSpotCheck, computeLeakage } from "./rubric";
 
 // ---------------------------------------------------------------------------
 // Studio data access. Every function takes the FOUNDER's RLS-bound Supabase
@@ -182,6 +184,17 @@ export async function createSpotCheck(
       .from("studio_recordings")
       .update({ spot_check_id: sc.id })
       .eq("id", input.recording_id);
+
+    // If the recording is already processed (scoring present), BUILD THE
+    // SCORECARD ITSELF now: derive dimensions/critical-fails/leakage/narrative
+    // from the engine analysis so the founder lands on a pre-filled, editable
+    // scorecard rather than empty inputs. (When processing hasn't finished yet,
+    // the /process route auto-populates once scoring lands.)
+    const rec = await getRecording(supabase, input.recording_id);
+    if (rec?.scoring) {
+      const populated = await autoPopulateSpotCheckFromRecording(supabase, sc, rec);
+      if (populated) return populated;
+    }
   }
   return sc;
 }
@@ -245,4 +258,85 @@ export async function setRecordingTranscriptAndScoring(
     })
     .eq("id", id);
   if (error) throw new Error(error.message);
+}
+
+// ---------------------------------------------------------------------------
+// AUTO-POPULATION — the scorecard builds itself from the engine analysis.
+//
+// Given a spot check and the processed recording linked to it, deterministically
+// derive the six rubric dimensions, the critical fails, and the leakage inputs
+// from the engine `scoring` (via mapper.mjs), recompute the headline score/grade/
+// leakage via the pure rubric, auto-draft the two narrative fields from the
+// engine's flagged failure + evidence, and mark narrative_reviewed = true so the
+// scorecard is finalizable/printable with NO manual entry required. The founder
+// can still edit any field afterwards (which re-opens the review gate).
+//
+// Guard rails:
+//   * Never overwrites a FINAL (locked) scorecard.
+//   * By default only auto-populates a spot check that has not yet been touched
+//     (no dimension_inputs, no computed score) so it never clobbers founder edits.
+//     Pass force=true to re-derive (e.g. after re-processing).
+// ---------------------------------------------------------------------------
+export async function autoPopulateSpotCheckFromRecording(
+  supabase: SupabaseClient,
+  spotCheck: SpotCheck,
+  recording: Pick<StudioRecording, "scoring" | "transcript">,
+  opts: { force?: boolean } = {},
+): Promise<SpotCheck | null> {
+  if (spotCheck.status === "final") return spotCheck; // locked — never touch.
+  if (!recording.scoring) return spotCheck; // nothing to derive from yet.
+
+  const untouched =
+    (spotCheck.computed_score == null || spotCheck.computed_score === undefined) &&
+    Object.keys(spotCheck.dimension_inputs ?? {}).length === 0;
+  if (!opts.force && !untouched) return spotCheck; // preserve founder edits.
+
+  const transcript = typeof recording.transcript === "string" ? recording.transcript : "";
+  const { dimensionInputs, criticalFails, leakageInputs } = mapEngineToScorecard(
+    recording.scoring,
+    transcript,
+  );
+
+  // Recompute the headline via the SAME pure rubric the manual path used.
+  const spot = computeSpotCheck({ dimensionInputs, criticalFails });
+  const leak = computeLeakage({
+    averageSignedCaseFee: leakageInputs.average_signed_case_fee,
+    illustrativeMonthlyRecurrence: leakageInputs.illustrative_monthly_recurrence,
+  });
+
+  // Auto-draft the narrative deterministically from the engine analysis. This is
+  // an auto-generation, so narrative_reviewed = true (satisfies the DB CHECK and
+  // removes the manual-gate friction). Editing it later re-opens the gate.
+  const narrative = draftNarrativeFromEngine(recording.scoring);
+
+  const patch: Partial<SpotCheck> = {
+    dimension_inputs: dimensionInputs,
+    critical_fails: criticalFails,
+    computed_score: spot.score,
+    computed_grade: spot.grade,
+    dimension_scores: spot.dimensionScores,
+    leakage_inputs: {
+      average_signed_case_fee: leak.averageSignedCaseFee,
+      illustrative_monthly_recurrence: leak.illustrativeMonthlyRecurrence,
+    },
+    leakage_single_case: leak.singleCase,
+    leakage_illustrative_annual: leak.illustrativeAnnual,
+    narrative_failure: narrative.narrative_failure,
+    narrative_fix: narrative.narrative_fix,
+    narrative_reviewed: true,
+  };
+
+  return updateSpotCheck(supabase, spotCheck.id, patch);
+}
+
+// Auto-populate any spot check LINKED to a recording (used after processing lands,
+// when the scorecard may already exist). Best-effort; returns silently if none.
+export async function autoPopulateSpotCheckForRecording(
+  supabase: SupabaseClient,
+  recording: StudioRecording,
+): Promise<void> {
+  if (!recording.spot_check_id) return;
+  const sc = await getSpotCheck(supabase, recording.spot_check_id);
+  if (!sc) return;
+  await autoPopulateSpotCheckFromRecording(supabase, sc, recording);
 }
