@@ -62,6 +62,47 @@ export function disclosures(callsAnalyzed: number): {
 
 export const SIGNATURE_ANALYST = "Ali Ansari, Analyst of Record";
 
+// Pick the ONE key cited transcript excerpt for the scorecard exhibit (like the
+// paid Leak Report exhibit). Prefers a critical-fail quote, then a revenue-at-risk
+// evidence quote, then generic signability evidence. Returns null if none exist —
+// we never fabricate a quote (no citation, no claim).
+export function pickKeyExcerpt(scoring: unknown): string | null {
+  const s = (scoring && typeof scoring === "object" ? scoring : {}) as Record<string, unknown>;
+  const asStr = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+
+  const fails = Array.isArray(s.critical_fails) ? (s.critical_fails as unknown[]) : [];
+  for (const f of fails) {
+    const q = asStr((f as Record<string, unknown>)?.quote);
+    if (q) return q;
+  }
+
+  const alerts = (s.alerts && typeof s.alerts === "object" ? s.alerts : {}) as Record<string, unknown>;
+  const rar = (alerts.revenue_at_risk && typeof alerts.revenue_at_risk === "object"
+    ? alerts.revenue_at_risk
+    : {}) as Record<string, unknown>;
+  const eq = rar.evidence_quotes;
+  if (Array.isArray(eq)) {
+    for (const q of eq) {
+      const v = asStr(typeof q === "string" ? q : (q as Record<string, unknown>)?.quote);
+      if (v) return v;
+    }
+  }
+
+  for (const key of ["signability_evidence", "case_signability_evidence"]) {
+    const v = s[key];
+    if (Array.isArray(v)) {
+      for (const q of v) {
+        const got = asStr(typeof q === "string" ? q : (q as Record<string, unknown>)?.quote);
+        if (got) return got;
+      }
+    } else {
+      const got = asStr(v);
+      if (got) return got;
+    }
+  }
+  return null;
+}
+
 // ref_code: short, human-readable, unique-enough for a one-off spot check.
 // Format: SC-YYYYMMDD-XXXX (XXXX = base36 from a random seed).
 export function generateRefCode(now: Date = new Date()): string {
