@@ -12,7 +12,9 @@ const Body = z.object({
   tested_at: z.string().optional(),
   scenario_key: z.string().max(200).nullable().optional(),
   touchpoints: z.array(z.unknown()).optional(),
-  dimension_inputs: z.record(z.string(), z.number()).optional(),
+  // A dimension value may be a level (0/50/100) or null ("Not assessed"); null is
+  // excluded from the score (renormalized out), not counted as 0.
+  dimension_inputs: z.record(z.string(), z.number().nullable()).optional(),
   critical_fails: z.array(z.string()).optional(),
   notes: z.string().max(20000).nullable().optional(),
   leakage_inputs: z

@@ -143,7 +143,9 @@ export interface SpotCheck {
   tested_at: string | null;
   scenario_key: string | null;
   touchpoints: unknown;
-  dimension_inputs: Record<string, number>;
+  // A dimension value is a level (0/50/100) or null ("Not assessed" — excluded
+  // from the score, renormalized out; NOT counted as 0).
+  dimension_inputs: Record<string, number | null>;
   critical_fails: string[];
   notes: string | null;
   computed_score: number | null;

@@ -11,7 +11,9 @@ export interface DerivedLeakageInputs {
 }
 
 export interface MappedScorecardInputs {
-  dimensionInputs: Record<string, number>;
+  // A dimension value is a level (0/50/100) or null ("Not assessed" — the
+  // front-door dims when there is no genuine reachability/answer-speed signal).
+  dimensionInputs: Record<string, number | null>;
   criticalFails: string[];
   leakageInputs: DerivedLeakageInputs;
 }

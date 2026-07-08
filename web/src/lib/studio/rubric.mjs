@@ -13,13 +13,28 @@
 // Everything a reader/reviewer needs to audit the number lives here and is
 // printed on the report: the six weighted dimensions, the 0/50/100 input scale,
 // the grade thresholds, and the critical-fail override.
+//
+// NOT ASSESSED / SCORE NORMALIZATION (front-door honesty):
+//   Two "front-door" dimensions — reachability_speed and human_vs_barrier —
+//   measure the phone tree / answer speed, which a recording of an ALREADY-
+//   CONNECTED intake call cannot test. When the analysis has no genuine signal
+//   for such a dimension, its input is `null` ("Not assessed") rather than a
+//   defaulted score. A null dimension is EXCLUDED from BOTH the weighted sum and
+//   the weight denominator, and the score is renormalized over only the assessed
+//   dimensions:
+//     score = round( sum(weighted of assessed dims) / sum(weight of assessed dims) * 100 )
+//   So the grade reflects only what was actually measured — a strong conversation
+//   with both front-door dims Not assessed is scored on the 60-weight remainder,
+//   normalized back up to a 0–100 scale (never penalized as if it scored 0 there).
+//   If somehow NOTHING is assessed, the score is 0 (divide-by-zero guard).
 // ============================================================================
 
 // --- The six weighted dimensions -------------------------------------------
-// Each dimension is scored 0, 50, or 100 (nothing in between — a coarse, honest
-// scale for a 4-minute spot check). Weights sum to 100. The weighted sum of the
-// six dimension inputs is the 0–100 headline score (before any critical-fail
-// override).
+// Each ASSESSED dimension is scored 0, 50, or 100 (nothing in between — a coarse,
+// honest scale for a 4-minute spot check), or `null` when the analysis did not
+// test it ("Not assessed"). Weights sum to 100. The score is the weighted mean of
+// the ASSESSED dimensions, renormalized to 0–100 (before any critical-fail
+// override); not-assessed dimensions drop out of both numerator and denominator.
 export const DIMENSIONS = [
   { key: "reachability_speed", label: "Reachability & Speed", weight: 25 },
   { key: "human_vs_barrier", label: "Human vs Barrier", weight: 15 },
@@ -72,17 +87,29 @@ export function gradeForScore(score) {
   return "F";
 }
 
-// Coerce an input to one of {0,50,100}; anything invalid/absent counts as 0
-// (absence of evidence = the behavior didn't happen — same stance as the engine).
+// Coerce an input to one of {0,50,100}, or `null` for "Not assessed".
+//   * `null` (explicit) stays null → the dimension is EXCLUDED from the score.
+//   * A valid level (0/50/100) is kept as-is.
+//   * Anything else invalid/absent counts as 0 (absence of evidence = the
+//     behavior didn't happen — same stance as the engine). Note this is distinct
+//     from `null`: 0 is an ASSESSED "Poor", null is "we didn't test this".
 function level(v) {
+  if (v === null) return null;
   return DIMENSION_LEVELS.includes(v) ? v : 0;
 }
 
 // --- The headline computation ----------------------------------------------
 /**
  * Compute the deterministic Spot Check result.
+ *
+ * A dimension whose input is `null` is "Not assessed": it is EXCLUDED from both
+ * the weighted numerator and the weight denominator. The score is the weighted
+ * mean of the ASSESSED dimensions, renormalized to 0–100:
+ *   score = round( sum(weighted of assessed) / sum(weight of assessed) * 100 )
+ * with a divide-by-zero guard (score 0 if nothing is assessed).
+ *
  * @param {{
- *   dimensionInputs?: Record<string, number>,
+ *   dimensionInputs?: Record<string, number | null>,
  *   criticalFails?: string[],
  * }} input
  * @returns {{
@@ -90,9 +117,10 @@ function level(v) {
  *   grade: string,
  *   rawScore: number,
  *   rawGrade: string,
+ *   assessedWeight: number,
  *   criticalFailTriggered: boolean,
  *   activeCriticalFails: string[],
- *   dimensionScores: Array<{ key:string, label:string, weight:number, input:number, weighted:number }>,
+ *   dimensionScores: Array<{ key:string, label:string, weight:number, input:number|null, assessed:boolean, weighted:number }>,
  * }}
  */
 export function computeSpotCheck(input = {}) {
@@ -101,13 +129,20 @@ export function computeSpotCheck(input = {}) {
 
   const dimensionScores = DIMENSIONS.map((d) => {
     const val = level(inputs[d.key]);
-    // weighted contribution = input% × weight / 100  (input 0/50/100 → 0/0.5/1 × weight)
-    const weighted = (val / 100) * d.weight;
-    return { key: d.key, label: d.label, weight: d.weight, input: val, weighted };
+    const assessed = val !== null;
+    // weighted contribution = input% × weight / 100  (input 0/50/100 → 0/0.5/1 × weight);
+    // a not-assessed dimension contributes 0 to the numerator AND is dropped from
+    // the denominator below, so it neither helps nor hurts the score.
+    const weighted = assessed ? (val / 100) * d.weight : 0;
+    return { key: d.key, label: d.label, weight: d.weight, input: val, assessed, weighted };
   });
 
-  // Weighted sum → 0–100 (weights sum to 100, inputs are fractions of full marks).
-  const rawScore = Math.round(dimensionScores.reduce((s, d) => s + d.weighted, 0));
+  // Renormalize over the ASSESSED dimensions only: weighted mean scaled to 0–100.
+  // Not-assessed dims drop out of the denominator (they are NOT counted as 0).
+  const assessedWeight = dimensionScores.reduce((s, d) => s + (d.assessed ? d.weight : 0), 0);
+  const weightedSum = dimensionScores.reduce((s, d) => s + d.weighted, 0);
+  const rawScore =
+    assessedWeight > 0 ? Math.round((weightedSum / assessedWeight) * 100) : 0; // guard: nothing assessed → 0
   const rawGrade = gradeForScore(rawScore);
 
   // Critical-fail override: any active critical fail caps the grade at F.
@@ -119,6 +154,7 @@ export function computeSpotCheck(input = {}) {
     grade: criticalFailTriggered ? "F" : rawGrade, // grade is capped at F on override
     rawScore,
     rawGrade,
+    assessedWeight,
     criticalFailTriggered,
     activeCriticalFails,
     dimensionScores,

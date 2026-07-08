@@ -50,6 +50,17 @@ export default async function ScorecardPrint({
   const excerpt = pickKeyExcerpt(rec?.scoring);
   const leak = (sc.leakage_inputs as Record<string, number | null>) ?? {};
 
+  // Front-door honesty: reachability_speed / human_vs_barrier measure the phone
+  // tree / how the call was answered, which this analysis could not test. If
+  // either is Not assessed (null), note it in the scope/method line so the reader
+  // knows the grade reflects only what was measured. (No "recording" language —
+  // hard rule #1.)
+  const dimIn = (sc.dimension_inputs ?? {}) as Record<string, number | null>;
+  const FRONT_DOOR_KEYS = ["reachability_speed", "human_vs_barrier"];
+  const frontDoorNotAssessed = FRONT_DOOR_KEYS.some(
+    (k) => dimIn[k] === null || dimIn[k] === undefined,
+  );
+
   return (
     <div className="scorecard-wrap mx-auto max-w-[8.5in] bg-paper px-[0.75in] py-[0.6in] text-ink">
       {/* Scoped print CSS: one clean page, bank-statement margins. */}
@@ -128,6 +139,14 @@ export default async function ScorecardPrint({
       <section className="hair py-3 text-[12px] text-ink">
         <div className="eyebrow mb-1">Scope &amp; method</div>
         <p>{disc.scope}</p>
+        {frontDoorNotAssessed ? (
+          <p className="mt-1 text-[11px] text-muted">
+            The front door — reachability &amp; speed and how the call was answered — was not
+            assessed in this analysis, which examined the connected intake conversation. Those
+            dimensions are marked &ldquo;Not assessed&rdquo; and excluded from the grade, which
+            is normalized over the dimensions that were measured.
+          </p>
+        ) : null}
       </section>
 
       {/* 3) Observed sequence (facts, no interpretation) — the rubric read-out */}
@@ -143,13 +162,25 @@ export default async function ScorecardPrint({
           </thead>
           <tbody>
             {DIMENSIONS.map((d) => {
-              const v = (sc.dimension_inputs ?? {})[d.key] ?? 0;
+              const raw = (sc.dimension_inputs ?? {})[d.key];
+              const notAssessed = raw === null || raw === undefined;
+              const v = raw ?? 0;
               return (
                 <tr key={d.key} className="border-t border-hairline">
                   <td className="py-0.5">{d.label}</td>
                   <td className="py-0.5 text-right">{d.weight}</td>
                   <td className="py-0.5 text-right">
-                    {v === 100 ? "Good (100)" : v === 50 ? "Partial (50)" : "Poor (0)"}
+                    {notAssessed ? (
+                      <span className="text-faint" title="Not assessed — excluded from the score">
+                        Not assessed
+                      </span>
+                    ) : v === 100 ? (
+                      "Good (100)"
+                    ) : v === 50 ? (
+                      "Partial (50)"
+                    ) : (
+                      "Poor (0)"
+                    )}
                   </td>
                 </tr>
               );

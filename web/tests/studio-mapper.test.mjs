@@ -44,31 +44,36 @@ function strongScoring() {
 
 // --- Dimension mapping ------------------------------------------------------
 
-test("strong call maps to high dimensions and an A/B grade", () => {
+test("strong call maps to high conversation dims; front-door Not assessed → still A", () => {
   const { dimensionInputs, criticalFails } = mapEngineToScorecard(
     strongScoring(),
     "Thanks for calling, let me get some details about your accident.",
   );
-  assert.equal(dimensionInputs.reachability_speed, 100);
-  assert.equal(dimensionInputs.human_vs_barrier, 100);
+  // Front door is NOT assessed on a connected intake conversation (no genuine
+  // signal): null, not a defaulted 100.
+  assert.equal(dimensionInputs.reachability_speed, null);
+  assert.equal(dimensionInputs.human_vs_barrier, null);
   assert.equal(dimensionInputs.rapport_trauma, 100);
   assert.equal(dimensionInputs.legal_danger_flags, 100); // A2 = 100
   assert.equal(dimensionInputs.capture, 100); // A1 + E1 both 100
   assert.equal(dimensionInputs.follow_up, 100); // B2 specific
   assert.deepEqual(criticalFails, []);
   const spot = computeSpotCheck({ dimensionInputs, criticalFails });
+  // Renormalized over the 60-weight conversation remainder (front-door excluded).
   assert.equal(spot.score, 100);
   assert.equal(spot.grade, "A");
+  assert.equal(spot.assessedWeight, 60);
 });
 
-test("reachability downgrades on barrier cues in the transcript (DEFAULTED signal)", () => {
+test("reachability: no front-door signal -> Not assessed (null); real cues DO assess it", () => {
   const s = strongScoring();
   const one = mapEngineToScorecard(s, "Please hold while I connect you.");
-  assert.equal(one.dimensionInputs.reachability_speed, 50); // one cue -> partial
+  assert.equal(one.dimensionInputs.reachability_speed, 50); // one cue -> assessed partial
   const many = mapEngineToScorecard(s, "Please hold. Let me transfer you. Press 1 for English.");
-  assert.equal(many.dimensionInputs.reachability_speed, 0); // 2+ cues -> poor
+  assert.equal(many.dimensionInputs.reachability_speed, 0); // 2+ cues -> assessed poor
   const clean = mapEngineToScorecard(s, "Tell me what happened.");
-  assert.equal(clean.dimensionInputs.reachability_speed, 100); // no cues -> good
+  assert.equal(clean.dimensionInputs.reachability_speed, null); // no cues -> Not assessed
+  assert.equal(clean.dimensionInputs.human_vs_barrier, null); // shares the one signal
 });
 
 test("voicemail_or_no_contact means no human engaged -> reachability 0", () => {

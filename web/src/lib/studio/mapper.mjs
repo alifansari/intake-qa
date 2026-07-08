@@ -95,8 +95,11 @@ function hasCF(scoring, code, name) {
 // ---------------------------------------------------------------------------
 // Transcript cues used only where the engine does not directly score the phone
 // tree (reachability / human-vs-barrier). The engine scores the CONNECTED
-// conversation, not the IVR, so a recorded intake conversation means a human
-// engaged: default Good, downgraded only on explicit barrier cues in the text.
+// conversation, not the IVR/answer-speed, so an intake conversation carries NO
+// direct front-door signal. We therefore mark these dimensions "Not assessed"
+// (null) by DEFAULT, and only produce a real score when there is a genuine
+// signal: a voicemail/no-contact call_type, or explicit hold/transfer/IVR-
+// struggle cues in the transcript.
 // ---------------------------------------------------------------------------
 const BARRIER_CUES = [
   "please hold",
@@ -130,24 +133,25 @@ function barrierPressure(transcript) {
 // field(s) read and mark DEFAULTED where the engine lacks a real signal.
 // ---------------------------------------------------------------------------
 
-// reachability_speed & human_vs_barrier (DEFAULTED, cue-downgraded).
+// reachability_speed & human_vs_barrier — NOT ASSESSED by default.
 // The frozen engine scores the connected conversation, not the phone tree, so it
-// carries NO direct reachability/hold-time signal. A recorded intake CONVERSATION
-// is itself evidence a human engaged → default 100 (Good). We downgrade ONLY on
-// explicit hold/transfer/IVR-struggle cues in the transcript:
-//   0 barrier cues  -> 100 (human engaged, no friction seen)
-//   1 barrier cue   -> 50  (some friction: a hold or transfer happened)
-//   2+ barrier cues -> 0   (repeated barriers / IVR struggle)
-// Both dimensions share this signal (there is only one). This is the weakest-
-// evidence pair in the map — flagged as DEFAULTED for the founder to override.
+// carries NO direct reachability/answer-speed signal. An intake CONVERSATION does
+// not prove HOW the front door was answered (speed, phone tree, hold), so we do
+// NOT invent a "Good" default here — that would be dishonest on a printed
+// scorecard. We return `null` ("Not assessed") unless there is a genuine signal:
+//   voicemail_or_no_contact call_type -> 0   (no live human engaged)
+//   2+ barrier cues (hold/transfer/IVR) -> 0  (repeated front-door friction)
+//   1 barrier cue                      -> 50  (some friction: a hold/transfer)
+//   otherwise (no signal)              -> null (Not assessed; excluded & renormalized)
+// Both dimensions share this one signal.
 function mapReachability(scoring, transcript) {
-  // voicemail_or_no_contact means NO live human conversation occurred.
+  // voicemail_or_no_contact means NO live human conversation occurred (a real signal).
   const callType = str(obj(scoring).call_type);
   if (callType === "voicemail_or_no_contact") return 0;
   const cues = barrierPressure(transcript);
   if (cues >= 2) return 0;
   if (cues === 1) return 50;
-  return 100;
+  return null; // no genuine front-door signal -> Not assessed (renormalized out of the score)
 }
 
 // rapport_trauma — STRONGLY DERIVED from Category C (connection & empathy:

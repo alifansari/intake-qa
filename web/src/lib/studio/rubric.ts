@@ -16,7 +16,9 @@ export interface DimensionScore {
   key: string;
   label: string;
   weight: number;
-  input: number;
+  // null = "Not assessed": excluded from the score (not counted as 0).
+  input: number | null;
+  assessed: boolean;
   weighted: number;
 }
 export interface SpotCheckResult {
@@ -24,6 +26,8 @@ export interface SpotCheckResult {
   grade: string;
   rawScore: number;
   rawGrade: string;
+  // Sum of the weights of the assessed dimensions (the renormalization denominator).
+  assessedWeight: number;
   criticalFailTriggered: boolean;
   activeCriticalFails: string[];
   dimensionScores: DimensionScore[];
@@ -47,7 +51,7 @@ export const DEFAULT_ILLUSTRATIVE_MONTHLY_RECURRENCE: number =
 
 export const gradeForScore: (score: number) => string = impl.gradeForScore;
 export const computeSpotCheck: (input: {
-  dimensionInputs?: Record<string, number>;
+  dimensionInputs?: Record<string, number | null>;
   criticalFails?: string[];
 }) => SpotCheckResult = impl.computeSpotCheck;
 export const computeLeakage: (input: {

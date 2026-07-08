@@ -110,6 +110,121 @@ test("invalid dimension inputs are treated as 0", () => {
   assert.equal(r.score, 0); // 77 not in {0,50,100}; "100" is a string -> 0
 });
 
+// --- Not assessed (null) → excluded + renormalized --------------------------
+test("a null dimension is Not assessed: excluded from score, not counted as 0", () => {
+  // reachability_speed = null (not assessed). The other five are all 100.
+  // Old behavior would divide by 100 and dock 25 pts; renormalized it stays 100.
+  const r = computeSpotCheck({
+    dimensionInputs: {
+      reachability_speed: null,
+      human_vs_barrier: 100,
+      rapport_trauma: 100,
+      legal_danger_flags: 100,
+      capture: 100,
+      follow_up: 100,
+    },
+  });
+  assert.equal(r.score, 100); // 75/75 * 100, NOT 75/100
+  assert.equal(r.grade, "A");
+  assert.equal(r.assessedWeight, 75); // reachability's 25 dropped from the denominator
+  const reach = r.dimensionScores.find((d) => d.key === "reachability_speed");
+  assert.equal(reach.assessed, false);
+  assert.equal(reach.input, null);
+  assert.equal(reach.weighted, 0);
+});
+
+test("both front-door dims Not assessed: strong conversation scores on the 60-weight remainder, normalized to 100", () => {
+  // reachability_speed (w25) + human_vs_barrier (w15) Not assessed (null). The four
+  // conversation dims (rapport/legal/capture/follow_up = 15+15+15+15 = 60) all 100.
+  // Score renormalizes over the 60-weight remainder: 60/60 * 100 = 100.
+  const r = computeSpotCheck({
+    dimensionInputs: {
+      reachability_speed: null,
+      human_vs_barrier: null,
+      rapport_trauma: 100,
+      legal_danger_flags: 100,
+      capture: 100,
+      follow_up: 100,
+    },
+  });
+  assert.equal(r.score, 100);
+  assert.equal(r.grade, "A");
+  assert.equal(r.assessedWeight, 60);
+  const reach = r.dimensionScores.find((d) => d.key === "reachability_speed");
+  const human = r.dimensionScores.find((d) => d.key === "human_vs_barrier");
+  assert.equal(reach.assessed, false);
+  assert.equal(human.assessed, false);
+});
+
+test("renormalization: front-door Not assessed, conversation mixed → weighted mean of the remainder", () => {
+  // Both front-door Not assessed. Conversation: rapport 100, legal 100, capture 50,
+  // follow_up 0. Weighted = 15+15+7.5+0 = 37.5 over 60 → 62.5 → round 63 → D.
+  const r = computeSpotCheck({
+    dimensionInputs: {
+      reachability_speed: null,
+      human_vs_barrier: null,
+      rapport_trauma: 100,
+      legal_danger_flags: 100,
+      capture: 50,
+      follow_up: 0,
+    },
+  });
+  assert.equal(r.score, 63);
+  assert.equal(r.grade, "D");
+});
+
+test("all dimensions Not assessed → guard yields score 0 (divide-by-zero safe)", () => {
+  const allNull = Object.fromEntries(DIMENSIONS.map((d) => [d.key, null]));
+  const r = computeSpotCheck({ dimensionInputs: allNull });
+  assert.equal(r.assessedWeight, 0);
+  assert.equal(r.score, 0);
+  assert.equal(r.grade, "F");
+});
+
+test("Not assessed (null) is distinct from Poor (0): 0 IS counted, null is NOT", () => {
+  // One dim at 0 (assessed Poor) vs. null (not assessed) — different denominators.
+  const withZero = computeSpotCheck({
+    dimensionInputs: {
+      reachability_speed: 0, // assessed Poor
+      human_vs_barrier: 100,
+      rapport_trauma: 100,
+      legal_danger_flags: 100,
+      capture: 100,
+      follow_up: 100,
+    },
+  });
+  // 75/100 * 100 = 75 (the 0 drags the mean down).
+  assert.equal(withZero.score, 75);
+  const withNull = computeSpotCheck({
+    dimensionInputs: {
+      reachability_speed: null, // NOT assessed
+      human_vs_barrier: 100,
+      rapport_trauma: 100,
+      legal_danger_flags: 100,
+      capture: 100,
+      follow_up: 100,
+    },
+  });
+  assert.equal(withNull.score, 100); // 75/75 * 100 = 100
+});
+
+test("critical-fail override still caps at F even with Not-assessed dims", () => {
+  const r = computeSpotCheck({
+    dimensionInputs: {
+      reachability_speed: null,
+      human_vs_barrier: null,
+      rapport_trauma: 100,
+      legal_danger_flags: 100,
+      capture: 100,
+      follow_up: 100,
+    },
+    criticalFails: ["non_lawyer_legal_opinion"],
+  });
+  assert.equal(r.score, 100); // numeric score shown as-is
+  assert.equal(r.grade, "F"); // capped at F
+  assert.equal(r.rawGrade, "A");
+});
+
 // --- Critical-fail override -------------------------------------------------
 test("critical fail caps grade at F even with a perfect score", () => {
   const inputs = Object.fromEntries(DIMENSIONS.map((d) => [d.key, 100]));

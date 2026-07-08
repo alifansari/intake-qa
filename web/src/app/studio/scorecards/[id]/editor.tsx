@@ -19,6 +19,10 @@ const LEVELS = [
   { v: 0, label: "Poor" },
 ];
 
+// "Not assessed": the dimension is stored as null and excluded from the score
+// (renormalized out) — distinct from Poor (0). The founder can override.
+const NOT_ASSESSED = "N/A" as const;
+
 export function ScorecardEditor({
   initial,
   firmName,
@@ -31,8 +35,9 @@ export function ScorecardEditor({
   const router = useRouter();
   const locked = initial.status === "final";
 
-  const [dims, setDims] = React.useState<Record<string, number>>(
-    initial.dimension_inputs ?? {},
+  // A dimension value may be a level (0/50/100) or null ("Not assessed").
+  const [dims, setDims] = React.useState<Record<string, number | null>>(
+    (initial.dimension_inputs as Record<string, number | null>) ?? {},
   );
   const [fails, setFails] = React.useState<string[]>(initial.critical_fails ?? []);
   const [notes, setNotes] = React.useState(initial.notes ?? "");
@@ -63,7 +68,7 @@ export function ScorecardEditor({
     illustrativeMonthlyRecurrence: recurrence.trim() === "" ? 1 : Number(recurrence),
   });
 
-  function setDim(key: string, v: number) {
+  function setDim(key: string, v: number | null) {
     if (locked) return;
     setDims((d) => ({ ...d, [key]: v }));
   }
@@ -193,31 +198,55 @@ export function ScorecardEditor({
         <CardContent className="py-5">
           <h2 className="eyebrow mb-4">Rubric dimensions (auto-derived — edit to override)</h2>
           <div className="flex flex-col gap-3">
-            {DIMENSIONS.map((d) => (
-              <div key={d.key} className="flex items-center justify-between gap-3">
-                <div className="text-sm text-ink">
-                  {d.label} <span className="text-xs text-faint">w{d.weight}</span>
-                </div>
-                <div className="flex gap-1">
-                  {LEVELS.map((l) => (
+            {DIMENSIONS.map((d) => {
+              const raw = dims[d.key];
+              const notAssessed = raw === null;
+              return (
+                <div key={d.key} className="flex items-center justify-between gap-3">
+                  <div className="text-sm text-ink">
+                    {d.label} <span className="text-xs text-faint">w{d.weight}</span>
+                    {notAssessed ? (
+                      <span className="ml-2 text-xs italic text-faint">
+                        Not assessed — excluded from the score
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="flex gap-1">
+                    {LEVELS.map((l) => (
+                      <button
+                        key={l.v}
+                        type="button"
+                        disabled={locked}
+                        onClick={() => setDim(d.key, l.v)}
+                        className={[
+                          "rounded-sm border px-2 py-1 text-xs",
+                          !notAssessed && (raw ?? 0) === l.v
+                            ? "border-accent bg-accent-tint text-accent"
+                            : "border-line-strong bg-paper text-muted hover:text-ink",
+                        ].join(" ")}
+                      >
+                        {l.label}
+                      </button>
+                    ))}
+                    {/* Not-assessed: excluded from the weighted total (renormalized out). */}
                     <button
-                      key={l.v}
                       type="button"
                       disabled={locked}
-                      onClick={() => setDim(d.key, l.v)}
+                      onClick={() => setDim(d.key, null)}
+                      title="Not assessed — excluded from the score and renormalized out"
                       className={[
                         "rounded-sm border px-2 py-1 text-xs",
-                        (dims[d.key] ?? 0) === l.v
+                        notAssessed
                           ? "border-accent bg-accent-tint text-accent"
-                          : "border-line-strong bg-paper text-muted hover:text-ink",
+                          : "border-line-strong bg-paper text-faint hover:text-ink",
                       ].join(" ")}
                     >
-                      {l.label}
+                      {NOT_ASSESSED}
                     </button>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>

@@ -15,7 +15,7 @@ import {
 // Recompute the deterministic score/grade/leakage from the founder's inputs. This
 // is what gets persisted — always from the rubric, never from the LLM.
 export function recomputeDeterministic(input: {
-  dimensionInputs?: Record<string, number>;
+  dimensionInputs?: Record<string, number | null>;
   criticalFails?: string[];
   averageSignedCaseFee?: number | null;
   illustrativeMonthlyRecurrence?: number | null;
