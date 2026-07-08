@@ -9,14 +9,18 @@
 export function disclosures(callsAnalyzed) {
   const n = Math.max(0, Math.floor(Number(callsAnalyzed) || 0));
   const callWord = n === 1 ? "call" : "calls";
+  // NOTE (hard rule #1): the AUDIT OUTPUT never uses "recording"/"recorded call"
+  // language. Say "the intake call" / "the intake interaction". The consent
+  // attestation on the UPLOAD step (lib/studio/consent.ts) is the legal gate and
+  // is deliberately unchanged — it is not part of the audit output.
   const scope =
     n === 1
-      ? "Scope & method: This is a spot check based on a single recorded intake " +
-        "call the firm supplied. One call is not a representative, firm-wide " +
-        "measurement of intake performance; it is an illustrative sample."
-      : `Scope & method: This is a spot check based on ${n} recorded intake ${callWord} ` +
-        "the firm supplied. A spot check of this size is not a representative, " +
-        "firm-wide measurement of intake performance; it is an illustrative sample.";
+      ? "Scope & method: This is a spot check based on a single intake call the firm " +
+        "supplied. One call is not a representative, firm-wide measurement of intake " +
+        "performance; it is an illustrative sample."
+      : `Scope & method: This is a spot check based on ${n} intake ${callWord} the firm ` +
+        "supplied. A spot check of this size is not a representative, firm-wide " +
+        "measurement of intake performance; it is an illustrative sample.";
 
   return {
     scope,

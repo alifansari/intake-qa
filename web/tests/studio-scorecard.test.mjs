@@ -18,14 +18,22 @@ test("disclosures always includes all four non-deletable statements", () => {
 
 test("scope for 1 call says 'single' and 'not representative'", () => {
   const d = disclosures(1);
-  assert.match(d.scope, /single recorded intake call/);
+  assert.match(d.scope, /single intake call/);
   assert.match(d.scope, /not a representative, firm-wide/);
 });
 
 test("scope for N>1 calls states the actual number dynamically", () => {
   const d = disclosures(4);
-  assert.match(d.scope, /4 recorded intake calls/);
+  assert.match(d.scope, /4 intake calls/);
   assert.doesNotMatch(d.scope, /\bn=1\b/); // never the hardcoded n=1
+});
+
+// Hard rule #1: the audit output never uses "recording"/"recorded" language.
+test("disclosures scope contains no recording/recorded language (hard rule #1)", () => {
+  for (const n of [1, 2, 5]) {
+    const d = disclosures(n);
+    assert.doesNotMatch(d.scope, /record(ed|ing)/i);
+  }
 });
 
 test("independence + flat-fee statements are outcome-neutral (compliance)", () => {

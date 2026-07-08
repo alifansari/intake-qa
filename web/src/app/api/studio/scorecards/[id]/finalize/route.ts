@@ -1,7 +1,10 @@
 // POST /api/studio/scorecards/[id]/finalize — founder-only. Locks the scorecard:
-// draft -> final, sets finalized_at + ref_code. HARD GATE: refuses unless the AI
-// narrative has been human-reviewed (narrative_reviewed = true) AND both narrative
-// fields exist. The DB CHECK enforces the review gate too (belt and suspenders).
+// draft -> final, sets finalized_at + ref_code. The scorecard is AUTO-BUILT from
+// the engine analysis (dimensions/critical-fails/leakage/narrative all derived),
+// and auto-generation sets narrative_reviewed = true — so this gate is satisfied
+// with NO manual click on the default path. If the founder EDITS the narrative,
+// the review flag resets and they must re-approve before finalizing (the DB CHECK
+// `status <> 'final' or narrative_reviewed = true` enforces this at the DB layer).
 import { requireFounderRoute } from "@/lib/studio/guard";
 import { getSpotCheck, updateSpotCheck } from "@/lib/studio/data";
 import { generateRefCode } from "@/lib/studio/scorecard";
@@ -37,7 +40,11 @@ export async function POST(
   }
   if (sc.computed_score == null || !sc.computed_grade) {
     return Response.json(
-      { error: "score_incomplete", message: "Fill in the rubric inputs first." },
+      {
+        error: "score_incomplete",
+        message:
+          "The score hasn't been derived yet — open the scorecard so it builds from the intake-call analysis, then finalize.",
+      },
       { status: 409 },
     );
   }

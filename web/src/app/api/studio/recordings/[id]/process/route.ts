@@ -5,7 +5,11 @@
 // function stays alive through transcription/scoring; the recording page polls.
 import { unlink } from "node:fs/promises";
 import { requireFounderRoute } from "@/lib/studio/guard";
-import { getRecording, setRecordingTranscriptAndScoring } from "@/lib/studio/data";
+import {
+  getRecording,
+  setRecordingTranscriptAndScoring,
+  autoPopulateSpotCheckForRecording,
+} from "@/lib/studio/data";
 import {
   isStudioStorageConfigured,
   downloadStudioAudio,
@@ -52,6 +56,17 @@ export async function POST(
     });
 
     await setRecordingTranscriptAndScoring(gate.supabase, recording.id, transcript, scoring);
+
+    // If a scorecard is already linked to this recording, BUILD IT NOW from the
+    // engine analysis (auto-derive dimensions/critical-fails/leakage/narrative).
+    // Best-effort — a failure here must not fail the processing response.
+    try {
+      const fresh = await getRecording(gate.supabase, recording.id);
+      if (fresh) await autoPopulateSpotCheckForRecording(gate.supabase, fresh);
+    } catch {
+      /* auto-population is best-effort; the scorecard editor can still derive on open */
+    }
+
     return Response.json({ ok: true, status: "done" });
   } catch {
     // Generic client message; the founder can retry from the recording page.
