@@ -133,6 +133,103 @@ export async function listRecordingsForFirm(
   return (data ?? []) as StudioRecording[];
 }
 
+// --- Spot checks (scorecards) ----------------------------------------------
+
+export interface SpotCheck {
+  id: string;
+  firm_id: string;
+  tested_at: string | null;
+  scenario_key: string | null;
+  touchpoints: unknown;
+  dimension_inputs: Record<string, number>;
+  critical_fails: string[];
+  notes: string | null;
+  computed_score: number | null;
+  computed_grade: string | null;
+  dimension_scores: unknown;
+  leakage_inputs: unknown;
+  leakage_single_case: number | null;
+  leakage_illustrative_annual: number | null;
+  narrative_failure: string | null;
+  narrative_fix: string | null;
+  narrative_reviewed: boolean;
+  status: "draft" | "final";
+  finalized_at: string | null;
+  ref_code: string | null;
+  created_at: string;
+}
+
+const SPOT_CHECK_COLS =
+  "id,firm_id,tested_at,scenario_key,touchpoints,dimension_inputs,critical_fails,notes," +
+  "computed_score,computed_grade,dimension_scores,leakage_inputs,leakage_single_case," +
+  "leakage_illustrative_annual,narrative_failure,narrative_fix,narrative_reviewed," +
+  "status,finalized_at,ref_code,created_at";
+
+export async function createSpotCheck(
+  supabase: SupabaseClient,
+  input: { firm_id: string; recording_id?: string | null },
+): Promise<SpotCheck> {
+  const { data, error } = await supabase
+    .from("studio_spot_checks")
+    .insert({ firm_id: input.firm_id, tested_at: new Date().toISOString() })
+    .select(SPOT_CHECK_COLS)
+    .single();
+  if (error) throw new Error(error.message);
+  const sc = data as unknown as SpotCheck;
+  // Link the source recording to this spot check (best-effort; RLS-scoped).
+  if (input.recording_id) {
+    await supabase
+      .from("studio_recordings")
+      .update({ spot_check_id: sc.id })
+      .eq("id", input.recording_id);
+  }
+  return sc;
+}
+
+export async function getSpotCheck(
+  supabase: SupabaseClient,
+  id: string,
+): Promise<SpotCheck | null> {
+  const { data, error } = await supabase
+    .from("studio_spot_checks")
+    .select(SPOT_CHECK_COLS)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as unknown as SpotCheck) ?? null;
+}
+
+export async function updateSpotCheck(
+  supabase: SupabaseClient,
+  id: string,
+  patch: Partial<SpotCheck>,
+): Promise<SpotCheck> {
+  const { data, error } = await supabase
+    .from("studio_spot_checks")
+    .update(patch as never)
+    .eq("id", id)
+    .select(SPOT_CHECK_COLS)
+    .single();
+  if (error) throw new Error(error.message);
+  return data as unknown as SpotCheck;
+}
+
+// The recording (transcript/scoring) attached to a spot check, if any.
+export async function getRecordingForSpotCheck(
+  supabase: SupabaseClient,
+  spotCheckId: string,
+): Promise<StudioRecording | null> {
+  const { data, error } = await supabase
+    .from("studio_recordings")
+    .select("*")
+    .eq("spot_check_id", spotCheckId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as StudioRecording) ?? null;
+}
+
 export async function setRecordingTranscriptAndScoring(
   supabase: SupabaseClient,
   id: string,
