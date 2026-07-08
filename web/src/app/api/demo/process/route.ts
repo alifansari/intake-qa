@@ -7,7 +7,7 @@
 
 import { z } from "zod";
 import { unlink } from "node:fs/promises";
-import { openPipelineDb, closePipelineDb, getDemoCall } from "../../../../../ingest/store.mjs";
+import { openPipelineDb, closePipelineDb, getDemoCall, logError } from "../../../../../ingest/store.mjs";
 import { runDemoPipeline } from "../../../../../ingest/demo.mjs";
 import {
   isDemoStorageConfigured,
@@ -61,8 +61,13 @@ export async function POST(req: Request) {
     const res = await runDemoPipeline({ db, demoCallId: row.id, audioPath, onAudioProcessed });
     return Response.json({ ok: res.ok !== false, error: res.error ?? null }, { status: 200 });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "processing failed";
-    return Response.json({ error: message }, { status: 500 });
+    // P1(c): generic client message; details logged server-side only.
+    await logError(db, {
+      source: "api.demo.process",
+      message: err instanceof Error ? err.message : "processing failed",
+      firm_id: null,
+    }).catch(() => {});
+    return Response.json({ error: "processing failed" }, { status: 500 });
   } finally {
     await closePipelineDb(db).catch(() => {});
   }

@@ -39,6 +39,27 @@ export const scorePipeline = inngest.createFunction(
   },
 );
 
+// P0-1 FALLBACK: a scheduled sweep that scores any un-scored calls across all
+// firms. The webhook emits `intakeqa/call.received` on ingest (the fast path);
+// this cron is the safety net so a dropped event, an Inngest outage during
+// ingest, or a call ingested by some other path (manual upload, backfill) still
+// gets scored. scoreUnscored is idempotent — it only touches calls that have no
+// flag yet — so running this alongside the event trigger can never double-score.
+// Runs every 15 minutes.
+export const scheduledScoreSweep = inngest.createFunction(
+  { id: "scheduled-score-sweep", retries: 2, triggers: [{ cron: "*/15 * * * *" }] },
+  async ({ step }) => {
+    return step.run("score-unscored-all-firms", async () =>
+      withDb(async (db) => {
+        const { scoreUnscored } = await import("../ingest/score-worker.mjs");
+        // firmId null => all firms' un-scored calls.
+        const results = await scoreUnscored({ db, firmId: null });
+        return { processed: Array.isArray(results) ? results.length : 0 };
+      }),
+    );
+  },
+);
+
 // Retention: purge demo calls past their window and expired audit sessions. Daily,
 // idempotent. This is the durable side of the 7-day/72h deletion promise.
 export const retentionPurge = inngest.createFunction(
@@ -53,7 +74,21 @@ export const retentionPurge = inngest.createFunction(
     const audits = await step.run("purge-audit-sessions", async () =>
       withDb((db, store) => store.purgeExpiredAuditSessions(db, new Date().toISOString())),
     );
-    return { demo, audits };
+    // P0-3: enforce DATA_RETENTION_DAYS on REAL firm data (calls transcripts +
+    // recording_url, outbound message bodies). This honors the DPA / CLAUDE.md
+    // §(h) retention promise on production data, not just the demo purge above.
+    // Idempotent: already-purged rows are skipped (transcript already null).
+    const retention = await step.run("purge-expired-calls", async () =>
+      withDb(async (db, store) => {
+        const days = Number(process.env.DATA_RETENTION_DAYS ?? 90);
+        if (!Number.isFinite(days) || days <= 0) {
+          return { skipped: true, reason: "retention_disabled" };
+        }
+        const beforeIso = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
+        return store.purgeExpiredCalls(db, beforeIso);
+      }),
+    );
+    return { demo, audits, retention };
   },
 );
 
@@ -77,4 +112,4 @@ export const dailyDigest = inngest.createFunction(
   },
 );
 
-export const functions = [scorePipeline, retentionPurge, dailyDigest];
+export const functions = [scorePipeline, scheduledScoreSweep, retentionPurge, dailyDigest];

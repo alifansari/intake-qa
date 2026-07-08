@@ -838,6 +838,7 @@ export function upsertFirmBilling(db, cfg) {
     status = "trialing",
     billing_anchor_day = 1,
     stripe_customer_id = null,
+    stripe_subscription_id = null,
     guarantee_type = "none",
     guarantee_threshold_cents = null,
     guarantee_deadline = null,
@@ -845,13 +846,14 @@ export function upsertFirmBilling(db, cfg) {
   db.prepare(
     `INSERT INTO firm_billing
        (firm_id, plan_id, status, billing_anchor_day, stripe_customer_id,
-        guarantee_type, guarantee_threshold_cents, guarantee_deadline)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        stripe_subscription_id, guarantee_type, guarantee_threshold_cents, guarantee_deadline)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT (firm_id) DO UPDATE SET
        plan_id = excluded.plan_id,
        status = excluded.status,
        billing_anchor_day = excluded.billing_anchor_day,
        stripe_customer_id = excluded.stripe_customer_id,
+       stripe_subscription_id = excluded.stripe_subscription_id,
        guarantee_type = excluded.guarantee_type,
        guarantee_threshold_cents = excluded.guarantee_threshold_cents,
        guarantee_deadline = excluded.guarantee_deadline`
@@ -861,11 +863,36 @@ export function upsertFirmBilling(db, cfg) {
     status,
     billing_anchor_day,
     stripe_customer_id,
+    stripe_subscription_id,
     guarantee_type,
     guarantee_threshold_cents,
     guarantee_deadline
   );
   return getFirmBilling(db, firm_id);
+}
+
+// Set ONLY the lifecycle status on a firm's billing row (e.g. pause on a failed
+// payment / past_due). Leaves stripe ids and plan untouched. Returns the row.
+export function setFirmBillingStatus(db, firmId, status) {
+  db.prepare(`UPDATE firm_billing SET status = ? WHERE firm_id = ?`).run(status, firmId);
+  return getFirmBilling(db, firmId);
+}
+
+// Find a firm's billing row by its Stripe subscription id (for lifecycle webhook
+// events that only carry the subscription). Returns the joined row or undefined.
+export function getFirmBillingBySubscription(db, subscriptionId) {
+  return db
+    .prepare(
+      `SELECT fb.*, p.name AS plan_name, p.base_monthly_cents
+         FROM firm_billing fb JOIN billing_plans p ON p.id = fb.plan_id
+        WHERE fb.stripe_subscription_id = ?`
+    )
+    .get(subscriptionId);
+}
+
+// Find a firm by exact name (idempotent firm matching in the checkout webhook).
+export function getFirmByName(db, name) {
+  return db.prepare("SELECT * FROM firms WHERE name = ?").get(name);
 }
 
 // Accrue ONE billable event for a signed outcome (idempotent on outcome_id).
@@ -941,6 +968,16 @@ export function createInvoice(db, { firm_id, period, total_cents = 0, status = "
     )
     .run(firm_id, period, total_cents, status);
   return Number(info.lastInsertRowid);
+}
+
+// P0-4b: the live (non-void) invoice for a firm+period, if any. Used to make
+// invoice generation idempotent (one invoice per firm per period).
+export function getInvoiceByFirmPeriod(db, firmId, period) {
+  return db
+    .prepare(
+      "SELECT * FROM invoices WHERE firm_id = ? AND period = ? AND status <> 'void' ORDER BY id DESC LIMIT 1"
+    )
+    .get(firmId, period);
 }
 
 export function addInvoiceLine(db, line) {
@@ -1294,4 +1331,58 @@ export function listReviewableSessions(db) {
       "SELECT id, token, email, report_status, created_at FROM audit_sessions WHERE report_status IN ('draft','analyst_review') ORDER BY created_at DESC LIMIT 100"
     )
     .all();
+}
+
+// P0-2 — consent log. Write a ConsentEvent before any consent-relevant workflow
+// (e.g. the Live Coach opening the mic). firm_id/conversation_id may be null in
+// the single-tenant pilot; `basis` is required (non-empty).
+export function createConsentEvent(db, { firm_id = null, conversation_id = null, basis, detail = null, actor = null }) {
+  const info = db
+    .prepare(
+      `INSERT INTO consent_events (firm_id, conversation_id, basis, detail, actor)
+       VALUES (?, ?, ?, ?, ?)`
+    )
+    .run(firm_id, conversation_id, basis, detail, actor);
+  return Number(info.lastInsertRowid);
+}
+
+// P0-4a — Stripe webhook idempotency. Returns true if this event_id was recorded
+// for the FIRST time (caller should process it), false if it was already seen
+// (caller should ack without dispatching). Atomic via the PRIMARY KEY.
+export function recordStripeEventProcessed(db, eventId, eventType = null) {
+  const info = db
+    .prepare(
+      "INSERT OR IGNORE INTO processed_stripe_events (event_id, event_type) VALUES (?, ?)"
+    )
+    .run(eventId, eventType);
+  return Number(info.changes ?? 0) > 0; // true => newly inserted (not a replay)
+}
+
+// P0-3 / CLAUDE.md §(h): purge confidential content from REAL firm data once it
+// is past the retention window. Nulls `transcript` + `recording_url` on `calls`
+// received before `beforeIso`, and nulls the `body` of outbound/inbound messages
+// created before `beforeIso` (stamping `purged_at` so the log row survives — a
+// message is NEVER hard-deleted, only its confidential body is scrubbed).
+// Idempotent: rows already purged (content already null) are skipped, so the
+// returned count reflects only rows actually scrubbed this run.
+export function purgeExpiredCalls(db, beforeIso) {
+  const calls = db
+    .prepare(
+      `UPDATE calls
+          SET transcript = NULL, recording_url = NULL
+        WHERE received_at < ?
+          AND (transcript IS NOT NULL OR recording_url IS NOT NULL)`
+    )
+    .run(beforeIso);
+  const messages = db
+    .prepare(
+      `UPDATE messages
+          SET body = NULL, purged_at = ?
+        WHERE created_at < ? AND body IS NOT NULL`
+    )
+    .run(beforeIso, beforeIso);
+  return {
+    calls: Number(calls.changes ?? 0),
+    messages: Number(messages.changes ?? 0),
+  };
 }

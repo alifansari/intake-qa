@@ -21,6 +21,8 @@ import {
   getFirm,
   createConversation,
   createDraftMessage,
+  setCallStatus,
+  logError,
 } from "./store.mjs";
 import { evaluateFlag } from "../messaging/flag-logic.mjs";
 import { draftFirstMessage } from "../messaging/draft.mjs";
@@ -74,6 +76,10 @@ export async function scoreUnscored({
   const results = [];
 
   for (const call of calls) {
+    // P1(a): one poison call (bad transcript, scorer throw, draft failure) must
+    // never abort the whole batch. Isolate each iteration: on failure, mark the
+    // call failed with a reason, log it, and continue with the next call.
+    try {
     const firm = await getFirm(db, call.firm_id);
     const windowHours = firm?.reengage_window_hours ?? 72;
 
@@ -138,6 +144,17 @@ export async function scoreUnscored({
       conversation_id: conversationId,
       message_id: messageId,
     });
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err);
+      await setCallStatus(db, call.id, "failed_scoring", reason).catch(() => {});
+      await logError(db, {
+        source: "score-worker.scoreUnscored",
+        message: `call ${call.id} failed to score: ${reason}`,
+        firm_id: call.firm_id ?? null,
+      }).catch(() => {});
+      results.push({ call_id: call.id, error: reason, failed: true });
+      // continue with the next call — never abort the batch.
+    }
   }
   return results;
 }

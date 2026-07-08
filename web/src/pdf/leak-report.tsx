@@ -9,6 +9,10 @@ import { DocPage, S, COLORS } from "./shared";
 import { ANALYST } from "../lib/analyst.mjs";
 
 // Shape of the composed document model (from src/lib/leak-report/compose.mjs).
+// A structured transcript line for the deposition-style excerpt (P1). When the
+// excerpt is a plain string we fall back to line-numbered rendering.
+type ExcerptLine = { speaker: string; ts: string; text: string; isLeakMoment?: boolean };
+
 type Exhibit = {
   n: number;
   initials: string;
@@ -17,8 +21,10 @@ type Exhibit = {
   callDate: string;
   channel: string;
   qualifyingFacts: { text: string; cite: string }[];
-  excerpt: string | null;
+  excerpt: string | ExcerptLine[] | null;
   feeRange: string;
+  feeDerivation?: string | null;
+  confidence?: string;
   badge: string;
   tag: string;
   tagDef: string;
@@ -33,6 +39,8 @@ type Model = {
     count: number;
     feeRange: string;
     recoverable: number;
+    split?: { strong: number; moderate: number; expired: number };
+    threeActions?: string[];
     verdict: string;
     nextAction: string | null;
   };
@@ -50,6 +58,7 @@ type Model = {
   guarantee: string;
   methodology: string;
   signoff: string;
+  falseAlarmLine?: string;
 };
 
 // Grayscale-survivable urgency badge: encoded by SHAPE + LABEL, never color alone.
@@ -64,20 +73,42 @@ function Badge({ band }: { band: string }) {
   return <Text style={{ ...base, color: COLORS.muted }}>OK</Text>;
 }
 
-// Deposition-style transcript block: monospace, numbered lines in a left gutter.
-function TranscriptExcerpt({ excerpt }: { excerpt: string }) {
-  const lines = excerpt.split("\n");
+// Grayscale-safe confidence tier chip: encoded by SHAPE + LABEL, never color alone
+// (P1). Strong = filled square; moderate = outlined dot.
+function ConfidenceChip({ tier }: { tier?: string }) {
+  const base = { fontSize: 7, fontFamily: "Helvetica", paddingHorizontal: 3, paddingVertical: 1 } as const;
+  if (tier === "moderate")
+    return <Text style={{ ...base, color: COLORS.muted, borderWidth: 0.5, borderColor: COLORS.muted }}>◇ MODERATE</Text>;
+  return <Text style={{ ...base, color: COLORS.ink, borderWidth: 1, borderColor: COLORS.ink }}>◆ STRONG</Text>;
+}
+
+// Deposition-style transcript block. Two modes:
+//  - structured ({speaker, ts, text, isLeakMoment}[]): timestamp in the gutter,
+//    speaker + text in the body, the leak moment bolded (P1).
+//  - plain string: monospace, line-numbered fallback.
+function TranscriptExcerpt({ excerpt }: { excerpt: string | ExcerptLine[] }) {
+  const structured = Array.isArray(excerpt);
   return (
     <View style={{ marginTop: 4, borderLeftWidth: 1.5, borderLeftColor: COLORS.rule, paddingLeft: 6 }} wrap={false}>
       <Text style={{ ...S.faint, marginBottom: 2 }}>Excerpt (internal use; redacted: surname to initial; phone/address/DOB removed).</Text>
-      {lines.map((ln, i) => (
-        <View key={i} style={{ flexDirection: "row" }}>
-          <Text style={{ fontFamily: "Courier", fontSize: 8, color: COLORS.faint, width: 20 }}>
-            {String(i + 1).padStart(2, "0")}
-          </Text>
-          <Text style={{ fontFamily: "Courier", fontSize: 8, color: COLORS.ink, flex: 1 }}>{ln}</Text>
-        </View>
-      ))}
+      {structured
+        ? (excerpt as ExcerptLine[]).map((ln, i) => (
+            <View key={i} style={{ flexDirection: "row" }}>
+              <Text style={{ fontFamily: "Courier", fontSize: 8, color: COLORS.faint, width: 40 }}>{ln.ts}</Text>
+              <Text style={{ fontFamily: "Courier", fontSize: 8, color: COLORS.ink, flex: 1 }}>
+                <Text style={{ color: COLORS.muted }}>{ln.speaker}: </Text>
+                <Text style={ln.isLeakMoment ? { fontFamily: "Courier-Bold", color: COLORS.ink } : {}}>{ln.text}</Text>
+              </Text>
+            </View>
+          ))
+        : (excerpt as string).split("\n").map((ln, i) => (
+            <View key={i} style={{ flexDirection: "row" }}>
+              <Text style={{ fontFamily: "Courier", fontSize: 8, color: COLORS.faint, width: 20 }}>
+                {String(i + 1).padStart(2, "0")}
+              </Text>
+              <Text style={{ fontFamily: "Courier", fontSize: 8, color: COLORS.ink, flex: 1 }}>{ln}</Text>
+            </View>
+          ))}
     </View>
   );
 }
@@ -121,9 +152,27 @@ export function LeakReportDoc({ model }: { model: Model }) {
             <Text style={{ width: "70%", color: COLORS.muted }}>{m.pageOne.labels.recoverable}</Text>
             <Text style={{ width: "30%", ...S.cellNum }}>{m.pageOne.recoverable}</Text>
           </View>
+          {m.pageOne.split ? (
+            <Text style={{ ...S.faint, marginTop: 2 }}>
+              {m.pageOne.split.strong} strong (counted) · {m.pageOne.split.moderate} moderate (excluded from totals)
+              {m.pageOne.split.expired ? ` · ${m.pageOne.split.expired} expired (excluded)` : ""}
+            </Text>
+          ) : null}
           <Text style={{ ...S.p, marginTop: 8 }}>{m.pageOne.verdict}</Text>
           {m.pageOne.nextAction ? <Text style={{ ...S.p, fontFamily: "Times-Roman" }}>{m.pageOne.nextAction}</Text> : null}
         </View>
+
+        {/* Dated 3-action box (P1) */}
+        {m.pageOne.threeActions && m.pageOne.threeActions.length ? (
+          <View style={{ ...S.section, borderWidth: 0.8, borderColor: COLORS.ink, padding: 10 }} wrap={false}>
+            <Text style={{ ...S.h2, marginBottom: 4 }}>Do these 3 things this week</Text>
+            {m.pageOne.threeActions.map((a, i) => (
+              <Text key={i} style={{ fontSize: 9, marginBottom: 3 }}>
+                {i + 1}. {a}
+              </Text>
+            ))}
+          </View>
+        ) : null}
 
         {/* Scope & method */}
         <View style={S.section} wrap={false}>
@@ -136,19 +185,27 @@ export function LeakReportDoc({ model }: { model: Model }) {
           <Text style={S.h2}>Leaked-case exhibits</Text>
           {m.exhibits.map((e) => (
             <View key={e.n} style={{ marginBottom: 12 }} wrap={false}>
-              <View style={{ ...S.row, justifyContent: "space-between" }}>
-                <Text style={{ fontSize: 10, fontFamily: "Times-Roman" }}>
+              <View style={{ ...S.row, justifyContent: "space-between", alignItems: "center" }}>
+                <Text style={{ fontSize: 10, fontFamily: "Times-Roman", flex: 1 }}>
                   Exhibit {e.n}: {e.caseType} · {e.initials} {e.displayId} · {e.callDate} · {e.channel}
                 </Text>
-                <Badge band={e.badge} />
+                <View style={{ flexDirection: "row", gap: 4 }}>
+                  <ConfidenceChip tier={e.confidence} />
+                  <Badge band={e.badge} />
+                </View>
               </View>
               {e.qualifyingFacts.map((f, i) => (
                 <Text key={i} style={{ fontSize: 8.5, color: COLORS.muted, marginLeft: 8 }}>• {f.text} {f.cite}</Text>
               ))}
               {e.excerpt ? <TranscriptExcerpt excerpt={e.excerpt} /> : null}
-              <View style={{ ...S.row, marginTop: 4 }}>
-                <Text style={{ width: "45%", fontSize: 8.5 }}>Estimated fee value: {e.feeRange}¹</Text>
-                <Text style={{ width: "55%", fontSize: 8.5, color: COLORS.muted }}>Moment of leak: {e.tag}</Text>
+              {/* Per-exhibit fee derivation — the one-line arithmetic (P0-C). */}
+              {e.feeDerivation ? (
+                <Text style={{ fontSize: 8, color: COLORS.muted, marginTop: 4 }}>{e.feeDerivation}¹</Text>
+              ) : (
+                <Text style={{ fontSize: 8.5, marginTop: 4 }}>Estimated fee value: {e.feeRange}¹</Text>
+              )}
+              <View style={{ ...S.row, marginTop: 2 }}>
+                <Text style={{ width: "100%", fontSize: 8.5, color: COLORS.muted }}>Moment of leak: {e.tag}</Text>
               </View>
               <Text style={{ fontSize: 8.5, marginTop: 2, color: COLORS.navy }}>Recommended action: {e.recommendedAction}</Text>
               <Text style={{ ...S.faint, marginTop: 2 }}>{e.disclaimer}</Text>
@@ -211,6 +268,8 @@ export function LeakReportDoc({ model }: { model: Model }) {
         <View style={S.section}>
           <Text style={S.h2}>Methodology appendix</Text>
           <Text style={S.faint}>{m.methodology}</Text>
+          {/* Published false-alarm rate — rides on every deliverable (P0-D / §IV). */}
+          {m.falseAlarmLine ? <Text style={{ ...S.faint, marginTop: 4 }}>{m.falseAlarmLine}</Text> : null}
         </View>
 
         {/* Analyst sign-off */}

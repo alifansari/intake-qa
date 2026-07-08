@@ -11,7 +11,7 @@ import {
 
 export const metadata: Metadata = {
   title: "Terms of service | Intake QA",
-  description: "The terms that govern use of Intake QA and the free Intake Quality Audit.",
+  description: "The terms that govern use of Intake QA and the free Leak Audit.",
   alternates: { canonical: "/terms" },
 };
 
@@ -35,7 +35,7 @@ export default function TermsPage() {
 
       <p className="mt-6 max-w-[72ch] text-lg text-ink-muted">
         These terms govern your use of {LEGAL_DBA}, operated by {LEGAL_ENTITY}, including the free
-        Intake Quality Audit and the desk product. By using the service you agree to them. If you are
+        Leak Audit and the desk product. By using the service you agree to them. If you are
         agreeing on behalf of a law firm, you confirm you have authority to bind that firm.
       </p>
 
@@ -44,12 +44,12 @@ export default function TermsPage() {
           <p>
             {LEGAL_DBA}{" "}reviews a firm&apos;s own intake calls, scores them against a fixed rubric,
             flags signable cases that did not sign, and drafts compliant follow-up messages for a
-            person at the firm to approve. During the founding-cohort pilot, nothing is sent to anyone
+            person at the firm to approve. In the current pilot phase, nothing is sent to anyone
             without a human at the firm approving it first.
           </p>
         </Section>
 
-        <Section n="2" title="The free Intake Quality Audit">
+        <Section n="2" title="The free Leak Audit">
           <p>
             The audit is offered free to qualifying firms. You send up to ten recent intake calls, we
             review them, and you keep the written report whether or not you ever work with us. The

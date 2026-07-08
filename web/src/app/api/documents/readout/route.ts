@@ -22,7 +22,7 @@ async function docForToken(token: string | null): Promise<{ doc: DocData; real: 
     try {
       const report = await buildAuditReport({ db, token });
       if (!report?.ok) return { doc: DEMO_DOC, real: false };
-      const doc = auditReportToDocData(report, { periodLabel: "Intake Quality Audit" }) as DocData;
+      const doc = auditReportToDocData(report, { periodLabel: "Leak Audit" }) as DocData;
       return { doc, real: true };
     } finally {
       await store.closePipelineDb(db);

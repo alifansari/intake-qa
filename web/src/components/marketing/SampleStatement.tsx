@@ -3,13 +3,39 @@
 // lining figures, tier labels, redacted names, the narrow attestation, and a
 // diagonal SAMPLE watermark. This is the "most credible document the partner has
 // received," shown immediately. All figures are illustrative and clearly marked.
+//
+// P0-A: the ledger + headline are DERIVED from the composed demo model
+// (DEMO_SNAPSHOT = composeLeakReport(DEMO_DOC)), so this literally shows page one
+// of the same document the Statement PDF and Leak Report render — all three
+// reconcile to one number ($33,000 to $95,000).
+// P0-D §I/§V: status is "Saved (illustrative)" / "Signed (illustrative)" — never
+// "Recovered" — to avoid any recovered-dollars / earnings optic.
 
-const LEDGER = [
-  { initials: "J.R.", type: "Auto (rear-end)", tier: 5, fee: "$18,000", status: "Recovered" },
-  { initials: "M.E.", type: "Slip and fall", tier: 4, fee: "$15,000", status: "Open" },
-  { initials: "T.W.", type: "Dog bite", tier: 4, fee: "$9,000", status: "Recovered" },
-  { initials: "R.K.", type: "Auto (rear-end)", tier: 3, fee: "$5,300", status: "Open" },
-];
+import { DEMO_SNAPSHOT } from "@/lib/leak-report/demo-snapshot.mjs";
+
+// Map the composed save-status vocabulary to a marketing-safe, non-earnings label.
+function displayStatus(saveStatus: string): { label: string; won: boolean } {
+  if (saveStatus === "Signed") return { label: "Signed (illustrative)", won: true };
+  if (saveStatus === "Sent by staff" || saveStatus === "Contact resumed")
+    return { label: "Saved (illustrative)", won: true };
+  return { label: "Open", won: false };
+}
+
+const LEDGER = DEMO_SNAPSHOT.ledger.map((r, i) => ({
+  initials: r.initials,
+  type: r.caseType,
+  tier: r.confidence === "strong" ? 5 : 4,
+  fee: r.feeLow, // conservative low end, matching "low end quoted first"
+  ...displayStatus(r.saveStatus),
+  key: `${r.initials}-${i}`,
+}));
+
+// Headline range straight from the composed model — the single source of truth.
+const HEADLINE_RANGE = DEMO_SNAPSHOT.headlineRange; // "$33,000 to $95,000"
+const STRONG_COUNT = DEMO_SNAPSHOT.strongCount;
+const RECOVERABLE_COUNT = DEMO_SNAPSHOT.recoverableCount;
+const REPORT_ID = DEMO_SNAPSHOT.reportId;
+const RECON = DEMO_SNAPSHOT.reconciliation;
 
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
@@ -42,15 +68,18 @@ export function SampleStatement() {
           <p className="text-right text-xs text-faint">
             June 2026
             <br />
-            SUNSET-2026-06
+            {REPORT_ID}
           </p>
         </div>
 
-        {/* Page-one opening (Gold iv) */}
-        <p className="mt-5 max-w-[54ch] font-display text-[1.35rem] leading-snug text-ink">
-          Your firm recovered <span className="text-accent">2</span> signable cases last month,
-          worth an estimated <span className="text-accent">$27,000</span> in fees.{" "}
-          <span className="text-ink-muted">2 more were flagged and are still open.</span>
+        {/* Page-one opening — derived from the composed model (strong flags only) */}
+        <p className="mt-5 max-w-[56ch] font-display text-[1.35rem] leading-snug text-ink">
+          We flagged <span className="text-accent">{STRONG_COUNT}</span> strong signable cases that
+          walked last month, worth an estimated <span className="text-accent">{HEADLINE_RANGE}</span>{" "}
+          in fees.{" "}
+          <span className="text-ink-muted">
+            {RECOVERABLE_COUNT} still look recoverable today.
+          </span>
         </p>
 
         {/* Headline figure at risk */}
@@ -60,7 +89,7 @@ export function SampleStatement() {
               Estimated fee value at risk
             </p>
             <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-alert">
-              $47,300 to $92,000
+              {HEADLINE_RANGE}
             </p>
             <p className="mt-1 text-xs text-faint">Conservative range, low end quoted first.</p>
           </div>
@@ -69,10 +98,10 @@ export function SampleStatement() {
               Every call accounted for
             </p>
             <div className="mt-1 text-sm">
-              <Row label="Received" value="132" />
-              <Row label="Processed" value="128" />
-              <Row label="Excluded" value="3" />
-              <Row label="Could not process" value="1" strong />
+              <Row label="Received" value={String(RECON.received)} />
+              <Row label="Processed" value={String(RECON.processed)} />
+              <Row label="Excluded" value={String(RECON.excluded)} />
+              <Row label="Could not process" value={String(RECON.failed)} strong />
             </div>
           </div>
         </div>
@@ -94,17 +123,17 @@ export function SampleStatement() {
             </thead>
             <tbody>
               {LEDGER.map((r) => (
-                <tr key={r.initials} className="border-b border-hairline">
+                <tr key={r.key} className="border-b border-hairline">
                   <td className="py-1.5 pr-3 tabular-nums text-ink">{r.initials}</td>
                   <td className="py-1.5 pr-3 text-ink-muted">{r.type}</td>
                   <td className="py-1.5 pr-3 text-center tabular-nums text-ink">{r.tier}</td>
                   <td className="py-1.5 pr-3 text-right tabular-nums text-ink">{r.fee}</td>
                   <td
                     className={`py-1.5 text-right font-medium ${
-                      r.status === "Recovered" ? "text-accent" : "text-ink-muted"
+                      r.won ? "text-accent" : "text-ink-muted"
                     }`}
                   >
-                    {r.status}
+                    {r.label}
                   </td>
                 </tr>
               ))}

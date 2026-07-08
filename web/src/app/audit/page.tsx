@@ -1,6 +1,6 @@
 "use client";
 
-// Intake Quality Audit uploader (public, no-auth). Upload up to 10 calls under
+// Leak Audit uploader (public, no-auth). Upload up to 10 calls under
 // one session, each processed by the UNCHANGED demo pipeline, then land on the
 // shareable /audit/[token] report. Mirrors the demo upload mechanic (storage or
 // direct), but every upload carries the session token so the calls aggregate.
@@ -28,6 +28,7 @@ type Phase = "setup" | "processing" | "error";
 export default function AuditUploaderPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [volume, setVolume] = useState("");
+  const [consent, setConsent] = useState(false);
   const [phase, setPhase] = useState<Phase>("setup");
   const [err, setErr] = useState<string | null>(null);
   const [done, setDone] = useState(0);
@@ -97,6 +98,10 @@ export default function AuditUploaderPage() {
       setErr("Add at least one call recording.");
       return;
     }
+    if (!consent) {
+      setErr("Please confirm your firm has the right and any required consent to share these recordings.");
+      return;
+    }
     setPhase("processing");
     setErr(null);
     setTotal(files.length);
@@ -110,6 +115,13 @@ export default function AuditUploaderPage() {
       const sd = await sr.json();
       if (!sr.ok) throw new Error(sd.error ?? "Could not start the audit.");
       const token: string = sd.token;
+      // Stash the token so a later pricing checkout can pass it as the Stripe
+      // client_reference_id (stitches the payer back to this audit).
+      try {
+        window.sessionStorage.setItem("audit_token", token);
+      } catch {
+        /* private mode — non-fatal */
+      }
 
       // Upload sequentially (gentle on the pipeline), then poll to completion.
       for (const file of files) {
@@ -127,9 +139,9 @@ export default function AuditUploaderPage() {
       <MarketingNav />
       <main className="mx-auto max-w-3xl px-6 py-12">
       <div className="mb-8">
-        <p className="eyebrow">The independent recovery desk · Intake Quality Audit</p>
+        <p className="eyebrow">The independent recovery desk · Leak Audit</p>
         <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance">
-          Your free Intake Quality Audit
+          Your free Leak Audit
         </h1>
         <p className="mt-4 max-w-[66ch] text-lg text-ink-muted">
           Send us up to {MAX} recent intake calls. A real analyst, not just a model, reviews every
@@ -138,11 +150,14 @@ export default function AuditUploaderPage() {
           worth in dollars. You keep the report whether or not we ever work together.
         </p>
         <p className="mt-3 text-sm text-faint">{AUDIT_CAPACITY_LINE}</p>
-        <p className="mt-3 text-sm">
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
           <a href="/audit/sample" className="font-semibold text-accent hover:text-accent-hover">
             See a sample report →
           </a>
-        </p>
+          <a href="/pricing" className="font-medium text-ink-muted hover:text-ink">
+            Ready to start without the audit? See pricing →
+          </a>
+        </div>
 
         {/* What you receive */}
         <div className="mt-6 rounded-card border border-hairline bg-surface p-5">
@@ -259,13 +274,26 @@ export default function AuditUploaderPage() {
             </ul>
           )}
 
+          {/* REQUIRED consent gate — CIPA / Rule 1.18. Upload is blocked until checked. */}
+          <label className="flex cursor-pointer items-start gap-3 rounded-card border border-line-strong bg-surface p-4 text-sm text-ink">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0"
+            />
+            <span>
+              I confirm my firm has the right and any required consent to share these recordings.
+            </span>
+          </label>
+
           {err && <p className="text-sm text-alert">{err}</p>}
 
           <div>
             <button
               type="button"
               onClick={start}
-              disabled={files.length === 0}
+              disabled={files.length === 0 || !consent}
               className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover disabled:opacity-50"
             >
               {files.length > 0 ? `${CTA_PRIMARY} (${files.length}/${MAX})` : CTA_PRIMARY}

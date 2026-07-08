@@ -8,8 +8,9 @@ import styles from "./letter.module.css";
 // /letter (see components/nav.tsx) so the page renders as a clean document.
 export const dynamic = "force-static";
 
-const PUBLICATION_DATE = "July 6, 2026"; // set once; used in dateline, attestation, version, OG
+const PUBLICATION_DATE = "July 6, 2026"; // set once; used in dateline, attestation, OG
 const PUBLICATION_ISO = "2026-07-06";
+const REVISION_DATE = "July 7, 2026"; // last text revision; shown in the version line/colophon
 
 // The Spanish translation at /carta is scaffolded but not yet published. Flip this
 // (and paste content into app/carta) to emit hreflang alternates + link it.
@@ -18,7 +19,7 @@ const CARTA_READY = false;
 export const metadata: Metadata = {
   title: "The Unscored Conversation — An open letter to Northern California PI managing partners",
   description:
-    "A signed open letter on the four minutes of intake that decide a case, and a free 30-day founding-cohort Leak Audit for the first five Northern California PI firms.",
+    "A signed open letter on the four minutes of intake that decide a case, and a free Leak Audit for Northern California PI firms, with a founding charter for the first five.",
   authors: [{ name: "Ali Ansari" }],
   alternates: {
     canonical: "https://plaintiffops.com/letter",
@@ -99,14 +100,16 @@ export default function LetterPage() {
             <span className={styles.monogram} aria-hidden="true">
               IQ
             </span>
-            <span className={styles.version}>Version 1.1 · updated {PUBLICATION_DATE}</span>
+            <span className={styles.version}>Version 1.2 · updated {REVISION_DATE}</span>
           </div>
         </footer>
 
         <aside className={styles.colophon}>
           <p>
-            Changelog. 1.1: the invitation changed from a flat-fee audit to a free founding-cohort
-            pilot for the first five firms. The post-pilot fee remains flat and outcome-decoupled.
+            Changelog. 1.2: the invitation was reconciled to the free Leak Audit wedge, with the
+            first five firms continuing on a flat-rate founding charter; the fee remains flat and
+            outcome-decoupled. 1.1: the invitation changed from a flat-fee audit to a founding-cohort
+            offer for the first five firms.
           </p>
           <p>
             Set in Source Serif 4, a contemporary text face in the tradition of book and

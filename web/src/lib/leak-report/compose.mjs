@@ -8,7 +8,7 @@
 //   - Mandatory SOL disclaimer (from sol.mjs) rides with every deadline.
 //   - Badges standardized to CRITICAL / SOON / OK / EXPIRED (mapped from sol.mjs urgencyBand).
 
-import { fmtMoney, fmtMoneyRange, fmtDate, readoutId } from "../../pdf/doc-helpers.mjs";
+import { fmtMoney, fmtMoneyRange, fmtDate, readoutId, feeDerivationLine, falseAlarmFooter } from "../../pdf/doc-helpers.mjs";
 import { urgencyBand, SOL_DISCLAIMER } from "../../../analysis/sol.mjs";
 import { LEAK_TAGS, tagCounts, validateTags } from "../../../analysis/leak-taxonomy.mjs";
 import {
@@ -59,7 +59,11 @@ const RECOMMENDED = {
 };
 
 // Build the ordered document model. `data` mirrors DocData from demo-fixture.
-export function composeLeakReport(data, { now = "2026-07-05" } = {}) {
+/**
+ * @param {any} data
+ * @param {{ now?: string, falseAlarm?: { ratePct: number | null, updatedDate: string | null } | null }} [opts]
+ */
+export function composeLeakReport(data, { now = "2026-07-05", falseAlarm = null } = {}) {
   const leaks = data.leaks ?? [];
 
   // Validate taxonomy (exactly one valid tag per leak).
@@ -92,6 +96,18 @@ export function composeLeakReport(data, { now = "2026-07-05" } = {}) {
       qualifyingFacts: l.qualifyingFacts,
       excerpt: l.excerpt ?? null,
       feeRange: fmtMoneyRange(l.feeLowCents, l.feeHighCents),
+      // Per-exhibit fee derivation (P0-C): shown when the case-value band is known.
+      feeDerivation:
+        l.caseLowCents != null && l.caseHighCents != null
+          ? feeDerivationLine({
+              feeLowCents: l.feeLowCents,
+              feeHighCents: l.feeHighCents,
+              caseLowCents: l.caseLowCents,
+              caseHighCents: l.caseHighCents,
+              basis: l.feeBasis ?? null,
+            })
+          : (l.feeDerivation ?? null),
+      confidence: l.confidence, // for the grayscale-safe tier chip (P1)
       badge: badgeFor(l),
       tag: l.tag,
       tagDef: LEAK_TAGS[l.tag],
@@ -152,6 +168,17 @@ export function composeLeakReport(data, { now = "2026-07-05" } = {}) {
       feeLowCents: feeLow,
       feeHighCents: feeHigh,
       recoverable: recoverable.length,
+      // Strong/moderate split on page one (P1): moderate flags are shown for
+      // completeness but excluded from the counted numbers.
+      split: { strong: strong.length, moderate: moderate.length, expired: expired.length },
+      // Dated "Do these 3 things this week" box (P1): case id + deadline + owner slot.
+      threeActions: mostUrgent
+        ? [
+            `Pull ${mostUrgent.caseType} case ${mostUrgent.displayId} (Exhibit ${mostUrgent.n}) — statute deadline ${deadlineText}. Assign to: ___`,
+            `Place a same-day callback on the ${recoverable.length} recoverable case${recoverable.length === 1 ? "" : "s"} and log the outcome. Assign to: ___`,
+            `Confirm the statute math on every CRITICAL/SOON case with your attorney by ${fmtDate(new Date(new Date(now).getTime() + 7 * 86400000))}. Assign to: ___`,
+          ]
+        : [],
       verdict: verdictSentence({
         n: data.reconciliation?.processed ?? leaks.length,
         period: data.periodLabel,
@@ -194,5 +221,10 @@ export function composeLeakReport(data, { now = "2026-07-05" } = {}) {
     guarantee: GUARANTEE_BOX,
     methodology: methodologyAppendix({ low: "$8,000", high: "$14,000" }),
     signoff: analystSignoff(),
+    // Published false-alarm rate — rides on every deliverable (P0-D / §IV).
+    falseAlarmLine: falseAlarmFooter({
+      ratePct: falseAlarm?.ratePct ?? null,
+      updatedDate: falseAlarm?.updatedDate ?? null,
+    }),
   };
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CTA_PRIMARY } from "@/lib/site-constants";
+import { CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF } from "@/lib/site-constants";
 
 // Marketing top nav, emerald CTA pill. No client JS: the middle links show inline
 // on md+, and collapse into a native <details> disclosure menu on small screens.
@@ -30,6 +30,14 @@ export function MarketingNav() {
           ))}
         </nav>
         <div className="flex items-center gap-3">
+          {/* Secondary action for the already-convinced buyer; hidden on the
+              smallest screens (it moves into the mobile disclosure below). */}
+          <Link
+            href={CTA_SECONDARY_HREF}
+            className="hidden text-sm font-medium text-ink-muted hover:text-ink lg:inline"
+          >
+            {CTA_SECONDARY}
+          </Link>
           <Link
             href="/audit"
             className="rounded-pill bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
@@ -59,6 +67,12 @@ export function MarketingNav() {
                   {l.label}
                 </Link>
               ))}
+              <Link
+                href={CTA_SECONDARY_HREF}
+                className="mt-1 block rounded-base border-t border-hairline px-3 pt-3 pb-2 text-sm font-semibold text-ink hover:bg-surface"
+              >
+                {CTA_SECONDARY}
+              </Link>
             </nav>
           </details>
         </div>

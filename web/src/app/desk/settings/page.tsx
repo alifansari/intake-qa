@@ -13,6 +13,30 @@ export default function SettingsPage() {
   const [digest, setDigest] = useState(true);
   const [email, setEmail] = useState("");
   const [time, setTime] = useState("08:00");
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [portalError, setPortalError] = useState<string | null>(null);
+
+  async function openBillingPortal() {
+    setPortalLoading(true);
+    setPortalError(null);
+    try {
+      const r = await fetch("/api/portal", { method: "POST" });
+      const data = await r.json();
+      if (!r.ok || !data.url) {
+        setPortalError(
+          data.error === "no_stripe_customer"
+            ? "No billing account is linked yet. It appears after your first subscription payment."
+            : (data.error ?? "Could not open the billing portal."),
+        );
+        return;
+      }
+      window.location.href = data.url as string;
+    } catch {
+      setPortalError("Network error. Please try again.");
+    } finally {
+      setPortalLoading(false);
+    }
+  }
 
   return (
     <div>
@@ -42,6 +66,24 @@ export default function SettingsPage() {
             completes.
           </p>
         )}
+      </section>
+
+      {/* Billing — self-serve Stripe Customer Portal */}
+      <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
+        <h2 className="font-display text-lg font-semibold text-ink">Billing</h2>
+        <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+          Update your card, download invoices, or cancel your flat monthly subscription anytime in
+          the secure Stripe portal.
+        </p>
+        <button
+          type="button"
+          onClick={openBillingPortal}
+          disabled={portalLoading}
+          className="mt-4 rounded-pill border border-hairline px-4 py-2 text-sm font-semibold text-ink hover:border-accent disabled:opacity-60"
+        >
+          {portalLoading ? "Opening…" : "Manage billing"}
+        </button>
+        {portalError && <p className="mt-2 text-xs text-alert">{portalError}</p>}
       </section>
 
       {/* Notification prefs */}

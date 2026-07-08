@@ -4,11 +4,13 @@ import { Document, View, Text } from "@react-pdf/renderer";
 import { DocPage, S, COLORS, BenchmarkBand, AttestationBlock } from "./shared";
 import type { DocData } from "./demo-fixture";
 import {
+  fmtMoney,
   fmtMoneyRange,
   fmtDate,
   statuteClock,
   statementId,
   trendVerdict,
+  falseAlarmFooter,
   ATTESTATION,
   FOOTNOTES,
   AGENCY_INTRO,
@@ -16,9 +18,18 @@ import {
   INTAKE_METRICS,
 } from "./doc-helpers.mjs";
 
-export function StatementDoc({ d }: { d: DocData }) {
+export function StatementDoc({ d, falseAlarm }: { d: DocData; falseAlarm?: { ratePct: number | null; updatedDate: string | null } }) {
   const id = statementId(d.firmCode, d.year, d.seq);
   const metricName = (k: string) => INTAKE_METRICS.find((m) => m.key === k)?.name ?? k;
+
+  // Headline = arithmetic sum of the SHOWN STRONG, non-expired rows (same rule as
+  // composeLeakReport). This is what makes the Statement, the Leak Report, and the
+  // on-site SampleStatement all reconcile to one number (P0-A).
+  const strong = d.leaks.filter((l) => l.confidence === "strong" && !l.statuteExpired);
+  const headlineLowCents = strong.reduce((a, l) => a + l.feeLowCents, 0);
+  const headlineHighCents = strong.reduce((a, l) => a + l.feeHighCents, 0);
+  const strongCount = strong.length;
+  const faLine = falseAlarmFooter({ ratePct: falseAlarm?.ratePct ?? null, updatedDate: falseAlarm?.updatedDate ?? null });
   return (
     <Document title={`Missed-Revenue Statement: ${d.firmName}, ${d.periodLabel}`} language="en">
       <DocPage docId={id}>
@@ -35,13 +46,13 @@ export function StatementDoc({ d }: { d: DocData }) {
         <View style={S.section}>
           <Text style={S.h2}>This period at a glance</Text>
           <View style={{ ...S.row, paddingVertical: 3 }}>
-            <Text style={{ width: "62%", color: COLORS.muted }}>Estimated missed signable fee value</Text>
-            <Text style={{ width: "26%", ...S.cellNum }}>{fmtMoneyRange(d.missedLowCents, d.missedHighCents)}</Text>
+            <Text style={{ width: "62%", color: COLORS.muted }}>Estimated missed signable fee value (strong flags)</Text>
+            <Text style={{ width: "26%", ...S.cellNum }}>{fmtMoneyRange(headlineLowCents, headlineHighCents)}</Text>
             <Text style={{ width: "12%", ...S.cellNum, ...S.faint }}>(see App. A)</Text>
           </View>
           <View style={{ ...S.row, paddingVertical: 3 }}>
-            <Text style={{ width: "62%", color: COLORS.muted }}>Leaked signable cases flagged</Text>
-            <Text style={{ width: "38%", ...S.cellNum }}>{d.leaksFlagged}</Text>
+            <Text style={{ width: "62%", color: COLORS.muted }}>Leaked signable cases flagged (strong of total)</Text>
+            <Text style={{ width: "38%", ...S.cellNum }}>{strongCount} of {d.leaksFlagged}</Text>
           </View>
           <View style={{ ...S.row, paddingVertical: 3 }}>
             <Text style={{ width: "62%", color: COLORS.muted }}>Saves in progress or converted</Text>
@@ -81,6 +92,14 @@ export function StatementDoc({ d }: { d: DocData }) {
                   • {f.text} {f.cite}
                 </Text>
               ))}
+              {/* Per-exhibit fee derivation — shows the arithmetic (P0-C). */}
+              {l.caseLowCents != null && l.caseHighCents != null ? (
+                <Text style={{ fontSize: 7.5, color: COLORS.faint, marginLeft: 8, marginTop: 1 }}>
+                  Est. fee value: {fmtMoney(l.feeLowCents)} to {fmtMoney(l.feeHighCents)} = case value{" "}
+                  {fmtMoney(l.caseLowCents)} to {fmtMoney(l.caseHighCents)} × 33⅓% contingency
+                  {l.feeBasis ? ` (${l.feeBasis})` : ""}
+                </Text>
+              ) : null}
             </View>
           ))}
         </View>
@@ -133,7 +152,9 @@ export function StatementDoc({ d }: { d: DocData }) {
         <View style={S.section}>
           <Text style={{ ...S.faint, marginBottom: 3 }}>{FOOTNOTES.fee}</Text>
           <Text style={{ ...S.faint, marginBottom: 3 }}>{FOOTNOTES.confidence}</Text>
-          <Text style={S.faint}>{FOOTNOTES.reconciliation}</Text>
+          <Text style={{ ...S.faint, marginBottom: 3 }}>{FOOTNOTES.reconciliation}</Text>
+          {/* Published false-alarm rate — rides on every deliverable (P0-D / §IV). */}
+          <Text style={S.faint}>{faLine}</Text>
         </View>
 
         {/* Attestation */}

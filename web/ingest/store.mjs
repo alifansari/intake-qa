@@ -103,6 +103,16 @@ export const countRecentAuditSessionsByFingerprint = wrap("countRecentAuditSessi
 export const listRecentAuditSessions = wrap("listRecentAuditSessions");
 export const purgeExpiredAuditSessions = wrap("purgeExpiredAuditSessions");
 
+// Retention on REAL firm data (P0-3 / CLAUDE.md §(h)). Nulls call transcripts +
+// recording_url and message bodies older than a cutoff. Wired into retentionPurge.
+export const purgeExpiredCalls = wrap("purgeExpiredCalls");
+
+// Consent log (P0-2 / CLAUDE.md §II). Write before any mic/recording workflow.
+export const createConsentEvent = wrap("createConsentEvent");
+
+// Stripe webhook idempotency (P0-4a). true => first time seen; false => replay.
+export const recordStripeEventProcessed = wrap("recordStripeEventProcessed");
+
 // Per-recovered-case billing (migration 0010). FLAT fee per case; the recovered
 // fee is NEVER read by any of these — see billing/invoice.mjs.
 export const listBillingPlans = wrap("listBillingPlans");
@@ -110,6 +120,9 @@ export const getBillingPlan = wrap("getBillingPlan");
 export const getBillingPlanByName = wrap("getBillingPlanByName");
 export const getFirmBilling = wrap("getFirmBilling");
 export const upsertFirmBilling = wrap("upsertFirmBilling");
+export const setFirmBillingStatus = wrap("setFirmBillingStatus");
+export const getFirmBillingBySubscription = wrap("getFirmBillingBySubscription");
+export const getFirmByName = wrap("getFirmByName");
 export const accrueBillableEvent = wrap("accrueBillableEvent");
 export const getBillableEvents = wrap("getBillableEvents");
 export const getAccruedBillableEvents = wrap("getAccruedBillableEvents");
@@ -142,6 +155,7 @@ export const voidInvoice = wrap("voidInvoice");
 export const getInvoice = wrap("getInvoice");
 export const getInvoiceLines = wrap("getInvoiceLines");
 export const listInvoices = wrap("listInvoices");
+export const getInvoiceByFirmPeriod = wrap("getInvoiceByFirmPeriod");
 export const appendStripeSimLog = wrap("appendStripeSimLog");
 export const listStripeSimLog = wrap("listStripeSimLog");
 export const countStripeSimLog = wrap("countStripeSimLog");

@@ -11,6 +11,10 @@ import { SampleAlert } from "@/components/marketing/SampleAlert";
 import { SEAT_LINE } from "@/lib/cohort";
 import {
   CTA_PRIMARY,
+  CTA_SECONDARY,
+  CTA_SECONDARY_HREF,
+  SUB_CTA_LINE,
+  HONESTY_STRIP_LINE,
   STAKE_LINE,
   INDEPENDENCE_LINE,
   INDEPENDENCE_STATEMENT,
@@ -29,12 +33,12 @@ import {
 export const metadata: Metadata = {
   title: "Intake QA: the independent recovery desk for PI firms",
   description:
-    "Everyone you pay to handle your intake grades their own work. Intake QA is the independent desk that checks the whole board against what actually got signed, and finds the signable cases that walked. Run your free Intake Quality Audit.",
+    "Everyone you pay to handle your intake grades their own work. Intake QA is the independent desk that checks the whole board against what actually got signed, and finds the signable cases that walked. Run your free Leak Audit.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "The independent desk that finds the signable cases that walked.",
     description:
-      "The AI receptionist grades its own calls. The agency grades its own leads. We check the whole board against what actually got signed. Free Intake Quality Audit.",
+      "The AI receptionist grades its own calls. The agency grades its own leads. We check the whole board against what actually got signed. Free Leak Audit.",
     images: ["/og?title=The+independent+recovery+desk"],
   },
 };
@@ -57,14 +61,33 @@ const STEPS = [
   "A monthly missed-revenue statement: what walked, in dollars, trending over time",
 ];
 
-function CTA({ children = CTA_PRIMARY, href = "/audit" }: { children?: string; href?: string }) {
+// Two-path CTA: emerald primary (free audit) + a quieter secondary for the
+// already-convinced buyer (→ /pricing). `onDark` recolors the secondary for the
+// navy blocks.
+function CTA({
+  children = CTA_PRIMARY,
+  href = "/audit",
+  onDark = false,
+}: {
+  children?: string;
+  href?: string;
+  onDark?: boolean;
+}) {
   return (
-    <Link
-      href={href}
-      className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
-    >
-      {children}
-    </Link>
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+      <Link
+        href={href}
+        className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
+      >
+        {children}
+      </Link>
+      <Link
+        href={CTA_SECONDARY_HREF}
+        className={`text-sm font-medium ${onDark ? "text-white/75 hover:text-white" : "text-ink-muted hover:text-ink"}`}
+      >
+        {CTA_SECONDARY}
+      </Link>
+    </div>
   );
 }
 
@@ -78,24 +101,33 @@ export default function HomePage() {
       {/* HERO: independence + closed-loop recovery (no category-king claim) */}
       <Section className="pt-16 pb-12 sm:pt-24">
         <p className="eyebrow">The independent recovery desk for personal injury firms</p>
-        <h1 className="mt-3 max-w-[20ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
-          Everyone you pay to handle your intake tells you they&apos;re doing a great job.
+        <h1 className="mt-3 max-w-[22ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
+          Find the signable cases your intake team let walk &mdash; and what they cost you.
         </h1>
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
-          The AI receptionist grades its own calls, the agency grades its own leads, your staff grade
-          their own follow-up, and nobody checks the whole board against what actually got signed. So
-          I&apos;m taking five Northern California PI firms into a free 30-day Leak Audit of your real
-          recorded intake calls, with a signed Missed-Revenue Statement at the end. {STAKE_LINE}
+          Everyone you pay to handle intake grades their own work. Intake QA is the independent desk
+          that scores every call against who actually signed, puts a dollar figure on what walked, and
+          hands you the report to keep. Start with a free audit of your own calls. {STAKE_LINE}
         </p>
-        <div className="mt-8 flex flex-wrap items-center gap-5">
+        <div className="mt-8">
           <CTA />
-          <Link href="/letter" className="text-sm font-semibold text-accent hover:text-accent-hover">
-            Read the letter →
-          </Link>
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link href="/statement" className="text-sm font-medium text-accent hover:text-accent-hover">
+              See a real sample Statement →
+            </Link>
+            <Link href="/letter" className="text-sm font-medium text-accent hover:text-accent-hover">
+              Read the letter →
+            </Link>
+          </div>
         </div>
-        <p className="mt-4 text-sm text-faint tnum">
-          {SEAT_LINE} A real analyst reviews every call. You keep the Statement whether or not you
-          continue.
+        <p className="mt-4 max-w-[66ch] text-sm text-faint">
+          <span className="tnum font-medium text-ink">{SEAT_LINE}</span> {SUB_CTA_LINE}
+        </p>
+        <p className="mt-2 text-sm text-faint">
+          {HONESTY_STRIP_LINE}{" "}
+          <Link href="/honesty" className="font-semibold text-accent hover:text-accent-hover">
+            See our error rate →
+          </Link>
         </p>
       </Section>
 
@@ -259,7 +291,7 @@ export default function HomePage() {
       <Section className="py-14">
         <div className="rounded-card border border-hairline bg-navy px-6 py-10 text-white sm:px-12">
           <h2 className="max-w-[24ch] font-display text-2xl font-semibold text-balance">
-            Start with a free Intake Quality Audit.
+            Start with a free Leak Audit.
           </h2>
           <p className="mt-4 max-w-[64ch] text-white/75">
             Send up to 10 recent intake calls. A real analyst reviews every one and shows you, in
@@ -267,9 +299,7 @@ export default function HomePage() {
             the evidence behind each flag. You keep the report either way. Then: {FUNNEL_LINE}
           </p>
           <div className="mt-7">
-            <Link href="/audit" className="inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-              {CTA_PRIMARY}
-            </Link>
+            <CTA onDark />
           </div>
         </div>
       </Section>
@@ -301,20 +331,20 @@ export default function HomePage() {
       {/* FOUNDING COHORT */}
       <Section className="py-14">
         <div className="max-w-[70ch]">
-          <p className="eyebrow">Founding cohort</p>
+          <p className="eyebrow">Founding 5 Charter</p>
           <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">
-            Five founding firms. A free 30-day Leak Audit.
+            Five founding firms. A free Leak Audit, then the Charter.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
             {STAKE_LINE} Everyone selling to law firms asks to be paid before they prove anything. I
-            prove first, and I sign my name to the result. The free pilot is the commercial version
-            of the error rate I publish on the calibration page.
+            prove first, and I sign my name to the result. The free Leak Audit is the commercial
+            version of the error rate I publish on the calibration page.
           </p>
           <div className="mt-8 grid gap-px overflow-hidden rounded-card border border-hairline bg-hairline sm:grid-cols-2">
             {[
-              ["What the pilot includes", "Thirty days of your real recorded intake calls, scored against the published rubric: moment-of-leak taxonomy, confidence-tiered flags, and a signed Monthly Missed-Revenue Statement at the end."],
-              ["What it costs", "Nothing. No fee, no obligation, no contract to continue. This is the full engagement, free, not a trial with features withheld."],
-              ["What happens after", "If the Statement earns its keep, continuing is a flat monthly fee, tiered by call volume and never tied to any outcome. Optional, cancel anytime."],
+              ["The free Leak Audit", "Send up to 10 of your own recorded intake calls. A real analyst scores them against the published rubric and walks you through the signable cases that slipped, live and free. You keep the written report either way."],
+              ["The Founding 5 Charter", "If it earns its keep, the first five firms continue at a flat $1,500/mo for the first 90 days, then the flat $2,500/mo Core price. A hard cap of five firms; it closes at the fifth firm or Aug 31, 2026, whichever comes first."],
+              ["Flat monthly, never a share", "The Charter and Core are flat monthly fees, tiered by call volume and never tied to cases signed, cases recovered, or any outcome. Cancel anytime."],
               ["What I ask in return", "Candid feedback on the work. Nothing else."],
             ].map(([h, b]) => (
               <div key={h} className="bg-surface p-5">
@@ -385,11 +415,11 @@ export default function HomePage() {
       <Section className="py-20 border-t border-hairline">
         <div className="max-w-[68ch]">
           <h2 className="font-display text-4xl font-semibold leading-[1.1] text-ink text-balance">
-            Five founding seats. A free 30-day Leak Audit.
+            A free Leak Audit. Five founding seats on the Charter.
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">
-            A signed Missed-Revenue Statement at the end, a say in what the desk becomes, and no
-            obligation to continue. {STAKE_LINE}{" "}
+            A signed report you keep, a say in what the desk becomes, and no obligation to continue.
+            {" "}{STAKE_LINE}{" "}
             <span className="tnum font-medium text-ink">{SEAT_LINE}</span>
           </p>
           <CTA />

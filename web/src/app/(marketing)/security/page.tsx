@@ -82,8 +82,9 @@ export default function SecurityPage() {
           <p>
             Your audio is deleted the moment it is transcribed, and transcripts and reports are
             purged within {DELETION_HOURS} hours of your readout, or immediately if you ask in
-            writing. If you move to a pilot, your data carries over under the pilot agreement, and
-            the same 72-hour purge applies. Your calls are never used to train our models.
+            writing. If you move to a paid subscription, your data carries over under the
+            subscription agreement, and the same 72-hour purge applies. Your calls are never used to
+            train our models.
           </p>
         </Row>
         <Row q="Our models">

@@ -24,21 +24,37 @@ export function ReportActions({ token }: { token: string }) {
     beacon(token, "view");
   }, [token]);
 
+  // Route the released report through the crisp react-pdf endpoint (Stage-6 gate:
+  // only a RELEASED report renders there; otherwise the endpoint 403s and we fall
+  // back to printing the page). This makes the forwarded PDF match the sample.
+  async function savePdf() {
+    beacon(token, "download");
+    const url = `/api/documents/leak-report?token=${encodeURIComponent(token)}`;
+    try {
+      const res = await fetch(url, { method: "HEAD" });
+      if (res.ok) {
+        window.open(url, "_blank", "noopener");
+        return;
+      }
+    } catch {
+      /* fall through to print */
+    }
+    // Not released yet (or endpoint unavailable) → print the on-page copy.
+    window.print();
+  }
+
   return (
     <div className="no-print mb-6 flex flex-wrap items-center gap-3">
       <button
         type="button"
-        onClick={() => {
-          beacon(token, "download");
-          window.print();
-        }}
+        onClick={savePdf}
         className="rounded-pill bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-hover"
       >
         Save as PDF
       </button>
       <span className="text-xs text-faint">
-        Prints a clean copy you can forward. Audio isn&apos;t stored. Every quote is timestamped to
-        your original recording.
+        Downloads the released report, or prints a clean copy you can forward. Audio isn&apos;t
+        stored. Every quote is timestamped to your original recording.
       </span>
     </div>
   );

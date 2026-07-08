@@ -43,7 +43,7 @@ export default function PrivacyPage() {
       <div className="mt-8">
         <Section n="1" title="Who this covers">
           <p>
-            This policy covers the {LEGAL_DBA}{" "}website, the free Intake Quality Audit, and the desk
+            This policy covers the {LEGAL_DBA}{" "}website, the free Leak Audit, and the desk
             product. When a law firm uses our service, that firm decides which calls to send us and
             why. For that call data, the firm is the party responsible for the information (the
             business or controller) and we act as its service provider, processing the data only to
@@ -106,8 +106,8 @@ export default function PrivacyPage() {
           <p>
             Call audio is deleted the moment it is transcribed. Transcripts and reports are deleted
             within {DELETION_HOURS}{" "}hours of your readout, or immediately if you ask in writing. If you
-            move from a free audit to a pilot, the data carries over under the pilot agreement and the
-            same deletion right applies.
+            move from a free Leak Audit to a paid subscription, the data carries over under the
+            subscription agreement and the same deletion right applies.
           </p>
           <p>
             To request deletion or ask what we hold, email{" "}

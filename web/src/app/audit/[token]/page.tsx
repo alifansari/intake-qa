@@ -1,4 +1,4 @@
-// The Intake Quality Audit report — the shareable, printable exhibit of the
+// The Leak Audit report — the shareable, printable exhibit of the
 // signable fees that walked in the uploaded calls. Headline is anchored to the
 // VERIFIABLE sample figure; per-call evidence is the primary content; the
 // monthly figure is a demoted, clearly-labeled range. Server-rendered from the
@@ -48,11 +48,11 @@ export async function generateMetadata({
   const { report } = await loadReport(token);
   const totalFeeAtRisk = report?.summary?.totalFeeAtRisk;
   const callCount = report?.summary?.callsReviewed;
-  const title = "Intake Quality Audit";
+  const title = "Leak Audit";
   const description =
     totalFeeAtRisk != null && callCount != null
       ? `${money(totalFeeAtRisk)} in signable fees identified across ${callCount} reviewed calls. See the evidence.`
-      : "An Intake Quality Audit of your intake calls from Intake QA.";
+      : "A Leak Audit of your intake calls from Intake QA.";
   return {
     title,
     description,
@@ -71,7 +71,7 @@ export default async function AuditReportPage({
   if (!report || !report.ok || !report.summary) {
     return (
       <div className="mx-auto max-w-xl px-6 py-20 text-center">
-        <p className="eyebrow">Intake Quality Audit</p>
+        <p className="eyebrow">Leak Audit</p>
         <h1 className="mt-3 font-display text-3xl font-bold text-ink">
           This report link has expired
         </h1>
@@ -81,7 +81,7 @@ export default async function AuditReportPage({
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <a href="/audit" className="rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
-            Run your free Intake Quality Audit
+            Run your free Leak Audit
           </a>
           <a href="/" className="rounded-pill border border-hairline px-6 py-3 text-sm font-semibold text-ink hover:border-accent">
             Back to home

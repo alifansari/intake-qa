@@ -19,7 +19,7 @@ export function Nav() {
   const pathname = usePathname();
   // Marketing pages carry their own nav/footer/sticky CTA via the (marketing)
   // shell, and the four-screen desk carries its own chrome, so the product nav
-  // stands down on both. The Intake Quality Audit report (/audit/*) is a
+  // stands down on both. The Leak Audit report (/audit/*) is a
   // client-facing, shareable, printable artifact with its own masthead, so the
   // internal dashboard nav stands down there too.
   if (

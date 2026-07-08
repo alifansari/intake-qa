@@ -8,12 +8,14 @@ import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { StatementDoc } from "@/pdf/statement";
 import { DEMO_DOC } from "@/pdf/demo-fixture";
+import { publishedFalseAlarmRate } from "@/lib/calibration-snapshot";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const el = React.createElement(StatementDoc, { d: DEMO_DOC }) as unknown as Parameters<typeof renderToBuffer>[0];
+  const falseAlarm = await publishedFalseAlarmRate();
+  const el = React.createElement(StatementDoc, { d: DEMO_DOC, falseAlarm }) as unknown as Parameters<typeof renderToBuffer>[0];
   const buffer = await renderToBuffer(el);
   return new Response(new Uint8Array(buffer), {
     headers: {

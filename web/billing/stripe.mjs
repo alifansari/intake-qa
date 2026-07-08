@@ -5,7 +5,7 @@
 // generation must never be blocked on Stripe availability, so this is
 // best-effort and swallows its own errors upstream.
 
-import { appendStripeSimLog } from "../ingest/store.mjs";
+import { appendStripeSimLog, getFirmBilling } from "../ingest/store.mjs";
 import { isTestMode } from "../messaging/compliance.mjs";
 
 function stripeEnabled(env = process.env) {
@@ -14,13 +14,26 @@ function stripeEnabled(env = process.env) {
 
 // Simulate (or, when live, perform) the Stripe hand-off for a finalized invoice.
 // `stripe` can be injected in tests. Returns { simulated, ... }.
+//
+// GUARANTEE REFUND (P1 item 8): when a guarantee_credit brings an already-charged
+// month's net to <= 0, the base fee was already collected on the flat monthly
+// subscription, so a credit LINE alone doesn't return money. We must issue a
+// Stripe refund/credit for the collected amount. TEST_MODE / no keys: logged.
 export async function syncInvoiceToStripe({ db, firmId, invoiceId, totalCents, stripe, env = process.env }) {
   const payload = { invoiceId, firmId, amount_due_cents: totalCents };
 
   if (!stripeEnabled(env)) {
     await appendStripeSimLog(db, { firm_id: firmId, action: "create_invoice", payload });
     await appendStripeSimLog(db, { firm_id: firmId, action: "finalize", payload });
-    return { simulated: true };
+    // A net <= 0 after a guarantee credit means the flat month should be refunded.
+    if (typeof totalCents === "number" && totalCents <= 0) {
+      await appendStripeSimLog(db, {
+        firm_id: firmId,
+        action: "refund_guarantee_credit",
+        payload: { invoiceId, refund_cents: Math.abs(totalCents), reason: "find_it_free_guarantee" },
+      });
+    }
+    return { simulated: true, refundSimulated: totalCents <= 0 };
   }
 
   // Live path: only reached with a key AND TEST_MODE off. Lazy-load the SDK so
@@ -39,7 +52,42 @@ export async function syncInvoiceToStripe({ db, firmId, invoiceId, totalCents, s
         return new Stripe(env.STRIPE_SECRET_KEY);
       })());
     // Intentionally minimal — the real finalize/collection flow is a go-live task.
-    await client.invoices.create({ metadata: { invoiceId: String(invoiceId), firmId: String(firmId) } });
+    // P0-4c: pass a Stripe idempotency key derived from the invoice id so a retry
+    // (webhook replay, cron re-close) can never create a duplicate charge.
+    await client.invoices.create(
+      { metadata: { invoiceId: String(invoiceId), firmId: String(firmId) } },
+      { idempotencyKey: `invoice-create-${invoiceId}` },
+    );
+
+    // Guarantee refund: when the net is <= 0, the flat month was already collected
+    // on the subscription, so issue a customer balance credit for the refunded
+    // amount. (A precise per-charge refund needs the PaymentIntent id from the
+    // subscription invoice; a negative balance transaction is the safe, auditable
+    // form that reduces the next invoice — do NOT silently swallow the credit.)
+    if (typeof totalCents === "number" && totalCents <= 0) {
+      const refundCents = Math.abs(totalCents);
+      const billing = await getFirmBilling(db, firmId).catch(() => null);
+      const customerId = billing?.stripe_customer_id ?? null;
+      if (customerId && refundCents > 0) {
+        // P0-4c: idempotency key derived from the invoice id so a replayed close
+        // cannot issue the guarantee credit twice.
+        await client.customers.createBalanceTransaction(
+          customerId,
+          {
+            amount: -refundCents, // negative = credit to the customer
+            currency: "usd",
+            description: `Find-it-free guarantee credit (invoice ${invoiceId})`,
+          },
+          { idempotencyKey: `guarantee-credit-${invoiceId}` },
+        );
+      } else {
+        await appendStripeSimLog(db, {
+          firm_id: firmId,
+          action: "refund_guarantee_credit_pending",
+          payload: { invoiceId, refund_cents: refundCents, reason: "no_stripe_customer_on_file" },
+        });
+      }
+    }
     return { simulated: false };
   } catch (err) {
     // Never let a Stripe failure break invoicing; record it for the operator.

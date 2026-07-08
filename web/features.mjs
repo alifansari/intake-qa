@@ -17,6 +17,7 @@ export const FEATURES = {
   CRM_INTEGRATIONS: "crm_integrations", // Phase 5 — CRM connectors
   SPEED_TO_LEAD: "speed_to_lead", // Phase 6 — callback SLA command center
   PUBLIC_CALIBRATION: "public_calibration", // Phase 7 — shareable calibration snapshot
+  LIVE_COACH: "live_coach", // Pro-tier — live in-call coach (CIPA §632 consent-gated)
 };
 
 // Every known flag key, for the operator toggle UI and validation.
@@ -31,6 +32,7 @@ export const FEATURE_LABELS = {
   [FEATURES.CRM_INTEGRATIONS]: "CRM integrations",
   [FEATURES.SPEED_TO_LEAD]: "Speed-to-lead SLA",
   [FEATURES.PUBLIC_CALIBRATION]: "Public calibration snapshot",
+  [FEATURES.LIVE_COACH]: "Live in-call coach (Pro)",
 };
 
 // Is a string a known feature key? Unknown keys are treated as OFF everywhere.
