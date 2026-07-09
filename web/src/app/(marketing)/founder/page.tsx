@@ -59,9 +59,10 @@ export default function FounderPage() {
         <p>
           So here&apos;s the deal: send me up to 10 of your own recorded intake calls and I&apos;ll run
           a free Leak Audit. I score them, walk you through the signable cases that slipped, and charge
-          nothing until the number survives your scrutiny. If you continue after that, the fee is flat
-          and never touches your outcomes, and the first five firms can start on the Founding 5 Charter
-          at a flat founding rate. You&apos;d get direct access to me and a say in what the desk
+          nothing until the number survives your scrutiny. If you continue after that, the first five
+          firms join the founding beta: free while I finish building, in exchange for candid feedback,
+          with preferred pricing locked in at launch. The fee, when it comes, is flat and never touches
+          your outcomes. You&apos;d get direct access to me and a say in what the desk
           becomes. No sales team, no logos to show you yet, just the work.
         </p>
         <p className="font-display text-base font-semibold text-ink">

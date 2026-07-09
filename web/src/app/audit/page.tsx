@@ -155,7 +155,7 @@ export default function AuditUploaderPage() {
             See a sample report →
           </a>
           <a href="/pricing" className="font-medium text-ink-muted hover:text-ink">
-            Ready to start without the audit? See pricing →
+            What does it cost? Free during the beta →
           </a>
         </div>
 

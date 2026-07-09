@@ -331,9 +331,9 @@ export default function HomePage() {
       {/* FOUNDING COHORT */}
       <Section className="py-14">
         <div className="max-w-[70ch]">
-          <p className="eyebrow">Founding 5 Charter</p>
+          <p className="eyebrow">The founding beta</p>
           <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">
-            Five founding firms. A free Leak Audit, then the Charter.
+            Five founding firms. A free Leak Audit, then the beta.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
             {STAKE_LINE} Everyone selling to law firms asks to be paid before they prove anything. I
@@ -343,9 +343,9 @@ export default function HomePage() {
           <div className="mt-8 grid gap-px overflow-hidden rounded-card border border-hairline bg-hairline sm:grid-cols-2">
             {[
               ["The free Leak Audit", "Send up to 10 of your own recorded intake calls. A real analyst scores them against the published rubric and walks you through the signable cases that slipped, live and free. You keep the written report either way."],
-              ["The Founding 5 Charter", "If it earns its keep, the first five firms continue at a flat $1,500/mo for the first 90 days, then the flat $2,500/mo Core price. A hard cap of five firms; it closes at the fifth firm or Aug 31, 2026, whichever comes first."],
-              ["Flat monthly, never a share", "The Charter and Core are flat monthly fees, tiered by call volume and never tied to cases signed, cases recovered, or any outcome. Cancel anytime."],
-              ["What I ask in return", "Candid feedback on the work. Nothing else."],
+              ["The founding beta", "If it earns its keep, five founding firms run the full desk on their own calls, free during the beta: sign a mutual NDA, connect or upload your recorded intake calls, and tell me what's useful and what isn't."],
+              ["Flat monthly, never a share", "At launch the fee is a flat monthly subscription, tiered by call volume and never tied to cases signed, cases recovered, or any outcome. Founding testers lock in preferred pricing; the number is shared individually after your free audit."],
+              ["What I ask in return", "Structured, candid feedback on user experience and utility. Nothing else. Your staff make every callback; we never contact your prospects."],
             ].map(([h, b]) => (
               <div key={h} className="bg-surface p-5">
                 <p className="font-display text-base font-semibold text-ink">{h}</p>
@@ -415,7 +415,7 @@ export default function HomePage() {
       <Section className="py-20 border-t border-hairline">
         <div className="max-w-[68ch]">
           <h2 className="font-display text-4xl font-semibold leading-[1.1] text-ink text-balance">
-            A free Leak Audit. Five founding seats on the Charter.
+            A free Leak Audit. Five founding seats in the beta.
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">
             A signed report you keep, a say in what the desk becomes, and no obligation to continue.

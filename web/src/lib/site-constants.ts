@@ -8,7 +8,6 @@
 // (marketing pages) and client components (ROICalculator, PilotCohortBanner)
 // can import it.
 //
-import { COHORT_CTA_LABEL } from "./cohort";
 //
 // ROUND 4 (v3 report): the Leak Audit is FREE again (no $500/credit); the
 // guarantee is a $25k find-it-free / first-month-free structure; positioning is
@@ -85,11 +84,12 @@ export const WHAT_WE_DO =
 // ONE public wedge name sitewide: the "Leak Audit". (The internal "10-Call
 // Autopsy" is the same thing — public copy always says "Leak Audit".)
 export const AUDIT_NAME = "Leak Audit";
-// Single primary CTA sitewide, waitlist-aware (see lib/cohort.ts).
-export const CTA_PRIMARY = COHORT_CTA_LABEL;
-// Persistent SECONDARY action for a buyer who is already convinced and wants to
-// pay now instead of running the free audit. Quieter styling; points at /pricing.
-export const CTA_SECONDARY = "Already convinced? Start a subscription →";
+// Single primary CTA sitewide: the free audit is step one of the beta.
+export const CTA_PRIMARY = "Get your free Leak Audit";
+// Persistent SECONDARY action: the honest pricing answer during the beta.
+// Not "call for pricing" — /pricing states plainly: free during beta, flat
+// monthly at launch, number shared individually after the free audit.
+export const CTA_SECONDARY = "What does it cost? →";
 export const CTA_SECONDARY_HREF = "/pricing";
 // Risk-reversal sub-CTA line, leads with what the buyer keeps. Flat-fee-safe:
 // no outcome promise, no card required to start.
@@ -120,9 +120,35 @@ export const AUDIT_DELIVERABLES: string[] = [
   "A watermarked sample of the staff-sent win-back message we'd recommend.",
   "A shareable written report your firm keeps.",
 ];
-// The one funnel (present as a single path, no competing offers).
+// The one funnel (present as a single path, no competing offers). During the
+// beta no dollar figure appears in public copy (see BETA_* block below).
 export const FUNNEL_LINE =
-  "Free Leak Audit → a live readout with Ali → the Founding 5 Charter ($1,500/mo for 90 days) → the flat $2,500/mo Core subscription.";
+  "Free Leak Audit → a live readout with Ali → the founding beta, free while we finish building → founding-member pricing at launch.";
+
+// ─── Beta program framing (public copy during the beta window) ───────────────
+// The beta recruits testers, not evaluators of a price tag. Public copy states
+// plainly: FREE during the beta, under three conditions, with a real flat price
+// at launch that founding testers lock in at a preferred rate. Never evasive,
+// never "call for pricing": /pricing answers the question directly, and Ali
+// will tell anyone the landing zone by email. Dollar figures return to public
+// copy when the beta ends (founder decision).
+export const BETA_FREE_LINE = "Free during the beta. Founding testers lock in preferred pricing at launch.";
+export const BETA_WHO_LINE =
+  "Intake QA is in a working beta with a small founding cohort of California personal-injury firms. Testers run it on their own recorded intake calls and pay nothing.";
+// The three conditions, spelled out (what the beta asks of a tester).
+export const BETA_CONDITIONS: string[] = [
+  "Sign a mutual NDA. Your calls and our beta stay confidential in both directions; a BAA is available for firms that want one.",
+  "Connect your phone system or upload a sample of your recorded intake calls. That's the material we analyze; setup is measured in hours, not weeks.",
+  "Give structured feedback on user experience and utility after each report you receive: were the flagged cases genuinely signable, was the diagnosis right, would you pay for this.",
+];
+// The unchanged ground rules, stated wherever the conditions appear.
+export const BETA_GROUND_RULES =
+  "Two things never change, beta or not: your own staff make every callback, and we never contact your prospects.";
+// How pricing is handled during the beta (transparent deferral, no games).
+export const BETA_PRICING_LINE =
+  "There is a real price, and it's flat: a monthly subscription tiered by call volume, never per case, never per signed client, never a share of any recovery. We share the number individually, after your free Leak Audit, so you can weigh it against what the audit found in your own calls.";
+export const BETA_PRICING_HONESTY =
+  "We're not hiding the number to play games; we're finishing the beta before we publish it. If you want to know where pricing is landing before you apply, email Ali and he'll tell you straight.";
 
 // ─── The $25,000 find-it-free guarantee (backs the diagnostic + first month) ──
 // Attaches to the SUBSCRIPTION decision, never to recovered fees (keeps clear of

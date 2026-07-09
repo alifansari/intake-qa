@@ -6,7 +6,7 @@ import { CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF } from "@/lib/site-const
 const LINKS = [
   { href: "/manifesto", label: "Manifesto" },
   { href: "/how-it-works", label: "How it works" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/pricing", label: "Beta & pricing" },
   { href: "/compliance", label: "Compliance" },
   { href: "/letter", label: "The letter" },
 ];

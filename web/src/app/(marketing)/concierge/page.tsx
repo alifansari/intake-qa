@@ -6,7 +6,7 @@ import { CTA_PRIMARY } from "@/lib/site-constants";
 export const metadata: Metadata = {
   title: "Concierge setup | Intake QA",
   description:
-    "We handle setup so your team barely lifts a finger. Start with a free Leak Audit, then the Founding 5 Charter.",
+    "We handle setup so your team barely lifts a finger. Start with a free Leak Audit, then the founding beta.",
   alternates: { canonical: "/concierge" },
 };
 
@@ -18,7 +18,7 @@ export default function ConciergePage() {
         White-glove recovery for founding firms.
       </h1>
       <p className="mt-6 max-w-[68ch] text-lg leading-relaxed text-ink-muted">
-        Once you continue on the Charter, we don&apos;t just hand you a dashboard. We&apos;ll
+        Once you join the founding beta, we don&apos;t just hand you a dashboard. We&apos;ll
         personally help work your first recovered callbacks with you, so you see signed cases early.
       </p>
       <div className="mt-10">

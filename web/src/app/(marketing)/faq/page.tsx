@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FAQAccordion, type QA } from "@/components/marketing/FAQAccordion";
-import { COHORT_MAX, DELETION_HOURS, CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF, LIFT_LINE, GUARANTEE_THRESHOLD, CHARTER_INTRO_PRICE, CHARTER_INTRO_DAYS, CHARTER_STEP_UP_PRICE } from "@/lib/site-constants";
+import { COHORT_MAX, DELETION_HOURS, CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF, LIFT_LINE, GUARANTEE_THRESHOLD, FOUNDER_EMAIL } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "FAQ | Intake QA",
@@ -16,6 +16,10 @@ const ITEMS: QA[] = [
   {
     q: "Will this actually recover money, or just tell me I'm losing it?",
     a: "Honest answer: today the desk finds the money and hands it to your team to recover, it doesn't recover it for you. Every flagged signable lead lands on one screen so your own team can call back the same day, while the lead is still warm, that's where recovery happens. The monthly statement then shows whether last month's leak is shrinking, so next month's intake gets better. The compliant SMS win-back, where the desk drafts a text and a person at your firm approves it, is on the roadmap and gated on A2P 10DLC registration; you don't pay for it until it's live and we'll tell you plainly what's running versus in development.",
+  },
+  {
+    q: "What does it cost?",
+    a: `Nothing during the beta. We're running a working beta with a small founding cohort of California PI firms, and the deal is explicit: you sign a mutual NDA, connect your phone system or upload a sample of your recorded intake calls, and give structured feedback on user experience and utility after each report. In exchange you use the full desk free, your own staff make every callback, and we never contact your prospects. There is a real price at launch, and it's flat: a monthly subscription tiered by call volume, never per case, never per signed client, never a share of any recovery. We share the number individually after your free Leak Audit, so you can weigh it against what the audit found in your own calls, and founding testers lock in preferred pricing at launch. If you want to know where pricing is landing before you apply, email me at ${FOUNDER_EMAIL} and I'll tell you straight. Ali`,
   },
   {
     q: "Why is the Leak Audit free?",
@@ -51,7 +55,7 @@ const ITEMS: QA[] = [
   },
   {
     q: "You're a solo founder. Will this be around in a year?",
-    a: `Straight answer: it's early, and I'm honest about it. No logos, no case studies yet. The product logic is complete and version-locked, so the scoring doesn't drift under you. The founding cohort is capped at ${COHORT_MAX} firms on purpose, you get direct access to me, and the Leak Audit is free, so you can prove the value before you commit a dollar. If you continue, the first five firms start on the Founding 5 Charter at ${CHARTER_INTRO_PRICE} for ${CHARTER_INTRO_DAYS} days, then the flat ${CHARTER_STEP_UP_PRICE} Core price, cancel-anytime. Your data is deletable on request at any point, so you're never locked in. Ali`,
+    a: `Straight answer: it's early, and I'm honest about it. No logos, no case studies yet. The product logic is complete and version-locked, so the scoring doesn't drift under you. The founding cohort is capped at ${COHORT_MAX} firms on purpose, you get direct access to me, and the beta is free, so you can prove the value before you ever commit a dollar. When the beta ends, the fee is flat monthly and founding testers lock in preferred pricing. Your data is deletable on request at any point, so you're never locked in. Ali`,
   },
   {
     q: "Isn't our fee to you basically fee-splitting?",
