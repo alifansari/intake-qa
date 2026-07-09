@@ -151,6 +151,10 @@ export const BETA_PRICING_HONESTY =
   "We're not hiding the number to play games; we're finishing the beta before we publish it. If you want to know where pricing is landing before you apply, email Ali and he'll tell you straight.";
 
 // ─── The $25,000 find-it-free guarantee (backs the diagnostic + first month) ──
+// SUSPENDED FOR THE BETA WINDOW (Ali, 2026-07-09): the desk is free, so there is
+// no fee to waive; no public page renders these constants during the beta. They
+// return with published pricing at launch. GUARANTEE_METHODOLOGY (below) is the
+// exception: it is pure estimation methodology and stays live on /honesty.
 // Attaches to the SUBSCRIPTION decision, never to recovered fees (keeps clear of
 // FTC §5 / CA §17500 earnings claims and §§6151–6152 / SB 37 outcome-fee optics).
 export const GUARANTEE_THRESHOLD = "$25,000";
@@ -163,10 +167,11 @@ export const GUARANTEE_METHODOLOGY =
 // TODO(Ali): collect each firm's average fee per case type (guarantee methodology input).
 
 // ─── Founding cohort (honest, durable language — no countdown, no "N seats left") ───
-// The founding cohort IS the Charter (Founding 5): a hard cap of 5 firms, the paid
-// pilot at the Charter intro rate. See the Charter block below for terms.
+// BETA WINDOW: the founding cohort is the free beta (NDA + call access +
+// structured feedback), not the paid Charter. The Charter block below is kept
+// for launch but is not rendered publicly during the beta.
 export const COHORT_MAX = 5;
-export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MAX} Northern California PI firms onto the Founding 5 Charter, after each firm's free Leak Audit.`;
+export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MAX} California PI firms into the beta, after each firm's free Leak Audit.`;
 
 // ─── Data handling (one reconciled promise) ──────────────────────────────────
 // Canonical retention (Round 7 master): audio deleted at transcription; transcripts

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FAQAccordion, type QA } from "@/components/marketing/FAQAccordion";
-import { COHORT_MAX, DELETION_HOURS, CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF, LIFT_LINE, GUARANTEE_THRESHOLD, FOUNDER_EMAIL } from "@/lib/site-constants";
+import { COHORT_MAX, DELETION_HOURS, CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF, LIFT_LINE, FOUNDER_EMAIL } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "FAQ | Intake QA",
   description:
-    "Why the audit is free, what the $25,000 find-it-free guarantee actually backs, how we differ from your AI receptionist or agency, what months 2-12 look like, and how your data is handled.",
+    "What the beta costs (nothing) and what it asks, why the audit is free, how we differ from your AI receptionist or agency, what months 2-12 look like, and how your data is handled.",
   alternates: { canonical: "/faq" },
 };
 
@@ -24,10 +24,6 @@ const ITEMS: QA[] = [
   {
     q: "Why is the Leak Audit free?",
     a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Leak Audit is free for qualifying Northern California PI firms. A real analyst scores up to 10 of your own recorded calls and walks you through the signable cases that slipped, live, and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. Ali",
-  },
-  {
-    q: `What does the ${GUARANTEE_THRESHOLD} find-it-free guarantee actually back?`,
-    a: `A diagnostic threshold, not a case outcome. If the free Leak Audit doesn't surface at least ${GUARANTEE_THRESHOLD} in estimated missed signable case value in your own calls, we won't pitch you a subscription, and if you start one anyway, your first month is free. "Estimated missed signable case value" is calculated from your own average fee per case type (or named industry benchmarks where we don't have it), and it's an estimate of what walked, never a promise of what we'll recover. That distinction is deliberate: a promise tied to recovered fees would raise runner/capper and earnings-claim problems. See how we calculate it on the calibration page.`,
   },
   {
     q: "I already have an AI receptionist / answering service / Lead Docket / a marketing agency that reports on this.",

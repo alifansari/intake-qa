@@ -24,7 +24,22 @@ function requestOrigin(req: Request): string {
   return url.origin;
 }
 
+// BETA WINDOW: checkout is disabled — the desk is free for beta testers and no
+// public price is published. Delete this block to re-enable checkout at launch
+// (everything below is intact and unchanged).
+const CHECKOUT_DISABLED_DURING_BETA = true;
+
 export async function POST(req: Request) {
+  if (CHECKOUT_DISABLED_DURING_BETA) {
+    return Response.json(
+      {
+        error:
+          "Checkout is disabled during the beta. The desk is free for beta testers; start with the free Leak Audit at /audit.",
+      },
+      { status: 503 },
+    );
+  }
+
   let json: unknown;
   try {
     json = await req.json();

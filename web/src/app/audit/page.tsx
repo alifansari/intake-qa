@@ -16,8 +16,6 @@ import {
   FOUNDER_EMAIL,
   AUDIT_CAPACITY_LINE,
   AUDIT_DELIVERABLES,
-  GUARANTEE_CANONICAL,
-  GUARANTEE_METHODOLOGY,
   CTA_PRIMARY,
 } from "@/lib/site-constants";
 
@@ -172,13 +170,19 @@ export default function AuditUploaderPage() {
           </p>
         </div>
 
-        {/* $25,000 find-it-free guarantee — full mechanics, no buried conditions */}
-        <div className="mt-4 rounded-card border border-gold/50 bg-gold-tint/40 p-5">
-          <p className="text-sm font-semibold text-ink">The $25,000 find-it-free guarantee</p>
-          <p className="mt-2 text-sm text-ink-muted">{GUARANTEE_CANONICAL}</p>
-          <p className="mt-2 text-xs text-ink-muted">{GUARANTEE_METHODOLOGY}</p>
+        {/* BETA WINDOW: the find-it-free guarantee is suspended — the desk is
+            free, so there is no fee to waive. It returns with published pricing
+            at launch. */}
+        <div className="mt-4 rounded-card border border-hairline bg-canvas p-5">
+          <p className="text-sm font-semibold text-ink">Free during the beta</p>
+          <p className="mt-2 text-sm text-ink-muted">
+            The audit is free, and during the beta so is the desk itself: founding firms run it on
+            their own calls under a mutual NDA, give structured feedback, and lock in preferred
+            pricing at launch. Every dollar figure in your report is an estimate of what walked,
+            never a promise of what you&apos;ll recover.
+          </p>
           <p className="mt-2 text-xs text-faint">
-            Full methodology and our model&apos;s precision/recall are on the{" "}
+            How we estimate missed value, and our error rate, are on the{" "}
             <a href="/honesty" className="font-semibold text-navy underline">calibration page</a>.
           </p>
         </div>

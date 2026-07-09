@@ -68,13 +68,14 @@ export default function CompliancePage() {
           the question from arising.
         </p>
         <p>
-          The same logic governs our guarantee. The Leak Audit is free, and the $25,000
-          find-it-free guarantee attaches to a <em>diagnostic threshold and the first paid month</em>,
-          not to any recovery. It triggers on estimated value <em>identified</em> in your own
-          calls; if the audit doesn&apos;t surface at least $25,000, we won&apos;t pitch a
-          subscription, and if you start one anyway your first month is free. Because nothing here is
-          a share of, or contingent on, recovered fees, it creates no outcome-fee arrangement under
-          §§6151-6152 / SB 37 and no earnings claim under FTC §5 / CA §17500.
+          The same logic governs any guarantee we offer. The Leak Audit is free, and during the
+          beta the full desk is free as well, so no fee guarantee is currently in effect. When
+          published pricing returns at launch, any guarantee attaches to a{" "}
+          <em>diagnostic threshold and the first paid month</em>, not to any recovery: it triggers
+          on estimated value <em>identified</em> in a firm&apos;s own calls, never on fees
+          recovered. Because nothing here is a share of, or contingent on, recovered fees, it
+          creates no outcome-fee arrangement under §§6151-6152 / SB 37 and no earnings claim under
+          FTC §5 / CA §17500.
         </p>
       </Sec>
 

@@ -6,7 +6,7 @@ import { ConfidenceTierTable } from "@/components/marketing/ConfidenceTierTable"
 export const metadata: Metadata = {
   title: "Calibration & honesty: how we measure, and what we won't claim yet | Intake QA",
   description:
-    "The method behind the score, how we define a correct flag and a miss, how we estimate missed signable case value for the $25,000 find-it-free guarantee, and why we won't publish precision/recall until the test corpus is documented.",
+    "The method behind the score, how we define a correct flag and a miss, how we estimate missed signable case value, and why we won't publish precision/recall until the test corpus is documented.",
   alternates: { canonical: "/honesty" },
 };
 
@@ -79,13 +79,13 @@ export default function HonestyPage() {
 
       <section className="mt-10">
         <h2 className="font-display text-2xl font-semibold text-ink">
-          How we estimate missed signable case value (for the $25,000 find-it-free guarantee)
+          How we estimate missed signable case value
         </h2>
         <p className="mt-3 max-w-[72ch] text-ink-muted">{GUARANTEE_METHODOLOGY}</p>
         <p className="mt-3 max-w-[72ch] text-sm text-faint">
-          The guarantee triggers on estimated value <b className="text-ink">identified</b> in your
-          own calls, never on any revenue you recover. It&apos;s a promise about what the audit
-          finds, not a promise about outcomes.
+          Every estimate describes value <b className="text-ink">identified</b> in your own calls,
+          never revenue you recover. It&apos;s a claim about what the audit finds, not a promise
+          about outcomes.
         </p>
       </section>
 

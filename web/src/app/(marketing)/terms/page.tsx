@@ -6,7 +6,6 @@ import {
   LEGAL_DBA,
   LEGAL_LAST_UPDATED,
   LEGAL_GOVERNING_STATE,
-  GUARANTEE_THRESHOLD,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
@@ -70,15 +69,16 @@ export default function TermsPage() {
 
         <Section n="4" title="Fees and billing">
           <p>
-            Paid plans are a flat monthly subscription tiered by call volume. We never charge per
-            case, per signed client, or as a share of any recovery. Subscriptions are billed through
-            our payment processor, are month-to-month, and can be cancelled anytime, effective at the
-            end of the current period. The {GUARANTEE_THRESHOLD}{" "}find-it-free guarantee is described
-            on the{" "}
+            During the beta, the service is provided free of charge to admitted beta testers under
+            the beta conditions described on the{" "}
             <Link href="/pricing" className="font-semibold text-accent hover:text-accent-hover">
               pricing page
             </Link>{" "}
-            and forms part of these terms.
+            (NDA, call access, structured feedback). Paid plans, when they begin at launch, are a
+            flat monthly subscription tiered by call volume. We never charge per case, per signed
+            client, or as a share of any recovery. Subscriptions are billed through our payment
+            processor, are month-to-month, and can be cancelled anytime, effective at the end of the
+            current period.
           </p>
         </Section>
 
