@@ -50,6 +50,25 @@ export async function pushOutcomePrompt(ctx, { call } = {}) {
   });
 }
 
+// On daily rescue packet: one Task per packet item so staff work callbacks from
+// Clio directly (zero-login delivery, module 4/10). PLACEHOLDER field names.
+export async function pushRescuePacket(ctx, { packet_date, items } = {}) {
+  const results = [];
+  for (const item of items ?? []) {
+    results.push(
+      await clioPost(ctx, "/api/v4/tasks.json", {
+        name: `Rescue callback #${item.rank} (${packet_date}): ${item.prospect_name ?? "unknown caller"}`,
+        description:
+          `${item.diagnosis ?? ""}\n\nCALLBACK SCRIPT:\n${item.callback_script ?? ""}` +
+          (item.sol_deadline ? `\n\nSOL deadline: ${item.sol_deadline} — call first.` : ""),
+        priority: item.sol_deadline ? "High" : "Normal",
+        ...(ctx.fieldMap ?? {}),
+      })
+    );
+  }
+  return { delivered: results.every((r) => r.delivered), provider: "clio", tasks: results.length };
+}
+
 // On audit completion: push the case-ready summary memo as a Note.
 export async function pushCaseSummary(ctx, { call, memo } = {}) {
   return clioPost(ctx, "/api/v4/notes.json", {

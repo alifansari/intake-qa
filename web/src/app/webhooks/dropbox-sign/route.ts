@@ -13,6 +13,7 @@
 // Plain-Node .mjs modules shared with the CLI/tests; types are inferred via
 // allowJs + bundler resolution, so no explicit d.ts is needed.
 import { completeSignatureRequest } from "../../../../messaging/outcome.mjs";
+import { completeNdaSignature } from "../../../../beta/nda.mjs";
 import { verifyDropboxSignEvent } from "../../../../messaging/dropbox-sign-verify.mjs";
 import { openPipelineDb, closePipelineDb } from "../../../../ingest/store.mjs";
 
@@ -45,7 +46,13 @@ export async function POST(req: Request) {
     if (signatureRequestId) {
       const db = await openPipelineDb();
       try {
-        await completeSignatureRequest({ db, signatureRequestId });
+        // Two signature flows share this callback URL; each no-ops with
+        // { handled: false } when the id belongs to the other. Retainer
+        // handoffs first (the original flow), then beta NDAs (migration 0021).
+        const handoff = await completeSignatureRequest({ db, signatureRequestId });
+        if (!handoff.handled) {
+          await completeNdaSignature({ db, signatureRequestId });
+        }
       } finally {
         await closePipelineDb(db);
       }

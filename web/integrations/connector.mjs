@@ -83,6 +83,12 @@ export async function dispatch({
       return adapter.pushCaseSummary
         ? adapter.pushCaseSummary(ctx, payload)
         : { skipped: true, reason: "unsupported_event" };
+    case "rescue_packet.created":
+      // Daily rescue packet -> a CRM task per item so staff work callbacks from
+      // the tool they already live in (zero-login delivery, module 4/10).
+      return adapter.pushRescuePacket
+        ? adapter.pushRescuePacket(ctx, payload)
+        : { skipped: true, reason: "unsupported_event" };
     default:
       return { skipped: true, reason: "unknown_event" };
   }
