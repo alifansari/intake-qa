@@ -126,5 +126,3 @@ Plaintiff Ops LLC · Sacramento, California · July 6, 2026
 I publish my own error rate at /honesty
 Version 1.3 · updated July 9, 2026
 Changelog. 1.3: the invitation was updated for the beta window: the first five firms test the desk free under a mutual NDA in exchange for structured feedback, with preferred pricing locked in at launch; no dollar figure is published during the beta, and the fee remains flat and outcome-decoupled. 1.2: the invitation was reconciled to the free Leak Audit wedge, with the first five firms continuing on a flat-rate founding charter. 1.1: the invitation changed from a flat-fee audit to a founding-cohort offer for the first five firms.
-
-TODO: public/letter.pdf needs regeneration to match Version 1.1 (no in-repo PDF tooling; regenerate from the Typst/letterhead source).
