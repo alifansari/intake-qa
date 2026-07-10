@@ -131,10 +131,11 @@ export function getTrigger(key) {
 }
 
 // Merge firm overrides into the registry defaults. Overrides shape:
-//   { "<trigger_key>": { tier?: "hot"|"warm"|"flagged", enabled?: boolean } }
+//   { "<trigger_key>": { tier?, enabled?, loosened?: boolean } }
 // PROTECTED triggers: disable is ignored, and a tier override may only move
-// them UP (toward hot), never down — the deliberate loosening flow lives in
-// Phase 5, not here.
+// them UP (toward hot) — UNLESS the override carries `loosened: true`, which
+// only the Phase-5 friction flow writes (typed confirmation phrase + named
+// attorney approval). Ordinary config edits can never set it.
 export function mergeConfig(overrides = {}) {
   const merged = new Map();
   for (const t of TRIGGERS) {
@@ -142,8 +143,9 @@ export function mergeConfig(overrides = {}) {
     let enabled = o.enabled !== false;
     let tier = TIERS.includes(o.tier) ? o.tier : t.tier;
     if (t.protected) {
-      enabled = true; // cannot be silenced
-      if (TIER_RANK[tier] > TIER_RANK[t.tier]) tier = t.tier; // no downgrades
+      enabled = true; // cannot be silenced, loosened or not
+      const isDowngrade = TIER_RANK[tier] > TIER_RANK[t.tier];
+      if (isDowngrade && o.loosened !== true) tier = t.tier; // friction flow only
     }
     merged.set(t.key, { ...t, tier, enabled });
   }
