@@ -13,6 +13,7 @@ import {
   answerNode,
   promptFor,
   applyInterpretation,
+  recordDeflection,
 } from "../src/lib/intake/engine.mjs";
 import { solCheck, routeLead, NEXT_ACTIONS, CONFIDENCE_GATE } from "../src/lib/intake/routing.mjs";
 import { BANNED_PROMPT_PHRASES, AI_DISCLOSURE_TEXT } from "../src/lib/intake/guardrails.mjs";
@@ -242,6 +243,17 @@ test("applyInterpretation adds data fields only and never touches routing", () =
   assert.equal(record.incident.mentions_injury, true);
   assert.equal(record.incident.hallucinated_field, undefined);
   assert.equal(JSON.stringify(record.routing), before);
+});
+
+test("off-script deflections land on the event trail without moving the tree", () => {
+  let { record, nodeId } = startConversation("s", NOW);
+  ({ record, nodeId } = answerNode(record, nodeId, "proceed", NOW));
+  const before = nodeId;
+  recordDeflection(record, "What's my case worth?", "case_value", NOW);
+  assert.equal(nodeId, before, "tree position untouched");
+  const ev = record.events.find((e) => e.kind === "deflection");
+  assert.ok(ev, "deflection recorded — provable the agent never improvised");
+  assert.equal(ev.payload.deflection, "case_value");
 });
 
 test("routeLead never returns a bucket outside the four", () => {
