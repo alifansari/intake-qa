@@ -58,6 +58,11 @@ export default async function StudioHome() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             {
+              href: "/studio/onboard-firm",
+              title: "Onboard a firm",
+              desc: "Apply → account in one click: firm, sign-in, membership, welcome email composed.",
+            },
+            {
               href: "/studio/shops",
               title: "The Mirror",
               desc: "Mystery-shop audits — grade each intake channel, print the firm-facing report.",

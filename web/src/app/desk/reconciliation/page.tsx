@@ -1,6 +1,7 @@
 // Calls & reconciliation — screen (c). Every call accounted for: received =
 // processed + excluded + failed. The banner turns red if it doesn't balance.
 import { fmtDate } from "@/pdf/doc-helpers.mjs";
+import { resolveDeskFirm } from "@/lib/desk/firm";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,8 +22,7 @@ export default async function ReconciliationPage() {
     return <Shell><p className="text-sm text-ink-muted">Connect the workspace database to see reconciliation. Run npm run seed:demo locally.</p></Shell>;
   }
   try {
-    const firms = await store.listFirms(db);
-    const firm = firms.find((f: { name?: string }) => (f.name ?? "").includes("DEMO")) ?? firms[0];
+    const firm = await resolveDeskFirm(db, store.listFirms);
     if (!firm) return <Shell><p className="text-sm text-ink-muted">No firm found yet.</p></Shell>;
 
     const r = await store.getCallReconciliation(db, firm.id);

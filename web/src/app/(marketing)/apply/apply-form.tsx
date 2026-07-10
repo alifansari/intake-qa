@@ -66,7 +66,19 @@ export function ApplyForm() {
       <div className="rounded-card border border-hairline bg-surface p-7">
         <p className="font-display text-xl font-semibold text-ink">You&apos;re in the queue.</p>
         <p className="mt-2 text-ink-muted">{done}</p>
-        <p className="mt-4 text-sm text-faint">
+        <ol className="mt-5 flex flex-col gap-3 border-t border-hairline pt-5">
+          {[
+            ["Today", "The mutual NDA arrives by email. Nothing connects until it's signed."],
+            ["After you sign", "Your sign-in and desk arrive the same day, with a 15-minute setup call to connect your calls. Your team changes nothing about how they answer the phone."],
+            ["Within days of calls flowing", "Missed cases start appearing on your desk — likely signable callers who walked — ready for your team to call back."],
+          ].map(([when, what]) => (
+            <li key={when} className="flex gap-3 text-sm">
+              <span className="w-40 flex-none font-semibold text-ink">{when}</span>
+              <span className="text-ink-muted">{what}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-5 text-sm text-faint">
           While you wait: run the free Leak Audit on 10 of your calls —{" "}
           <a href="/audit" className="font-medium text-accent hover:text-accent-hover">
             start it here

@@ -5,6 +5,7 @@
 // user must never see plumbing.
 import { LeakCard, type Leak } from "@/components/desk/LeakCard";
 import { HowCallsArrive } from "@/components/desk/HowCallsArrive";
+import { resolveDeskFirm } from "@/lib/desk/firm";
 import { fmtMoneyRange } from "@/pdf/doc-helpers.mjs";
 import { feeRangeFromRow } from "../../../../analysis/fee-value.mjs";
 
@@ -28,12 +29,19 @@ export default async function QueuePage() {
     return <FirstRun detail="workspace database not connected" />;
   }
   try {
-    const firms = await store.listFirms(db);
-    const firm =
-      firms.find((f: { name?: string }) => (f.name ?? "").includes("DEMO")) ?? firms[0];
+    // The signed-in user's own firm (firm_members); pilot fallback otherwise.
+    const firm = await resolveDeskFirm(db, store.listFirms);
     if (!firm) return <FirstRun detail="no firm on this workspace yet" />;
 
     const flags = await store.listLeakedFlags(db, firm.id);
+    // Distinguish "no misses" from "no calls at all" for the empty state.
+    let callsReceived = 0;
+    try {
+      const recon = await store.getCallReconciliation(db, firm.id);
+      callsReceived = Number(recon?.received ?? 0);
+    } catch {
+      callsReceived = 0;
+    }
     const leaks: Leak[] = [];
     for (const f of flags) {
       const range = f.case_type ? await store.getFeeValueRange(db, f.case_type, firm.id) : null;
@@ -69,17 +77,38 @@ export default async function QueuePage() {
         </div>
 
         {leaks.length === 0 ? (
-          <div className="rounded-card border border-hairline bg-surface p-8">
-            <h2 className="font-display text-xl font-semibold text-ink">
-              Nothing needs your attention right now.
-            </h2>
-            <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
-              That&apos;s the desk working: every qualified caller this period is signed, in
-              progress, or accounted for. New misses appear here the same day we read the call
-              &mdash; you don&apos;t need to check back; the daily digest emails you when
-              something lands.
-            </p>
-          </div>
+          callsReceived === 0 ? (
+            // Zero calls yet ≠ zero misses: this firm's calls aren't flowing.
+            // Show the setup story, not a false all-clear.
+            <div className="rounded-card border border-hairline bg-surface p-6">
+              <h2 className="font-display text-xl font-semibold text-ink">
+                One step left: connect your calls.
+              </h2>
+              <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+                Once calls are flowing, anything that slips through appears right here the same
+                day. Your webhook address is ready on the{" "}
+                <a href="/desk/settings" className="font-medium text-accent hover:text-accent-hover">
+                  Settings screen
+                </a>
+                , or we do the whole thing on your 15-minute setup call.
+              </p>
+              <div className="mt-5 border-t border-hairline pt-5">
+                <HowCallsArrive />
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-card border border-hairline bg-surface p-8">
+              <h2 className="font-display text-xl font-semibold text-ink">
+                Nothing needs your attention right now.
+              </h2>
+              <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+                That&apos;s the desk working: every qualified caller this period is signed, in
+                progress, or accounted for. New misses appear here the same day we read the call
+                &mdash; you don&apos;t need to check back; the daily digest emails you when
+                something lands.
+              </p>
+            </div>
+          )
         ) : (
           <div className="flex flex-col gap-3">
             {leaks.map((l) => (
