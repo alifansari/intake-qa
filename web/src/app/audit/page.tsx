@@ -130,7 +130,10 @@ export default function AuditUploaderPage() {
       setErr(e instanceof Error ? e.message : "Something went wrong.");
       setPhase("error");
     }
-  }, [files, volume, uploadOne, pollUntilComplete]);
+    // NOTE: `consent` MUST be in this dependency list. It was missing, which
+    // froze consent=false inside this closure — visitors who attached files
+    // and THEN checked the box were told forever that they hadn't checked it.
+  }, [files, volume, consent, uploadOne, pollUntilComplete]);
 
   return (
     <div className="min-h-screen bg-canvas text-ink">
