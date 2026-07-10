@@ -31,6 +31,98 @@
 
 ---
 
+## 2026-07-09 — Public pricing removed for the beta window (branch `copy/beta-pricing-framing`)  ·  agent: website-dev · lane: website
+
+- **What changed:** All dollar figures, tiers, and per-month prices removed from public site copy
+  (pricing page, homepage founding section + final CTA, FAQ, founder, concierge, cohort banner,
+  ROI calculator cost rows, audit-page link, nav label). Replaced with transparent beta framing:
+  free during the beta under three spelled-out conditions (NDA, connect/upload recorded calls,
+  structured feedback), a real flat price at launch shared individually after the free audit,
+  founding testers lock preferred pricing. No "call for pricing" games — /pricing answers
+  directly and offers Ali's email for the landing zone. Internal pricing objects (PRICING_TIERS,
+  CHARTER_*, billing plans, checkout API) untouched; checkout is simply no longer rendered.
+  Kept: $25,000 find-it-free guarantee (a guarantee, not a price — flagged for Ali), statutory
+  dollar amounts on /compliance, market-stat anchors, the signed /letter (human artifact).
+- **Hypothesis:** recruiting testers without a price tag recruits "help me make this great"
+  instead of "is it worth $X", protects WTP data collection, and lets the Lost Case Report's
+  recovered-dollar figure precede any pricing conversation (LACBA post audience).
+- **Status:** staged on branch `copy/beta-pricing-framing`; beta/program-layer merged to local
+  main earlier today per Ali. Nothing pushed or deployed.
+- **Approval gates (compliance §VII):** Ali reviews the copy; pushing main deploys via Vercel —
+  explicitly awaiting his go.
+- **Review date:** at beta launch (restore published pricing from the untouched config).
+- **Result:** 2026-07-09: Ali approved with three additions — the $25,000 find-it-free guarantee
+  suspended from public copy for the beta (constants kept, marked suspended; /honesty keeps the
+  estimation methodology), the letter updated to v1.3 (beta invitation; letter.txt mirror synced;
+  letter.pdf regeneration still an open TODO), and /api/checkout disabled behind a single
+  beta-window flag (503). Clio confirmed as the Phase-1 CRM. Both branches fast-forwarded into
+  main and PUSHED to origin/main (771475f) on Ali's instruction — first deploy carrying the beta
+  program layer. Same day: hosted Supabase migrations 0021 (reliability — was never applied) and
+  0023 (beta program) applied to production via the pooler (the direct db.<ref>.supabase.co
+  hostname has no DNS record; use aws-1-us-west-1.pooler.supabase.com). Production verified:
+  /pricing shows beta copy, /api/checkout returns the 503 beta message, /api/beta/apply passed an
+  end-to-end smoke test (qualified → nda_pending, NDA simulated; test row deleted). The stale
+  public TODO note was removed from letter.txt (aafdbbd).
+
+---
+
+## 2026-07-09 — Beta program layer scaffolded over the recovery-desk product (branch `beta/program-layer`)  ·  agent: product-dev · lane: product
+
+- **What changed:** Built the beta-program feature layer per Ali's 2026-07-09 brief: applicant
+  intake + CA-PI ICP qualification with tagged waitlist (0a), NDA hard gate via the existing
+  Dropbox Sign integration (0b), structured per-artifact feedback capture + founder view (0c),
+  plus the Phase-1 rescue-desk models the beta exercises: pluggable practice-area ruleset
+  (california-pi only), unified human-in-the-loop review queue with reject-retunes-criteria,
+  top-3 daily rescue packet with zero-login delivery (email/SMS/Clio task, TEST_MODE-simulated),
+  staged recovered-case ledger with would-have-lost gating + control holdout, callback-actor
+  audit log, per-call consent status + firm attestation gate, packaging config objects with a
+  structural flat-fee hard-fail, and a security-posture config object. Twin migrations
+  (SQLite 0021 / Supabase 0023 with RLS). 28 new tests; full suite 301/301; build green.
+  Deliverables: BETA_TEST_PLAN.md + FEATURE_MANIFEST.md at repo root.
+- **Hypothesis:** a self-serve, NDA-gated beta with structured per-artifact feedback converts
+  tester usage into the four signals (onboarding friction, utility, trust, WTP) needed to reach
+  a launchable offer faster than ad-hoc pilots.
+- **Expected effect:** input metrics — beta applications, NDAs signed, audits delivered to
+  testers, feedback rows per artifact, WTP distribution.
+- **Note (tension, flagged not smoothed):** this builds on Direction A (post-call, never
+  contacts prospects), while the 2026-07-08 Intake Closer pivot below remains staged-for-approval.
+  Also a pricing-number conflict: locked $1,500/$2,500/$5,000 vs the brief's $600–$1,500 band —
+  both flat; config carries the locked numbers with TODO(Ali).
+- **Status:** staged on branch `beta/program-layer` (committed locally, not pushed, not merged).
+- **Approval gates (compliance §VII):** Ali — merge decision, pricing numbers, NDA/BAA template
+  creation in Dropbox Sign; Yang — NDA/BAA/consent-greeting language before first live use.
+- **Review date:** 2026-07-23.
+- **Result:** —
+
+---
+
+## 2026-07-08 — PIVOT: Intake QA (independent scorer) → Intake Closer (autonomous bilingual closing agent)  ·  agent: orchestrator · lane: all
+
+- **Change (STAGED, not shipped):** Owner (Ali) authorized a full pivot from the independent-scorer
+  recovery desk to an autonomous, bilingual (EN/ES parity), 24/7 real-time **voice intake agent that
+  closes** — qualifies, forensically scores the case, handles objections, and e-signs the retainer on
+  first contact, under an attorney-in-the-loop approval gate. Master design: `INTAKE_CLOSER_DESIGN.md`.
+  Work is on branch `intake-closer-pivot`. No old code deleted; retirement list staged in the design doc.
+- **Hypothesis:** The market's white space is the capture→signature gap. Lifting blended lead→signed
+  conversion from ~8–12% toward 20%+ has the same P&L effect as halving cost-per-lead, at lower cost.
+  Sub-60s bilingual after-hours answering is the felt wedge; closing is the moat.
+- **⚠ CONFLICT flagged (supreme doctrine):** `compliance-invariants` §I is a bright-line ban on
+  per-signed-case pricing and even the words "per signed client / success fee." The pivot's most
+  compelling economics are per-signed-case. **I did NOT edit the doctrine file** (§VII forbids
+  unilateral pricing changes). Resolution designed as a *pricing switch*: default = flat subscription
+  (compliant today); the fixed per-signed-case **technology** fee and the flat+guarantee fallback are
+  gated on **Yang review** vs. Rule 5.4 / SB 37 / AB 931. Product behavior does not depend on the mode.
+- **Standing prior decisions this SUPERSEDES if the pivot proceeds:** "independent recovery desk /
+  not a fee participant" positioning and "flat monthly, never outcome-tied" pricing. These remain
+  LOCKED until Yang clears the amendment and Ali approves the new public positioning (compliance §VII).
+- **Expected effect:** N/A yet (pre-build). Stage-0 threshold: 2–3 extra signed cases/mo per pilot firm
+  attributable to after-hours/Spanish capture.
+- **Status:** staged-for-approval
+- **Review date:** 2026-07-22
+- **Result:** —
+- **Owner action needed:** (1) approve/adjust the retirement list in `INTAKE_CLOSER_DESIGN.md` §11;
+  (2) route the §I pricing amendment to Yang; (3) confirm which CRM to integrate first (Clio vs CasePeer).
+
 ## 2026-07-07 — Full-product improvement sweep: reconcile + P0 fixes + conversion + deliverables (PR #3)  ·  agent: orchestrator · lane: all
 
 - **Change:** Six deep-research audits (offer strategy, operations, copy/conversion, backend, LiveCoach,
