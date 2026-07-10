@@ -37,7 +37,7 @@ export function createMockSender() {
 }
 
 /**
- * @param {{ escalationId:string, tier:string, trigger_key:string, target:{name?:string, channel?:string} }} alert
+ * @param {{ escalationId:string, tier:string, trigger_key:string, target:Record<string, unknown> }} alert
  * @param {{ sender?: {kind:string, deliver:Function}, env?: object }} deps
  * @returns {Promise<{sent:boolean, simulated:boolean, skipped:boolean, reason:string}>}
  */
