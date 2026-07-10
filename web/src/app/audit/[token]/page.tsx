@@ -93,6 +93,33 @@ export default async function AuditReportPage({
 
   const s = report.summary;
   const calls = report.calls ?? [];
+
+  // HONESTY GUARD: a report with zero reviewed calls is a processing failure,
+  // not a finding. "$0 walked in these 0 calls" reads as a false all-clear —
+  // never show it. Own the snag and give the human path instead.
+  if (s.callsReviewed === 0) {
+    return (
+      <div className="mx-auto max-w-xl px-6 py-20 text-center">
+        <p className="eyebrow">Leak Audit</p>
+        <h1 className="mt-3 font-display text-3xl font-bold text-ink">
+          We hit a snag on our side
+        </h1>
+        <p className="mx-auto mt-3 max-w-prose text-muted">
+          Your recordings reached us but didn&apos;t make it through processing — that&apos;s our
+          problem, not yours, and nothing was lost. Email the files to{" "}
+          <a href="mailto:ali@plaintiffops.com?subject=Leak%20Audit%20snag" className="font-semibold text-navy underline">
+            ali@plaintiffops.com
+          </a>{" "}
+          and a human will run your audit by hand today, free as promised.
+        </p>
+        <div className="mt-6">
+          <a href="/audit" className="rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
+            Or try the upload again
+          </a>
+        </div>
+      </div>
+    );
+  }
   const walkedCalls = calls.filter((c) => c.leaked === true);
   const callCount = s.callsReviewed;
   const signedCount = 0; // uploaded calls have no "signed with us" outcome; shown for honesty

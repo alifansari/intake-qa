@@ -140,3 +140,32 @@ account-less to /apply; Settings gained "set your own password" (the welcome ema
 told people to change it with no way to); welcome email leads to the magic-link
 path too; /audit gained the "no time for uploads? email the recordings" escape
 hatch; /apply success gained the "in a hurry? reply with times" line.
+
+## Part 5 — round four: walking the wedge with real audio
+
+Method: generated two realistic intake-call recordings (TTS) and walked
+/audit as a real visitor, with a third research pass on operational trust
+("is this thing even on?").
+
+**Three real bugs found in the money funnel, all fixed:**
+1. **The submit was broken for half of visitors** — `start`'s useCallback deps
+   omitted `consent`, freezing consent=false in the closure. Anyone who attached
+   files THEN checked the consent box was told forever they hadn't checked it.
+2. **A fully-failed session produced a $0 report** — errored calls counted as
+   "done," so processing failures redirected to "$0 walked in these 0 calls,"
+   a false all-clear handed to a prospect. Now: the poll refuses to redirect
+   when nothing scored (owns the snag, gives the human path), and the report
+   page itself guards callsReviewed===0 the same way.
+3. **The scoring engine broke on any repo path containing a space** —
+   `new URL(...).pathname` kept `%20`, so the frozen engine couldn't open its
+   own system prompt ("Plaintiff Ops" has a space). fileURLToPath fix in
+   lib/score-call.js + re-vendored.
+
+Also: both AI keys were EMPTY in web/.env.local (real values lived in the root
+CLI's .env) — filled locally; the same values must exist in Vercel.
+
+**Research (operational trust) applied:** the desk queue header now carries the
+heartbeat — "Listening for calls · N calls received · last call Xh ago ✓" —
+the one signal that answers the quiet fear. The full architecture (dead-man's
+switch per firm, proactive incident banner+email, Friday proof-of-work
+receipt) is recorded for the next build round.

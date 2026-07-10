@@ -6,10 +6,14 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { buildExampleBlock } from "./examples.js";
 
 const MODEL = "claude-sonnet-4-6";
-const ROOT = new URL("..", import.meta.url).pathname;
+// fileURLToPath, NOT .pathname: .pathname keeps percent-encoding, so any
+// repo path containing a space ("Plaintiff Ops") produced
+// ".../Plaintiff%20Ops/..." and the engine couldn't open its own prompt.
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 
 const SYSTEM_PROMPT_PATH = `${ROOT}scoring/system-prompt.md`;
 // Few-shot order per the build spec: example 2 (strong), 1 (lost signable), 3 (critical fail).

@@ -13,6 +13,18 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Missed cases — Intake QA" };
 
+// Human-friendly age for the heartbeat line ("2h ago", "3d ago").
+function relativeTime(iso: string): string {
+  const ms = Date.now() - new Date(iso).getTime();
+  if (!Number.isFinite(ms) || ms < 0) return "just now";
+  const m = Math.floor(ms / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 48) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
 function initialsOf(name: string | null): string {
   if (!name) return "PNC";
   const parts = name.replace(/\(.*?\)/g, "").trim().split(/\s+/).filter(Boolean);
@@ -34,11 +46,23 @@ export default async function QueuePage() {
     if (!firm) return <FirstRun detail="no firm on this workspace yet" />;
 
     const flags = await store.listLeakedFlags(db, firm.id);
-    // Distinguish "no misses" from "no calls at all" for the empty state.
+    // Distinguish "no misses" from "no calls at all" for the empty state, and
+    // surface the HEARTBEAT: "last call received X ago" proves the whole
+    // pipeline end-to-end in the firm's own nouns — the answer to the quiet
+    // fear "is this thing even on?". A timestamp that ages visibly beats a
+    // green dot that can lie.
     let callsReceived = 0;
+    let lastCallAt: string | null = null;
     try {
       const recon = await store.getCallReconciliation(db, firm.id);
       callsReceived = Number(recon?.received ?? 0);
+      if (typeof db.query === "function") {
+        const r = await db.query(
+          `select max(received_at) as last from calls where firm_id = $1`,
+          [firm.id],
+        );
+        lastCallAt = r.rows[0]?.last ?? null;
+      }
     } catch {
       callsReceived = 0;
     }
@@ -76,6 +100,12 @@ export default async function QueuePage() {
             that need action today &mdash; likely signable, and no sign of a signed agreement. The
             whole job on this screen: call them back, then mark what happened.
           </p>
+          {callsReceived > 0 ? (
+            <p className="mt-2 text-xs text-faint tnum">
+              Listening for calls · {callsReceived} call{callsReceived === 1 ? "" : "s"} received
+              {lastCallAt ? ` · last call ${relativeTime(lastCallAt)}` : ""} ✓
+            </p>
+          ) : null}
         </div>
 
         {leaks.length === 0 ? (

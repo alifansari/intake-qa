@@ -83,6 +83,16 @@ export default function AuditUploaderPage() {
         setTotal(s.total ?? 0);
         if (s.complete) {
           if (pollRef.current) clearInterval(pollRef.current);
+          // HONESTY GUARD: never land a visitor on a $0 report because
+          // processing failed. Zero scored calls = our snag, said plainly —
+          // not "no leaks found."
+          if ((s.done ?? 0) === 0) {
+            setErr(
+              "We hit a snag processing your recordings on our side — this is our problem, not yours, and nothing was lost. Email the files to ali@plaintiffops.com and a human will run your audit by hand today, free as promised.",
+            );
+            setPhase("error");
+            return;
+          }
           window.location.href = `/audit/${token}`;
         }
       } catch {
