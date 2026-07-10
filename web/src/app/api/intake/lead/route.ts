@@ -10,6 +10,7 @@ import {
   saveLeadSnapshot,
   RecordSchema,
 } from "@/lib/intake/store";
+import { rateLimited } from "@/lib/intake/rate-limit";
 import { deriveEscalations } from "@/lib/escalation/engine.mjs";
 import { sendAlert } from "@/lib/escalation/alert-sender.mjs";
 import { fireEscalations, appendEscalationEvent } from "@/lib/escalation/store";
@@ -22,6 +23,7 @@ const Body = z.object({
 });
 
 export async function POST(req: Request) {
+  if (rateLimited(req)) return Response.json({ stored: false }, { status: 429 });
   if (!isIntakeStoreConfigured()) {
     // Demo still works without persistence — the UI shows the record locally.
     return Response.json({ stored: false });

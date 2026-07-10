@@ -5,6 +5,7 @@
 // is unconfigured the route answers {configured:false} and the chat simply
 // skips uploads — graceful degradation, never an error to the visitor.
 import { z } from "zod";
+import { rateLimited } from "@/lib/intake/rate-limit";
 import { createClient } from "@supabase/supabase-js";
 import { isIntakeStoreConfigured, recordAttachment } from "@/lib/intake/store";
 
@@ -26,6 +27,7 @@ function storageConfigured(): boolean {
 }
 
 export async function POST(req: Request) {
+  if (rateLimited(req)) return Response.json({ configured: false }, { status: 429 });
   if (!storageConfigured() || !isIntakeStoreConfigured()) {
     return Response.json({ configured: false });
   }

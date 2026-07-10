@@ -6,6 +6,7 @@
 // the narrative stays verbatim-only.
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
+import { rateLimited } from "@/lib/intake/rate-limit";
 import { INTERPRET_SYSTEM_RULES } from "@/lib/intake/guardrails.mjs";
 
 export const runtime = "nodejs";
@@ -18,6 +19,7 @@ const Body = z.object({
 });
 
 export async function POST(req: Request) {
+  if (rateLimited(req)) return Response.json({ interpreted: false }, { status: 429 });
   let body: z.infer<typeof Body>;
   try {
     body = Body.parse(await req.json());
