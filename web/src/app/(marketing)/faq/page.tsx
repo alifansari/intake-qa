@@ -47,7 +47,7 @@ const ITEMS: QA[] = [
   },
   {
     q: "What happens to my prospective clients' data?",
-    a: `We treat every call as confidential prospective-client information (Cal. Rule 1.18). Call audio is deleted the moment it's transcribed; transcripts and reports are purged within ${DELETION_HOURS} hours of your readout, or immediately if you ask in writing. Your calls are handled by Intake QA and analyzed by our own models (encrypted in transit and at rest, never used to train our models, never sold or shared), and we're the single party accountable to you. We'll sign your NDA and a DPA. The full posture is on the security page.`,
+    a: `We treat every call as confidential prospective-client information (Cal. Rule 1.18). Call audio is deleted the moment it's transcribed; transcripts and reports are purged within ${DELETION_HOURS} hours of your readout, or immediately if you ask in writing. Your calls are handled by Intake QA — transcription and analysis run on specialist engines under our DPA (encrypted in transit and at rest, never used to train AI models, never sold or shared), and we're the single party accountable to you. We'll sign your NDA and a DPA. The full posture is on the security page.`,
   },
   {
     q: "You're a solo founder. Will this be around in a year?",

@@ -5,14 +5,14 @@ import { cn } from "@/lib/cn";
 import { isMarketingRoute } from "@/lib/marketing-routes";
 import { DemoToggle } from "./demo-mode";
 
+// The old seven dashboard tabs all 308-redirect into the desk now, so this
+// nav (shown only on the few non-desk product pages like /demo, /login,
+// /welcome) points straight at the desk's real screens with matching labels.
 const LINKS = [
-  { href: "/dashboard", label: "Executive Summary" },
-  { href: "/calibration", label: "Calibration & Honesty" },
-  { href: "/funnel", label: "Recovery Funnel" },
-  { href: "/reps", label: "Team Coaching" },
-  { href: "/triage", label: "Triage Queue" },
-  { href: "/statement", label: "Statement" },
-  { href: "/queue", label: "Approval Queue" },
+  { href: "/desk/queue", label: "Missed cases" },
+  { href: "/desk/documents", label: "Documents" },
+  { href: "/desk/reconciliation", label: "Calls" },
+  { href: "/desk/settings", label: "Settings" },
 ];
 
 export function Nav() {

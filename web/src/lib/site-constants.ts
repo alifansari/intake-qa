@@ -184,7 +184,7 @@ export const BREACH_NOTICE_HOURS = 72;
 
 // ─── The accountable-party line (single-accountable-party framing) ───
 export const ACCOUNTABLE_PARTY_LINE =
-  "Your calls are handled by Intake QA, and we're the single party accountable for them. Your recordings run through our own analysis and transcription models, encrypted in transit and at rest, and are never used to train our models.";
+  "Your calls are handled by Intake QA, and we're the single party accountable to you for them. Transcription and analysis run on specialist engines under our data-processing agreement (every subprocessor is named in the DPA), encrypted in transit and at rest, and your callers' words are never used to train AI models.";
 
 // ─── SMS / texting posture ───
 export const A2P_LINE =

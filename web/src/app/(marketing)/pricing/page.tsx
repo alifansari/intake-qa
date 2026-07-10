@@ -53,17 +53,23 @@ export default function PricingPage() {
         <p className="mt-6 border-t border-hairline pt-4 max-w-[72ch] text-sm text-ink-muted">
           {BETA_GROUND_RULES}
         </p>
-        <div className="mt-6 max-w-md">
+        <div className="mt-6 flex max-w-lg flex-col gap-3 sm:flex-row">
+          <Link
+            href="/apply"
+            className="inline-flex flex-1 justify-center rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
+          >
+            Apply for a founding seat
+          </Link>
           <Link
             href="/audit"
-            className="inline-flex w-full justify-center rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
+            className="inline-flex flex-1 justify-center rounded-pill border border-accent px-6 py-3 text-sm font-semibold text-accent hover:bg-accent-tint"
           >
             {CTA_PRIMARY}
           </Link>
-          <p className="mt-2 text-sm text-faint">
-            The free Leak Audit is step one of the beta. {STAKE_LINE}
-          </p>
         </div>
+        <p className="mt-2 max-w-lg text-sm text-faint">
+          Applying takes under a minute. The free Leak Audit is step one either way. {STAKE_LINE}
+        </p>
       </section>
 
       {/* What it costs after the beta — a real price, deferred honestly. */}

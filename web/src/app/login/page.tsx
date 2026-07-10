@@ -12,7 +12,7 @@ const inputClass =
 
 function LoginForm() {
   const params = useSearchParams();
-  const next = params.get("next") ?? "/queue";
+  const next = params.get("next") ?? "/desk/queue";
   const [mode, setMode] = React.useState<"password" | "magic">("password");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");

@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") ?? "/queue";
+  const next = url.searchParams.get("next") ?? "/desk/queue";
 
   const supabase = await getSupabaseServer();
   if (supabase && code) {

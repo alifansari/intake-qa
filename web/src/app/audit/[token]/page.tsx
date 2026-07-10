@@ -263,16 +263,21 @@ export default async function AuditReportPage({
           compliantly, with a human approving every text.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          {calendarUrl ? (
-            <a
-              href={calendarUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-sm bg-navy px-5 py-2.5 text-sm font-semibold text-white"
-            >
-              Book a 20-minute walkthrough
-            </a>
-          ) : null}
+          {/* The headline action never disappears: no calendar configured →
+              the button becomes a direct email instead of silently vanishing. */}
+          <a
+            href={calendarUrl || "mailto:ali@plaintiffops.com?subject=Leak%20Audit%20walkthrough"}
+            {...(calendarUrl ? { target: "_blank", rel: "noreferrer" } : {})}
+            className="rounded-sm bg-navy px-5 py-2.5 text-sm font-semibold text-white"
+          >
+            Book a 20-minute walkthrough
+          </a>
+          <a
+            href="/apply"
+            className="rounded-sm border border-navy px-5 py-2.5 text-sm font-semibold text-navy"
+          >
+            Apply for a founding seat
+          </a>
           <AuditEmailCapture token={token} />
         </div>
       </section>

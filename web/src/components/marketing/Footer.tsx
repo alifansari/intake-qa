@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { COPYRIGHT_YEAR, CTA_PRIMARY } from "@/lib/site-constants";
 
+// Everything not in the four-link top nav lives here, one click away.
 const LINKS = [
+  { href: "/apply", label: "Apply for the beta" },
+  { href: "/manifesto", label: "Manifesto" },
   { href: "/letter", label: "The letter" },
-  { href: "/security", label: "Security" },
+  { href: "/honesty", label: "Our error rate" },
   { href: "/founder", label: "Founder" },
-  { href: "/faq", label: "FAQ" },
+  { href: "/security", label: "Security" },
   { href: "/demo", label: "Demo" },
   { href: "/concierge", label: "Concierge" },
   { href: "/for-callers", label: "For callers" },

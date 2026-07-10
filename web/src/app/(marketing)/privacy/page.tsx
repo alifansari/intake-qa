@@ -95,10 +95,10 @@ export default function PrivacyPage() {
 
         <Section n="5" title="Service providers and infrastructure">
           <p>
-            We run on encrypted cloud infrastructure and use our own analysis and transcription models
-            to process calls. Any provider that touches firm data does so under contract, only to
-            deliver the service, and never to train on or resell your data. A list of the categories
-            of providers is available to a firm under NDA on request.
+            We run on encrypted cloud infrastructure. Transcription and analysis run on specialist
+            engines under our data-processing agreement; every provider that touches firm data does
+            so under contract, only to deliver the service, and never to train on or resell your
+            data. The full subprocessor list is published in our DPA.
           </p>
         </Section>
 

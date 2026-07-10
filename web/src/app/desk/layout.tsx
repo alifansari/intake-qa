@@ -6,10 +6,10 @@ import { getCurrentUser } from "@/lib/supabase/server";
 import { isLiveCoachEntitled } from "@/lib/coach-entitlement";
 
 const BASE_NAV = [
-  { href: "/desk/queue", label: "Leaked-case queue" },
-  { href: "/desk/documents", label: "Statements & readouts" },
-  { href: "/desk/reconciliation", label: "Calls & reconciliation" },
-  { href: "/desk/review", label: "Review queue" },
+  { href: "/desk/queue", label: "Missed cases" },
+  { href: "/desk/documents", label: "Documents" },
+  { href: "/desk/reconciliation", label: "Calls" },
+  { href: "/desk/review", label: "Analyst review" },
   { href: "/desk/settings", label: "Settings" },
 ];
 

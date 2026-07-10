@@ -139,8 +139,8 @@ export default function OnboardPage() {
               in the queue first.
             </div>
             <div className="mt-5 flex flex-wrap gap-3">
-              <a href="/getting-started"><Button variant="primary">See getting started</Button></a>
-              <a href="/queue"><Button variant="ghost">Go to the approval queue</Button></a>
+              <a href="/desk/settings"><Button variant="primary">Open your settings</Button></a>
+              <a href="/desk/queue"><Button variant="ghost">Open the desk</Button></a>
             </div>
           </CardContent>
         </Card>
