@@ -3,7 +3,7 @@ import { Pool } from "pg";
 import { PageShell, PageHeader } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
-import { EscalationRowActions, SweepButton } from "./actions";
+import { EscalationRowActions, SweepButton, DispositionControl } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +35,8 @@ interface Row {
   first_name: string | null;
   phone: string | null;
   bucket: string | null;
+  disposition: string | null;
+  disposed_by: string | null;
 }
 
 const TIER_TONE: Record<string, string> = {
@@ -58,9 +60,11 @@ export default async function EscalationsPage() {
     const r = await pool().query(
       `select e.id, e.trigger_key, e.trigger_family, e.tier, e.status, e.fired_at,
               e.ack_deadline_at, e.acked_by,
-              l.contact->>'first_name' as first_name, l.contact->>'phone' as phone, l.bucket
+              l.contact->>'first_name' as first_name, l.contact->>'phone' as phone, l.bucket,
+              d.disposition, d.noted_by as disposed_by
        from escalations e
        left join intake_leads l on l.id = e.lead_id
+       left join escalation_dispositions d on d.escalation_id = e.id
        order by case e.tier when 'hot' then 0 when 'warm' then 1 else 2 end,
                 e.fired_at desc
        limit 100`,
@@ -132,8 +136,15 @@ export default async function EscalationsPage() {
           <h2 className="eyebrow mb-2">Resolved</h2>
           <ul className="divide-y divide-line rounded-card border border-line bg-paper">
             {resolved.map((e) => (
-              <li key={e.id} className="px-4 py-2 text-xs text-muted tnum">
-                {e.trigger_key} · {e.tier} · resolved
+              <li
+                key={e.id}
+                className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-xs text-muted tnum"
+              >
+                <span>
+                  {e.trigger_key} · {e.tier} · resolved
+                  {e.disposition ? ` · ${e.disposition.replace(/_/g, " ")} (${e.disposed_by})` : ""}
+                </span>
+                {!e.disposition ? <DispositionControl id={e.id} /> : null}
               </li>
             ))}
           </ul>

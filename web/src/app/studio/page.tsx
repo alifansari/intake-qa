@@ -77,6 +77,11 @@ export default async function StudioHome() {
               title: "The Ledger",
               desc: "The monthly receipt — captures, catches, SLA including misses. Printable.",
             },
+            {
+              href: "/studio/tuning",
+              title: "Tuning",
+              desc: "The loop's proposals with their precision math. You approve by name; nothing tunes itself.",
+            },
           ].map((c) => (
             <Link
               key={c.href}
