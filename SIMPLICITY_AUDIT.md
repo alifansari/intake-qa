@@ -169,3 +169,29 @@ heartbeat — "Listening for calls · N calls received · last call Xh ago ✓" 
 the one signal that answers the quiet fear. The full architecture (dead-man's
 switch per firm, proactive incident banner+email, Friday proof-of-work
 receipt) is recorded for the next build round.
+
+## Part 6 — the Leak Audit report rework + live progress (round five)
+
+**Live progress (Ali's ask):** the two-minute dead "Scored 0 of 1" replaced by a
+stage-accurate panel driven by the pipeline's real statuses: per-call rows
+("Listening to the call, word by word…" / "Scoring the handling against the PI
+rubric…"), a weighted progress bar, and an honest countdown ("about 70 seconds
+left"). Verified live mid-run.
+
+**Report rework (from the PI-attorney research; one-page constraint honored —
+every add paid for by a cut):**
+- ADDED: marketing-waste + adjuster-urgency framing under the headline ("you
+  already paid to make these calls ring… every day unsigned, the adjuster
+  negotiates alone"); Clio-cited industry context on the handling score (only
+  40% of firms answer their calls — Legal Trends secret-shopper study);
+  "How we counted" methodology footnote (fee-at-risk math, strict "signable"
+  definition, no-staff-shaming statement); "How callers are protected" strip
+  (redaction, deletion timeline); top-3 evidence cards with the rest collapsed
+  into one expandable row; an honest good-news block when nothing walked.
+- CUT: the monthly projection box (the most attackable, least verifiable
+  element), the 4-tile numbers grid (now one line), the second CTA (one action:
+  book the walkthrough; email capture stays as delivery, not a second ask).
+
+Research follow-ups deferred: per-call leak-type tags (MISSED/LANGUAGE/
+AFTER-HOURS/NO-ASK) need a pipeline classification field; "salvageable now"
+box with masked contact + SOL clock needs caller-PII handling decisions.

@@ -6,7 +6,7 @@
 // direct), but every upload carries the session token so the calls aggregate.
 // Nothing here can send — it only ever creates demo_calls.
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getSupabaseBrowser } from "../../lib/supabase/client";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Footer } from "@/components/marketing/Footer";
@@ -31,6 +31,8 @@ export default function AuditUploaderPage() {
   const [err, setErr] = useState<string | null>(null);
   const [done, setDone] = useState(0);
   const [total, setTotal] = useState(0);
+  const [callStages, setCallStages] = useState<{ filename: string; status: string }[]>([]);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const addFiles = (list: FileList | null) => {
@@ -81,6 +83,7 @@ export default function AuditUploaderPage() {
         if (!r.ok) return;
         setDone(s.done ?? 0);
         setTotal(s.total ?? 0);
+        if (Array.isArray(s.calls)) setCallStages(s.calls);
         if (s.complete) {
           if (pollRef.current) clearInterval(pollRef.current);
           // HONESTY GUARD: never land a visitor on a $0 report because
@@ -113,6 +116,8 @@ export default function AuditUploaderPage() {
     setPhase("processing");
     setErr(null);
     setTotal(files.length);
+    setStartedAt(Date.now());
+    setCallStages(files.map((f) => ({ filename: f.name, status: "uploading" })));
     try {
       const vol = volume.trim() ? Number(volume.trim()) : null;
       const sr = await fetch("/api/audit/session", {
@@ -155,7 +160,7 @@ export default function AuditUploaderPage() {
           Your free Leak Audit
         </h1>
         <p className="mt-4 max-w-[66ch] text-lg text-ink-muted">
-          Send us up to {MAX} recent intake calls. A real analyst, not just a model, reviews every
+          Send us up to {MAX} recent intake calls. A real analyst, not just a model, reviews every
           one against our calibrated PI rubric and hands you a written report: the signable cases that
           didn&apos;t sign, the evidence behind each flag, and what that walked-away fee revenue is
           worth in dollars. You keep the report whether or not we ever work together.
@@ -332,17 +337,7 @@ export default function AuditUploaderPage() {
       )}
 
       {phase === "processing" && (
-        <div className="rounded-card border border-hairline bg-surface p-8">
-          <p className="eyebrow mb-3">Auditing your calls</p>
-          <p className="text-ink">
-            Scored <span className="font-semibold">{done}</span> of{" "}
-            <span className="font-semibold">{total}</span> calls…
-          </p>
-          <p className="mt-4 text-xs text-faint">
-            Each call takes a minute or two to transcribe and score. This page will open your
-            report automatically when it&apos;s ready.
-          </p>
-        </div>
+        <ProcessingPanel callStages={callStages} done={done} total={total} startedAt={startedAt} />
       )}
 
       {phase === "error" && (
@@ -360,6 +355,105 @@ export default function AuditUploaderPage() {
       )}
       </main>
       <Footer />
+    </div>
+  );
+}
+
+
+// The live progress panel. Names the actual work per call (the pipeline
+// reports queued → transcribing → scoring → done) and gives an honest,
+// self-correcting time estimate — a silent "Scored 0 of 1" for two minutes
+// reads as broken; visible, specific labor reads as a real analyst desk.
+const STAGE_INFO: Record<string, { label: string; weight: number }> = {
+  uploading: { label: "Uploading the recording…", weight: 0.1 },
+  queued: { label: "In line for transcription…", weight: 0.15 },
+  transcribing: { label: "Listening to the call, word by word…", weight: 0.45 },
+  scoring: { label: "Scoring the handling against the PI rubric…", weight: 0.8 },
+  done: { label: "Scored ✓", weight: 1 },
+  error: { label: "Hit a snag — a human will review this one", weight: 1 },
+};
+const SECONDS_PER_CALL = 95; // observed: ~60-75s transcribe + ~25s score
+
+function ProcessingPanel({
+  callStages,
+  done,
+  total,
+  startedAt,
+}: {
+  callStages: { filename: string; status: string }[];
+  done: number;
+  total: number;
+  startedAt: number | null;
+}) {
+  // Re-render every second so the ETA counts down honestly.
+  const [, forceTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => forceTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const stages = callStages.length > 0 ? callStages : [];
+  const progress =
+    stages.length > 0
+      ? stages.reduce((sum, c) => sum + (STAGE_INFO[c.status]?.weight ?? 0.15), 0) / stages.length
+      : 0;
+  const elapsed = startedAt ? Math.floor((Date.now() - startedAt) / 1000) : 0;
+  const estTotal = Math.max(total, 1) * SECONDS_PER_CALL;
+  const remaining = Math.max(estTotal - elapsed, 10);
+  const remainingLabel =
+    progress >= 0.97
+      ? "any second now"
+      : remaining > 90
+        ? `about ${Math.round(remaining / 60)} minute${remaining >= 90 ? "s" : ""} left`
+        : `about ${Math.max(Math.round(remaining / 10) * 10, 10)} seconds left`;
+
+  return (
+    <div className="rounded-card border border-hairline bg-surface p-8">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="eyebrow">Auditing your calls</p>
+        <p className="text-xs text-faint tnum">
+          {done} of {total} scored · {remainingLabel}
+        </p>
+      </div>
+
+      {/* Overall progress */}
+      <div className="mt-4 h-2 overflow-hidden rounded-pill bg-canvas">
+        <div
+          className="h-full rounded-pill bg-accent transition-all duration-1000"
+          style={{ width: `${Math.max(progress * 100, 4)}%` }}
+        />
+      </div>
+
+      {/* Per-call stage rows — the actual work, named */}
+      <ul className="mt-5 flex flex-col gap-2">
+        {stages.map((c, i) => {
+          const info = STAGE_INFO[c.status] ?? STAGE_INFO.queued;
+          const active = c.status !== "done" && c.status !== "error";
+          return (
+            <li key={`${c.filename}-${i}`} className="flex items-center gap-3 text-sm">
+              <span
+                className={`h-2 w-2 flex-none rounded-full ${
+                  c.status === "done"
+                    ? "bg-accent"
+                    : c.status === "error"
+                      ? "bg-alert"
+                      : "animate-pulse bg-amber"
+                }`}
+              />
+              <span className="min-w-0 flex-1 truncate text-ink">{c.filename}</span>
+              <span className={`text-xs ${active ? "text-ink-muted" : "text-faint"}`}>
+                {info.label}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+
+      <p className="mt-5 text-xs text-faint">
+        Each call is transcribed in full, then scored against the same calibrated rubric every
+        firm gets — that&apos;s the minute or two per call. Keep this tab open; your report opens
+        by itself the moment the last call is scored.
+      </p>
     </div>
   );
 }

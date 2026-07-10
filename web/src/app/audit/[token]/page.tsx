@@ -124,10 +124,11 @@ export default async function AuditReportPage({
   const callCount = s.callsReviewed;
   const signedCount = 0; // uploaded calls have no "signed with us" outcome; shown for honesty
   const calendarUrl = process.env.AUDIT_CALENDAR_URL || "";
-  // Demoted monthly projection, presented as a RANGE — the low end applies a
-  // conservative 50% haircut to the observed per-call rate. Never a claim.
-  const projMonthlyHigh = s.projectedMonthlyLeakage;
-  const projMonthlyLow = Math.round(s.projectedMonthlyLeakage * 0.5);
+  // Evidence cards: highest fee-at-risk first; top 3 open, the rest collapsed.
+  // Research: a mini-audit with three sharp findings outconverts thirty cards.
+  const rankedWalked = [...walkedCalls].sort((a, b) => (b.feeAtRisk ?? 0) - (a.feeAtRisk ?? 0));
+  const topWalked = rankedWalked.slice(0, 3);
+  const restWalked = rankedWalked.slice(3);
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10 print:py-2">
@@ -155,6 +156,13 @@ export default async function AuditReportPage({
           Every figure below is tied to a specific call and the words the prospective client
           actually said. This is what we found in the sample you uploaded, not a projection.
         </p>
+        {walkedCalls.length > 0 ? (
+          <p className="mt-3 max-w-prose text-sm font-medium text-ink">
+            You already paid to make these calls ring &mdash; the marketing worked; the intake
+            didn&apos;t. And every day an unsigned caller waits is a day the insurance adjuster
+            is negotiating with them alone.
+          </p>
+        ) : null}
       </section>
 
       {/* 2. Per-call evidence — the primary content (exhibit-level) */}
@@ -164,7 +172,7 @@ export default async function AuditReportPage({
             The signable cases that walked, with the evidence
           </h2>
           <div className="mt-3 space-y-2">
-            {walkedCalls.map((c) => (
+            {topWalked.map((c) => (
               <details
                 key={String(c.id)}
                 open
@@ -188,45 +196,54 @@ export default async function AuditReportPage({
                 </div>
               </details>
             ))}
+            {restWalked.length > 0 ? (
+              <details className="rounded-sm border border-line bg-paper p-3">
+                <summary className="cursor-pointer text-sm font-semibold text-ink">
+                  {restWalked.length} more flagged call{restWalked.length === 1 ? "" : "s"} ·{" "}
+                  <span className="tabular-nums text-red">
+                    {money(restWalked.reduce((sum, c) => sum + (c.feeAtRisk ?? 0), 0))}
+                  </span>{" "}
+                  at risk — open to see each
+                </summary>
+                <div className="mt-2 space-y-2">
+                  {restWalked.map((c) => (
+                    <div key={String(c.id)} className="border-t border-line pt-2 text-sm">
+                      <p className="font-semibold text-ink">
+                        {c.filename ?? "Call"} ·{" "}
+                        <span className="tabular-nums text-red">{money(c.feeAtRisk ?? 0)}</span>
+                      </p>
+                      {c.summary && <p className="mt-1 text-muted">{c.summary}</p>}
+                    </div>
+                  ))}
+                </div>
+              </details>
+            ) : null}
           </div>
         </section>
       )}
 
-      {/* 3. Demoted monthly projection — a labeled RANGE, not a claim */}
-      <section className="mt-8 rounded-sm border border-line bg-paper p-4">
-        <p className="text-sm font-semibold uppercase tracking-wide text-muted">
-          What a full month might look like
-        </p>
-        <p className="mt-2 max-w-prose text-sm text-ink">
-          If this rate held for a full month, that&apos;s roughly{" "}
-          <b className="tabular-nums">{money(projMonthlyLow)}</b> to{" "}
-          <b className="tabular-nums">{money(projMonthlyHigh)}</b>, and the low end conservatively
-          assumes only half the rate we observed. The honest way to know is to run a full month.
-        </p>
-        <p className="mt-2 text-xs text-faint">
-          A projection, not a claim or a guarantee, just a reason to run a full month. Based on{" "}
-          {callCount} call{callCount === 1 ? "" : "s"} ({money(s.perCallLeak)}/call) over an assumed{" "}
-          {s.monthlyCallVolume.toLocaleString()} monthly calls.
-        </p>
-      </section>
+      {/* No-leak sample: honest good news, not an empty page. */}
+      {walkedCalls.length === 0 && (
+        <section className="mt-8 rounded-sm border border-line bg-paper p-4">
+          <p className="text-sm font-semibold text-ink">
+            No signable case walked in this sample &mdash; that&apos;s genuinely good news.
+          </p>
+          <p className="mt-2 max-w-prose text-sm text-muted">
+            It means these {callCount === 1 ? "wasn&apos;t a call" : "weren&apos;t calls"} where a
+            qualified, unrepresented caller slipped through. The handling score below still shows
+            how the calls were worked &mdash; and a sample this small can&apos;t clear a whole
+            intake operation. The honest way to know is a full month of calls.
+          </p>
+        </section>
+      )}
 
-      {/* 4. Waterfall summary */}
-      <section className="mt-10">
-        <h2 className="font-display text-xl font-semibold text-ink">The sample, by the numbers</h2>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            { label: "Calls reviewed", value: callCount },
-            { label: "Signable", value: s.signableCalls },
-            { label: "Signed on the call", value: signedCount },
-            { label: "Signable, not converted", value: s.leakedSignable },
-          ].map((step) => (
-            <div key={step.label} className="rounded-sm border border-line bg-paper p-3">
-              <p className="font-display text-2xl font-bold text-ink tabular-nums">{step.value}</p>
-              <p className="mt-0.5 text-xs text-muted">{step.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* The sample, in one line (replaces the tile grid — same facts, less page) */}
+      <p className="mt-8 text-sm text-muted tabular-nums">
+        The sample: <b className="text-ink">{callCount}</b> call{callCount === 1 ? "" : "s"} reviewed ·{" "}
+        <b className="text-ink">{s.signableCalls}</b> signable ·{" "}
+        <b className="text-ink">{signedCount}</b> signed on the call ·{" "}
+        <b className="text-ink">{s.leakedSignable}</b> signable, not converted
+      </p>
 
       {/* 3. Handling-score distribution (benchmark unlocks with pilot) */}
       <section className="mt-10">
@@ -254,9 +271,11 @@ export default async function AuditReportPage({
             </span>
           </div>
         ) : (
-          <div className="mt-3 rounded-sm border border-dashed border-line bg-paper p-4 text-sm text-faint">
-            Peer benchmark (how your intake compares to other firms){" "}
-            <span className="font-semibold text-muted">unlocks as the network grows</span>.
+          <div className="mt-3 rounded-sm border border-line bg-paper p-4 text-sm text-muted">
+            Industry context: in Clio&apos;s Legal Trends secret-shopper study of 500 firms, only{" "}
+            <b className="text-ink">40%</b> answered their intake calls at all &mdash; and most
+            callers hire the first firm that treats them well. A named peer benchmark for your
+            score unlocks as the audit network grows.
           </div>
         )}
       </section>
@@ -300,22 +319,28 @@ export default async function AuditReportPage({
           >
             Book a 20-minute walkthrough
           </a>
-          <a
-            href="/apply"
-            className="rounded-sm border border-navy px-5 py-2.5 text-sm font-semibold text-navy"
-          >
-            Apply for a founding seat
-          </a>
           <AuditEmailCapture token={token} />
         </div>
       </section>
 
-      <footer className="mt-10 border-t border-line pt-4 text-xs text-faint">
-        Shareable link · expires 30 days after creation · demo estimates, not legal advice ·{" "}
-        <a className="text-navy underline" href="/compliance">
-          how we stay compliant
-        </a>
-        .
+      <footer className="mt-10 border-t border-line pt-4 text-xs leading-relaxed text-faint">
+        <p>
+          <b className="text-muted">How we counted:</b> &ldquo;signable&rdquo; means qualified,
+          unrepresented, and inside the filing window, based only on what was said on the call.
+          Fee at risk = a conservative case-type settlement range &times; a standard contingency
+          share, rounded down. Estimates, never guarantees. Misses are scored as process gaps,
+          not people problems &mdash; no staff names appear on this page.
+        </p>
+        <p className="mt-1">
+          <b className="text-muted">How callers are protected:</b> caller identities are redacted
+          on this shared page; audio is deleted the moment it&apos;s transcribed; transcripts
+          purge within 72 hours of your readout. Shareable link expires 30 days after creation ·
+          not legal advice ·{" "}
+          <a className="text-navy underline" href="/compliance">
+            how we stay compliant
+          </a>
+          .
+        </p>
       </footer>
     </div>
   );
