@@ -138,6 +138,15 @@ export function answerNode(record, nodeId, answer, now = new Date()) {
   return { record, nodeId: nextId, done: false };
 }
 
+// Record an off-script question that was answered with a FIXED deflection
+// (guardrails.mjs): the question and which deflection fired go on the event
+// trail — provable later that the agent never improvised — and the tree
+// position is untouched.
+export function recordDeflection(record, question, deflectionKey, now = new Date()) {
+  appendEvent(record, "deflection", { question: String(question).slice(0, 500), deflection: deflectionKey }, now);
+  return record;
+}
+
 // Merge the (optional) LLM interpretation of the narrative into the record —
 // data fields only, never visitor-facing (guardrails.mjs).
 export function applyInterpretation(record, interp, now = new Date()) {

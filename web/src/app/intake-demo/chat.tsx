@@ -7,8 +7,21 @@ import {
   answerNode,
   promptFor,
   applyInterpretation,
+  recordDeflection,
+  CASE_VALUE_DEFLECTION,
+  LEGAL_ADVICE_DEFLECTION,
+  FEE_DEFLECTION,
   type IntakeRecord,
 } from "@/lib/intake";
+
+// The guardrail showcase: off-script questions a real visitor asks, each
+// answered by its FIXED deflection (guardrails.mjs) — never an improvised
+// reply, never a tree jump. Firms can poke these and watch the rails hold.
+const OFF_SCRIPT = [
+  { key: "case_value", label: "“What's my case worth?”", reply: CASE_VALUE_DEFLECTION },
+  { key: "legal_advice", label: "“Should I talk to the insurance company?”", reply: LEGAL_ADVICE_DEFLECTION },
+  { key: "fees", label: "“How much do you charge?”", reply: FEE_DEFLECTION },
+];
 
 // ---------------------------------------------------------------------------
 // The paced chat client. It walks the FIXED tree locally (no LLM decides what
@@ -136,6 +149,20 @@ export function IntakeChat() {
     }, delay);
   }
 
+  // Off-script question → fixed deflection. The tree does not move; the
+  // deflection is recorded on the event trail (provable: never improvised).
+  function askOffScript(item: (typeof OFF_SCRIPT)[number]) {
+    if (!record || done || typing) return;
+    recordDeflection(record, item.label, item.key);
+    setMessages((m) => [...m, { role: "visitor", text: item.label.replace(/[“”]/g, "") }]);
+    void persist(record);
+    setTyping(true);
+    setTimeout(() => {
+      setMessages((m) => [...m, { role: "agent", text: item.reply }]);
+      setTyping(false);
+    }, 900);
+  }
+
   async function attachFile(file: File) {
     if (!record || !nodeId) return;
     let path: string | null = null;
@@ -188,8 +215,19 @@ export function IntakeChat() {
           </div>
         ))}
         {typing ? (
-          <div className="self-start rounded-card border border-line bg-canvas px-3 py-2 text-sm text-faint">
-            …
+          <div className="self-start rounded-card border border-line bg-canvas px-3 py-2">
+            <span className="typing-dots" aria-label="agent is typing">
+              <i /><i /><i />
+            </span>
+            <style>{`
+              .typing-dots { display: inline-flex; gap: 4px; align-items: center; height: 1em; }
+              .typing-dots i { width: 6px; height: 6px; border-radius: 50%;
+                background: var(--color-faint); animation: td-bounce 1.2s infinite ease-in-out; }
+              .typing-dots i:nth-child(2) { animation-delay: 0.15s; }
+              .typing-dots i:nth-child(3) { animation-delay: 0.3s; }
+              @keyframes td-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .5; }
+                30% { transform: translateY(-4px); opacity: 1; } }
+            `}</style>
           </div>
         ) : null}
 
@@ -241,6 +279,28 @@ export function IntakeChat() {
         ) : null}
         <div ref={bottomRef} />
       </div>
+
+      {/* Guardrail showcase: poke the rails, watch them hold. */}
+      {!done && messages.length > 1 ? (
+        <div className="border-t border-line bg-canvas px-3 py-2">
+          <div className="mb-1 text-[10px] font-medium uppercase tracking-wide text-faint">
+            Try going off-script — the agent never evaluates, quotes, or advises
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {OFF_SCRIPT.map((o) => (
+              <button
+                key={o.key}
+                type="button"
+                disabled={typing}
+                onClick={() => askOffScript(o)}
+                className="rounded-full border border-line-strong bg-paper px-2.5 py-1 text-[11px] text-muted hover:border-accent hover:text-ink"
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {/* Input row */}
       {!done && node && !typing ? (

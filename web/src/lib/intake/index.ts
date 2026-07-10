@@ -76,6 +76,12 @@ export const applyInterpretation: (
   interp: unknown,
   now?: Date,
 ) => IntakeRecord = engine.applyInterpretation as never;
+export const recordDeflection: (
+  record: IntakeRecord,
+  question: string,
+  deflectionKey: string,
+  now?: Date,
+) => IntakeRecord = engine.recordDeflection as never;
 
 export const routeLead: (record: IntakeRecord, force?: unknown) => RoutingResult =
   routing.routeLead as never;

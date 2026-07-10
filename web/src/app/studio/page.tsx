@@ -52,6 +52,44 @@ export default async function StudioHome() {
       {/* PRIMARY action: upload the firm's calls. Front-and-center by design. */}
       <NewLeakAudit firms={firms} />
 
+      {/* The intake-system cockpit: every founder surface, one hop away. */}
+      <div className="mt-8">
+        <h2 className="eyebrow mb-3">Intake system</h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              href: "/studio/shops",
+              title: "The Mirror",
+              desc: "Mystery-shop audits — grade each intake channel, print the firm-facing report.",
+            },
+            {
+              href: "/intake-demo",
+              title: "Intake agent demo",
+              desc: "The consent-first chat walking the full qualification tree. Show this to firms.",
+            },
+            {
+              href: "/studio/escalations",
+              title: "Escalations",
+              desc: "Every fired trigger, hottest first. Ack, action, resolve — named. Run the sweep.",
+            },
+            {
+              href: "/studio/ledger",
+              title: "The Ledger",
+              desc: "The monthly receipt — captures, catches, SLA including misses. Printable.",
+            },
+          ].map((c) => (
+            <Link
+              key={c.href}
+              href={c.href}
+              className="rounded-card border border-line bg-paper p-4 transition-colors hover:border-accent"
+            >
+              <div className="text-sm font-semibold text-ink">{c.title}</div>
+              <div className="mt-1 text-xs leading-relaxed text-muted">{c.desc}</div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
       <div className="mt-8">
         <h2 className="eyebrow mb-3">Firms</h2>
         {firms.length === 0 ? (
