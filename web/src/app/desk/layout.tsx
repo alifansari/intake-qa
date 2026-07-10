@@ -9,17 +9,25 @@ const BASE_NAV = [
   { href: "/desk/queue", label: "Missed cases" },
   { href: "/desk/documents", label: "Documents" },
   { href: "/desk/reconciliation", label: "Calls" },
-  { href: "/desk/review", label: "Analyst review" },
   { href: "/desk/settings", label: "Settings" },
 ];
 
+// The analyst review queue is OUR tool, not the firm's — showing it to intake
+// staff invites "what am I supposed to do here?" It appears only for the founder.
+const ANALYST_NAV = { href: "/desk/review", label: "Analyst review" };
+
 export default async function DeskLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
+  const founderEmail = process.env.FOUNDER_EMAIL?.trim().toLowerCase();
+  const isFounder = Boolean(
+    founderEmail && user?.email?.trim().toLowerCase() === founderEmail,
+  );
   // P0-2: only surface the Live Coach nav item when the firm is entitled (Pro).
   const { entitled: coachEntitled } = await isLiveCoachEntitled();
-  const NAV = coachEntitled
+  let NAV = coachEntitled
     ? [{ href: "/desk/coach", label: "Live coach" }, ...BASE_NAV]
     : BASE_NAV;
+  if (isFounder) NAV = [...NAV.slice(0, -1), ANALYST_NAV, NAV.at(-1)!];
   return (
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-hairline bg-surface">

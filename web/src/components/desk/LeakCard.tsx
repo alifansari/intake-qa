@@ -27,20 +27,21 @@ const CONFIDENCE_TEXT: Record<string, string> = {
 };
 
 // Allowed forward transitions (display-only mirror of the state machine).
+// Labels are what an intake coordinator would actually say, not workflow-ese.
 const NEXT: Record<string, { label: string; to: string }[]> = {
-  "Draft ready": [{ label: "Mark sent by staff", to: "Sent by staff" }],
-  "Sent by staff": [{ label: "Mark contact resumed", to: "Contact resumed" }],
-  "Contact resumed": [
-    { label: "Mark signed", to: "Signed" },
-    { label: "Mark declined", to: "Declined" },
+  "Needs a callback": [{ label: "We reached out", to: "We reached out" }],
+  "We reached out": [{ label: "They responded", to: "Back in touch" }],
+  "Back in touch": [
+    { label: "They signed", to: "Signed" },
+    { label: "They passed", to: "Didn't sign" },
   ],
   Signed: [],
-  Declined: [],
+  "Didn't sign": [],
 };
 
 export function LeakCard({ leak }: { leak: Leak }) {
-  const [status, setStatus] = useState("Draft ready");
-  const terminal = status === "Signed" || status === "Declined";
+  const [status, setStatus] = useState("Needs a callback");
+  const terminal = status === "Signed" || status === "Didn't sign";
   const badge = leak.tier ? (leak.tier === "strong" ? "Strong flag" : "Moderate flag") : "Unrated";
 
   return (
@@ -90,7 +91,7 @@ export function LeakCard({ leak }: { leak: Leak }) {
               {n.label}
             </button>
           ))}
-        {terminal ? <span className="text-xs text-faint">Terminal status.</span> : null}
+        {terminal ? <span className="text-xs text-faint">Done — nothing further here.</span> : null}
       </div>
     </div>
   );

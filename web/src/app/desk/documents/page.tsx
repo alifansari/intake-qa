@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Statements & readouts — Intake QA" };
+export const metadata = { title: "Documents — Intake QA" };
 
 const DOCS = [
   {
@@ -36,9 +36,11 @@ export default function DocumentsPage() {
     <div>
       <div className="mb-6">
         <p className="eyebrow">The desk</p>
-        <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Statements &amp; readouts</h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          Every readout the desk has issued for your firm. Each is a written PDF you own.
+        <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Documents</h1>
+        <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
+          Everything the desk writes for your firm lands here automatically &mdash; nothing to
+          build, export, or remember. The monthly statement&apos;s first page is a 90-second read;
+          each document is a PDF you own.
         </p>
       </div>
 

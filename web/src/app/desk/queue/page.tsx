@@ -1,13 +1,16 @@
-// Leaked-case queue — screen (a). Server-reads leaked-signable flags for the firm
-// (prefers the demo firm), enriches each with its estimated fee range, and renders
-// interactive cards. Degrades gracefully with no DB.
+// Missed cases — screen (a), the desk's home. Server-reads leaked-signable
+// flags for the firm, enriches each with its estimated fee range, and renders
+// action cards. Every degraded state (no DB, no firm, no tables) renders the
+// same friendly first-run panel instead of an internal error — a brand-new
+// user must never see plumbing.
 import { LeakCard, type Leak } from "@/components/desk/LeakCard";
+import { HowCallsArrive } from "@/components/desk/HowCallsArrive";
 import { fmtMoneyRange } from "@/pdf/doc-helpers.mjs";
 import { feeRangeFromRow } from "../../../../analysis/fee-value.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Leaked-case queue — Intake QA" };
+export const metadata = { title: "Missed cases — Intake QA" };
 
 function initialsOf(name: string | null): string {
   if (!name) return "PNC";
@@ -22,13 +25,13 @@ export default async function QueuePage() {
   try {
     db = await store.openPipelineDb();
   } catch {
-    return <Empty msg="Connect the workspace database to see the queue. Run npm run seed:demo locally to load the demo firm." />;
+    return <FirstRun detail="workspace database not connected" />;
   }
   try {
     const firms = await store.listFirms(db);
     const firm =
       firms.find((f: { name?: string }) => (f.name ?? "").includes("DEMO")) ?? firms[0];
-    if (!firm) return <Empty msg="No firm found yet." />;
+    if (!firm) return <FirstRun detail="no firm on this workspace yet" />;
 
     const flags = await store.listLeakedFlags(db, firm.id);
     const leaks: Leak[] = [];
@@ -57,15 +60,26 @@ export default async function QueuePage() {
       <div>
         <div className="mb-6">
           <p className="eyebrow">The desk · {firm.name}</p>
-          <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Leaked-case queue</h1>
-          <p className="mt-1 text-sm text-ink-muted">
-            Qualified PNCs our analysis flagged as signable that don&apos;t appear to have signed. Strong
-            flags first.
+          <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Missed cases</h1>
+          <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
+            We read every intake call so your team doesn&apos;t have to. These are the only callers
+            that need action today &mdash; likely signable, and no sign of a signed agreement. The
+            whole job on this screen: call them back, then mark what happened.
           </p>
         </div>
 
         {leaks.length === 0 ? (
-          <Empty msg="No open leaks right now. That's a good sign — it means every qualified PNC this period is either signed, in progress, or accounted for." />
+          <div className="rounded-card border border-hairline bg-surface p-8">
+            <h2 className="font-display text-xl font-semibold text-ink">
+              Nothing needs your attention right now.
+            </h2>
+            <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+              That&apos;s the desk working: every qualified caller this period is signed, in
+              progress, or accounted for. New misses appear here the same day we read the call
+              &mdash; you don&apos;t need to check back; the daily digest emails you when
+              something lands.
+            </p>
+          </div>
         ) : (
           <div className="flex flex-col gap-3">
             {leaks.map((l) => (
@@ -83,18 +97,31 @@ export default async function QueuePage() {
       </div>
     );
   } catch {
-    // Missing tables (migrations 0014–0015 not applied on this database yet), etc.
-    return <Empty msg="The desk tables aren't set up on this database yet — apply migrations 0014–0015, then the queue populates automatically." />;
+    // Missing tables etc. — same friendly first-run panel, never plumbing.
+    return <FirstRun detail="desk tables not initialized on this database" />;
   } finally {
     await store.closePipelineDb(db);
   }
 }
 
-function Empty({ msg }: { msg: string }) {
+// The first-run state: what this screen will do, and how calls get here.
+// The technical detail is one small line at the bottom — for us, not them.
+function FirstRun({ detail }: { detail: string }) {
   return (
-    <div className="rounded-card border border-hairline bg-surface p-8">
-      <h1 className="font-display text-2xl font-semibold text-ink">Leaked-case queue</h1>
-      <p className="mt-2 text-sm text-ink-muted">{msg}</p>
+    <div>
+      <div className="mb-6">
+        <p className="eyebrow">The desk</p>
+        <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Missed cases</h1>
+        <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
+          We read every intake call so your team doesn&apos;t have to. Once your calls are
+          flowing, the only callers that need action appear right here &mdash; likely signable,
+          not signed &mdash; and your team just calls them back.
+        </p>
+      </div>
+      <div className="rounded-card border border-hairline bg-surface p-6">
+        <HowCallsArrive />
+      </div>
+      <p className="mt-4 text-xs text-faint">Setup status: {detail}.</p>
     </div>
   );
 }

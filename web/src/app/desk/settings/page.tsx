@@ -1,18 +1,17 @@
 "use client";
 
-// Settings — screen (d). Data handling (deletion request with the verbatim
-// confirmation), notification prefs, and the consolidation note. The actual
-// deletion CASCADE + receipt land with the security gate (item 10); this control
+// Settings — screen (d). The integration story first (how calls arrive — the
+// question every new firm actually has), then data handling (deletion request
+// with the verbatim confirmation), billing, and notifications. The deletion
+// CASCADE + receipt land with the security gate (item 10); the control
 // surfaces the promise honestly and does not fake a deletion.
 
 import { useState } from "react";
+import { HowCallsArrive } from "@/components/desk/HowCallsArrive";
 
 export default function SettingsPage() {
   const [confirming, setConfirming] = useState(false);
   const [requested, setRequested] = useState(false);
-  const [digest, setDigest] = useState(true);
-  const [email, setEmail] = useState("");
-  const [time, setTime] = useState("08:00");
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
 
@@ -45,8 +44,13 @@ export default function SettingsPage() {
         <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Settings</h1>
       </div>
 
-      {/* Data handling */}
+      {/* How calls arrive — the integration story, answered before it's asked */}
       <section className="rounded-card border border-hairline bg-surface p-6">
+        <HowCallsArrive />
+      </section>
+
+      {/* Data handling */}
+      <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-lg font-semibold text-ink">Data handling</h2>
         <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
           Call audio is deleted the moment it&apos;s transcribed; transcripts and reports are purged
@@ -86,37 +90,19 @@ export default function SettingsPage() {
         {portalError && <p className="mt-2 text-xs text-alert">{portalError}</p>}
       </section>
 
-      {/* Notification prefs */}
+      {/* Notifications — a promise, not a form. The old inputs here weren't
+          persisted anywhere (a silent no-op is worse than no control); until
+          prefs are real, we state plainly what happens and how to change it. */}
       <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-lg font-semibold text-ink">Notifications</h2>
-        <label className="mt-3 flex items-center gap-2 text-sm text-ink">
-          <input type="checkbox" checked={digest} onChange={(e) => setDigest(e.target.checked)} />
-          Daily digest of follow-up drafts ready for review
-        </label>
-        <div className="mt-3 flex flex-wrap gap-4">
-          <label className="text-sm text-ink-muted">
-            Email
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@firm.com"
-              className="mt-1 block w-56 rounded-base border border-hairline bg-canvas px-3 py-1.5 text-sm text-ink"
-            />
-          </label>
-          <label className="text-sm text-ink-muted">
-            Time of day
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="mt-1 block rounded-base border border-hairline bg-canvas px-3 py-1.5 text-sm text-ink"
-            />
-          </label>
-        </div>
-        <p className="mt-3 text-xs text-faint">
-          {/* TODO(Ali): persist notification prefs + wire the digest send (Resend) with the workflow gate. */}
-          Preferences are saved to your account when the follow-up workflow is enabled.
+        <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+          You don&apos;t need to check the desk. A daily digest goes to your sign-in email each
+          morning with anything that needs action, and same-day flags land as they&apos;re found.
+          Want a different address, more people on it, or a different rhythm? Email{" "}
+          <a href="mailto:ali@plaintiffops.com" className="font-medium text-accent hover:text-accent-hover">
+            ali@plaintiffops.com
+          </a>{" "}
+          and it&apos;s changed the same day.
         </p>
       </section>
 

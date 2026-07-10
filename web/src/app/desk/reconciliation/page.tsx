@@ -4,7 +4,7 @@ import { fmtDate } from "@/pdf/doc-helpers.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Calls & reconciliation — Intake QA" };
+export const metadata = { title: "Calls — Intake QA" };
 
 const STATUS_LABEL: Record<string, string> = {
   excluded_duplicate: "Excluded — duplicate",
@@ -84,8 +84,12 @@ function Shell({ children, firmName }: { children: React.ReactNode; firmName?: s
     <div>
       <div className="mb-6">
         <p className="eyebrow">The desk{firmName ? ` · ${firmName}` : ""}</p>
-        <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Calls &amp; reconciliation</h1>
-        <p className="mt-1 text-sm text-ink-muted">Every call you sent is accounted for — processed, excluded, or failed, with a reason.</p>
+        <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Calls</h1>
+        <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
+          Proof we read every call so your team never has to: each one is processed, excluded, or
+          failed, with the reason. If the math doesn&apos;t balance, this banner turns red and
+          it&apos;s our problem to fix, not yours.
+        </p>
       </div>
       {children}
     </div>

@@ -64,3 +64,20 @@ walked, and show you what they cost. Flat fee, never a share." →
   convenient.
 - "Leak Audit" vs "audit" vs "spot-check" wording could collapse to one term
   everywhere ("the free audit").
+
+## Part 2 — the product itself (the desk), same day
+
+**Message: the desk saves your staff time; using it requires zero learning.**
+
+| Screen | Before | After |
+|---|---|---|
+| Missed cases (home) | Header said "Leaked-case queue" (nav said "Missed cases"); jargon subtitle ("Qualified PNCs…"); raw setup errors ("apply migrations 0014–0015", "run npm run seed:demo") for a fresh firm | Header matches nav; subtitle states the deal in one breath ("We read every intake call so your team doesn't have to… call them back, then mark what happened"); every degraded state renders a friendly first-run panel with the integration story, never plumbing |
+| Case cards | Workflow-ese buttons ("Mark sent by staff", "Mark contact resumed", "Terminal status.") | What a coordinator would say: "We reached out" → "They responded" → "They signed / They passed" |
+| Documents | "Statements & readouts" | "Documents" + "lands here automatically — nothing to build, export, or remember" |
+| Calls | "Calls & reconciliation" | "Calls" + "proof we read every call so your team never has to; if it doesn't balance, it's our problem, not yours" |
+| Analyst review | In every firm's nav (internal tool) | Founder-only; firms never see it |
+| Settings | Started with a deletion button; notification form silently saved nothing | Starts with "How your calls get here" (three paths, all "we handle it", **no workflow changes**); the fake form replaced by the honest promise (daily digest to your sign-in email; email us to change it) |
+
+The integration story is a shared component (`HowCallsArrive`) shown on first-run and in
+Settings: (1) your phone system connects once, (2) or just send recordings, (3) or we do
+the whole thing — "your team changes nothing about how they answer the phone."
