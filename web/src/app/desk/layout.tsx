@@ -1,6 +1,6 @@
-// The recovery desk — a four-screen app (item 3) that replaces the prior ~7 tabs.
+// The recovery desk — the firm-facing app that replaced the prior ~7 tabs.
 // Old tab routes redirect here via next.config (DESK_REDIRECTS). Access is gated by
-// middleware (src/middleware.ts) — reaching here means there's a signed-in session.
+// middleware (src/proxy.ts) — reaching here means there's a signed-in session.
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { isLiveCoachEntitled } from "@/lib/coach-entitlement";

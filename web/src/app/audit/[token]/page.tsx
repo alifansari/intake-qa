@@ -109,8 +109,8 @@ export default async function AuditReportPage({
 
       {/* Masthead */}
       <header className="border-b border-ink pb-4">
-        <p className="eyebrow">Intake QA · Intake Leak Report</p>
-        <h1 className="font-display text-3xl font-bold text-ink">Intake Leak Report</h1>
+        <p className="eyebrow">Intake QA · Leak Audit</p>
+        <h1 className="font-display text-3xl font-bold text-ink">Leak Audit</h1>
         <p className="mt-1 text-sm text-muted">
           {callCount} call{callCount === 1 ? "" : "s"} reviewed
           {report.pending ? ` · ${report.pending} still processing` : ""}

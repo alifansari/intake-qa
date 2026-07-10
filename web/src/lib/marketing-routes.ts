@@ -15,6 +15,10 @@ export const MARKETING_ROUTES = [
   "/concierge",
   "/terms",
   "/privacy",
+  "/apply",
+  "/for-callers",
+  "/msa",
+  "/dpa",
 ];
 
 export function isMarketingRoute(pathname: string): boolean {

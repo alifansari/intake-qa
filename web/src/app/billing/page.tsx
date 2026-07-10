@@ -10,6 +10,7 @@ import { PageShell, PageHeader, SectionTitle } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { money } from "@/lib/format";
 import { getCurrentUser } from "@/lib/supabase/server";
+import { resolveDeskFirm } from "@/lib/desk/firm";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 export const runtime = "nodejs";
@@ -47,10 +48,19 @@ export default async function BillingPage({
 
   const db = await store.openPipelineDb();
   try {
-    const firms = await store.listFirms(db);
-    const firm =
-      (firmParam && firms.find((f: { id: unknown }) => String(f.id) === String(firmParam))) ||
-      firms[0];
+    // IDOR guard: a user gets THEIR firm (membership via resolveDeskFirm);
+    // the ?firm= override is honored only for the founder.
+    const founderEmail = process.env.FOUNDER_EMAIL?.trim().toLowerCase();
+    const currentUser = isSupabaseConfigured() ? await getCurrentUser() : null;
+    const isFounder = Boolean(
+      founderEmail && currentUser?.email?.trim().toLowerCase() === founderEmail,
+    );
+    let firm = await resolveDeskFirm(db, store.listFirms);
+    if (isFounder && firmParam) {
+      const firms = await store.listFirms(db);
+      const picked = firms.find((f: { id: unknown }) => String(f.id) === String(firmParam));
+      if (picked) firm = { id: picked.id, name: String(picked.name ?? "Firm"), source: "fallback" };
+    }
     if (!firm) {
       return (
         <PageShell>

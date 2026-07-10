@@ -19,7 +19,8 @@ type Validated =
 export async function POST(req: Request) {
   if (isSupabaseConfigured()) {
     const user = await getCurrentUser();
-    if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    const founderEmail = process.env.FOUNDER_EMAIL?.trim().toLowerCase();
+    if (!user || !founderEmail || user.email?.trim().toLowerCase() !== founderEmail) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   let json: unknown;

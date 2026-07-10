@@ -190,7 +190,7 @@ export default async function AdminStatusPage() {
             <p className="text-sm text-ink">
               <span className="font-semibold">{state.pendingCount}</span> text
               {state.pendingCount === 1 ? "" : "s"} awaiting human approval in the{" "}
-              <a className="text-navy underline" href="/queue">approval queue</a>.
+              <a className="text-navy underline" href="/desk/queue">approval queue</a>.
             </p>
           ) : (
             <p className="text-sm text-muted">Connect a database to see pending approvals.</p>

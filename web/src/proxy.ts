@@ -39,6 +39,8 @@ export async function proxy(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isStudio = path === "/studio" || path.startsWith("/studio/");
+  // /admin is the operator console — founder-only, same as /studio.
+  const isAdmin = path === "/admin" || path.startsWith("/admin/");
 
   // The studio login page must stay reachable while signed-out (otherwise the
   // redirect below would loop). It renders its own sign-in form.
@@ -57,7 +59,7 @@ export async function proxy(request: NextRequest) {
   // studio login with a not-authorized flag (never a 200). The same check is
   // ALSO enforced in every studio server action/route (layer B) and in Postgres
   // RLS (layer C). Fail closed: if FOUNDER_EMAIL is unset, no one is the founder.
-  if (isStudio) {
+  if (isStudio || isAdmin) {
     const founderEmail = process.env.FOUNDER_EMAIL?.trim().toLowerCase();
     const userEmail = user.email?.trim().toLowerCase();
     if (!founderEmail || !userEmail || userEmail !== founderEmail) {
@@ -73,5 +75,5 @@ export async function proxy(request: NextRequest) {
 export const config = {
   // The desk work screens and the founder-only Spot Check Studio require sign-in.
   // (/studio also requires the FOUNDER_EMAIL allowlist, checked above.)
-  matcher: ["/desk/:path*", "/studio/:path*"],
+  matcher: ["/desk/:path*", "/studio/:path*", "/admin/:path*"],
 };

@@ -57,10 +57,11 @@ export function SettingsClient({
         <HowCallsArrive />
         {webhookUrl ? (
           <div className="mt-5 rounded-card border border-hairline bg-canvas p-4">
-            <p className="text-sm font-semibold text-ink">Your firm's webhook address</p>
+            <p className="text-sm font-semibold text-ink">Your firm's call-feed address</p>
             <p className="mt-1 text-xs text-ink-muted">
-              Paste this once into CallRail (Settings → Integrations → Webhooks, post-call) and
-              every new call flows in automatically. We'll do it with you on the setup call.
+              Pasted once into your phone system (in CallRail: Settings → Integrations →
+              Webhooks, post-call), every new call flows in automatically. We do this with you
+              on the setup call — you never have to touch it.
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <code className="rounded-base border border-hairline bg-surface px-2.5 py-1.5 text-xs text-ink break-all">
@@ -112,8 +113,8 @@ export function SettingsClient({
           </button>
         ) : (
           <p className="mt-4 rounded-base border border-hairline bg-canvas px-3 py-2 text-sm text-ink">
-            Deletion request recorded. You&apos;ll receive a deletion receipt by email once it
-            completes.
+            Your written request opened in your email client &mdash; send it and deletion begins
+            immediately. You&apos;ll receive a deletion receipt by email once it completes.
           </p>
         )}
       </section>
@@ -154,7 +155,7 @@ export function SettingsClient({
 
       <p className="mt-4 text-xs text-faint">
         The prior tabs (dashboard, triage, team coaching, calibration, funnel, statement) now live
-        inside these four screens; their old links redirect here automatically.
+        inside these screens; their old links redirect here automatically.
       </p>
 
       {/* Deletion confirmation (verbatim) */}
@@ -177,13 +178,18 @@ export function SettingsClient({
               >
                 Cancel
               </button>
-              <button
-                type="button"
+              <a
+                href={
+                  "mailto:ali@plaintiffops.com?subject=Data%20deletion%20request&body=" +
+                  encodeURIComponent(
+                    "Please permanently delete all of our firm's data from Intake QA (recordings, transcripts, flags, statements) and send the deletion receipt to this address.",
+                  )
+                }
                 onClick={() => { setConfirming(false); setRequested(true); }}
                 className="rounded-pill bg-red px-4 py-2 text-sm font-semibold text-white"
               >
-                Delete everything
-              </button>
+                Send the written request
+              </a>
             </div>
           </div>
         </div>

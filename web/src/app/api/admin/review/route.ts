@@ -20,7 +20,8 @@ export async function POST(req: Request) {
   if (isSupabaseConfigured()) {
     const { getCurrentUser } = await import("@/lib/supabase/server");
     const user = await getCurrentUser();
-    if (!user) return Response.json({ error: "unauthorized" }, { status: 401 });
+    const founderEmail = process.env.FOUNDER_EMAIL?.trim().toLowerCase();
+    if (!user || !founderEmail || user.email?.trim().toLowerCase() !== founderEmail) return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
   let body: { sessionId?: number | string; to?: string; checklist?: boolean[] };

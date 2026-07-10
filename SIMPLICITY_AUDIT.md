@@ -81,3 +81,38 @@ walked, and show you what they cost. Flat fee, never a share." →
 The integration story is a shared component (`HowCallsArrive`) shown on first-run and in
 Settings: (1) your phone system connects once, (2) or just send recordings, (3) or we do
 the whole thing — "your team changes nothing about how they answer the phone."
+
+## Part 3 — the breakage sweep + research-driven pass (same day, second round)
+
+**Found broken and fixed (security first):**
+- `/admin/*` operator console was reachable by ANYONE (no guard, not in the
+  middleware matcher) → founder-only now, both at the middleware and the page APIs.
+- All four `/api/admin/*` routes authorized on "signed in" not "is founder" — any
+  firm user could toggle any firm's flags, void invoices, release audit reports →
+  founder-gated.
+- `/desk/review` listed every firm's sessions to any signed-in user → founder-gated.
+- `/billing` + `/settings/integrations` cross-tenant IDOR (`?firm=<anyone>` or
+  defaulting to the first firm) → resolve the user's own firm; `?firm=` honored
+  only for the founder.
+- Double navigation stacked on `/apply`, `/for-callers`, `/msa`, `/dpa` (missing
+  from the marketing-routes list) → one header.
+- "Request data deletion" was a local-state no-op that claimed "request recorded" →
+  now opens the written request (matching the stated policy) instead of lying.
+- 8 dead page files shadowed by permanent redirects deleted; bare `/desk` now
+  redirects home; stale links/labels/comments fixed; the audit artifact is titled
+  "Leak Audit" to match the offer name everywhere.
+
+**Research-driven changes (see the 10-principle SaaS research in this repo's chat):**
+- **One screen, one verb:** every missed case now leads with "Call back now · <number>"
+  (tap-to-dial) — `caller_phone` added to the leak queries.
+- **Never-blank desk:** the all-clear state cites the work ("We've read N calls…");
+  zero-calls firms see the setup story instead.
+- **Law-firm vocabulary:** "webhook address" → "call-feed address" in firm-visible copy.
+- **Digest-first desk** (the research's #1 recommendation) recorded in ROADMAP.md —
+  gated on real-email sign-off; activation event + churn watch added to
+  BETA_ONBOARDING.md.
+
+**Still open (needs product decisions):** LeakCard status buttons persist per-device
+only (needs a save-status API — the state machine exists in messaging/); document
+PDF endpoints need auth once real firm data flows; digest-first build awaits email
+enablement.

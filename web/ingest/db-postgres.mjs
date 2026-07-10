@@ -1145,7 +1145,7 @@ export async function insertCitationFailure(db, { flag_id = null, snippet, neare
 export async function listLeakedFlags(db, firmId) {
   const r = await db.query(
     `SELECT f.id, f.call_id, f.qualification_score, f.reason, f.case_type,
-            c.caller_name, c.received_at,
+            c.caller_name, c.caller_phone, c.received_at,
             fc.confidence_tier,
             (SELECT COUNT(*) FROM transcript_citations tc WHERE tc.flag_id = f.id) AS citation_count
        FROM flags f

@@ -19,6 +19,7 @@ export type Leak = {
   feeRange: string | null;
   citationCount: number;
   reason: string | null;
+  phone: string | null;
 };
 
 const CONFIDENCE_TEXT: Record<string, string> = {
@@ -79,6 +80,16 @@ export function LeakCard({ leak }: { leak: Leak }) {
       {leak.reason ? <p className="mt-2 text-sm text-ink-muted">{leak.reason}</p> : null}
 
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-hairline pt-3">
+        {/* THE one action on this screen (P5: one screen, one verb). Tap-to-dial
+            on phones; on desktop it shows the number to dial. */}
+        {leak.phone && status === "Needs a callback" ? (
+          <a
+            href={`tel:${leak.phone.replace(/[^+\d]/g, "")}`}
+            className="rounded-pill bg-accent px-4 py-1.5 text-xs font-bold text-white hover:bg-accent-hover"
+          >
+            Call back now · {leak.phone}
+          </a>
+        ) : null}
         <span className="rounded-pill bg-canvas px-2.5 py-1 text-xs font-semibold text-ink">{status}</span>
         {!terminal &&
           (NEXT[status] ?? []).map((n) => (

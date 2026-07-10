@@ -50,3 +50,12 @@ Total founder effort per firm: ~20 minutes, most of it the setup call.
 `DATABASE_URL` (the **pooler** URL), `FOUNDER_EMAIL`, `APP_URL=https://plaintiffops.com`,
 `CALLRAIL_WEBHOOK_SECRET` — plus the existing keys. Without `APP_URL`, welcome
 emails and Settings show plaintiffops.com by default (correct in prod anyway).
+
+## Activation + churn watch (from the simplicity research)
+
+- **The activation event** is one thing: *first callback marked done within 48 hours
+  of the first digest/miss.* If a new firm doesn't hit it, call them — at this
+  scale that's a query and a phone call, not a CS tool.
+- The daily digest should send **even on zero-miss days** ("14 calls read, all
+  handled") — silence must never be ambiguous with "broken." When real email is
+  enabled: three consecutive unopened digests = call the firm.

@@ -17,7 +17,8 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   if (isSupabaseConfigured()) {
     const user = await getCurrentUser();
-    if (!user) {
+    const founderEmail = process.env.FOUNDER_EMAIL?.trim().toLowerCase();
+    if (!user || !founderEmail || user.email?.trim().toLowerCase() !== founderEmail) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
   }

@@ -61,6 +61,7 @@ export default async function QueuePage() {
         feeRange: fee ? fmtMoneyRange(fee.lowCents, fee.highCents) : null,
         citationCount: Number(f.citation_count ?? 0),
         reason: f.reason ?? null,
+        phone: f.caller_phone ?? null,
       });
     }
 
@@ -99,13 +100,14 @@ export default async function QueuePage() {
           ) : (
             <div className="rounded-card border border-hairline bg-surface p-8">
               <h2 className="font-display text-xl font-semibold text-ink">
-                Nothing needs your attention right now.
+                All clear &mdash; nothing needs your attention.
               </h2>
               <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
-                That&apos;s the desk working: every qualified caller this period is signed, in
-                progress, or accounted for. New misses appear here the same day we read the call
-                &mdash; you don&apos;t need to check back; the daily digest emails you when
-                something lands.
+                We&apos;ve read {callsReceived} call{callsReceived === 1 ? "" : "s"} for your firm
+                and every qualified caller is signed, in progress, or accounted for. That&apos;s
+                the desk working. New misses appear here the same day we read the call &mdash;
+                you don&apos;t need to check back; the daily digest emails you when something
+                lands.
               </p>
             </div>
           )

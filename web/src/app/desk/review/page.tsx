@@ -1,12 +1,24 @@
-// Review queue (Stage 6). Sessions awaiting analyst review; each releases only
-// after the checklist is confirmed. Reports don't go out without this sign-off.
+// Analyst review (Stage 6). Sessions awaiting analyst review; each releases
+// only after the checklist is confirmed. FOUNDER-ONLY: this is our internal
+// tool and it lists sessions across firms — hiding the nav item alone is not
+// access control, so the page itself bounces non-founders.
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { ReviewPanel } from "@/components/desk/ReviewPanel";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Review queue — Intake QA" };
+export const metadata = { title: "Analyst review — Intake QA" };
 
 export default async function ReviewPage() {
+  if (isSupabaseConfigured()) {
+    const user = await getCurrentUser();
+    const founderEmail = process.env.FOUNDER_EMAIL?.trim().toLowerCase();
+    if (!user || !founderEmail || user.email?.trim().toLowerCase() !== founderEmail) {
+      redirect("/desk/queue");
+    }
+  }
   const store = await import("../../../../ingest/store.mjs");
   let sessions: { id: number | string; token: string; email: string | null; report_status: string }[] = [];
   let ok = true;
