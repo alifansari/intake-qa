@@ -27,7 +27,10 @@ export function Nav() {
     pathname.startsWith("/desk") ||
     pathname.startsWith("/audit") ||
     pathname.startsWith("/letter") ||
-    pathname.startsWith("/carta")
+    pathname.startsWith("/carta") ||
+    // The intake-agent demo is a firm-facing showcase with its own header;
+    // the internal dashboard nav would break the illusion.
+    pathname.startsWith("/intake-demo")
   ) {
     return null;
   }

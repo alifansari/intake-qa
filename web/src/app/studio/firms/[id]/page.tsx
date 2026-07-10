@@ -4,6 +4,7 @@ import { PageShell, PageHeader } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
 import { getFirm, listRecordingsForFirm } from "@/lib/studio/data";
+import { listShops, type StudioShop } from "@/lib/studio/shops-data";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,13 @@ export default async function FirmPage({
   const firm = await getFirm(supabase, id);
   if (!firm) return notFound();
   const recordings = await listRecordingsForFirm(supabase, id);
+  // Graceful degradation if migration 0024 (The Mirror) hasn't been applied yet.
+  let shops: StudioShop[] = [];
+  try {
+    shops = await listShops(supabase, id);
+  } catch {
+    shops = [];
+  }
 
   return (
     <PageShell>
@@ -46,6 +54,46 @@ export default async function FirmPage({
           </div>
         </CardContent>
       </Card>
+
+      <div className="mt-6">
+        <h2 className="eyebrow mb-3">Mystery-shop audits</h2>
+        {shops.length === 0 ? (
+          <p className="text-sm text-muted">
+            No shops yet. Start one from{" "}
+            <Link href="/studio/shops" className="text-accent underline">
+              The Mirror
+            </Link>
+            .
+          </p>
+        ) : (
+          <ul className="divide-y divide-line rounded-card border border-line bg-paper">
+            {shops.map((s) => (
+              <li key={s.id} className="flex items-center justify-between px-4 py-3">
+                <div>
+                  <div className="text-sm font-medium text-ink">
+                    {s.status === "final" ? `Final · ${s.ref_code ?? ""}` : "Draft"}
+                  </div>
+                  <div className="text-xs text-faint">{s.market ?? "—"}</div>
+                </div>
+                <div className="flex gap-3">
+                  <Link
+                    href={`/studio/shops/${s.id}`}
+                    className="text-xs text-accent underline hover:text-accent-hover"
+                  >
+                    Edit
+                  </Link>
+                  <Link
+                    href={`/studio/shops/${s.id}/report`}
+                    className="text-xs text-accent underline hover:text-accent-hover"
+                  >
+                    Report
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <div className="mt-6">
         <h2 className="eyebrow mb-3">Recordings</h2>

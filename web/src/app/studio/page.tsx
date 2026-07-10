@@ -38,7 +38,15 @@ export default async function StudioHome() {
   return (
     <PageShell>
       <PageHeader kicker="Spot Check Studio" title="New Leak Audit">
-        <span className="text-xs text-faint">Founder-only</span>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/studio/shops"
+            className="text-xs text-accent underline hover:text-accent-hover"
+          >
+            Mystery-shop audits (The Mirror)
+          </Link>
+          <span className="text-xs text-faint">Founder-only</span>
+        </div>
       </PageHeader>
 
       {/* PRIMARY action: upload the firm's calls. Front-and-center by design. */}
