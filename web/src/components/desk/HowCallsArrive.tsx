@@ -21,6 +21,37 @@ const PATHS = [
   },
 ];
 
+// The busy owner's real move is DELEGATE, not do: one click forwards
+// self-contained setup instructions (with the firm's own call-feed address)
+// to whoever actually runs the phones. The attorney never has to understand it.
+export function ForwardToPhonePerson({ webhookUrl }: { webhookUrl: string }) {
+  const subject = "Please connect our phones to Intake QA (5 minutes)";
+  const body = [
+    "Hi — can you set this up? It's one paste and it's done.",
+    "",
+    "If we use CallRail:",
+    "1. Sign in to CallRail",
+    "2. Settings → Integrations → Webhooks",
+    "3. Add a Post-Call webhook with this exact address:",
+    `   ${webhookUrl}`,
+    "4. Save. That's it — every call now flows automatically.",
+    "",
+    "If we use something else (answering service, different phone system):",
+    "just reply to this email or contact ali@plaintiffops.com — they set it up",
+    "with you directly, usually the same day, at no cost.",
+    "",
+    "Nothing about how we answer calls changes.",
+  ].join("\n");
+  return (
+    <a
+      href={`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}
+      className="inline-flex rounded-pill border border-accent px-4 py-2 text-sm font-semibold text-accent hover:bg-accent-tint"
+    >
+      Send these instructions to whoever runs your phones
+    </a>
+  );
+}
+
 export function HowCallsArrive() {
   return (
     <div>

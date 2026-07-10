@@ -1,9 +1,9 @@
 "use client";
 
-// A single leaked-case row for the queue. Confidence badge + save-status control
-// use the finalized vocabulary. Save-status is local state for now (a demo of the
-// workflow); persistence + the illegal-transition guard land with the save-status
-// state-machine gate (item 11). TODO(Ali): wire to /api/drafts save-status.
+// A single missed-case row for the queue. Confidence badge + workflow status.
+// STATUS IS REAL: every click persists via /api/desk/flag-status (sibling
+// table beside the frozen flag) — it survives reload, device changes, and
+// colleagues see the same state. Optimistic UI with revert on failure.
 
 import { useState } from "react";
 import { fmtDate } from "@/pdf/doc-helpers.mjs";
@@ -20,6 +20,7 @@ export type Leak = {
   citationCount: number;
   reason: string | null;
   phone: string | null;
+  saveStatus: string | null; // canonical key from flag_status
 };
 
 const CONFIDENCE_TEXT: Record<string, string> = {
@@ -27,23 +28,53 @@ const CONFIDENCE_TEXT: Record<string, string> = {
   moderate: "The qualifying facts are mostly there, but something was incomplete or unclear on the call. Worth a human look.",
 };
 
+// Canonical status keys ↔ what an intake coordinator would actually say.
+const STATUS_LABEL: Record<string, string> = {
+  needs_callback: "Needs a callback",
+  reached_out: "We reached out",
+  back_in_touch: "Back in touch",
+  signed: "Signed",
+  didnt_sign: "Didn't sign",
+};
+
 // Allowed forward transitions (display-only mirror of the state machine).
-// Labels are what an intake coordinator would actually say, not workflow-ese.
 const NEXT: Record<string, { label: string; to: string }[]> = {
-  "Needs a callback": [{ label: "We reached out", to: "We reached out" }],
-  "We reached out": [{ label: "They responded", to: "Back in touch" }],
-  "Back in touch": [
-    { label: "They signed", to: "Signed" },
-    { label: "They passed", to: "Didn't sign" },
+  needs_callback: [{ label: "We reached out", to: "reached_out" }],
+  reached_out: [{ label: "They responded", to: "back_in_touch" }],
+  back_in_touch: [
+    { label: "They signed", to: "signed" },
+    { label: "They passed", to: "didnt_sign" },
   ],
-  Signed: [],
-  "Didn't sign": [],
+  signed: [],
+  didnt_sign: [],
 };
 
 export function LeakCard({ leak }: { leak: Leak }) {
-  const [status, setStatus] = useState("Needs a callback");
-  const terminal = status === "Signed" || status === "Didn't sign";
+  const [status, setStatus] = useState(leak.saveStatus ?? "needs_callback");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const terminal = status === "signed" || status === "didnt_sign";
   const badge = leak.tier ? (leak.tier === "strong" ? "Strong flag" : "Moderate flag") : "Unrated";
+
+  async function advance(to: string) {
+    const prev = status;
+    setStatus(to); // optimistic — the click must feel instant
+    setSaving(true);
+    setError(null);
+    try {
+      const r = await fetch("/api/desk/flag-status", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ flag_id: leak.id, status: to }),
+      });
+      if (!r.ok) throw new Error("save failed");
+    } catch {
+      setStatus(prev); // revert — never silently lie about persistence
+      setError("Couldn't save — try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="rounded-card border border-hairline bg-surface p-5">
@@ -80,9 +111,8 @@ export function LeakCard({ leak }: { leak: Leak }) {
       {leak.reason ? <p className="mt-2 text-sm text-ink-muted">{leak.reason}</p> : null}
 
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-hairline pt-3">
-        {/* THE one action on this screen (P5: one screen, one verb). Tap-to-dial
-            on phones; on desktop it shows the number to dial. */}
-        {leak.phone && status === "Needs a callback" ? (
+        {/* THE one action on this screen. Tap-to-dial on phones. */}
+        {leak.phone && status === "needs_callback" ? (
           <a
             href={`tel:${leak.phone.replace(/[^+\d]/g, "")}`}
             className="rounded-pill bg-accent px-4 py-1.5 text-xs font-bold text-white hover:bg-accent-hover"
@@ -90,19 +120,23 @@ export function LeakCard({ leak }: { leak: Leak }) {
             Call back now · {leak.phone}
           </a>
         ) : null}
-        <span className="rounded-pill bg-canvas px-2.5 py-1 text-xs font-semibold text-ink">{status}</span>
+        <span className="rounded-pill bg-canvas px-2.5 py-1 text-xs font-semibold text-ink">
+          {STATUS_LABEL[status] ?? status}
+        </span>
         {!terminal &&
           (NEXT[status] ?? []).map((n) => (
             <button
               key={n.to}
               type="button"
-              onClick={() => setStatus(n.to)}
-              className="rounded-pill border border-hairline px-3 py-1 text-xs font-semibold text-ink hover:border-accent"
+              disabled={saving}
+              onClick={() => advance(n.to)}
+              className="rounded-pill border border-hairline px-3 py-1 text-xs font-semibold text-ink hover:border-accent disabled:opacity-60"
             >
               {n.label}
             </button>
           ))}
         {terminal ? <span className="text-xs text-faint">Done — nothing further here.</span> : null}
+        {error ? <span className="text-xs text-red">{error}</span> : null}
       </div>
     </div>
   );

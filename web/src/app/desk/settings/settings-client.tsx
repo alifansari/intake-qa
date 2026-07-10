@@ -7,7 +7,7 @@
 // surfaces the promise honestly and does not fake a deletion.
 
 import { useState } from "react";
-import { HowCallsArrive } from "@/components/desk/HowCallsArrive";
+import { HowCallsArrive, ForwardToPhonePerson } from "@/components/desk/HowCallsArrive";
 
 export function SettingsClient({
   firmId,
@@ -68,6 +68,9 @@ export function SettingsClient({
                 {webhookUrl}
               </code>
               <CopyButton text={webhookUrl} />
+            </div>
+            <div className="mt-3">
+              <ForwardToPhonePerson webhookUrl={webhookUrl} />
             </div>
           </div>
         ) : null}
@@ -135,6 +138,17 @@ export function SettingsClient({
           {portalLoading ? "Opening…" : "Manage billing"}
         </button>
         {portalError && <p className="mt-2 text-xs text-alert">{portalError}</p>}
+      </section>
+
+      {/* Sign-in — set your own password (the welcome email issues a temporary
+          one; the magic-link path also always works). */}
+      <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
+        <h2 className="font-display text-lg font-semibold text-ink">Your sign-in</h2>
+        <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+          Set your own password here anytime. Forgot it? The &ldquo;email me a sign-in
+          link&rdquo; option on the sign-in page always works too.
+        </p>
+        <SetPassword />
       </section>
 
       {/* Notifications — a promise, not a form. The old inputs here weren't
@@ -215,5 +229,48 @@ function CopyButton({ text }: { text: string }) {
     >
       {copied ? "Copied ✓" : "Copy"}
     </button>
+  );
+}
+
+
+function SetPassword() {
+  const [pw, setPw] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    if (pw.length < 10) { setMsg("Use at least 10 characters."); return; }
+    setBusy(true); setMsg(null);
+    try {
+      const { getSupabaseBrowser } = await import("@/lib/supabase/client");
+      const supabase = getSupabaseBrowser();
+      if (!supabase) throw new Error("not configured");
+      const { error } = await supabase.auth.updateUser({ password: pw });
+      if (error) throw error;
+      setPw("");
+      setMsg("Password updated ✓");
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Could not update password.");
+    } finally { setBusy(false); }
+  }
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2">
+      <input
+        type="password"
+        value={pw}
+        onChange={(e) => setPw(e.target.value)}
+        placeholder="New password (10+ characters)"
+        autoComplete="new-password"
+        className="w-64 rounded-base border border-hairline bg-canvas px-3 py-1.5 text-sm text-ink"
+      />
+      <button
+        type="button"
+        onClick={save}
+        disabled={busy || !pw}
+        className="rounded-pill border border-hairline px-4 py-1.5 text-sm font-semibold text-ink hover:border-accent disabled:opacity-60"
+      >
+        {busy ? "Saving…" : "Set password"}
+      </button>
+      {msg ? <span className="text-xs text-ink-muted">{msg}</span> : null}
+    </div>
   );
 }

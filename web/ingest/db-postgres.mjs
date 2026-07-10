@@ -1146,16 +1146,37 @@ export async function listLeakedFlags(db, firmId) {
   const r = await db.query(
     `SELECT f.id, f.call_id, f.qualification_score, f.reason, f.case_type,
             c.caller_name, c.caller_phone, c.received_at,
-            fc.confidence_tier,
+            fc.confidence_tier, fs.status AS save_status,
             (SELECT COUNT(*) FROM transcript_citations tc WHERE tc.flag_id = f.id) AS citation_count
        FROM flags f
        JOIN calls c ON c.id = f.call_id
        LEFT JOIN flag_confidence fc ON fc.flag_id = f.id
+       LEFT JOIN flag_status fs ON fs.flag_id = f.id
       WHERE f.firm_id = $1 AND f.is_leaked_signable = true
       ORDER BY (CASE WHEN fc.confidence_tier = 'strong' THEN 0 ELSE 1 END), f.id`,
     [firmId]
   );
   return r.rows;
+}
+
+// Upsert the workflow status beside a flag (sibling record; flags stays frozen).
+// Returns the flag's firm_id so callers can enforce firm scoping.
+export async function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null }) {
+  const owner = await db.query("SELECT firm_id FROM flags WHERE id = $1", [flag_id]);
+  if (!owner.rows[0]) return null;
+  // Firm scoping is enforced HERE, before any write: a caller passing its own
+  // firm_id can never touch another firm's queue.
+  if (firm_id != null && String(owner.rows[0].firm_id) !== String(firm_id)) {
+    return { ok: false, forbidden: true, firm_id: owner.rows[0].firm_id };
+  }
+  await db.query(
+    `INSERT INTO flag_status (flag_id, status, updated_by, updated_at)
+     VALUES ($1, $2, $3, now())
+     ON CONFLICT (flag_id) DO UPDATE
+       SET status = excluded.status, updated_by = excluded.updated_by, updated_at = now()`,
+    [flag_id, status, updated_by ?? null]
+  );
+  return { ok: true, firm_id: owner.rows[0].firm_id };
 }
 
 export async function listNonAnalyzedCalls(db, firmId) {

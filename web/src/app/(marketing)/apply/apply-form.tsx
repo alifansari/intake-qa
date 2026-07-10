@@ -79,6 +79,10 @@ export function ApplyForm() {
           ))}
         </ol>
         <p className="mt-5 text-sm text-faint">
+          In a hurry? Reply to the NDA email with two or three times that work and your setup
+          call gets locked in the same day.
+        </p>
+        <p className="mt-2 text-sm text-faint">
           While you wait: run the free Leak Audit on 10 of your calls —{" "}
           <a href="/audit" className="font-medium text-accent hover:text-accent-hover">
             start it here

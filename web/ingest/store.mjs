@@ -140,6 +140,7 @@ export const logArtifactAccess = wrap("logArtifactAccess");
 export const insertCitationFailure = wrap("insertCitationFailure");
 export const getFeeValueRange = wrap("getFeeValueRange");
 export const listLeakedFlags = wrap("listLeakedFlags");
+export const setFlagStatus = wrap("setFlagStatus");
 export const listNonAnalyzedCalls = wrap("listNonAnalyzedCalls");
 export const getReportStatus = wrap("getReportStatus");
 export const setReportStatus = wrap("setReportStatus");

@@ -62,6 +62,7 @@ export default async function QueuePage() {
         citationCount: Number(f.citation_count ?? 0),
         reason: f.reason ?? null,
         phone: f.caller_phone ?? null,
+        saveStatus: f.save_status ?? null,
       });
     }
 

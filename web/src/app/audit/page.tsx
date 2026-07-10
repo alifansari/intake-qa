@@ -254,6 +254,15 @@ export default function AuditUploaderPage() {
               </a>
               . You get a report you can keep. You decide what to do next.
             </p>
+            <p className="mt-2 text-sm text-ink-muted">
+              <b className="text-ink">No time for uploads?</b> Email the recordings (or a link
+              to them) straight to{" "}
+              <a href={`mailto:${FOUNDER_EMAIL}?subject=Leak%20Audit%20calls`} className="font-semibold text-navy underline">
+                {FOUNDER_EMAIL}
+              </a>{" "}
+              &mdash; or forward this page to whoever can export them. Same audit, zero clicks
+              for you.
+            </p>
             <p className="mt-2 text-xs text-faint">
               These are your prospective clients&apos; confidential communications (Cal. Rule 1.18),
               and we treat them that way. The named providers we use and their security postures are

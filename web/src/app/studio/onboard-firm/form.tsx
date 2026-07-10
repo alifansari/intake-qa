@@ -18,7 +18,9 @@ function welcomeEmail(r: Result): string {
     ? `Sign in with your existing account at ${r.signin_url}`
     : `Sign in at ${r.signin_url}
 Email: ${r.email}
-Temporary password: ${r.password}  (change it after your first sign-in)`;
+Temporary password: ${r.password}
+(Prefer no password? On the sign-in page choose "email me a sign-in link" —
+it always works. You can set your own password anytime under Settings.)`;
   return `Subject: Your Intake QA desk is ready
 
 Hi — your desk is live. Two minutes to get oriented:

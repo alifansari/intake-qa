@@ -1250,11 +1250,12 @@ export function listLeakedFlags(db, firmId) {
     .prepare(
       `SELECT f.id, f.call_id, f.qualification_score, f.reason, f.case_type,
               c.caller_name, c.caller_phone, c.received_at,
-              fc.confidence_tier,
+              fc.confidence_tier, fs.status AS save_status,
               (SELECT COUNT(*) FROM transcript_citations tc WHERE tc.flag_id = f.id) AS citation_count
          FROM flags f
          JOIN calls c ON c.id = f.call_id
          LEFT JOIN flag_confidence fc ON fc.flag_id = f.id
+         LEFT JOIN flag_status fs ON fs.flag_id = f.id
         WHERE f.firm_id = ? AND f.is_leaked_signable = 1
         ORDER BY (CASE WHEN fc.confidence_tier = 'strong' THEN 0 ELSE 1 END), f.id`
     )
@@ -1263,6 +1264,23 @@ export function listLeakedFlags(db, firmId) {
 
 // Calls that did NOT reach 'analyzed' — the actionable rows on the reconciliation
 // screen (excluded/failed with their reasons; null = still processing).
+// Upsert the workflow status beside a flag (sibling record; flags stays frozen).
+export function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null }) {
+  const owner = db.prepare("SELECT firm_id FROM flags WHERE id = ?").get(flag_id);
+  if (!owner) return null;
+  if (firm_id != null && String(owner.firm_id) !== String(firm_id)) {
+    return { ok: false, forbidden: true, firm_id: owner.firm_id };
+  }
+  db.prepare(
+    `INSERT INTO flag_status (flag_id, status, updated_by, updated_at)
+     VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+     ON CONFLICT (flag_id) DO UPDATE
+       SET status = excluded.status, updated_by = excluded.updated_by,
+           updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')`
+  ).run(flag_id, status, updated_by ?? null);
+  return { ok: true, firm_id: owner.firm_id };
+}
+
 export function listNonAnalyzedCalls(db, firmId) {
   return db
     .prepare(

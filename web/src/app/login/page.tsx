@@ -149,13 +149,17 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <PageShell>
-      <PageHeader kicker="Pilot control" title="Sign in" />
+      <PageHeader kicker="Your desk" title="Sign in" />
       <Suspense fallback={null}>
         <LoginForm />
       </Suspense>
-      <p className="mt-4 max-w-[52ch] text-xs text-faint">
-        Accounts are provisioned by Intake QA for pilot firms and staff. If you need access, email{" "}
-        <a href="mailto:ali@plaintiffops.com" className="underline hover:text-ink">ali@plaintiffops.com</a>.
+      <p className="mt-4 max-w-[56ch] text-xs text-faint">
+        Your account is set up for you when you join the beta &mdash; check your welcome email
+        for the sign-in details, or use &ldquo;email me a sign-in link&rdquo; above. No account
+        yet?{" "}
+        <a href="/apply" className="underline hover:text-ink">Apply for the beta</a> &middot;
+        questions:{" "}
+        <a href="mailto:ali@plaintiffops.com" className="underline hover:text-ink">ali@plaintiffops.com</a>
       </p>
     </PageShell>
   );

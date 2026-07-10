@@ -116,3 +116,27 @@ the whole thing — "your team changes nothing about how they answer the phone."
 only (needs a save-status API — the state machine exists in messaging/); document
 PDF endpoints need auth once real firm data flows; digest-first build awaits email
 enablement.
+
+## Part 4 — the disgruntled-attorney walk (round three)
+
+Method: modeled a firm going through every step as a busy attorney with 200 cases,
+plus a second research pass on first-session abandonment (key findings: value must
+land in the first ~5 minutes; state-loss bugs are the most trust-expensive class;
+busy owners delegate setup, they don't do it).
+
+**The rage moment, fixed for real:** the queue's status buttons were device-local —
+mark three callbacks done, reload, all back to "Needs a callback." Now persisted:
+`flag_status` sibling table (supabase 0030 + sqlite 0022, flags stays frozen),
+firm-scoped API (`/api/desk/flag-status`, ownership checked BEFORE the write),
+optimistic UI with revert-on-failure. **Verified in the browser: click → reload →
+status survives.**
+
+**Delegation, not documentation:** "Send these instructions to whoever runs your
+phones" button (Settings) — a prefilled email containing the firm's own call-feed
+address and the exact CallRail steps. The attorney forwards; done.
+
+**Smaller rage-removals:** login page now says who has accounts and routes the
+account-less to /apply; Settings gained "set your own password" (the welcome email
+told people to change it with no way to); welcome email leads to the magic-link
+path too; /audit gained the "no time for uploads? email the recordings" escape
+hatch; /apply success gained the "in a hurry? reply with times" line.
