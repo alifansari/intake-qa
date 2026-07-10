@@ -49,7 +49,7 @@ export default async function EscalationsPage() {
   if (!isStudioConfigured()) {
     return (
       <PageShell>
-        <PageHeader kicker="Intake System" title="Escalations — not configured" />
+        <PageHeader kicker="Intake System" title="Urgent leads — not configured" />
       </PageShell>
     );
   }
@@ -77,7 +77,7 @@ export default async function EscalationsPage() {
 
   return (
     <PageShell>
-      <PageHeader kicker="Intake System" title="Escalations">
+      <PageHeader kicker="Intake System" title="Urgent leads">
         <div className="flex items-center gap-3">
           <SweepButton />
           <Link href="/studio" className="text-xs text-accent underline hover:text-accent-hover">

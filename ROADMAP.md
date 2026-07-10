@@ -13,7 +13,11 @@ we will not touch without explicit per-integration sign-off from Ali.
 | Outbound TCPA-gated follow-up (SMS/email to prospects) | Any automated re-engagement of a captured lead. | TCPA discipline + human-approval chokepoint; nothing sends in this build, period. |
 | Ledger conversion read-back | Pulling signed/converted outcomes back from the firm's CRM into the Phase-6 Ledger. | Depends on a live CRM connection (above); until then the Ledger shows captures only. |
 | Real peer-benchmark fieldwork batches | Replacing the seed rows in `studio_peer_benchmarks` with measured cohort shops. | Fieldwork requires the CIPA-safe protocol + Yang sign-off BEFORE dialing (§II); seed rows stay clearly labeled illustrative until then. |
-| Digest-first desk (P1 of the simplicity research) | The daily digest becomes the primary UI: each missed caller in the email body with signed one-click "We called them" action links needing no login. | Sends real email — gated behind Resend enablement + sign-off; the desk already carries the same information. |
+<!-- SHIPPED 2026-07-10 on Ali's sign-off: Digest-first desk — messaging/missed-digest.mjs
+     + /api/digest/run (founder button + Vercel cron) + signed no-login confirm links
+     (/digest/confirm). Still TEST_MODE-gated: renders to output/ until TEST_MODE=false
+     AND RESEND_API_KEY live AND DIGEST_LINK_SECRET set. -->
+
 
 Rule of thumb: if a feature would send, dial, publish, or write into someone else's
 system, it lives here until Ali signs off on that specific integration.

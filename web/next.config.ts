@@ -44,6 +44,9 @@ const nextConfig: NextConfig = {
       { source: "/intake-service", destination: "/", permanent: true },
       { source: "/services", destination: "/", permanent: true },
       { source: "/home", destination: "/", permanent: true },
+      // The old 5-step wizard is retired: /apply is the ONE signup story
+      // (provisioning happens in /studio/onboard-firm).
+      { source: "/onboard", destination: "/apply", permanent: true },
       // Consolidation (item 3): the ~7 prior internal tabs -> four desk screens.
       ...DESK_REDIRECTS,
     ];

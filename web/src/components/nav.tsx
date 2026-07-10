@@ -5,15 +5,13 @@ import { cn } from "@/lib/cn";
 import { isMarketingRoute } from "@/lib/marketing-routes";
 import { DemoToggle } from "./demo-mode";
 
+import { DESK_LINKS } from "@/lib/desk-nav";
+
 // The old seven dashboard tabs all 308-redirect into the desk now, so this
 // nav (shown only on the few non-desk product pages like /demo, /login,
-// /welcome) points straight at the desk's real screens with matching labels.
-const LINKS = [
-  { href: "/desk/queue", label: "Missed cases" },
-  { href: "/desk/documents", label: "Documents" },
-  { href: "/desk/reconciliation", label: "Calls" },
-  { href: "/desk/settings", label: "Settings" },
-];
+// /welcome) points straight at the desk's real screens with matching labels
+// (single source of truth: src/lib/desk-nav.ts).
+const LINKS = DESK_LINKS;
 
 export function Nav() {
   const pathname = usePathname();
@@ -46,8 +44,7 @@ export function Nav() {
         <div className="flex items-center gap-1 overflow-x-auto">
           <nav className="flex items-center gap-0.5">
             {LINKS.map((l) => {
-              const active =
-                l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
+              const active = pathname.startsWith(l.href);
               return (
                 <Link
                   key={l.href}

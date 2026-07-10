@@ -73,7 +73,7 @@ export default async function LeadsPage() {
 
   return (
     <PageShell>
-      <PageHeader kicker="Intake System" title="Captured leads">
+      <PageHeader kicker="Intake System" title="Leads">
         <Link href="/studio" className="text-xs text-accent underline hover:text-accent-hover">
           Studio home
         </Link>

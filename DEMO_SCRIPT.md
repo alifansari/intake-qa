@@ -34,11 +34,10 @@ firm is legally cleared."
    rules) and the one-screen triage memo. Stress the disclaimer: this is an attorney-verifiable
    estimate computed by deterministic date math, not an LLM guess — and it is never legal advice.
 
-3. **`/onboard` — bring a firm on in 5 steps.**
-   Firm basics → case types (with default fee estimates) → compliance acknowledgement (required)
-   → message templates → review. Try saving a template WITHOUT an opt-out line: the wizard rejects
-   it, because it runs the same compliance guard the send layer enforces. Fix it, finish, and show
-   the generated firm config. New firm is born with its kill switch ON.
+3. **`/apply` — the one signup story.** (The old `/onboard` wizard is retired; `/onboard`
+   now redirects here.) Five fields, one button; the NDA flow kicks off on submit. You
+   provision the account afterward at `/studio/onboard-firm` — firm, sign-in, membership,
+   and the welcome email composed in one click. New firm is born with its kill switch ON.
 
 4. **`/getting-started` — the plain-English orientation** a non-technical firm sees next: how it
    works in four steps and the five guardrails, in their words.

@@ -211,6 +211,13 @@ export default function DemoPage() {
           was a signable case your team let slip, and the exact re-engagement text we&apos;d draft.
           In the real product a human approves every send.
         </p>
+        <p className="mt-2 text-sm text-muted">
+          No recording handy? <a href="/intake-demo" className="underline hover:text-ink">Try the
+          web intake agent instead</a> — a live chat that qualifies an injured caller without ever
+          giving advice. Or start with the{" "}
+          <a href="/audit" className="underline hover:text-ink">free Leak Audit</a> on a batch of
+          real calls.
+        </p>
       </div>
 
       {phase === "upload" && (

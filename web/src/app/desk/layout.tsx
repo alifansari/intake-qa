@@ -4,17 +4,15 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { isLiveCoachEntitled } from "@/lib/coach-entitlement";
+import { DESK_LINKS } from "@/lib/desk-nav";
 
-const BASE_NAV = [
-  { href: "/desk/queue", label: "Missed cases" },
-  { href: "/desk/documents", label: "Documents" },
-  { href: "/desk/reconciliation", label: "Calls" },
-  { href: "/desk/settings", label: "Settings" },
-];
+const BASE_NAV = [...DESK_LINKS];
 
 // The analyst review queue is OUR tool, not the firm's — showing it to intake
 // staff invites "what am I supposed to do here?" It appears only for the founder.
 const ANALYST_NAV = { href: "/desk/review", label: "Analyst review" };
+// The founder's bridge back to the operator side; firms never see it.
+const STUDIO_NAV = { href: "/studio", label: "Studio" };
 
 export default async function DeskLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
@@ -27,7 +25,7 @@ export default async function DeskLayout({ children }: { children: React.ReactNo
   let NAV = coachEntitled
     ? [{ href: "/desk/coach", label: "Live coach" }, ...BASE_NAV]
     : BASE_NAV;
-  if (isFounder) NAV = [...NAV.slice(0, -1), ANALYST_NAV, NAV.at(-1)!];
+  if (isFounder) NAV = [...NAV.slice(0, -1), ANALYST_NAV, NAV.at(-1)!, STUDIO_NAV];
   return (
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-hairline bg-surface">

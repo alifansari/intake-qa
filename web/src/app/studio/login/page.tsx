@@ -103,7 +103,12 @@ export default function StudioLoginPage() {
         <StudioLoginForm />
       </Suspense>
       <p className="mt-4 max-w-[52ch] text-xs text-faint">
-        This is an internal, founder-only tool. There is no public sign-up.
+        This is an internal, founder-only tool. There is no public sign-up. Prefer your
+        password?{" "}
+        <a href="/login?next=/studio" className="underline hover:text-ink">
+          Use the regular sign-in
+        </a>
+        {" "}&mdash; it lands you in the Studio too.
       </p>
     </PageShell>
   );

@@ -14,7 +14,7 @@ export default async function ShopsHome() {
   if (!isStudioConfigured()) {
     return (
       <PageShell>
-        <PageHeader kicker="Spot Check Studio · The Mirror" title="Not configured" />
+        <PageHeader kicker="Intake QA · Studio" title="Mystery shops — not configured" />
         <Card>
           <CardContent className="py-6">
             <p className="text-sm text-muted">
@@ -39,7 +39,7 @@ export default async function ShopsHome() {
 
   return (
     <PageShell>
-      <PageHeader kicker="Spot Check Studio · The Mirror" title="Mystery-shop audits">
+      <PageHeader kicker="Intake QA · Studio (The Mirror)" title="Mystery shops">
         <Link href="/studio" className="text-xs text-accent underline hover:text-accent-hover">
           Studio home
         </Link>

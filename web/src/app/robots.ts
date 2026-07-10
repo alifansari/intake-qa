@@ -19,7 +19,6 @@ export default function robots(): MetadataRoute.Robots {
         "/funnel",
         "/reps",
         "/statement",
-        "/onboard",
         "/getting-started",
         "/login",
         "/api",

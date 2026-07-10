@@ -1,20 +1,84 @@
 import Link from "next/link";
+import { Pool } from "pg";
 import { PageShell, PageHeader } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
 import { listFirms, type StudioFirm } from "@/lib/studio/data";
 import { NewLeakAudit } from "./new-leak-audit";
+import { SendDigestsButton } from "./digest-button";
 
 export const dynamic = "force-dynamic";
 
-// The Spot Check Studio home. Founder-only (guarded here AND in middleware AND by
-// RLS). The audio-upload action is deliberately front-and-center — it is the
-// primary thing the founder does here.
+// The studio home — "Today". One screen that answers "what needs me right
+// now?" (urgent leads waiting for an ack, tuning proposals waiting for a
+// decision), then puts the primary work action (upload calls for a Leak Audit)
+// front-and-center, then everything else one hop away. Founder-only (guarded
+// here AND in middleware AND by RLS).
+
+let _pool: Pool | null = null;
+function pool(): Pool {
+  if (!_pool) {
+    _pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 2,
+    });
+  }
+  return _pool;
+}
+
+interface Attention {
+  openEscalations: number;
+  unackedEscalations: number;
+  pendingProposals: number;
+  leadsThisWeek: number;
+}
+
+// Best-effort counts — a missing table or connection never breaks the home.
+async function loadAttention(): Promise<Attention | null> {
+  if (!process.env.DATABASE_URL) return null;
+  const out: Attention = {
+    openEscalations: 0,
+    unackedEscalations: 0,
+    pendingProposals: 0,
+    leadsThisWeek: 0,
+  };
+  try {
+    const r = await pool().query(
+      `select count(*)::int as open,
+              count(*) filter (where acked_by is null)::int as unacked
+       from escalations where status <> 'resolved'`,
+    );
+    out.openEscalations = r.rows[0]?.open ?? 0;
+    out.unackedEscalations = r.rows[0]?.unacked ?? 0;
+  } catch {
+    /* table missing or unreachable — show nothing rather than plumbing */
+  }
+  try {
+    const r = await pool().query(
+      `select count(*)::int as n from tuning_proposals where status = 'proposed'`,
+    );
+    out.pendingProposals = r.rows[0]?.n ?? 0;
+  } catch {
+    /* same */
+  }
+  try {
+    const r = await pool().query(
+      `select count(*)::int as n from intake_leads
+       where created_at > now() - interval '7 days'`,
+    );
+    out.leadsThisWeek = r.rows[0]?.n ?? 0;
+  } catch {
+    /* same */
+  }
+  return out;
+}
+
 export default async function StudioHome() {
   if (!isStudioConfigured()) {
     return (
       <PageShell>
-        <PageHeader kicker="Spot Check Studio" title="Not configured" />
+        <PageHeader kicker="Intake QA · Studio" title="Not configured" />
         <Card>
           <CardContent className="py-6">
             <p className="text-sm text-muted">
@@ -34,27 +98,73 @@ export default async function StudioHome() {
   } catch {
     firms = [];
   }
+  const attention = await loadAttention();
+  const needsYou =
+    (attention?.unackedEscalations ?? 0) > 0 || (attention?.pendingProposals ?? 0) > 0;
 
   return (
     <PageShell>
-      <PageHeader kicker="Spot Check Studio" title="New Leak Audit">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/studio/shops"
-            className="text-xs text-accent underline hover:text-accent-hover"
-          >
-            Mystery-shop audits (The Mirror)
-          </Link>
-          <span className="text-xs text-faint">Founder-only</span>
-        </div>
+      <PageHeader kicker="Intake QA · Studio" title="Today">
+        <SendDigestsButton />
       </PageHeader>
 
-      {/* PRIMARY action: upload the firm's calls. Front-and-center by design. */}
-      <NewLeakAudit firms={firms} />
+      {/* What needs you right now — the operator inbox, worked to zero. */}
+      {attention ? (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Link
+            href="/studio/escalations"
+            className="rounded-card border border-line bg-paper p-4 transition-colors hover:border-accent"
+          >
+            <div className="text-2xl font-semibold text-ink">
+              {attention.unackedEscalations}
+            </div>
+            <div className="mt-1 text-sm font-medium text-ink">
+              Urgent leads waiting for an ack
+            </div>
+            <div className="mt-1 text-xs text-muted">
+              {attention.openEscalations} open in total. Hottest first; unacked items
+              waterfall to the backstop.
+            </div>
+          </Link>
+          <Link
+            href="/studio/tuning"
+            className="rounded-card border border-line bg-paper p-4 transition-colors hover:border-accent"
+          >
+            <div className="text-2xl font-semibold text-ink">{attention.pendingProposals}</div>
+            <div className="mt-1 text-sm font-medium text-ink">
+              Tuning proposals waiting on you
+            </div>
+            <div className="mt-1 text-xs text-muted">
+              Nothing tunes itself — each needs your named decision.
+            </div>
+          </Link>
+          <Link
+            href="/studio/leads"
+            className="rounded-card border border-line bg-paper p-4 transition-colors hover:border-accent"
+          >
+            <div className="text-2xl font-semibold text-ink">{attention.leadsThisWeek}</div>
+            <div className="mt-1 text-sm font-medium text-ink">New leads this week</div>
+            <div className="mt-1 text-xs text-muted">
+              Everything the intake agent captured, abandoned sessions included.
+            </div>
+          </Link>
+        </div>
+      ) : null}
+      {attention && !needsYou ? (
+        <p className="mt-3 text-sm text-muted">
+          Nothing is waiting on you right now. The queues below are clear.
+        </p>
+      ) : null}
 
-      {/* The intake-system cockpit: every founder surface, one hop away. */}
+      {/* PRIMARY action: upload a firm's calls. Front-and-center by design. */}
       <div className="mt-8">
-        <h2 className="eyebrow mb-3">Intake system</h2>
+        <h2 className="eyebrow mb-3">Run a Leak Audit</h2>
+        <NewLeakAudit firms={firms} />
+      </div>
+
+      {/* Everything else, one hop away, in plain words. */}
+      <div className="mt-8">
+        <h2 className="eyebrow mb-3">Everything else</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             {
@@ -64,8 +174,8 @@ export default async function StudioHome() {
             },
             {
               href: "/studio/shops",
-              title: "The Mirror",
-              desc: "Mystery-shop audits — grade each intake channel, print the firm-facing report.",
+              title: "Mystery shops",
+              desc: "Shop a firm's intake like a real caller, grade each channel, print the report. (The Mirror.)",
             },
             {
               href: "/intake-demo",
@@ -74,23 +184,28 @@ export default async function StudioHome() {
             },
             {
               href: "/studio/leads",
-              title: "Captured leads",
+              title: "Leads",
               desc: "Every canonical record the agent produced — abandoned sessions included.",
             },
             {
               href: "/studio/escalations",
-              title: "Escalations",
+              title: "Urgent leads",
               desc: "Every fired trigger, hottest first. Ack, action, resolve — named. Run the sweep.",
             },
             {
               href: "/studio/ledger",
-              title: "The Ledger",
-              desc: "The monthly receipt — captures, catches, SLA including misses. Printable.",
+              title: "Monthly results",
+              desc: "The monthly receipt — captures, catches, SLA including misses. Printable. (The Ledger.)",
             },
             {
               href: "/studio/tuning",
-              title: "Tuning",
+              title: "Tuning proposals",
               desc: "The loop's proposals with their precision math. You approve by name; nothing tunes itself.",
+            },
+            {
+              href: "/admin",
+              title: "System",
+              desc: "Operator status, Leak Audit console, billing, feature flags — the safety board.",
             },
           ].map((c) => (
             <Link

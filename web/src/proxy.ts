@@ -47,9 +47,10 @@ export async function proxy(request: NextRequest) {
   if (path === "/studio/login") return response;
 
   if (!user) {
-    // Studio has its own minimal login; the desk uses /login. Send each to the
-    // right sign-in screen, preserving the intended destination.
-    const redirectUrl = new URL(isStudio ? "/studio/login" : "/login", request.url);
+    // ONE sign-in screen for everyone (/login, password + magic link). The
+    // founder simply gets sent on to /studio via ?next=; /studio/login still
+    // works as a magic-link fallback but nothing redirects there anymore.
+    const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("next", path);
     return NextResponse.redirect(redirectUrl);
   }
@@ -75,5 +76,13 @@ export async function proxy(request: NextRequest) {
 export const config = {
   // The desk work screens and the founder-only Spot Check Studio require sign-in.
   // (/studio also requires the FOUNDER_EMAIL allowlist, checked above.)
-  matcher: ["/desk/:path*", "/studio/:path*", "/admin/:path*"],
+  // /billing and /settings/integrations also self-gate in their pages; listing
+  // them here adds defense in depth and keeps their auth cookies refreshed.
+  matcher: [
+    "/desk/:path*",
+    "/studio/:path*",
+    "/admin/:path*",
+    "/billing",
+    "/settings/integrations",
+  ],
 };

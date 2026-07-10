@@ -31,6 +31,55 @@
 
 ---
 
+## 2026-07-10 — /onboard retired + digest-first desk shipped (Ali sign-off)  ·  agent: main session (Ali directive) · lane: product
+- **Change:** (committed to main on Ali's explicit instruction) 1) The orphaned 5-step
+  /onboard wizard is retired — page + /api/onboard deleted, /onboard 308→/apply; the pure
+  `onboarding/` template-compliance lib and its tests stay (the send chokepoint uses them).
+  /apply is the ONE signup story. 2) The digest-first desk (previously deferred in ROADMAP):
+  `messaging/missed-digest.mjs` renders each missed caller with tap-to-call and a SIGNED
+  one-click "We called them" link needing no login (HMAC tokens, no PII in URLs, 14-day
+  expiry, only workflow statuses linkable — terminal outcomes still require the desk).
+  GET /digest/confirm shows a human-press button (email scanners can't mark cases); the
+  write reuses firm-scoped setFlagStatus. /api/digest/run (founder button on Studio Today
+  + Vercel cron 15:00 UTC) does one pass over all firms, emailing firm members' sign-in
+  addresses. Zero-miss days still send ("N calls read, all handled") so silence is never
+  ambiguous. Delivery posture unchanged: KILL_SWITCH halts, TEST_MODE renders to output/
+  and transmits nothing; links degrade to desk links if DIGEST_LINK_SECRET is unset.
+- **Hypothesis:** the digest IS the daily loop for busy attorneys (simplicity research P1);
+  removing the second signup story removes the last IA ambiguity.
+- **Expected effect:** activation event (first callback marked done within 48h of first
+  digest) becomes reachable without the firm ever opening the app.
+- **Status:** shipped to main; email delivery still gated (TEST_MODE=true) until Ali sets
+  DIGEST_LINK_SECRET + CRON_SECRET in Vercel and flips TEST_MODE per GO_LIVE.
+- **Review date:** 2026-07-24
+- **Result:** —
+
+## 2026-07-10 — IA unification: one login, one founder nav, plain names everywhere  ·  agent: main session (Ali directive) · lane: product/website
+- **Change:** (staged locally, not pushed) Research-driven simplicity pass over the whole app's
+  information architecture. Founder side: `/studio` gained a persistent nav (Today / Mystery
+  shops / Leads / Urgent leads / Monthly results / Tuning / System) shared with `/admin`, which
+  gained an index page (was a 404 with four unlinked consoles); `/studio` home reworked into a
+  "Today" screen leading with what needs action (unacked urgent leads, tuning proposals waiting).
+  One sign-in: the proxy now sends all unauthenticated traffic to `/login` (password + magic
+  link); the founder sees Studio ↔ desk links both ways. Naming: invented names demoted to
+  subtitles ("The Mirror" → Mystery shops, "The Ledger" → Monthly results, "Captured leads" →
+  Leads, Escalations → Urgent leads). Public: footer now links the intake-agent demo, the
+  Spanish letter, and renames "Demo" to "See a call scored"; `/demo` ↔ `/intake-demo` ↔ `/audit`
+  cross-linked. Hardening: `/billing` + `/settings/integrations` added to the auth-proxy matcher;
+  desk nav deduplicated to one source of truth (`src/lib/desk-nav.ts`); 9 empty leftover
+  directories removed.
+- **Hypothesis:** deep-research pass (105-agent verified): progressive disclosure + one
+  inbox-shaped home per role + boring descriptive labels (NN/g primary research) reduce
+  abandonment for zero-patience users; one integrated product beats a toolkit (Squire).
+  Refuted-and-avoided: digest-first email claims and concierge-vs-self-serve stats did not
+  survive adversarial verification, so nothing was reorganized around them.
+- **Expected effect:** founder daily loop = open /studio, see what needs you, work to zero;
+  firm loop unchanged (already one queue). Should cut demo-setup fumbling and "where was that
+  URL" time to ~zero.
+- **Status:** shipped to main (Ali instructed commit + deploy same day).
+- **Review date:** 2026-07-24
+- **Result:** —
+
 ## 2026-07-09 — Public pricing removed for the beta window (branch `copy/beta-pricing-framing`)  ·  agent: website-dev · lane: website
 
 - **What changed:** All dollar figures, tiers, and per-month prices removed from public site copy
