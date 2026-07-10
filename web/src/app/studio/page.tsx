@@ -68,6 +68,11 @@ export default async function StudioHome() {
               desc: "The consent-first chat walking the full qualification tree. Show this to firms.",
             },
             {
+              href: "/studio/leads",
+              title: "Captured leads",
+              desc: "Every canonical record the agent produced — abandoned sessions included.",
+            },
+            {
               href: "/studio/escalations",
               title: "Escalations",
               desc: "Every fired trigger, hottest first. Ack, action, resolve — named. Run the sweep.",
