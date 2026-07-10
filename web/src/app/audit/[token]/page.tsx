@@ -147,8 +147,9 @@ export default async function AuditReportPage({
       {/* 1. Sample-anchored headline (verifiable) */}
       <section className="mt-8">
         <p className="font-display text-3xl font-bold leading-tight text-ink sm:text-4xl">
-          <span className="text-red">{money(s.totalFeeAtRisk)}</span> in signable fees walked in
-          these <span className="tabular-nums">{callCount}</span> calls.
+          <span className="text-red">{money(s.totalFeeAtRisk)}</span> in signable fees walked in{" "}
+          {callCount === 1 ? "this" : "these"}{" "}
+          <span className="tabular-nums">{callCount}</span> call{callCount === 1 ? "" : "s"}.
         </p>
         <p className="mt-2 max-w-prose text-sm text-muted">
           Every figure below is tied to a specific call and the words the prospective client
