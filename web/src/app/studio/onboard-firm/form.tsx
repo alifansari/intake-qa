@@ -43,9 +43,15 @@ Ali
 ali@plaintiffops.com`;
 }
 
-export function OnboardFirmForm() {
-  const [firmName, setFirmName] = React.useState("");
-  const [email, setEmail] = React.useState("");
+export function OnboardFirmForm({
+  initialFirmName = "",
+  initialEmail = "",
+}: {
+  initialFirmName?: string;
+  initialEmail?: string;
+}) {
+  const [firmName, setFirmName] = React.useState(initialFirmName);
+  const [email, setEmail] = React.useState(initialEmail);
   const [fee, setFee] = React.useState("");
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);

@@ -23,7 +23,7 @@ export default async function RecordingPage({
 
   return (
     <PageShell>
-      <PageHeader kicker="Spot Check Studio · Recording" title={rec.original_filename}>
+      <PageHeader kicker="Intake QA · Studio · Recording" title={rec.original_filename}>
         <Link
           href={`/studio/firms/${rec.firm_id}`}
           className="text-xs text-accent underline hover:text-accent-hover"

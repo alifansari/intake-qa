@@ -34,7 +34,7 @@ export default async function ShopEditorPage({
   return (
     <PageShell>
       <PageHeader
-        kicker="Spot Check Studio · The Mirror"
+        kicker="Intake QA · Studio · Mystery shop"
         title={`Mystery shop — ${firm?.name ?? "Firm"}`}
       >
         <div className="flex gap-3">

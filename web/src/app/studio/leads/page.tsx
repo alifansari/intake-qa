@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { PageShell, PageHeader } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
+import { BUCKET_LABELS } from "@/lib/intake/plain-labels";
 
 export const dynamic = "force-dynamic";
 
@@ -45,11 +46,25 @@ const BUCKET_TONE: Record<string, string> = {
   decline: "border-line-strong bg-paper text-muted",
 };
 
+// Plain-English matter types (the shared plain-labels map covers buckets and
+// statuses; matter types come from the intake tree so they live here).
+const MATTER_LABELS: Record<string, string> = {
+  mva: "Car / vehicle accident",
+  premises: "Injured on someone's property",
+  dog_bite: "Dog bite",
+  other: "Something else",
+};
+// Fallback prettifier: replace underscores, capitalize the first letter.
+function pretty(raw: string): string {
+  const s = raw.replace(/_/g, " ");
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 export default async function LeadsPage() {
   if (!isStudioConfigured()) {
     return (
       <PageShell>
-        <PageHeader kicker="Intake System" title="Leads — not configured" />
+        <PageHeader kicker="Intake QA · Studio" title="Leads — not configured" />
       </PageShell>
     );
   }
@@ -73,7 +88,7 @@ export default async function LeadsPage() {
 
   return (
     <PageShell>
-      <PageHeader kicker="Intake System" title="Leads">
+      <PageHeader kicker="Intake QA · Studio" title="Leads">
         <Link href="/studio" className="text-xs text-accent underline hover:text-accent-hover">
           Studio home
         </Link>
@@ -101,18 +116,20 @@ export default async function LeadsPage() {
                     <span
                       className={`rounded-sm border px-1.5 py-0.5 text-[10px] font-semibold uppercase ${BUCKET_TONE[l.bucket] ?? ""}`}
                     >
-                      {l.bucket.replace("_", " ")}
+                      {BUCKET_LABELS[l.bucket] ?? pretty(l.bucket)}
                     </span>
                   ) : (
                     <span className="rounded-sm border border-line-strong bg-paper px-1.5 py-0.5 text-[10px] font-semibold uppercase text-faint">
-                      {l.status === "in_progress" ? "abandoned / open" : l.status}
+                      {BUCKET_LABELS[l.status] ?? pretty(l.status)}
                     </span>
                   )}
                   <span className="text-sm font-medium text-ink">
                     {l.first_name ?? "—"}
                   </span>
                   <span className="text-xs text-muted tnum">{l.phone ?? "no phone"}</span>
-                  <span className="text-xs text-faint">{l.matter_type}</span>
+                  <span className="text-xs text-faint">
+                    {MATTER_LABELS[l.matter_type] ?? pretty(l.matter_type)}
+                  </span>
                 </div>
                 <span className="text-[11px] text-faint tnum">
                   {new Date(l.created_at).toLocaleString("en-US", {
@@ -121,8 +138,10 @@ export default async function LeadsPage() {
                     hour: "numeric",
                     minute: "2-digit",
                   })}
-                  {Number(l.escalation_count) > 0 ? ` · ${l.escalation_count} escalation(s)` : ""}
-                  {l.consent_version ? " · consented" : ""}
+                  {Number(l.escalation_count) > 0
+                    ? ` · ${l.escalation_count} urgent flag${Number(l.escalation_count) === 1 ? "" : "s"}`
+                    : ""}
+                  {l.consent_version ? " · consent recorded" : ""}
                 </span>
               </div>
               {l.narrative ? (
@@ -137,6 +156,9 @@ export default async function LeadsPage() {
           ))}
         </ul>
       )}
+      {rows.length === 100 ? (
+        <p className="mt-2 text-xs text-faint">Showing the latest 100.</p>
+      ) : null}
     </PageShell>
   );
 }

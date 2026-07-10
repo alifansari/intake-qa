@@ -32,6 +32,7 @@ interface Attention {
   unackedEscalations: number;
   pendingProposals: number;
   leadsThisWeek: number;
+  newApplications: number;
 }
 
 // Best-effort counts — a missing table or connection never breaks the home.
@@ -42,6 +43,7 @@ async function loadAttention(): Promise<Attention | null> {
     unackedEscalations: 0,
     pendingProposals: 0,
     leadsThisWeek: 0,
+    newApplications: 0,
   };
   try {
     const r = await pool().query(
@@ -68,6 +70,17 @@ async function loadAttention(): Promise<Attention | null> {
        where created_at > now() - interval '7 days'`,
     );
     out.leadsThisWeek = r.rows[0]?.n ?? 0;
+  } catch {
+    /* same */
+  }
+  try {
+    // Beta applications land silently otherwise — nothing emails the founder
+    // (nothing sends, period), so the inbox tile IS the notification.
+    const r = await pool().query(
+      `select count(*)::int as n from beta_applicants
+       where status in ('nda_pending','nda_signed')`,
+    );
+    out.newApplications = r.rows[0]?.n ?? 0;
   } catch {
     /* same */
   }
@@ -100,7 +113,9 @@ export default async function StudioHome() {
   }
   const attention = await loadAttention();
   const needsYou =
-    (attention?.unackedEscalations ?? 0) > 0 || (attention?.pendingProposals ?? 0) > 0;
+    (attention?.unackedEscalations ?? 0) > 0 ||
+    (attention?.pendingProposals ?? 0) > 0 ||
+    (attention?.newApplications ?? 0) > 0;
 
   return (
     <PageShell>
@@ -110,7 +125,7 @@ export default async function StudioHome() {
 
       {/* What needs you right now — the operator inbox, worked to zero. */}
       {attention ? (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link
             href="/studio/escalations"
             className="rounded-card border border-line bg-paper p-4 transition-colors hover:border-accent"
@@ -119,11 +134,24 @@ export default async function StudioHome() {
               {attention.unackedEscalations}
             </div>
             <div className="mt-1 text-sm font-medium text-ink">
-              Urgent leads waiting for an ack
+              Urgent leads waiting to be claimed
             </div>
             <div className="mt-1 text-xs text-muted">
-              {attention.openEscalations} open in total. Hottest first; unacked items
-              waterfall to the backstop.
+              {attention.openEscalations} open in total, hottest first. If nobody claims one
+              in time, a callback is booked automatically and it lands here as a miss.
+            </div>
+          </Link>
+          <Link
+            href="/studio/onboard-firm"
+            className="rounded-card border border-line bg-paper p-4 transition-colors hover:border-accent"
+          >
+            <div className="text-2xl font-semibold text-ink">{attention.newApplications}</div>
+            <div className="mt-1 text-sm font-medium text-ink">
+              Applications waiting on you
+            </div>
+            <div className="mt-1 text-xs text-muted">
+              New firms that applied for the beta. Nothing emails you — this tile is the
+              notification. Onboard them here.
             </div>
           </Link>
           <Link
@@ -145,7 +173,7 @@ export default async function StudioHome() {
             <div className="text-2xl font-semibold text-ink">{attention.leadsThisWeek}</div>
             <div className="mt-1 text-sm font-medium text-ink">New leads this week</div>
             <div className="mt-1 text-xs text-muted">
-              Everything the intake agent captured, abandoned sessions included.
+              Everyone the intake agent captured — including chats they abandoned.
             </div>
           </Link>
         </div>
@@ -168,44 +196,49 @@ export default async function StudioHome() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             {
+              href: "/studio/firms",
+              title: "Firms",
+              desc: "Every firm with an account — recordings, shops, and scorecards live under each one.",
+            },
+            {
               href: "/studio/onboard-firm",
               title: "Onboard a firm",
-              desc: "Apply → account in one click: firm, sign-in, membership, welcome email composed.",
+              desc: "Turn an application into an account in one step — sign-in, membership, welcome email ready to copy.",
             },
             {
               href: "/studio/shops",
               title: "Mystery shops",
-              desc: "Shop a firm's intake like a real caller, grade each channel, print the report. (The Mirror.)",
+              desc: "Call a firm's intake like a real client would, grade what happened, print the firm-branded report.",
             },
             {
               href: "/intake-demo",
               title: "Intake agent demo",
-              desc: "The consent-first chat walking the full qualification tree. Show this to firms.",
+              desc: "The consent-first chat you show firms — it qualifies a visitor without ever giving advice.",
             },
             {
               href: "/studio/leads",
               title: "Leads",
-              desc: "Every canonical record the agent produced — abandoned sessions included.",
+              desc: "Everyone the intake agent captured — including chats they abandoned.",
             },
             {
               href: "/studio/escalations",
               title: "Urgent leads",
-              desc: "Every fired trigger, hottest first. Ack, action, resolve — named. Run the sweep.",
+              desc: "Flags that need a human now. Claim one with your name, handle it, mark how it ended.",
             },
             {
               href: "/studio/ledger",
               title: "Monthly results",
-              desc: "The monthly receipt — captures, catches, SLA including misses. Printable. (The Ledger.)",
+              desc: "The printable monthly receipt — what was caught and what was missed, in the firm's own numbers.",
             },
             {
               href: "/studio/tuning",
               title: "Tuning proposals",
-              desc: "The loop's proposals with their precision math. You approve by name; nothing tunes itself.",
+              desc: "Once a month the system proposes changes to its own triggers. Nothing changes unless you approve it by name.",
             },
             {
               href: "/admin",
               title: "System",
-              desc: "Operator status, Leak Audit console, billing, feature flags — the safety board.",
+              desc: "Status, Leak Audit sessions, billing, and feature switches — the back office.",
             },
           ].map((c) => (
             <Link
@@ -221,10 +254,16 @@ export default async function StudioHome() {
       </div>
 
       <div className="mt-8">
-        <h2 className="eyebrow mb-3">Firms</h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="eyebrow">Firms</h2>
+          <Link href="/studio/firms" className="text-xs text-accent underline hover:text-accent-hover">
+            All firms →
+          </Link>
+        </div>
         {firms.length === 0 ? (
           <p className="text-sm text-muted">
-            No firms yet. Add one above to start a spot check.
+            No firms yet. Onboard one from an application, or add one on the fly by uploading
+            a call above.
           </p>
         ) : (
           <ul className="divide-y divide-line rounded-card border border-line bg-paper">

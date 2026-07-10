@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import styles from "../letter/letter.module.css";
+import { CARTA_READY } from "@/lib/site-constants";
 
 // Spanish translation scaffold for "The Unscored Conversation" (/letter).
-// NOT linked anywhere yet. When the final Spanish translation is provided, paste
+// NOT linked anywhere while CARTA_READY is false (the Footer hides the link and
+// the page is noindexed). When the final Spanish translation is provided, paste
 // it into a co-located content module, render it exactly like /letter (same tiny
-// no-smartypants renderer), flip CARTA_READY in app/letter/page.tsx to emit the
-// hreflang alternates, and remove the noindex below.
+// no-smartypants renderer), flip CARTA_READY in src/lib/site-constants.ts, and
+// emit the hreflang alternates from app/letter/page.tsx.
 export const dynamic = "force-static";
-
-const CARTA_READY = false; // flip when Spanish content is pasted in
 
 export const metadata: Metadata = {
   title: "La conversación sin calificar — Intake QA",

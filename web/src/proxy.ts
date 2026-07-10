@@ -42,8 +42,8 @@ export async function proxy(request: NextRequest) {
   // /admin is the operator console — founder-only, same as /studio.
   const isAdmin = path === "/admin" || path.startsWith("/admin/");
 
-  // The studio login page must stay reachable while signed-out (otherwise the
-  // redirect below would loop). It renders its own sign-in form.
+  // /studio/login is a legacy stub that redirects to /login — let it through so
+  // old bookmarks and emailed links keep working without a redirect loop.
   if (path === "/studio/login") return response;
 
   if (!user) {
@@ -64,7 +64,7 @@ export async function proxy(request: NextRequest) {
     const founderEmail = process.env.FOUNDER_EMAIL?.trim().toLowerCase();
     const userEmail = user.email?.trim().toLowerCase();
     if (!founderEmail || !userEmail || userEmail !== founderEmail) {
-      const denied = new URL("/studio/login", request.url);
+      const denied = new URL("/login", request.url);
       denied.searchParams.set("error", "not_authorized");
       return NextResponse.redirect(denied);
     }

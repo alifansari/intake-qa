@@ -37,7 +37,7 @@ export default async function ScorecardEditorPage({
   return (
     <PageShell>
       <PageHeader
-        kicker="Spot Check Studio · Scorecard"
+        kicker="Intake QA · Studio · Scorecard"
         title={firm?.name ?? "Scorecard"}
       >
         <div className="flex items-center gap-3">

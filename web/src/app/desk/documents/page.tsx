@@ -78,6 +78,13 @@ export default async function DocumentsPage() {
           </p>
         </div>
       ) : (
+      <>
+      {/* Demo provenance, stated before the table — these must never read as
+          the firm's real history. */}
+      <div className="mb-3 rounded-card border border-hairline bg-canvas px-4 py-2.5 text-sm text-ink-muted">
+        Example documents from the demo firm &mdash; your firm&apos;s statements will replace
+        these.
+      </div>
       <div className="overflow-x-auto rounded-card border border-hairline">
         <table className="w-full min-w-[640px] text-sm">
           <thead>
@@ -109,6 +116,7 @@ export default async function DocumentsPage() {
           </tbody>
         </table>
       </div>
+      </>
       )}
       {showDemoDocs ? (
         <p className="mt-4 text-xs text-faint">

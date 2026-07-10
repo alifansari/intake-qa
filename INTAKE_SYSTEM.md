@@ -8,9 +8,10 @@ until you sign off per integration.
 
 ## Sign in
 
-Go to `/login` (email + the password set on your account — rotate it in Supabase
-dashboard → Authentication → Users whenever you like). `/studio/login` still works
-but only via magic-link email. For the deployed site, set `FOUNDER_EMAIL` in Vercel.
+Go to `/login` — the one sign-in for everything (password or "email me a sign-in
+link"; rotate the password in Supabase dashboard → Authentication → Users whenever
+you like). Old `/studio/login` bookmarks redirect there. For the deployed site, set
+`FOUNDER_EMAIL` in Vercel.
 
 ## The surfaces (all linked from /studio, the cockpit)
 
@@ -19,7 +20,7 @@ but only via magic-link email. For the deployed site, set `FOUNDER_EMAIL` in Ver
 | `/studio/shops` | **The Mirror** — mystery-shop audits | Start a shop, grade each channel (Captured/Fumbled/Lost + rings/latency/human-vs-machine), attest the CIPA protocol, approve the narrative, finalize → print the firm-branded report. A finalized demo shop exists (ref MS-20260708-DEMO). |
 | `/intake-demo` | **The chat intake agent** — the thing to show firms | Run a conversation. Consent first, one question at a time, contact captured early. Try the off-script chips ("What's my case worth?") — the fixed deflections prove the agent never evaluates, quotes, or advises. Every conversation (even abandoned) lands as a lead. |
 | `/studio/escalations` | **Escalation console** | Every fired trigger, hottest first. "Ack (claim)" puts YOUR NAME on it; then Mark actioned → Resolve. "Run ack sweep" advances anything past its deadline down the waterfall to the backstop. |
-| `/studio/ledger` | **The Ledger** — the monthly receipt | Add `?fee=12000` (the firm's own average case fee) to see dollar lines; without it, counts only. Misses are printed in red. Every number has a "drill" toggle to the underlying records. Printable. |
+| `/studio/ledger` | **The Ledger** — the monthly receipt | Pick the month and enter the firm's own average case fee in the controls at the top (dollar lines appear only with a fee; without it, counts only). Misses are printed in red. Every number has a "details" toggle to the underlying records. Printable. |
 
 ## What runs underneath (and its safety posture)
 

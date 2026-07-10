@@ -195,3 +195,68 @@ every add paid for by a cut):**
 Research follow-ups deferred: per-call leak-type tags (MISSED/LANGUAGE/
 AFTER-HOURS/NO-ASK) need a pipeline classification field; "salvageable now"
 box with masked contact + SOL clock needs caller-PII handling decisions.
+
+## Part 7 — the whole-product simplification (every surface, one pass)
+
+Method: three parallel code audits (studio+admin, desk+public funnel, the
+"download and start using" journey) plus a live browser walk of every screen,
+then a 107-agent verified deep-research pass on SaaS onboarding/activation.
+Research verdict: keep demos ungated (doesn't hurt paid yield), keep concierge
+onboarding (assisted activation 41.6% vs 34.6% self-serve), short pull-based
+guidance over wizards (5+ step tours collapse to ~16% completion), and
+first-value-in-minutes is top-decile (median SaaS time-to-value ≈ 1.5 days).
+
+**One chrome per surface:** the root desk nav rendered on top of /studio,
+/admin, /demo, /login, /welcome, /digest/confirm (double headers, login-walled
+links, a public "Demo mode" toggle that toggled a feature used nowhere).
+Root nav is now allowlist-only (/billing, /settings); demo-mode dead code
+deleted; /demo and /audit/sample got home links.
+
+**One login:** /studio/login retired to a redirect stub → /login (password +
+magic link); the not-authorized bounce now explains itself on /login.
+
+**One name:** every studio/admin kicker says "Intake QA · Studio" (was five
+different brands: Intake System, Spot Check Studio, The Mirror, Operator…).
+
+**Studio:** nav gained Firms (new /studio/firms index — onboarding + firm
+details were orphans before); Today gained the "Applications waiting on you"
+tile (apply used to land silently — the tile IS the notification, nothing
+emails); onboard-firm lists waiting applications with one-click form prefill;
+window.prompt() chains (up to 3 per action) replaced with inline forms that
+remember the operator's name; every raw enum (gov_claims_notice, hot/warm,
+book/escalate…) renders through src/lib/intake/plain-labels.ts; the Ledger's
+?fee=12000 URL-editing replaced with a real month picker + fee field; runner
+buttons explain themselves and answer in sentences; recording analysis got
+plain stat labels, an error stop (was an eternal spinner), and a slow notice.
+
+**Desk:** LeakCard keeps the phone number through every status; reconciliation
+no longer tells firms to "run npm run seed:demo" / "apply migrations"; the
+demo documents table is labeled as example data; Settings links the orphaned
+/billing page; deletion-request copy stopped claiming an unrecorded receipt.
+
+**Public funnel truthfulness:** "What does it cost? →" became "Pricing & the
+beta →" and /pricing now answers directly (free beta / flat at launch / never
+a share); the apply success no longer says "check your email for the NDA"
+when TEST_MODE means no email went out (now: "within one business day" —
+Ali must honor that turnaround); the footer's "La carta (español)" link hides
+until the page exists; the intake-demo's raw JSON dump became a plain-language
+summary card with the JSON in a collapsed details.
+
+**Getting started:** web/README.md is a real quickstart (was create-next-app
+boilerplate); web/.env.example documents every env var the code reads
+(DATABASE_URL was missing entirely — the one variable firm onboarding requires);
+`npm run db:migrate:postgres` wired; `npm run smoke` no longer fails by design
+on the intentional 0023+ Postgres-only migrations.
+
+**Security hardening:** all four /admin pages now call requireFounderPage()
+themselves (they relied on middleware alone).
+
+Verified: tsc clean, 409/409 tests, production build green, and a full live
+browser walk — founder sign-in, claim→resolve on a real escalation, ledger fee
+form, apply→tile→prefill loop, a complete intake-demo conversation to the
+summary card. Lint's 90 pre-existing errors are unchanged (verified identical
+at HEAD).
+
+**Open for Ali:** rotate the live secrets in web/.env.local (they include the
+production DB superuser password in plaintext — git-ignored but readable);
+confirm the one-business-day NDA turnaround promise; decide launch pricing.

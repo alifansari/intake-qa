@@ -7,6 +7,7 @@ import { PageShell, PageHeader, SectionTitle } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { money } from "@/lib/format";
 import type { AuditReport } from "@/lib/audit-types";
+import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -68,11 +69,15 @@ async function loadSessions(): Promise<
 }
 
 export default async function AdminAuditsPage() {
+  // Defense in depth: middleware already founder-gates /admin, but no page may
+  // assume the request passed middleware (same rule as every studio surface).
+  if (isStudioConfigured()) await requireFounderPage();
+
   const state = await loadSessions();
 
   return (
     <PageShell>
-      <PageHeader kicker="Operator" title="Leak Audit console" />
+      <PageHeader kicker="Intake QA · Studio · System" title="Leak Audit console" />
       <Card>
         <CardContent className="pt-5">
           <SectionTitle>Recent audits</SectionTitle>

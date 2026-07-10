@@ -10,6 +10,7 @@ import { PageShell, PageHeader, SectionTitle } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { money } from "@/lib/format";
 import { ClosePeriodForm, ActionButton } from "@/components/billing-actions";
+import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,11 +64,15 @@ async function load(): Promise<
 }
 
 export default async function AdminBillingPage() {
+  // Defense in depth: middleware already founder-gates /admin, but no page may
+  // assume the request passed middleware (same rule as every studio surface).
+  if (isStudioConfigured()) await requireFounderPage();
+
   const state = await load();
 
   return (
     <PageShell>
-      <PageHeader kicker="Operator" title="Billing console" />
+      <PageHeader kicker="Intake QA · Studio · System" title="Billing console" />
 
       {!state.connected ? (
         <Card>

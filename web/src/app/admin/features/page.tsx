@@ -6,6 +6,7 @@
 import { PageShell, PageHeader, SectionTitle } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { FeatureToggles } from "@/components/feature-toggles";
+import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,11 +46,15 @@ async function loadFirms(): Promise<
 }
 
 export default async function AdminFeaturesPage() {
+  // Defense in depth: middleware already founder-gates /admin, but no page may
+  // assume the request passed middleware (same rule as every studio surface).
+  if (isStudioConfigured()) await requireFounderPage();
+
   const state = await loadFirms();
 
   return (
     <PageShell>
-      <PageHeader kicker="Operator" title="Feature flags" />
+      <PageHeader kicker="Intake QA · Studio · System" title="Feature flags" />
       <Card>
         <CardContent className="pt-5">
           <SectionTitle>Per-firm rollout</SectionTitle>

@@ -10,6 +10,7 @@
 import { PageShell, PageHeader, SectionTitle } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { truthy, isTestMode, killSwitchEngaged } from "../../../../messaging/compliance.mjs";
+import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic"; // always reflect live env + DB state
@@ -100,6 +101,10 @@ function Check({ label, value, good, note }: { label: string; value: string; goo
 }
 
 export default async function AdminStatusPage() {
+  // Defense in depth: middleware already founder-gates /admin, but no page may
+  // assume the request passed middleware (same rule as every studio surface).
+  if (isStudioConfigured()) await requireFounderPage();
+
   const env = process.env;
   const testMode = isTestMode(env);
   const killGlobal = killSwitchEngaged(env);
@@ -112,7 +117,7 @@ export default async function AdminStatusPage() {
 
   return (
     <PageShell>
-      <PageHeader kicker="Operator" title="System status" />
+      <PageHeader kicker="Intake QA · Studio · System" title="System status" />
 
       <Card className="mb-6">
         <CardContent className="pt-5">

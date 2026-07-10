@@ -6,13 +6,13 @@ import { getCurrentUser } from "@/lib/supabase/server";
 import { isLiveCoachEntitled } from "@/lib/coach-entitlement";
 import { DESK_LINKS } from "@/lib/desk-nav";
 
-const BASE_NAV = [...DESK_LINKS];
+type NavLink = { href: string; label: string };
 
 // The analyst review queue is OUR tool, not the firm's — showing it to intake
 // staff invites "what am I supposed to do here?" It appears only for the founder.
-const ANALYST_NAV = { href: "/desk/review", label: "Analyst review" };
+const ANALYST_NAV: NavLink = { href: "/desk/review", label: "Analyst review" };
 // The founder's bridge back to the operator side; firms never see it.
-const STUDIO_NAV = { href: "/studio", label: "Studio" };
+const STUDIO_NAV: NavLink = { href: "/studio", label: "Studio" };
 
 export default async function DeskLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
@@ -22,10 +22,17 @@ export default async function DeskLayout({ children }: { children: React.ReactNo
   );
   // P0-2: only surface the Live Coach nav item when the firm is entitled (Pro).
   const { entitled: coachEntitled } = await isLiveCoachEntitled();
-  let NAV = coachEntitled
-    ? [{ href: "/desk/coach", label: "Live coach" }, ...BASE_NAV]
-    : BASE_NAV;
-  if (isFounder) NAV = [...NAV.slice(0, -1), ANALYST_NAV, NAV.at(-1)!, STUDIO_NAV];
+  const NAV: NavLink[] = [...DESK_LINKS];
+  if (coachEntitled) NAV.unshift({ href: "/desk/coach", label: "Live coach" });
+  if (isFounder) {
+    // Founder-only items: "Analyst review" sits immediately before Settings
+    // (matched by href, not position — DESK_LINKS order can change freely;
+    // fallback: append). Studio always goes last.
+    const settingsIdx = NAV.findIndex((n) => n.href === "/desk/settings");
+    if (settingsIdx === -1) NAV.push(ANALYST_NAV);
+    else NAV.splice(settingsIdx, 0, ANALYST_NAV);
+    NAV.push(STUDIO_NAV);
+  }
   return (
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-hairline bg-surface">

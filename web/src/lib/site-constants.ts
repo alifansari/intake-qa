@@ -89,7 +89,7 @@ export const CTA_PRIMARY = "Get your free Leak Audit";
 // Persistent SECONDARY action: the honest pricing answer during the beta.
 // Not "call for pricing" — /pricing states plainly: free during beta, flat
 // monthly at launch, number shared individually after the free audit.
-export const CTA_SECONDARY = "What does it cost? →";
+export const CTA_SECONDARY = "Pricing & the beta →";
 export const CTA_SECONDARY_HREF = "/pricing";
 // Risk-reversal sub-CTA line, leads with what the buyer keeps. Flat-fee-safe:
 // no outcome promise, no card required to start.
@@ -389,6 +389,13 @@ export const LEGAL_ENTITY = "Plaintiff Ops LLC";
 export const LEGAL_DBA = "Intake QA";
 export const LEGAL_LAST_UPDATED = "July 6, 2026";
 export const LEGAL_GOVERNING_STATE = "California";
+
+// ─── Spanish letter (/carta) readiness ───────────────────────────────────────
+// The Spanish translation of /letter is not written yet. While false, /carta
+// stays noindexed and the Footer does NOT link it — we never advertise a page
+// that says "Próximamente". Flip to true when the human-translated essay is
+// pasted into app/carta/page.tsx.
+export const CARTA_READY = false;
 
 // ─── Copyright ───
 export const COPYRIGHT_YEAR = new Date().getFullYear();

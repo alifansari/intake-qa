@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Intake QA — web app
 
-## Getting Started
+The hosted product for Intake QA (a service of Plaintiff Ops LLC): a Next.js App Router app
+that scores a PI firm's recorded intake calls, surfaces likely-signable callers who never
+signed, and runs the founding-beta funnel (apply → NDA → onboarding → desk).
 
-First, run the development server:
+**Safety posture:** nothing sends anything by default. `TEST_MODE=true` and
+`KILL_SWITCH=true` ship on — every SMS/e-sign/email path is simulated or logged until you
+deliberately go live. Keep them on for all local work.
+
+## Local quickstart
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# from the repo root (the CLI scoring engine lives there and web/ vendors it)
+npm install
+
+# then the web app
+cd web
+npm install
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Fill in `.env.local`. The vars that matter for local dev:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Var | Why |
+| --- | --- |
+| `DATABASE_URL` | Supabase **pooler** URL (port 6543) — required for the studio and intake surfaces; everything else falls back to local SQLite/JSON without it |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL (auth + hosted data) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key (client-safe) |
+| `FOUNDER_EMAIL` | The one email allowed into `/studio`; leave blank to keep the studio off |
+| `ANTHROPIC_API_KEY` | Claude scoring (needed to score calls) |
+| `ASSEMBLYAI_API_KEY` | Transcription (needed to process audio) |
+| `TEST_MODE=true` | Simulate all sends — keep `true` locally, always |
+| `KILL_SWITCH=true` | Global halt on all sends — keep `true` locally, always |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Everything else in `.env.example` is optional locally and documented inline there.
 
-## Learn More
+## Migrations (two tracks)
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run db:migrate` — local SQLite, migrations `0001`–`0022` (`db/migrations/`). This is
+  what the pilot surfaces and the test suite run against.
+- `npm run db:migrate:postgres -- 0001 0002 ...` — hosted Supabase Postgres, migrations
+  `0001`–`0030` (`supabase/migrations/`). Pass the numeric prefixes you want applied (it
+  never blindly re-runs history); reads `DATABASE_URL` from the env or `web/.env.local`.
+- Migrations `0023`–`0030` (the intake system) exist **only** on the Postgres track — that
+  divergence is intentional, and `npm run smoke` knows about it.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Seeding demo data
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Local: `npm run seed:demo`
+- Hosted Postgres: `node db/seed-demo-postgres.mjs` (uses the same `DATABASE_URL`)
 
-## Deploy on Vercel
+## Run
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run dev    # http://localhost:3000
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Verify
+
+```bash
+npm test       # unit + integration tests (node --test)
+npm run smoke  # no-network preflight: migrations, schema, compliance posture, env
+```
+
+## Deploying
+
+Follow the checklists at the repo root before anything goes near production:
+[`../BETA_ONBOARDING.md`](../BETA_ONBOARDING.md) (onboarding a beta firm) and
+[`../GO_LIVE.md`](../GO_LIVE.md) (the go-live gate — A2P 10DLC, env flips, approvals).

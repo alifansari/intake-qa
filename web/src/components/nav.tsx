@@ -2,34 +2,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
-import { isMarketingRoute } from "@/lib/marketing-routes";
-import { DemoToggle } from "./demo-mode";
 
 import { DESK_LINKS } from "@/lib/desk-nav";
 
-// The old seven dashboard tabs all 308-redirect into the desk now, so this
-// nav (shown only on the few non-desk product pages like /demo, /login,
-// /welcome) points straight at the desk's real screens with matching labels
-// (single source of truth: src/lib/desk-nav.ts).
+// Every surface carries its own chrome: marketing pages have MarketingNav, the
+// desk and studio have their own headers, and public artifacts (/audit, /letter,
+// /demo, /intake-demo, /digest) are deliberately chromeless. This bar exists ONLY
+// for the two signed-in pages that have no shell of their own — so it renders on
+// an allowlist, never by default. Adding a page? It gets no chrome unless you
+// put it here on purpose.
+const SHOW_ON = ["/billing", "/settings"];
+
 const LINKS = DESK_LINKS;
 
 export function Nav() {
   const pathname = usePathname();
-  // Marketing pages carry their own nav/footer/sticky CTA via the (marketing)
-  // shell, and the four-screen desk carries its own chrome, so the product nav
-  // stands down on both. The Leak Audit report (/audit/*) is a
-  // client-facing, shareable, printable artifact with its own masthead, so the
-  // internal dashboard nav stands down there too.
-  if (
-    isMarketingRoute(pathname) ||
-    pathname.startsWith("/desk") ||
-    pathname.startsWith("/audit") ||
-    pathname.startsWith("/letter") ||
-    pathname.startsWith("/carta") ||
-    // The intake-agent demo is a firm-facing showcase with its own header;
-    // the internal dashboard nav would break the illusion.
-    pathname.startsWith("/intake-demo")
-  ) {
+  if (!SHOW_ON.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
     return null;
   }
   return (
@@ -61,9 +49,6 @@ export function Nav() {
               );
             })}
           </nav>
-          <div className="ml-2 hidden sm:block">
-            <DemoToggle />
-          </div>
         </div>
       </div>
     </header>

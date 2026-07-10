@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { COPYRIGHT_YEAR, CTA_PRIMARY } from "@/lib/site-constants";
+import { CARTA_READY, COPYRIGHT_YEAR, CTA_PRIMARY } from "@/lib/site-constants";
 
 // Everything not in the four-link top nav lives here, one click away.
+// The Spanish letter is linked only once the translation actually exists
+// (CARTA_READY) — we never link a page that says "Próximamente".
 const LINKS = [
   { href: "/apply", label: "Apply for the beta" },
   { href: "/manifesto", label: "Manifesto" },
   { href: "/letter", label: "The letter" },
-  { href: "/carta", label: "La carta (español)" },
+  ...(CARTA_READY ? [{ href: "/carta", label: "La carta (español)" }] : []),
   { href: "/honesty", label: "Our error rate" },
   { href: "/founder", label: "Founder" },
   { href: "/security", label: "Security" },

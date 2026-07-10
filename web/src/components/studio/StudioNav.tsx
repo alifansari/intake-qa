@@ -9,6 +9,7 @@ import { cn } from "@/lib/cn";
 // Mirror", "The Ledger") live on as subtitles on their own pages.
 const LINKS = [
   { href: "/studio", label: "Today", exact: true },
+  { href: "/studio/firms", label: "Firms" },
   { href: "/studio/shops", label: "Mystery shops" },
   { href: "/studio/leads", label: "Leads" },
   { href: "/studio/escalations", label: "Urgent leads" },

@@ -27,8 +27,14 @@ function pass(msg) { console.log(`PASS ${msg}`); }
 function warn(msg) { warnings++; console.log(`WARN ${msg}`); }
 function fail(msg) { failures++; console.log(`FAIL ${msg}`); }
 
-// 1. Both migration tracks exist and have matching file numbers. A table added
-//    to SQLite but not Postgres (or vice versa) diverges tests from production.
+// 1. Both migration tracks exist and their file numbers line up where they
+//    should. A table added to SQLite but not Postgres (or vice versa) diverges
+//    tests from production — with ONE deliberate exception: the intake system
+//    (migrations 0023+) is Postgres-only by design and has no SQLite twins.
+//    Postgres-only numbers >= 0023 are therefore EXPECTED; anything else
+//    (a SQLite-only number, or a Postgres-only number below 0023) still FAILs.
+const PG_ONLY_FLOOR = "0023"; // first Postgres-only intake-system migration
+
 function checkMigrations() {
   const sqliteDir = join(WEB, "db", "migrations");
   const pgDir = join(WEB, "supabase", "migrations");
@@ -41,13 +47,24 @@ function checkMigrations() {
   const s = nums(sqliteDir);
   const p = nums(pgDir);
   const onlySqlite = [...s].filter((n) => !p.has(n));
-  const onlyPg = [...p].filter((n) => !s.has(n));
-  if (onlySqlite.length || onlyPg.length) {
+  const onlyPgAll = [...p].filter((n) => !s.has(n)).sort();
+  const onlyPgUnexpected = onlyPgAll.filter((n) => n < PG_ONLY_FLOOR);
+  const onlyPgExpected = onlyPgAll.filter((n) => n >= PG_ONLY_FLOOR);
+  if (onlySqlite.length || onlyPgUnexpected.length) {
     fail(
-      `migration tracks diverge — SQLite-only: [${onlySqlite.join(",")}], Postgres-only: [${onlyPg.join(",")}]`
+      `migration tracks diverge — SQLite-only: [${onlySqlite.join(",")}], Postgres-only below ${PG_ONLY_FLOOR}: [${onlyPgUnexpected.join(",")}]`
     );
   } else {
-    pass(`migration tracks aligned (${s.size} migrations in each of SQLite + Postgres)`);
+    pass(
+      `migration tracks aligned in the shared range (${s.size} SQLite migrations all present in Postgres)`
+    );
+  }
+  if (onlyPgExpected.length) {
+    const range =
+      onlyPgExpected.length > 1
+        ? `${onlyPgExpected[0]}–${onlyPgExpected[onlyPgExpected.length - 1]}`
+        : onlyPgExpected[0];
+    pass(`Postgres-only intake-system migrations: ${range} (expected — no SQLite twins by design)`);
   }
 }
 

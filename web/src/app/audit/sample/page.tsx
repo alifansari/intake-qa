@@ -60,7 +60,9 @@ export default function SampleAuditPage() {
 
       {/* Masthead */}
       <header className="border-b border-ink pb-4">
-        <p className="eyebrow">Intake QA · Leak Audit</p>
+        <p className="eyebrow">
+          <a href="/" className="hover:text-ink">Intake QA</a> · Leak Audit
+        </p>
         <h1 className="font-display text-3xl font-bold text-ink">Leak Audit</h1>
         <p className="mt-1 text-sm text-muted">{CALL_COUNT} calls reviewed</p>
       </header>

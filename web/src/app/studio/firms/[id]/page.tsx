@@ -30,7 +30,7 @@ export default async function FirmPage({
 
   return (
     <PageShell>
-      <PageHeader kicker="Spot Check Studio · Firm" title={firm.name}>
+      <PageHeader kicker="Intake QA · Studio · Firm" title={firm.name}>
         <Link href="/studio" className="text-xs text-accent underline hover:text-accent-hover">
           All firms
         </Link>

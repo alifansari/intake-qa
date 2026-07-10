@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "node --no-warnings db/migrate.mjs",
+    "db:migrate:postgres": "node --no-warnings db/migrate-postgres.mjs",
     "db:seed": "node --no-warnings scripts/seed-db.mjs",
     "seed:demo": "node --no-warnings scripts/seed-demo.mjs",
     "ingest": "node --no-warnings ingest/cli.mjs",

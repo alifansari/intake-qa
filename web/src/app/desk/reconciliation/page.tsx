@@ -19,7 +19,7 @@ export default async function ReconciliationPage() {
   try {
     db = await store.openPipelineDb();
   } catch {
-    return <Shell><p className="text-sm text-ink-muted">Connect the workspace database to see reconciliation. Run npm run seed:demo locally.</p></Shell>;
+    return <Shell><SettingUp detail="workspace database not connected" /></Shell>;
   }
   try {
     const firm = await resolveDeskFirm(db, store.listFirms);
@@ -61,7 +61,7 @@ export default async function ReconciliationPage() {
                     <td className="px-4 py-3 text-ink">{c.status ? (STATUS_LABEL[c.status] ?? c.status) : "Processing"}</td>
                     <td className="px-4 py-3 text-ink-muted">
                       {c.status?.startsWith("failed")
-                        ? `${c.status_reason ?? "Audio issue"} — re-export this recording at a higher quality and re-upload, or mark it excluded.`
+                        ? `${c.status_reason ?? "Audio issue"} — we'll re-request this recording; nothing for you to do.`
                         : c.status_reason ?? "—"}
                     </td>
                   </tr>
@@ -73,10 +73,27 @@ export default async function ReconciliationPage() {
       </Shell>
     );
   } catch {
-    return <Shell><p className="text-sm text-ink-muted">The desk tables aren&apos;t set up on this database yet — apply migrations 0014–0015, then reconciliation populates automatically.</p></Shell>;
+    return <Shell><SettingUp detail="desk tables not initialized on this database" /></Shell>;
   } finally {
     await store.closePipelineDb(db);
   }
+}
+
+// Degraded states (no DB, no tables) show the same friendly first-run panel
+// the queue uses — a brand-new user must never see plumbing. The technical
+// detail is one small line at the bottom — for us, not them.
+function SettingUp({ detail }: { detail: string }) {
+  return (
+    <div>
+      <div className="rounded-card border border-hairline bg-surface p-6">
+        <p className="max-w-[70ch] text-sm text-ink-muted">
+          Your call ledger will appear here once your calls start arriving. We&apos;re finishing
+          your setup &mdash; nothing for you to do.
+        </p>
+      </div>
+      <p className="mt-4 text-xs text-faint">Setup status: {detail}.</p>
+    </div>
+  );
 }
 
 function Shell({ children, firmName }: { children: React.ReactNode; firmName?: string }) {

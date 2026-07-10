@@ -38,7 +38,15 @@ export function NewShop({ firms }: { firms: StudioFirm[] }) {
         <h2 className="eyebrow mb-3">New mystery-shop audit</h2>
         {firms.length === 0 ? (
           <p className="text-sm text-muted">
-            Add a firm on the Studio home first, then start a shop for it here.
+            No firms yet —{" "}
+            <a href="/studio/onboard-firm" className="underline hover:text-ink">
+              onboard a firm
+            </a>{" "}
+            (or add one by uploading a call on{" "}
+            <a href="/studio" className="underline hover:text-ink">
+              Today
+            </a>
+            ), then start a shop for it here.
           </p>
         ) : (
           <div className="flex flex-wrap items-end gap-3">

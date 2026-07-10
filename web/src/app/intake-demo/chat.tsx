@@ -36,6 +36,20 @@ interface Msg {
   text: string;
 }
 
+// What actually happened, in the words a firm would use — the plain-language
+// summary leads; the raw record stays one click away for the compliance-minded.
+const BUCKET_ACTION: Record<string, string> = {
+  book: "Booked a consultation",
+  escalate: "Escalated to a human now",
+  human_handoff: "Handed to the office",
+  decline: "Politely declined (outside practice areas)",
+};
+
+function prettyMatter(matter: string): string {
+  const words = matter.replace(/[_-]+/g, " ").trim();
+  return words ? words.charAt(0).toUpperCase() + words.slice(1) : "Not captured";
+}
+
 const BUCKET_LABEL: Record<string, { label: string; tone: string }> = {
   book: { label: "BOOK — consultation gets scheduled", tone: "text-accent border-accent/40 bg-accent-tint" },
   escalate: { label: "ESCALATE — immediate attorney attention", tone: "text-red border-red/40 bg-red-tint" },
@@ -252,24 +266,64 @@ export function IntakeChat() {
               </Button>
             </div>
             {showRecord ? (
-              <pre className="max-h-72 overflow-auto rounded-card border border-line bg-canvas p-3 text-[11px] leading-snug text-muted">
-                {JSON.stringify(
-                  {
-                    channel: record.channel,
-                    matter_type: record.matter_type,
-                    bucket: record.bucket,
-                    confidence: record.confidence,
-                    contact: record.contact,
-                    incident: record.incident,
-                    path_data: record.path_data,
-                    routing: record.routing,
-                    consent: { version: record.consent_version, at: record.consent_at },
-                    events: record.events.length,
-                  },
-                  null,
-                  2,
-                )}
-              </pre>
+              <div className="flex flex-col gap-2">
+                {/* Plain-language summary of the same canonical record. */}
+                <div className="rounded-card border border-line bg-canvas p-3 text-sm text-ink">
+                  <dl className="grid gap-1.5">
+                    <div className="flex gap-2">
+                      <dt className="w-28 shrink-0 text-muted">Caller</dt>
+                      <dd className="font-medium">{record.contact.first_name ?? "Not captured"}</dd>
+                    </div>
+                    <div className="flex gap-2">
+                      <dt className="w-28 shrink-0 text-muted">Phone</dt>
+                      <dd className="font-medium">{record.contact.phone ?? "Not captured"}</dd>
+                    </div>
+                    <div className="flex gap-2">
+                      <dt className="w-28 shrink-0 text-muted">Matter type</dt>
+                      <dd className="font-medium">{prettyMatter(record.matter_type)}</dd>
+                    </div>
+                    <div className="flex gap-2">
+                      <dt className="w-28 shrink-0 text-muted">What happened</dt>
+                      <dd className="font-medium">
+                        {(record.bucket && BUCKET_ACTION[record.bucket]) ?? "Captured for review"}
+                      </dd>
+                    </div>
+                    {record.consent_at ? (
+                      <div className="flex gap-2">
+                        <dt className="w-28 shrink-0 text-muted">Consent</dt>
+                        <dd className="font-medium">
+                          Disclosure acknowledged
+                          {record.consent_version ? ` (${record.consent_version})` : ""}
+                        </dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                </div>
+                {/* The raw record, one click away — nothing hidden. */}
+                <details className="rounded-card border border-line bg-canvas">
+                  <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted">
+                    Full structured record (what the firm&apos;s CRM receives)
+                  </summary>
+                  <pre className="max-h-72 overflow-auto border-t border-line p-3 text-[11px] leading-snug text-muted">
+                    {JSON.stringify(
+                      {
+                        channel: record.channel,
+                        matter_type: record.matter_type,
+                        bucket: record.bucket,
+                        confidence: record.confidence,
+                        contact: record.contact,
+                        incident: record.incident,
+                        path_data: record.path_data,
+                        routing: record.routing,
+                        consent: { version: record.consent_version, at: record.consent_at },
+                        events: record.events.length,
+                      },
+                      null,
+                      2,
+                    )}
+                  </pre>
+                </details>
+              </div>
             ) : null}
             <p className="text-[11px] text-faint">
               Demo only: the record above was captured and stored for demonstration — nothing was

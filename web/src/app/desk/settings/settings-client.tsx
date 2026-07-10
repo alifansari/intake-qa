@@ -116,8 +116,8 @@ export function SettingsClient({
           </button>
         ) : (
           <p className="mt-4 rounded-base border border-hairline bg-canvas px-3 py-2 text-sm text-ink">
-            Your written request opened in your email client &mdash; send it and deletion begins
-            immediately. You&apos;ll receive a deletion receipt by email once it completes.
+            Your email draft is ready to send &mdash; deletion runs on our side once we receive
+            it. You&apos;ll receive a deletion receipt by email once it completes.
           </p>
         )}
       </section>
@@ -138,6 +138,11 @@ export function SettingsClient({
           {portalLoading ? "Opening…" : "Manage billing"}
         </button>
         {portalError && <p className="mt-2 text-xs text-alert">{portalError}</p>}
+        <p className="mt-3 text-xs">
+          <a href="/billing" className="font-medium text-accent hover:text-accent-hover">
+            Invoices &amp; plan details &rarr;
+          </a>
+        </p>
       </section>
 
       {/* Sign-in — set your own password (the welcome email issues a temporary

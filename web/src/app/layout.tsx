@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Source_Serif_4, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
-import { DemoModeProvider } from "@/components/demo-mode";
 
 // Source Serif 4: an expert-report serif with genuine legal-document gravitas
 // (Round 7 visual direction) for headlines and statement excerpts. Inter: quiet,
@@ -48,10 +47,8 @@ export default function RootLayout({
       className={`${serif.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-canvas text-ink">
-        <DemoModeProvider>
-          <Nav />
-          <main className="flex-1">{children}</main>
-        </DemoModeProvider>
+        <Nav />
+        <main className="flex-1">{children}</main>
       </body>
     </html>
   );

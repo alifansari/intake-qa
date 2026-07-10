@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { PageShell, PageHeader } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
+import { plainTrigger, TIER_LABELS } from "@/lib/intake/plain-labels";
 import { ProposalActions, RunTuningButton } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -36,18 +37,19 @@ interface Proposal {
   decided_by: string | null;
 }
 
+// Plain-English labels for proposal actions; the raw key stays in the title.
 const ACTION_LABEL: Record<string, string> = {
-  tier_downgrade: "Downgrade tier",
-  suppress: "Suppress (last resort)",
-  tier_restore: "Restore tier (hysteresis)",
-  loosen_protected: "Loosen PROTECTED trigger",
+  tier_downgrade: "Quiet this trigger down a notch",
+  suppress: "Turn this trigger off (last resort)",
+  tier_restore: "Re-tighten rule — turn it back up",
+  loosen_protected: "Loosen a protected trigger",
 };
 
 export default async function TuningPage() {
   if (!isStudioConfigured()) {
     return (
       <PageShell>
-        <PageHeader kicker="Intake System" title="Tuning — not configured" />
+        <PageHeader kicker="Intake QA · Studio" title="Tuning — not configured" />
       </PageShell>
     );
   }
@@ -67,7 +69,7 @@ export default async function TuningPage() {
 
   return (
     <PageShell>
-      <PageHeader kicker="Intake System" title="Tuning proposals">
+      <PageHeader kicker="Intake QA · Studio" title="Tuning proposals">
         <div className="flex items-center gap-3">
           <RunTuningButton />
           <Link href="/studio" className="text-xs text-accent underline hover:text-accent-hover">
@@ -77,17 +79,17 @@ export default async function TuningPage() {
       </PageHeader>
 
       <p className="mb-4 max-w-[70ch] text-sm text-muted">
-        The loop proposes; a person decides. Each proposal shows the precision math behind
-        it. Approving writes the change into escalation config under your name — nothing
-        tunes itself. Protected triggers never appear here unless someone typed the full
-        friction phrase.
+        The system proposes changes to its own triggers once a month; nothing changes unless
+        you approve it by name. Each proposal shows the math behind it — how often the
+        trigger was right, on how many recorded outcomes. Deadline-critical triggers are
+        protected and never loosen without extra friction.
       </p>
 
       {open.length === 0 ? (
         <Card>
           <CardContent className="py-6 text-sm text-muted">
-            No open proposals. Record dispositions on resolved escalations, then run the
-            loop — below the sample-size gate it stays silent by design.
+            No open proposals. Mark how resolved urgent leads ended, then run the loop —
+            with not enough data yet it stays quiet on purpose.
           </CardContent>
         </Card>
       ) : (
@@ -96,23 +98,37 @@ export default async function TuningPage() {
             <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-ink">{p.trigger_key}</span>
+                  <span className="text-sm font-medium text-ink" title={p.trigger_key}>
+                    {plainTrigger(p.trigger_key)}
+                  </span>
                   <span
                     className={`rounded-sm border px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
                       p.requires_friction
                         ? "border-red/40 bg-red-tint text-red"
                         : "border-line-strong bg-paper text-muted"
                     }`}
+                    title={p.proposed_action}
                   >
                     {ACTION_LABEL[p.proposed_action] ?? p.proposed_action}
                   </span>
                 </div>
                 <div className="mt-0.5 text-xs text-muted tnum">
-                  {p.current_tier}
-                  {p.proposed_tier ? ` → ${p.proposed_tier}` : " → off"} · sample{" "}
-                  {p.sample_size}
+                  <span title={TIER_LABELS[p.current_tier] ?? p.current_tier}>
+                    {p.current_tier}
+                  </span>
+                  {p.proposed_tier ? (
+                    <>
+                      {" → "}
+                      <span title={TIER_LABELS[p.proposed_tier] ?? p.proposed_tier}>
+                        {p.proposed_tier}
+                      </span>
+                    </>
+                  ) : (
+                    " → off"
+                  )}{" "}
+                  · based on {p.sample_size} recorded outcome{p.sample_size === 1 ? "" : "s"}
                   {typeof p.rationale?.precision === "number"
-                    ? ` · precision ${Math.round((p.rationale.precision as number) * 100)}%`
+                    ? ` · right ${Math.round((p.rationale.precision as number) * 100)}% of the time`
                     : ""}
                 </div>
               </div>
@@ -128,8 +144,11 @@ export default async function TuningPage() {
           <ul className="divide-y divide-line rounded-card border border-line bg-paper">
             {decided.map((p) => (
               <li key={p.id} className="px-4 py-2 text-xs text-muted tnum">
-                {p.trigger_key} · {ACTION_LABEL[p.proposed_action] ?? p.proposed_action} ·{" "}
-                {p.status}
+                <span title={p.trigger_key}>{plainTrigger(p.trigger_key)}</span> ·{" "}
+                <span title={p.proposed_action}>
+                  {ACTION_LABEL[p.proposed_action] ?? p.proposed_action}
+                </span>{" "}
+                · {p.status}
                 {p.decided_by ? ` by ${p.decided_by}` : ""}
               </li>
             ))}

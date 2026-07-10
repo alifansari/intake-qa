@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
 import { loadLedger, isLedgerConfigured } from "@/lib/ledger/store";
+import { plainTrigger } from "@/lib/intake/plain-labels";
 import { PrintButton } from "@/components/print-button";
 
 export const dynamic = "force-dynamic";
@@ -9,12 +10,16 @@ function money(n: number | null | undefined): string {
   return n == null ? "—" : `$${Number(n).toLocaleString("en-US")}`;
 }
 
+const inputClass =
+  "rounded-sm border border-line-strong bg-paper px-2 py-1 text-xs text-ink focus:border-accent focus:outline-none";
+
 // The Ledger (Phase 6) — the monthly one-page receipt, bank-statement styled,
 // printable. Founder-only for now (demo-scope data). Conservative by
 // construction: dollar lines exist only when the FIRM's average case fee is
-// supplied (?fee=), misses are printed, and every number lists the underlying
-// record ids (drillable). Conversion column reads manual dispositions until
-// the CRM read-back exists (Phase 7 gate).
+// entered in the control bar (round-trips as ?fee= so URLs stay shareable),
+// misses are printed, and every number lists its underlying record count
+// (internal refs tucked behind a details toggle). Conversion column reads
+// manual dispositions until the CRM read-back exists (Phase 7 gate).
 export default async function LedgerPage({
   searchParams,
 }: {
@@ -53,10 +58,13 @@ export default async function LedgerPage({
         {ids && ids.length > 0 ? (
           <details className="no-print inline-block align-top">
             <summary className="ml-2 cursor-pointer text-[10px] text-accent underline">
-              drill
+              details
             </summary>
-            <div className="mt-1 max-w-[40ch] break-all text-left text-[9px] text-faint">
-              {ids.join(", ")}
+            <div className="mt-1 max-w-[40ch] text-left text-[10px] text-faint">
+              {ids.length} underlying record{ids.length === 1 ? "" : "s"}{" "}
+              <span className="break-all font-mono text-[9px] text-faint">
+                (internal refs: {ids.map((id) => id.slice(0, 8)).join(", ")})
+              </span>
             </div>
           </details>
         ) : null}
@@ -76,15 +84,38 @@ export default async function LedgerPage({
         .rule { border-bottom: 1px solid var(--color-line-strong); }
       `}</style>
 
-      <div className="no-print mb-4 flex items-center justify-between">
-        <span className="text-[11px] text-faint">
-          Set the firm&apos;s number with ?fee=12000 · month with ?period=2026-07
-        </span>
+      {/* Control bar — a plain GET form so the page stays a server component
+          and the resulting URL stays shareable. Hidden when printing. */}
+      <div className="no-print mb-4 flex flex-wrap items-end justify-between gap-3 border-b border-hairline pb-4">
+        <form method="get" className="flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1 text-[11px] text-muted">
+            Month
+            <input type="month" name="period" defaultValue={period} className={inputClass} />
+          </label>
+          <label className="flex flex-col gap-1 text-[11px] text-muted">
+            Firm&apos;s own average case fee — used only to print dollar lines
+            <input
+              type="number"
+              name="fee"
+              min={0}
+              placeholder="Average case fee (optional)"
+              defaultValue={params.fee ?? ""}
+              className={`${inputClass} w-56 tnum`}
+            />
+          </label>
+          <button
+            type="submit"
+            className="rounded-sm border border-line-strong bg-paper px-3 py-1 text-xs font-medium text-ink hover:border-accent hover:text-accent"
+          >
+            Update
+          </button>
+        </form>
         <PrintButton label="Save as PDF" />
       </div>
 
       {/* Header */}
       <header className="rule pb-3">
+        <div className="eyebrow no-print mb-1 text-faint">Intake QA · Studio</div>
         <div className="eyebrow">Intake Ledger — Monthly Receipt</div>
         <h1 className="font-display text-[24px] font-bold leading-tight">{ledger.period}</h1>
         <p className="mt-1 text-[11px] text-muted">
@@ -115,7 +146,7 @@ export default async function LedgerPage({
           <div className="eyebrow mb-1">What the desk did (product)</div>
           <Row label="Leads captured" value={ledger.product.captured} ids={ledger.product.captured_ids} />
           <Row
-            label="…of which abandoned mid-chat but still captured"
+            label="…including chats the visitor abandoned (still captured)"
             value={ledger.product.abandoned_but_captured}
             ids={ledger.product.abandoned_ids}
           />
@@ -129,9 +160,9 @@ export default async function LedgerPage({
           <div className="eyebrow mb-1">What the firm did (conversion)</div>
           <Row label="Converted / signed" value={ledger.firm.converted} ids={ledger.firm.converted_escalation_ids} />
           <p className="mt-2 text-[10px] text-faint">
-            Source: {ledger.firm.source === "manual_dispositions"
-              ? "manual dispositions — automatic CRM read-back is not connected yet, so this column undercounts."
-              : "CRM read-back"}
+            {ledger.firm.source === "manual_dispositions"
+              ? "Signed-case counts come from your own marks for now — automatic CRM read-back isn't connected yet, so this line undercounts."
+              : "Source: CRM read-back."}
           </p>
         </div>
       </section>
@@ -145,8 +176,8 @@ export default async function LedgerPage({
           <ul className="text-[11px] tnum">
             {ledger.catastrophic.map((c: { id: string; trigger: string; fired_at: string }) => (
               <li key={c.id} className="border-t border-hairline py-1">
-                {new Date(c.fired_at).toLocaleDateString("en-US")} — {c.trigger}{" "}
-                <span className="text-faint">({c.id.slice(0, 8)})</span>
+                {new Date(c.fired_at).toLocaleDateString("en-US")} — {plainTrigger(c.trigger)}{" "}
+                <span className="font-mono text-[9px] text-faint">({c.id.slice(0, 8)})</span>
               </li>
             ))}
           </ul>
@@ -161,7 +192,7 @@ export default async function LedgerPage({
         <Row label="Median time to ack" value={ledger.sla.median_ack_minutes != null ? `${ledger.sla.median_ack_minutes}m` : "—"} />
         <Row label="Worst time to ack" value={ledger.sla.worst_ack_minutes != null ? `${ledger.sla.worst_ack_minutes}m` : "—"} />
         <Row
-          label="Unclaimed (reached the backstop) — misses"
+          label="Missed by us — nobody claimed in time (counted against us)"
           value={ledger.sla.unclaimed}
           ids={ledger.sla.unclaimed_ids}
           accent={ledger.sla.unclaimed > 0}

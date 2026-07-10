@@ -202,7 +202,9 @@ export default function DemoPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
       <div className="no-print mb-8">
-        <p className="eyebrow">Intake QA · Live demo</p>
+        <p className="eyebrow">
+          <a href="/" className="hover:text-ink">Intake QA</a> · Live demo
+        </p>
         <h1 className="font-display text-3xl font-bold text-ink">
           Score one of your intake calls
         </h1>

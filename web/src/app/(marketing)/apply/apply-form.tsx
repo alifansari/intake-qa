@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import Link from "next/link";
 
 // The beta application form. Posts to the existing /api/beta/apply (ICP
 // qualification + NDA flow + waitlist). Kept deliberately small: five fields,
@@ -26,6 +27,13 @@ export function ApplyForm() {
   const [volume, setVolume] = React.useState("");
   const [pending, setPending] = React.useState(false);
   const [done, setDone] = React.useState<string | null>(null);
+  // True only when the API confirms the NDA actually went out by email.
+  // When the send is simulated (pilot mode), the founder emails it manually —
+  // the success copy must not claim an email that hasn't arrived.
+  const [ndaSent, setNdaSent] = React.useState(false);
+  // "nda_pending" (qualified, NDA next) vs "waitlisted". The NDA timeline only
+  // renders for qualified applicants — waitlisted firms get no NDA.
+  const [status, setStatus] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
@@ -53,7 +61,9 @@ export function ApplyForm() {
             : (data.error ?? "Something went wrong — email ali@plaintiffops.com and we'll sort it."),
         );
       }
-      setDone(data.next ?? "Application received — check your email.");
+      setNdaSent(Boolean(data.ndaSent));
+      setStatus(typeof data.status === "string" ? data.status : null);
+      setDone(data.next ?? "Application received. We'll follow up by email.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -66,9 +76,16 @@ export function ApplyForm() {
       <div className="rounded-card border border-hairline bg-surface p-7">
         <p className="font-display text-xl font-semibold text-ink">You&apos;re in the queue.</p>
         <p className="mt-2 text-ink-muted">{done}</p>
+        {status === "nda_pending" ? (
+          <>
         <ol className="mt-5 flex flex-col gap-3 border-t border-hairline pt-5">
           {[
-            ["Today", "The mutual NDA arrives by email. Nothing connects until it's signed."],
+            ndaSent
+              ? ["Today", "The mutual NDA arrives by email. Nothing connects until it's signed."]
+              : [
+                  "Within one business day",
+                  "We email your mutual NDA. Nothing connects until it's signed.",
+                ],
             ["After you sign", "Your sign-in and desk arrive the same day, with a 15-minute setup call to connect your calls. Your team changes nothing about how they answer the phone."],
             ["Within days of calls flowing", "Missed cases start appearing on your desk — likely signable callers who walked — ready for your team to call back."],
           ].map(([when, what]) => (
@@ -79,14 +96,16 @@ export function ApplyForm() {
           ))}
         </ol>
         <p className="mt-5 text-sm text-faint">
-          In a hurry? Reply to the NDA email with two or three times that work and your setup
-          call gets locked in the same day.
+          In a hurry? Reply to the NDA email{ndaSent ? "" : " when it arrives"} with two or three
+          times that work and your setup call gets locked in the same day.
         </p>
+          </>
+        ) : null}
         <p className="mt-2 text-sm text-faint">
           While you wait: run the free Leak Audit on 10 of your calls —{" "}
-          <a href="/audit" className="font-medium text-accent hover:text-accent-hover">
+          <Link href="/audit" className="font-medium text-accent hover:text-accent-hover">
             start it here
-          </a>
+          </Link>
           . You keep the report either way.
         </p>
       </div>

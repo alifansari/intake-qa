@@ -13,6 +13,9 @@ const inputClass =
 function LoginForm() {
   const params = useSearchParams();
   const next = params.get("next") ?? "/desk/queue";
+  // Set when someone signed-in but not on the founder allowlist tried to open
+  // the studio — explain instead of silently bouncing them.
+  const notAuthorized = params.get("error") === "not_authorized";
   const [mode, setMode] = React.useState<"password" | "magic">("password");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -64,6 +67,12 @@ function LoginForm() {
   return (
     <Card>
       <CardContent className="py-6">
+        {notAuthorized ? (
+          <p className="mb-4 rounded-sm border border-line-strong bg-paper px-3 py-2 text-xs text-ink">
+            The studio is limited to the founder account. Sign in with that account to continue,
+            or head to <a href="/desk/queue" className="underline">your desk</a>.
+          </p>
+        ) : null}
         {mode === "password" ? (
           // Single <form> with username + password fields so the browser's
           // password manager recognizes it and offers to save the credentials.

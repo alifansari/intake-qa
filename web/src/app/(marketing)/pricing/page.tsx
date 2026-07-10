@@ -32,6 +32,12 @@ export default function PricingPage() {
       <h1 className="mt-3 max-w-[22ch] font-display text-4xl font-semibold tracking-tight text-ink text-balance sm:text-5xl">
         Free during the beta.
       </h1>
+      {/* The direct answer, first — no scrolling, no "call for pricing". */}
+      <div className="mt-5 max-w-[72ch] space-y-1.5 text-lg text-ink">
+        <p>Free during the beta — all five founding firms run the full desk at no charge.</p>
+        <p>At launch: one flat monthly fee, set with the founding cohort before anyone pays.</p>
+        <p>Never a percentage, never a share of recoveries.</p>
+      </div>
       <p className="mt-5 max-w-[72ch] text-lg text-ink-muted">{BETA_WHO_LINE}</p>
       <p className="mt-5 max-w-[60ch] font-display text-2xl font-semibold text-ink">
         {BETA_FREE_LINE}

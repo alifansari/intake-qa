@@ -36,11 +36,15 @@ export function RecordingAnalysis({
   const [transcript, setTranscript] = React.useState(initialTranscript);
   const [scoring, setScoring] = React.useState<unknown>(initialScoring);
   const [error, setError] = React.useState<string | null>(null);
+  const [slow, setSlow] = React.useState(false);
 
-  // Poll while processing.
+  // Poll while processing. A failed pipeline or a very long run must never
+  // leave the founder staring at an eternal spinner: an "error" status stops
+  // the poll and says so, and past ~2 minutes we admit it's taking long.
   React.useEffect(() => {
     if (done) return;
     let stop = false;
+    let polls = 0;
     const tick = async () => {
       try {
         const r = await fetch(`/api/studio/recordings/${id}`);
@@ -52,9 +56,15 @@ export function RecordingAnalysis({
           setDone(true);
           return;
         }
+        if (data.status === "error") {
+          setError("Processing hit a snag on our side. Restart it below — the audio was not lost.");
+          return; // stop polling; the restart button re-arms it
+        }
       } catch {
-        /* keep polling */
+        /* transient fetch hiccup — keep polling */
       }
+      polls += 1;
+      if (polls >= 40) setSlow(true); // ~2 minutes
       if (!stop) setTimeout(tick, 3000);
     };
     const t = setTimeout(tick, 3000);
@@ -66,6 +76,7 @@ export function RecordingAnalysis({
 
   async function retry() {
     setError(null);
+    setSlow(false);
     try {
       await fetch(`/api/studio/recordings/${id}/process`, { method: "POST" });
       setDone(false);
@@ -82,6 +93,12 @@ export function RecordingAnalysis({
           <p className="text-xs text-muted">
             Running the leak-audit pipeline. The audio is deleted the moment it is transcribed.
           </p>
+          {slow && !error ? (
+            <p className="text-xs text-muted">
+              Taking longer than usual — long calls can. If it looks stuck, restart below;
+              nothing is lost.
+            </p>
+          ) : null}
           {error ? <p className="text-xs text-red">{error}</p> : null}
           <Button variant="outline" size="sm" onClick={retry}>
             Restart processing
@@ -108,11 +125,14 @@ export function RecordingAnalysis({
         <CardContent className="py-6">
           <h2 className="eyebrow mb-4">Leak-audit analysis</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <Stat label="Engine score" value={overall == null ? "—" : String(overall)} />
-            <Stat label="Band" value={band ?? "—"} />
-            <Stat label="Signability" value={signability ?? "—"} />
             <Stat
-              label="Lost signable?"
+              label="Handling score (0–100)"
+              value={overall == null ? "—" : String(overall)}
+            />
+            <Stat label="Overall read" value={band ?? "—"} />
+            <Stat label="Case signability" value={signability ?? "—"} />
+            <Stat
+              label="Signable case walked?"
               value={lostSignable ? "Yes" : "No"}
               alert={lostSignable}
             />

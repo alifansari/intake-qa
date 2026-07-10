@@ -47,7 +47,7 @@ export async function getFounderContext(): Promise<FounderContext | null> {
 // login instead of rendering. Returns the context when authorized.
 export async function requireFounderPage(): Promise<FounderContext> {
   const ctx = await getFounderContext();
-  if (!ctx) redirect("/studio/login?error=not_authorized");
+  if (!ctx) redirect("/login?error=not_authorized");
   return ctx;
 }
 
