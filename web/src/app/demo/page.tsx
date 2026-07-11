@@ -93,7 +93,20 @@ export default function DemoPage() {
   const [status, setStatus] = useState<Status | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [maxMb, setMaxMb] = useState<number | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Copy = reality: show the size cap this deploy actually enforces (signed-URL
+  // storage mode vs the much smaller direct body path) instead of a hard-coded
+  // promise the upload can't keep.
+  useEffect(() => {
+    fetch("/api/demo/upload-url")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d && typeof d.max_mb === "number") setMaxMb(d.max_mb);
+      })
+      .catch(() => {});
+  }, []);
 
   const stopPolling = () => {
     if (pollRef.current) clearInterval(pollRef.current);
@@ -223,7 +236,13 @@ export default function DemoPage() {
       </div>
 
       {phase === "upload" && (
-        <UploadCard dragOver={dragOver} setDragOver={setDragOver} onDrop={onDrop} onPick={upload} />
+        <UploadCard
+          dragOver={dragOver}
+          setDragOver={setDragOver}
+          onDrop={onDrop}
+          onPick={upload}
+          maxMb={maxMb}
+        />
       )}
       {phase === "processing" && <Processing status={status} />}
       {phase === "error" && <ErrorCard message={errorMsg} onRetry={() => setPhase("upload")} />}
@@ -244,11 +263,13 @@ function UploadCard({
   setDragOver,
   onDrop,
   onPick,
+  maxMb,
 }: {
   dragOver: boolean;
   setDragOver: (v: boolean) => void;
   onDrop: (e: React.DragEvent) => void;
   onPick: (f: File) => void;
+  maxMb: number | null;
 }) {
   return (
     <div>
@@ -264,7 +285,9 @@ function UploadCard({
           Drag &amp; drop a call recording
         </span>
         <span className="mt-1 text-sm text-muted">or click to choose a file</span>
-        <span className="mt-3 text-xs text-faint">MP3, M4A, or WAV · up to 25MB · 20 min max</span>
+        <span className="mt-3 text-xs text-faint">
+          MP3, M4A, or WAV{maxMb ? ` · up to ${maxMb}MB` : ""} · 20 min max
+        </span>
         <input
           type="file"
           accept=".mp3,.m4a,.wav,audio/*"

@@ -33,12 +33,39 @@ export default function AuditUploaderPage() {
   const [total, setTotal] = useState(0);
   const [callStages, setCallStages] = useState<{ filename: string; status: string }[]>([]);
   const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [maxBytes, setMaxBytes] = useState<number | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Copy = reality: ask the server what THIS deploy actually accepts (signed-URL
+  // storage mode takes 200MB; the no-storage direct path far less) instead of
+  // promising a hard-coded number the upload can't honor.
+  useEffect(() => {
+    fetch("/api/demo/upload-url")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d && typeof d.max_bytes === "number") setMaxBytes(d.max_bytes);
+      })
+      .catch(() => {});
+  }, []);
 
   const addFiles = (list: FileList | null) => {
     if (!list) return;
     setErr(null);
-    setFiles((prev) => [...prev, ...Array.from(list)].slice(0, MAX));
+    const incoming = Array.from(list);
+    const problems: string[] = [];
+    const ok = incoming.filter((f) => {
+      if (maxBytes != null && f.size > maxBytes) {
+        problems.push(
+          `${f.name} is ${Math.round(f.size / 1048576)}MB and the limit here is ${Math.floor(
+            maxBytes / 1048576,
+          )}MB — try re-exporting it as an MP3, or email it to ${FOUNDER_EMAIL}.`,
+        );
+        return false;
+      }
+      return true;
+    });
+    if (problems.length > 0) setErr(problems.join(" "));
+    setFiles((prev) => [...prev, ...ok].slice(0, MAX));
   };
   const removeFile = (i: number) => setFiles((prev) => prev.filter((_, j) => j !== i));
 
@@ -233,7 +260,10 @@ export default function AuditUploaderPage() {
               Drag &amp; drop up to {MAX} recordings
             </span>
             <span className="mt-1 text-sm text-ink-muted">or click to choose files</span>
-            <span className="mt-3 text-xs text-faint">MP3, M4A, or WAV · up to 25MB each</span>
+            <span className="mt-3 text-xs text-faint">
+              MP3, M4A, or WAV
+              {maxBytes != null ? ` · up to ${Math.floor(maxBytes / 1048576)}MB each` : ""}
+            </span>
             <input
               type="file"
               multiple
