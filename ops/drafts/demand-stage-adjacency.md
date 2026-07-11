@@ -49,4 +49,55 @@ Preserve what's already right: immutable snapshot timestamps + verbatim transcri
 
 **Single cheapest option-preserving move: add the typed `answer_value` (+ citation) field to `question_checks` and stamp it into `intake_feature_snapshot` before Increment 0 ships.** Everything downstream — the export, the partnership pitch, the demand-stage range, the flywheel's feature vector — is derivative of whether we stored the facts or only the fact that someone asked for them.
 
-Sources: [LawSites PLAAS](https://www.lawnext.com/2026/05/evenup-extends-beyond-software-with-launch-of-pre-litigation-as-a-service-offering-for-pi-law-firms.html) · [EvenUp Series D](https://www.evenuplaw.com/blog/evenup-announces-135-million-series-d-and-launches-four-new-groundbreaking-products/) · [LawSites Communication Agents](https://www.lawnext.com/2026/01/evenup-launches-ai-communication-agents-to-handle-routine-tasks-in-pi-cases-also-enhances-its-ai-drafting.html) · [EvenUp Integrations](https://www.evenuplaw.com/products/integrations/) · [Supio Intake](https://www.supio.com/products/intake) · [Supio Integrations](https://www.supio.com/integrations) · [AI Vortex EvenUp review](https://www.aivortex.io/legal/ai-tools/evenup/) · [Parrot/TechCrunch](https://techcrunch.com/2023/06/20/parrot-ai-a-transcription-platform-that-turns-speech-into-text-raises-11m-series-a/) · [LezDo](https://www.lezdotechmed.com/blog/why-personal-injury-demand-letter-might-be-ignored) · [LawPractice.ai](https://www.lawpractice.ai/blog/personal-injury-demand-letters-tips)
+## 5. The discoverability / privilege defense (the legal crux of amendment #2)
+
+> Added 2026-07-10 (companion research wave). This is the section the earlier brief was
+> missing: *if* Intake QA ever emits a post-signing value RANGE, the load-bearing question
+> is whether that output is protected work product or a **discoverable admission against the
+> firm's own client**. 2026 case law now answers it — and the answer is *conditional on the
+> contract*, which is why this can never be a bolt-on "score."
+
+**The governing 2026 split (same season, same reasoning, cite both):**
+- ***United States v. Heppner*** (S.D.N.Y., Rakoff, J., Feb. 17, 2026) — a party's AI-generated
+  analyses were held **neither privileged nor work product**, because he used a *public,
+  consumer* AI tool whose terms permitted training + third-party disclosure, and **no lawyer
+  directed the work** ([Harvard Law Review](https://harvardlawreview.org/blog/2026/03/united-states-v-heppner/), [Gibson Dunn](https://www.gibsondunn.com/ai-privilege-waivers-sdny-rules-against-privilege-protection-for-consumer-ai-outputs/)).
+- ***Warner v. Gilbarco*** (E.D. Mich.) — days later, held AI platforms are "**tools, not
+  persons**," so using one no more waives work product than "a word processor, a search
+  engine, or a legal research database" ([Perkins Coie](https://perkinscoie.com/insights/update/heppner-and-gilbarco-courts-apply-privilege-and-work-product-protection-generative)).
+
+The two rhyme rather than conflict — both apply *ordinary* privilege law and turn on the
+same two levers: **(1) the contractual architecture of the tool** (does the DPA bar training
+on inputs, restrict third-party disclosure, impose confidentiality?) and **(2) attorney
+direction**. *Heppner* itself signals it "would have reached a different result" on an
+enterprise tool that contractually prohibits model training on user inputs.
+
+**On the exact question — is an AI case-value output work product?** Now reasonably clear and
+*conditional*: **protected** when created at counsel's direction, on a confidentiality-vetted
+platform, treated as legal work product; **discoverable** when generated on a public tool,
+without legal oversight, or later relied on as an ordinary business record ([Haynes Boone](https://www.haynesboone.com/news/alerts/generative-ai-in-litigation)).
+The worst case — a vendor-generated valuation the firm files away as a routine internal
+record — is a **discoverable admission against the firm's own client**.
+
+**The four contract/process terms that must all hold before Intake QA emits any range:**
+1. **Privilege-preserving DPA** — bar training on firm/claimant inputs, prohibit third-party
+   disclosure, impose confidentiality (the exact features whose *absence* sank *Heppner*).
+   Dovetails with the existing §VI no-training + zero/short-retention + deletion-cascade
+   invariant; retention that outlives consent is now both a §VI defect *and* a privilege risk.
+2. **Attorney direction on the record** — the lawyer triggers the valuation; the ratification
+   event is the timestamp proving "prepared at counsel's direction in anticipation of
+   litigation" (the missing element in *Heppner*).
+3. **Framed + stored as legal work product, not a routine record** — delivered into the
+   firm's privileged file; Intake QA's own copy minimized and purged, never kept as a business
+   record the firm "later relies on."
+4. **"Tool, not a person"** — *Gilbarco* gives the affirmative frame: the range engine is a
+   tool the attorney uses, like a legal-research database, so its use is not a waiver.
+
+**Why this reinforces the verdict (DEFER, partner-bridge now):** the discoverability posture
+is *only* safe post-signing, attorney-directed, on a no-training/zero-retention contract, with
+a human-ratification gate — i.e., it cannot exist at intake, cannot be a vendor "score"
+divorced from attorney direction, and cannot ship before Yang clears the contractual
+architecture (§VII). That's a high bar that beta-test #2 pull-signal must clear the effort of,
+which is exactly why the range stays roadmapped-not-built until the market asks.
+
+Sources: [LawSites PLAAS](https://www.lawnext.com/2026/05/evenup-extends-beyond-software-with-launch-of-pre-litigation-as-a-service-offering-for-pi-law-firms.html) · [EvenUp Series D](https://www.evenuplaw.com/blog/evenup-announces-135-million-series-d-and-launches-four-new-groundbreaking-products/) · [LawSites Communication Agents](https://www.lawnext.com/2026/01/evenup-launches-ai-communication-agents-to-handle-routine-tasks-in-pi-cases-also-enhances-its-ai-drafting.html) · [EvenUp Integrations](https://www.evenuplaw.com/products/integrations/) · [Supio Intake](https://www.supio.com/products/intake) · [Supio Integrations](https://www.supio.com/integrations) · [AI Vortex EvenUp review](https://www.aivortex.io/legal/ai-tools/evenup/) · [Parrot/TechCrunch](https://techcrunch.com/2023/06/20/parrot-ai-a-transcription-platform-that-turns-speech-into-text-raises-11m-series-a/) · [LezDo](https://www.lezdotechmed.com/blog/why-personal-injury-demand-letter-might-be-ignored) · [LawPractice.ai](https://www.lawpractice.ai/blog/personal-injury-demand-letters-tips) · [Harvard Law Review — US v. Heppner](https://harvardlawreview.org/blog/2026/03/united-states-v-heppner/) · [Gibson Dunn — SDNY AI privilege](https://www.gibsondunn.com/ai-privilege-waivers-sdny-rules-against-privilege-protection-for-consumer-ai-outputs/) · [Perkins Coie — Heppner & Gilbarco](https://perkinscoie.com/insights/update/heppner-and-gilbarco-courts-apply-privilege-and-work-product-protection-generative) · [Haynes Boone — are AI outputs discoverable](https://www.haynesboone.com/news/alerts/generative-ai-in-litigation)
