@@ -368,3 +368,32 @@ applications reach Ali same-day via email ping instead of waiting on a /studio v
 **Verified:** prod /apply works end-to-end (probe applicant created + cleaned up);
 hosted migrations 0023/0030 confirmed applied; prod audit storage configured.
 **Review:** at first LACBA applications, or 2026-07-24.
+
+## 2026-07-10 — Persona teardown + bug-hunt sweep (commits 969c30a..db15783)
+
+**Change:** Walked the product as the PI managing partner and the intake coordinator
+(5 verified web-research passes → field guides in insights.md), then ran 3 parallel
+bug-hunters over the beta surface and fixed the confirmed high-severity findings.
+Shipped: (1) LeakCard rebuilt around the real callback moment — one-tap phone-reality
+statuses (spoke/left-message/bad-number/signed/passed) + bad_number + undo/reopen +
+warm opener, grading language OFF the staff surface; (2) desk "your week" wins strip
+(recognition = the only upside a monitoring tool can give staff, since per-case bonuses
+are barred); (3) queue no longer a graveyard (resolved cards → collapsed Handled section,
+active-first ordering); (4) real-firm flags now show case type + fee (scorer's
+case_type_matched plumbed through insertFlag + code→label map + Auto-accident fee row) —
+was demo-only before; (5) digest persists follow-up to terminal (6-touch research);
+(6) SECURITY: demo status PII leak closed (per-row token, migs 0032/0024), auth
+self-signup closed (shouldCreateUser:false), resolveDeskFirm never falls back to a real
+firm, open-redirects fixed; (7) idempotent onboarding + applicant tile clears; (8) honest
+states (zero-call Calls page, beta-aware Billing, stale-heartbeat nudge, Documents copy).
+**Hypothesis:** the beta converts on the coordinator using it daily and the partner
+trusting the numbers; both fail if the desk reads as surveillance, shows blank/undollared
+cards, or leaks a caller's PII.
+**Verified:** tsc clean; 415/415 tests; build green; live browser walks (callback flow +
+persistence, wins strip, queue split, demo token round-trip + terminal-on-failure, PII
+?id= now 400). All hosted migrations 0031/0032/0033 applied. Scratch users/probe rows
+cleaned from hosted DB.
+**Deferred (Ali/infra, noted not guessed):** per-firm CallRail secret + live signature
+verification; XFF-trusted rate-limit IP on Vercel; storage bucket size cap; engine-v2
+triage rubric (frozen — needs attorney review); statute clock; attempt-count nudge.
+**Review:** at first real beta firm's first week.
