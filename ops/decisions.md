@@ -31,6 +31,45 @@
 
 ---
 
+## 2026-07-10 — ⚠ OPEN DECISION FOR ALI: pricing three-way split  ·  agent: main session (Wave 8 QC finding) · lane: pricing (§VII)
+- **Change:** none — this is an escalation, not a decision. Wave 8 adversarial QC found THREE
+  inconsistent price tables circulating in staged docs: (1) compliance-invariants §I (supreme
+  authority): Core ~$2,500 / Pro ~$5,000; (2) develop-queue-GTM: Founding $1,000 / Core
+  $1,500 / Pro $3,000 — while falsely claiming to be "anchored to existing invariants" (line
+  now corrected with a warning block); (3) the 2026-07-09 decisions entry: "locked
+  $1,500/$2,500/$5,000". Every downstream artifact inherits whichever table its author read —
+  the Supio battle card quoted $1,500 (a 40% unauthorized discount if §I is right).
+- **Interim rule applied everywhere:** no dollar figure in any collateral or aloud to any
+  prospect ("flat monthly price quoted in writing up front") until resolved.
+- **Needed from Ali:** pick ONE table; write it into compliance-invariants §I and a dated
+  decisions entry the same day. Related: the staged Intake Closer pivot's per-signed-case
+  pricing mode (Yang-gated) contradicts any "never outcome-tied, ever" sales promise — kill
+  one or the other.
+- **Status:** BLOCKED ON ALI.
+- **Review date:** before any pricing conversation with any prospect.
+
+## 2026-07-10 — Engine-v2 Wave 8: adversarial QC passes applied  ·  agent: main session · lane: research/QC
+- **Change:** QC pass #1 on the LACBA piece (verdict SHIP AFTER FIXES → all 14 defects fixed:
+  BLOCKER false "I recently tallied" teaser claim replaced with the structural version;
+  rideshare Period 1 corrected to 50/100/30 contingent; Prop 213 DUI exception; free-tally
+  offer removed from bio; work-product caveat; jargon translated; all cites re-verified).
+  QC on the three Wave 7 artifacts: battle card READY AFTER FIXES (pricing gate; "we publish
+  ours" was FALSE during the beta pricing-removed window → "quoted in writing up front";
+  RingCentral/CallRail scoring linkage downgraded verified→inference; Mid-Market AE title
+  unreproducible → fixed; talk track concedes Supio SOP configurability). Playbook READY
+  AFTER FIXES (confidential-settlement handling, pseudonymous-not-anonymous framing,
+  secure-transfer channel never email, net_to_client purpose stated). Fact-sheet spec was
+  NEEDS REWORK → reworked (schema could not represent not_asked; superRefine invariants now
+  explicit; per-key value typing kills the open-JSON channel; bilingual lint; new
+  Confidentiality & transfer section — firm-eyes-only, we never transmit to third parties;
+  "unlike anything else in the stack" removed as §V-unsubstantiated).
+- **QC meta-finding:** outward-facing research verified almost perfectly; the failures
+  clustered on OUR OWN facts (pricing, "we publish," self-comparatives). Future QC passes
+  should weight inward-consistency checks accordingly.
+- **Status:** fixes applied + committed. Remaining gates: LACBA vendor-policy check, Yang
+  reads, Ali approvals per artifact headers.
+- **Review date:** 2026-07-24
+
 ## 2026-07-10 — Engine-v2 Wave 7: three execution artifacts  ·  agent: main session · lane: product/GTM
 - **Change:** staged `intake-fact-sheet-spec.md` (neutral cited-fact export v0 — the demand-tool
   partnership surface; invariants live in the schema: no dollars/conclusions/date-math fields,

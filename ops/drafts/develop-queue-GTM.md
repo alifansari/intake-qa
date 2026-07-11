@@ -3,8 +3,16 @@
 > **STATUS: DRAFT.** GTM for the call-QA + develop-queue conveyor (the near-term wedge
 > from the engine-v2 research). Honors the compliance spine: flat-fee only (§I), value
 > as a TIER not dollars (§IV), independent-scorer positioning (§I/V), stage-don't-send
-> outreach (§III/VII). Price anchored to existing invariants (Core ~$1,500 / Pro
-> ~$3,000). The demo script + any fee/consent copy → Yang before first live use (§VII).
+> outreach (§III/VII). The demo script + any fee/consent copy → Yang before first live
+> use (§VII).
+>
+> **⚠ PRICING GATE (Wave 8 QC, 2026-07-10):** this doc's earlier claim that its price
+> table was "anchored to existing invariants" was FALSE — compliance-invariants §I says
+> Core ~$2,500 / Pro ~$5,000, this doc says $1,500/$3,000, and the 2026-07-09 decisions
+> entry says $1,500/$2,500/$5,000. Three tables are circulating. **All dollar figures in
+> this doc are PROVISIONAL until Ali locks one table into compliance-invariants §I +
+> decisions.md (§VII — pricing is Ali's call, not any agent's).** Do not quote any figure
+> from this doc to a prospect before that happens.
 
 ## 1. Positioning
 **One-liner:** "An independent recovery desk that reviews your OWN reps' recorded intake
