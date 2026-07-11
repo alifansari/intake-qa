@@ -60,9 +60,19 @@ export default async function QueuePage() {
     // green dot that can lie.
     let callsReceived = 0;
     let lastCallAt: string | null = null;
+    // Calls the pipeline hasn't finished with yet: received but not analyzed,
+    // not excluded — INCLUDING failed_scoring (a stuck call is "still working",
+    // never silently absorbed into a green light). While this is > 0, the
+    // all-clear panel must not render: "all clear" and "still reading your
+    // calls" cannot both be true.
+    let callsProcessing = 0;
     try {
       const recon = await store.getCallReconciliation(db, firm.id);
       callsReceived = Number(recon?.received ?? 0);
+      callsProcessing = Math.max(
+        0,
+        callsReceived - Number(recon?.processed ?? 0) - Number(recon?.excluded ?? 0),
+      );
       if (typeof db.query === "function") {
         const r = await db.query(
           `select max(received_at) as last from calls where firm_id = $1`,
@@ -72,6 +82,7 @@ export default async function QueuePage() {
       }
     } catch {
       callsReceived = 0;
+      callsProcessing = 0;
     }
 
     // The coordinator's "wins this week" — credit framing (the tool makes her
@@ -161,6 +172,19 @@ export default async function QueuePage() {
               <div className="mt-5 border-t border-hairline pt-5">
                 <HowCallsArrive />
               </div>
+            </div>
+          ) : callsProcessing > 0 ? (
+            // Calls are in but not read yet (or stuck): the honest state is
+            // "still working", never a premature green light.
+            <div className="rounded-card border border-hairline bg-surface p-8">
+              <h2 className="font-display text-xl font-semibold text-ink">
+                {callsProcessing} call{callsProcessing === 1 ? "" : "s"} processing.
+              </h2>
+              <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+                We&apos;re still reading {callsProcessing === 1 ? "this call" : "these calls"}.
+                Anything that needs a callback will appear right here as soon as we&apos;re done
+                &mdash; usually within a few minutes. Nothing needs you yet.
+              </p>
             </div>
           ) : (
             <div className="rounded-card border border-hairline bg-surface p-8">
