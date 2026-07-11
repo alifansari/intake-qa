@@ -9,6 +9,7 @@
 import { NextResponse } from "next/server";
 import { applyToBeta } from "../../../../../beta/applicants.mjs";
 import { sendNdaRequest } from "../../../../../beta/nda.mjs";
+import { defaultNdaClient } from "../../../../../beta/dropbox-sign-nda.mjs";
 import { openPipelineDb, closePipelineDb, logError } from "../../../../../ingest/store.mjs";
 import { rateLimited } from "@/lib/intake/rate-limit";
 
@@ -49,9 +50,16 @@ export async function POST(req: Request) {
 
     let nda: { signatureRequestId?: string; simulated?: boolean } | null = null;
     if (result.status === "nda_pending") {
-      // NDA is the hard gate before any data access. TEST_MODE simulates the
-      // Dropbox Sign send so the funnel works end-to-end pre-launch.
-      nda = await sendNdaRequest({ db, applicantId: result.applicantId }).catch(async (err) => {
+      // NDA is the hard gate before any data access. When Dropbox Sign is
+      // configured AND TEST_MODE is off, inject the real client (which itself
+      // stays in sandbox until DROPBOX_SIGN_LIVE=true); otherwise the send is
+      // simulated and the founder emails the NDA by hand.
+      const liveDropbox =
+        process.env.TEST_MODE === "false" &&
+        Boolean(process.env.DROPBOX_SIGN_API_KEY) &&
+        Boolean(process.env.DROPBOX_SIGN_NDA_TEMPLATE_ID);
+      const dropboxSign = liveDropbox ? defaultNdaClient({ env: process.env }) : null;
+      nda = await sendNdaRequest({ db, applicantId: result.applicantId, dropboxSign }).catch(async (err) => {
         await logError(db, {
           source: "beta_apply",
           message: `NDA send failed: ${String((err as Error)?.message ?? err)}`,

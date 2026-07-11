@@ -23,9 +23,14 @@ import {
 // the Dropbox Sign call is simulated with a deterministic request id so tests
 // and local onboarding walk the full state machine without network.
 //
-// TODO(integration): real Dropbox Sign send — use signatureRequestSendWithTemplate
-// with an NDA template id (DROPBOX_SIGN_NDA_TEMPLATE_ID). The template itself is
-// legal content: route to Ali/Yang before first live send (compliance §VII).
+// The real Dropbox Sign send lives in beta/dropbox-sign-nda.mjs (defaultNdaClient),
+// injected by the /api/beta/apply route as `dropboxSign` when configured. The
+// template is legal content: route to Ali/Yang before first live send (§VII).
+/**
+ * @param {{ db?: unknown, applicantId?: string, env?: Record<string, string|undefined>,
+ *   dropboxSign?: { sendNda: (...args: any[]) => Promise<{ signatureRequestId: string }> } | null,
+ *   now?: Date }} opts
+ */
 export async function sendNdaRequest({ db, applicantId, env = process.env, dropboxSign = null, now = new Date() }) {
   const applicant = await getBetaApplicant(db, applicantId);
   if (!applicant) throw new Error(`unknown applicant: ${applicantId}`);

@@ -7,7 +7,7 @@
 // This is what makes phone-system setup a single copy-paste on a 15-minute
 // call. The legacy env-pinned route stays for the original pilot firm.
 import { ingestCallRail } from "../../../../../ingest/callrail.mjs";
-import { openPipelineDb, closePipelineDb, logError } from "../../../../../ingest/store.mjs";
+import { openPipelineDb, closePipelineDb, logError, getFirm } from "../../../../../ingest/store.mjs";
 import { inngest } from "../../../../../inngest/client.mjs";
 
 export const runtime = "nodejs";
@@ -16,14 +16,6 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ firm: string }> },
 ) {
-  const secret = process.env.CALLRAIL_WEBHOOK_SECRET;
-  if (!secret) {
-    return Response.json(
-      { error: "CALLRAIL_WEBHOOK_SECRET not configured" },
-      { status: 500 },
-    );
-  }
-
   const { firm } = await params;
   // Sanity-bound the id (uuid on Postgres, integer on the local pilot).
   if (!/^[a-zA-Z0-9-]{1,64}$/.test(firm)) {
@@ -36,6 +28,23 @@ export async function POST(
 
   const db = await openPipelineDb();
   try {
+    // Prefer this firm's OWN CallRail account signing secret; fall back to the
+    // shared env secret (the original single-pilot firm). CallRail issues one
+    // token per account, so five firms each need their own.
+    let secret = process.env.CALLRAIL_WEBHOOK_SECRET ?? null;
+    try {
+      const firmRow = await getFirm(db, firm);
+      if (firmRow?.callrail_webhook_secret) secret = firmRow.callrail_webhook_secret;
+    } catch {
+      /* fall back to env secret */
+    }
+    if (!secret) {
+      return Response.json(
+        { error: "no CallRail secret configured for this firm" },
+        { status: 500 },
+      );
+    }
+
     const result = await ingestCallRail({
       db,
       rawBody,
