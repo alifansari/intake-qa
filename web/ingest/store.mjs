@@ -133,6 +133,7 @@ export const countCallsInPeriod = wrap("countCallsInPeriod");
 // Recovery-desk additive layer (migration 0014).
 export const setCallStatus = wrap("setCallStatus");
 export const getCallReconciliation = wrap("getCallReconciliation");
+export const getCallbackWins = wrap("getCallbackWins");
 export const insertTranscriptCitation = wrap("insertTranscriptCitation");
 export const getTranscriptCitations = wrap("getTranscriptCitations");
 export const setFlagConfidence = wrap("setFlagConfidence");

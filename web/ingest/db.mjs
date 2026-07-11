@@ -1208,6 +1208,28 @@ export function getCallReconciliation(db, firmId) {
   return row ?? { firm_id: firmId, received: 0, processed: 0, excluded: 0, failed: 0 };
 }
 
+// The intake coordinator's "wins this week": counts of callback outcomes recorded
+// on flag_status since `sinceIso`, scoped to the firm. Framed as credit, never a
+// score — the tool's job is to make the coordinator look good, not policed.
+export function getCallbackWins(db, firmId, sinceIso) {
+  const row = db
+    .prepare(
+      `SELECT
+         SUM(CASE WHEN fs.status IN ('reached_out','back_in_touch','signed','didnt_sign') THEN 1 ELSE 0 END) AS worked,
+         SUM(CASE WHEN fs.status IN ('back_in_touch','signed') THEN 1 ELSE 0 END) AS reached,
+         SUM(CASE WHEN fs.status = 'signed' THEN 1 ELSE 0 END) AS signed
+       FROM flag_status fs
+       JOIN flags f ON f.id = fs.flag_id
+      WHERE f.firm_id = ? AND fs.updated_at >= ?`
+    )
+    .get(firmId, sinceIso);
+  return {
+    worked: Number(row?.worked ?? 0),
+    reached: Number(row?.reached ?? 0),
+    signed: Number(row?.signed ?? 0),
+  };
+}
+
 export function insertTranscriptCitation(db, c) {
   const { flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score = null, status = "needs_review" } = c;
   const info = db

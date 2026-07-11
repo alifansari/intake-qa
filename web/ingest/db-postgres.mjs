@@ -1099,6 +1099,26 @@ export async function getCallReconciliation(db, firmId) {
   return r.rows[0] ?? { firm_id: firmId, received: 0, processed: 0, excluded: 0, failed: 0 };
 }
 
+// Coordinator's "wins this week" — callback outcomes on flag_status since sinceIso.
+export async function getCallbackWins(db, firmId, sinceIso) {
+  const r = await db.query(
+    `SELECT
+       SUM(CASE WHEN fs.status IN ('reached_out','back_in_touch','signed','didnt_sign') THEN 1 ELSE 0 END) AS worked,
+       SUM(CASE WHEN fs.status IN ('back_in_touch','signed') THEN 1 ELSE 0 END) AS reached,
+       SUM(CASE WHEN fs.status = 'signed' THEN 1 ELSE 0 END) AS signed
+     FROM flag_status fs
+     JOIN flags f ON f.id = fs.flag_id
+    WHERE f.firm_id = $1 AND fs.updated_at >= $2`,
+    [firmId, sinceIso]
+  );
+  const row = r.rows[0] ?? {};
+  return {
+    worked: Number(row.worked ?? 0),
+    reached: Number(row.reached ?? 0),
+    signed: Number(row.signed ?? 0),
+  };
+}
+
 export async function insertTranscriptCitation(db, c) {
   const { flag_id, fact_kind, start_ms, end_ms, verbatim_snippet, validation_score = null, status = "needs_review" } = c;
   const r = await db.query(

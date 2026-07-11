@@ -73,6 +73,16 @@ export default async function QueuePage() {
     } catch {
       callsReceived = 0;
     }
+
+    // The coordinator's "wins this week" — credit framing (the tool makes her
+    // look good), never a score. Best-effort; a query failure just hides it.
+    let wins = { worked: 0, reached: 0, signed: 0 };
+    try {
+      const since = new Date(Date.now() - 7 * 24 * 3600_000).toISOString();
+      wins = await store.getCallbackWins(db, firm.id, since);
+    } catch {
+      /* hide the strip on any error */
+    }
     const leaks: Leak[] = [];
     for (const f of flags) {
       const range = f.case_type ? await store.getFeeValueRange(db, f.case_type, firm.id) : null;
@@ -119,6 +129,16 @@ export default async function QueuePage() {
                 " ✓"
               )}
             </p>
+          ) : null}
+          {wins.worked > 0 ? (
+            <div className="mt-3 inline-flex flex-wrap items-center gap-x-4 gap-y-1 rounded-card border border-hairline bg-accent-tint/40 px-4 py-2 text-sm text-ink">
+              <span className="font-semibold">Your week</span>
+              <span className="tnum">{wins.worked} callback{wins.worked === 1 ? "" : "s"} worked</span>
+              <span className="tnum">{wins.reached} reached</span>
+              {wins.signed > 0 ? (
+                <span className="tnum font-semibold text-accent">{wins.signed} signed 🎉</span>
+              ) : null}
+            </div>
           ) : null}
         </div>
 
