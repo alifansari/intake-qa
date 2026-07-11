@@ -517,3 +517,41 @@ conveyor the rescue packet already partly delivers.
 deadline flags, over-conversion retention, refer-out monetization, the 3 fairness fixes.
 **Review:** when Ali decides whether to lift the freeze; not before a PI-attorney +
 Yang review.
+
+## 2026-07-11 — Session 0: beta ship-blockers & truth fixes (branch beta/s0-blockers)
+
+**Change:** (1) Merged letter/norcal-factcheck-fix — the false "Sacks built conversation
+analysis at UC Berkeley" claim on /letter is now the accurate Berkeley-trained/UCLA-LASPC
+account; kept main's newer beta-program copy in the two conflicted paragraphs (wage range
+and SB 690 removal were already fixed on main). Added the letter's /audit CTA. (2)
+site/presidential-polish-1 recorded as merged with `-s ours`: its single commit is
+byte-identical (same patch-id) to bbd68f3 already on main since 07-07 — merging content
+would have REGRESSED six later commits on /audit and the homepage. (3) Email decoupled
+from TEST_MODE: new EMAIL_ENABLED env flag (default false = no email) gates only the four
+Resend paths (missed-digest, digest, weekly-report, alerts); TEST_MODE now arms SMS only;
+KILL_SWITCH additionally halts email inside every sender; GO_LIVE.md, BETA_ONBOARDING.md,
+web/.env.example updated to match. (4) Internal approval-queue digest skips entirely
+unless DIGEST_TO is set and is documented internal-operator-only (both crons fire 0 15 * * *;
+a firm can never receive it by fallback). (5) /api/digest/run: missing CRON_SECRET on a
+hosted deploy now 500s and writes an errors row naming the var (was: silent 401 forever);
+every run logs per-firm outcomes (emailed/rendered/skipped+reason/failed) to the errors
+table (source "digest.run") — deliberately reusing the operator log rather than adding a
+migration Ali would have to hand-apply before Monday. (6) Desk queue shows "N calls
+processing" while any call is received-but-unread or failed_scoring — the green all-clear
+can no longer vouch for a stuck pipeline. (7) /api/inngest gets maxDuration=300 (scoring
+~95s/call). (8) Doc truth: README migration ranges (0026 SQLite / 0034 Postgres),
+INTAKE_SYSTEM.md hosted state (0023–0033 applied, 0034 pending), CLAUDE.md send-chokepoint
+path corrected to web/messaging/send.mjs.
+**Hypothesis:** the beta's first-week trust hinges on (a) no false public claims while
+LACBA outreach is live, (b) digest email working WITHOUT arming SMS, and (c) no dashboard
+state that lies (false all-clear, silently dead cron).
+**Expected effect:** Ali can set EMAIL_ENABLED=true + KILL_SWITCH=false Monday with
+TEST_MODE untouched; a missing CRON_SECRET surfaces in hours not weeks; coordinators see
+honest pipeline states.
+**Verified:** smoke 0 failures; 427/427 unit tests; e2e-synthetic all 9 stages PASS
+(weekly report correctly rendered-to-file under the new gate); production build green.
+**Deferred:** engine untouched (frozen); HowCallsArrive.tsx untouched (concurrent /desk/upload
+session owns it); per-firm CallRail secret UI (Session 1); errors-table run-log rides the
+operator alert email — if daily "digest run" rows prove noisy, split into a digest_runs
+table post-beta.
+**Review:** 2026-07-18 (end of beta week 1).
