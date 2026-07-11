@@ -31,6 +31,24 @@
 
 ---
 
+## 2026-07-10 — Engine-v2 Wave 7: three execution artifacts  ·  agent: main session · lane: product/GTM
+- **Change:** staged `intake-fact-sheet-spec.md` (neutral cited-fact export v0 — the demand-tool
+  partnership surface; invariants live in the schema: no dollars/conclusions/date-math fields,
+  uncensorable `not_captured[]`), `competitive-supio-battlecard.md` (facts/gaps/landmines/talk
+  track/7 quarterly tripwires), `retrodiction-onboarding-playbook.md` (the 30-min closed-case
+  session: per-CMS export paths, field mapping with censoring rules, PII-scrub-on-their-screen,
+  Firm Baseline one-pager spec). Corrected Wave 6 framing in exec summary: Supio's Scoring
+  Agent grades HUMAN agents on the firm's existing phones too — never say "Supio only grades
+  its own AI"; the Switzerland argument is structural (their grader lives inside a platform
+  that answers calls and monetizes the case; we sell nothing the score could flatter).
+- **Expected effect:** onboarding + sales collateral ready for the beta firms; demand-stage
+  optionality spec'd; refutable competitive claims killed before first live use.
+- **Status:** staged-for-approval. Talk track = new public-facing comparative copy → Ali (and
+  Yang for written collateral) before first live use (§VII). Retrodiction session gated on
+  executed NDA. Wave 8 = the two mandatory adversarial QC passes (operating protocol) on the
+  LACBA piece + Wave 7 artifacts before anything is called ready to ship.
+- **Review date:** 2026-07-24
+
 ## 2026-07-10 — Engine-v2 Wave 6: adjacency verification + LACBA authority piece  ·  agent: main session · lane: research/outreach
 - **Change:** four staged docs — `ops/drafts/lacba-five-questions-piece.md` (publication-ready
   methodology piece; §VII human-post gate + Yang read flagged), `demand-stage-adjacency.md`,
