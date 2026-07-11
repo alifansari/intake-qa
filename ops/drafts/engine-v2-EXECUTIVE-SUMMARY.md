@@ -187,9 +187,13 @@ still answer their own phones (Eve ignores them). **Do NOT build a competing voi
 every call and agent against your intake SOP with report cards" plus a Coaching Agent, and
 EvenUp's march backward to intake is confirmed (Communication Agents Jan 2026 → PLAAS May 2026,
 $10M+ early subscriptions). The white-space claim survives in narrowed form — nobody offers
-*independent* rep-QA on the develop-queue/SLA model, and Supio grading Supio's own Voice Agent
-is the Eve-Auditor conflict again (second Switzerland proof) — but "nobody does call-content QA"
-is now FALSE as stated and must not be said in any pitch. Practical effect: the conveyor build
+*independent* rep-QA on the develop-queue/SLA model — but "nobody does call-content QA"
+is now FALSE as stated and must not be said in any pitch. [Corrected by the Wave 7 battle
+card: Supio's Scoring Agent grades the firm's HUMAN agents on their existing phones too, so
+never say "Supio only grades its own AI." The Switzerland argument survives stated
+structurally: their grader lives inside a platform that also answers calls and monetizes the
+downstream case; we sell nothing the score could flatter. Full landmine list + talk track:
+`competitive-supio-battlecard.md`.] Practical effect: the conveyor build
 and the beta validation experiment move from "soon" to "now"; the moat is speed + independence
 + the outcome corpus, not the feature.
 
