@@ -31,6 +31,22 @@
 
 ---
 
+## 2026-07-10 — Engine-v2 Wave 10: LACBA piece QC-cleared ×2 + channel verdict  ·  agent: main session · lane: outreach
+- **Change:** QC pass #2 on the five-questions piece (verdict → fixes applied → **CLEARED FOR
+  YANG READ**): §3333.4(c) DUI exception narrowed to its true owner-only scope (the one
+  statutory-precision miss left after pass 1); Q1 verbatim un-stacked; byline unified;
+  3 prepared hostile-reply responses staged in the file. Channel research
+  (`publication-channel-brief.md`): **LACBA listservs are closed to vendor content per
+  published guidelines — direct or by proxy** (proxy = policy dodge, rejected). New
+  distribution path: LinkedIn + newsletter now (post-Yang), CAALA Affiliate ($400/yr) +
+  Advocate magazine pitch (staged email in the brief), LACBA paid sponsorship for brand
+  presence. `lacba-beta-post.md` must be re-checked against the same rules before use.
+- **Expected effect:** the authority asset ships through channels that can't blow up; avoids
+  the vendor-on-the-listserv failure mode entirely.
+- **Status:** piece staged-for-approval (gates: Yang read via Packet #2, Ali posts); pitch
+  email staged (Ali sends); CAALA membership = Ali's spend decision.
+- **Review date:** 2026-07-24
+
 ## 2026-07-10 — ⚠ OPEN DECISION FOR ALI: pricing three-way split  ·  agent: main session (Wave 8 QC finding) · lane: pricing (§VII)
 - **Change:** none — this is an escalation, not a decision. Wave 8 adversarial QC found THREE
   inconsistent price tables circulating in staged docs: (1) compliance-invariants §I (supreme

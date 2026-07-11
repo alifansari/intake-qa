@@ -139,8 +139,14 @@ I wrote up the five, with verbatim phrasings written as pure information questio
   - **H3 "Zero data":** "It's a structural argument about incentives, not an empirical study —
     which is exactly why the piece hands you the audit. Run your own 20 calls and post your
     number; I'll be genuinely happy to be wrong on-list."
-- **Posting gates remaining:** (1) verify the specific LACBA listserv's vendor-content
-  policy before posting; (2) Yang read — Packet #2 Q1–Q3 (`yang-review-packet-2.md`);
-  (3) Ali presses post (§VII).
+- **CHANNEL VERDICT (Wave 10, resolves gate 1): LACBA listservs are CLOSED to vendor
+  content** — published guidelines ban commercial posts regardless of membership tier, and
+  proxy-posting through a member is a policy dodge we won't do (full analysis + compliant
+  path: `publication-channel-brief.md`). This piece now targets: (1) LinkedIn + newsletter
+  under Ali's byline — retitle the "listserv teaser" as the LinkedIn caption and change
+  "Happy to discuss on-list" → "Happy to discuss in the comments"; (2) an Advocate magazine
+  (CAALA) educational version — staged pitch email in the channel brief.
+- **Posting gates remaining:** (1) Yang read — Packet #2 Q1–Q3 (`yang-review-packet-2.md`);
+  (2) Ali presses post (§VII).
 - Deliberately omitted: Pebley/Corenbaum detail (too deep for the format), dram shop, any
   dollar-value or outcome claims.
