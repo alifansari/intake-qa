@@ -31,6 +31,43 @@
 
 ---
 
+## 2026-07-11 — Engine v2 scoring package BUILT on feature/scoring-v2  ·  agent: product-dev · lane: product (engine)
+- **Change:** the full `scoring-v2/` package built as a parallel engine on branch
+  `feature/scoring-v2`, per `ops/drafts/engine-v2-objective-spec.md` (the Wave-12 build
+  contract). Pipeline-not-oracle: one LLM call does ONLY cited fact extraction (30-fact
+  catalog with structured gate-trigger shapes, 10-question capture checklist) + seven
+  anchored dimension reads with the evidence field physically before the level field;
+  CODE does everything else — the four catastrophe gates (G1 underwater/Prop-213, G2
+  deadline-adjacent/perishable-evidence, G3 client-risk → attorney-review flag that can
+  NEVER auto-decline, G4 trial-capital), an explicit R1–R9 decision table with
+  MIST/capital/urgency overlays, tier-only value lookup, develop payloads with
+  pre-registered exit conditions, refer-out tier comparisons, and confidence/abstention
+  computed from observability metadata (>2 unknown dims, inferred-only gate triggers, or
+  an unscoreable transcript → the disposition is withheld and routed to attorney review).
+  Posture (selective|volume, per case type) lives exclusively in code-side PART B config —
+  the LLM never sees it, so dimension reads stay cross-firm comparable. Six golds adapted
+  to the new contract in pinned order (contrastive pair adjacent; never ends on a decline).
+  46 tests pass (every gate, every table row incl. the volume-develops/selective-declines
+  divergence on identical borderline reads, all abstention rules, and a six-gold
+  integration pass reproducing each expected verdict). Live smoke test on the fixture
+  transcript: sign_now / standard tier / medium confidence, zero gates, 33 citations.
+  `scoring/` (v1) untouched and still serving the beta; v1 reused by import only.
+- **Hypothesis:** narrowing the LLM to cited extraction + anchored reads and moving
+  gates/aggregation/posture/confidence into deterministic code yields a triage engine
+  reliable enough to clear the objective-spec §5 validation targets (disposition QWK ≥
+  0.70, catastrophic-indicator recall ≥ 0.95) — which v1's holistic rep-score never could.
+- **Expected effect:** unlocks the triage product surface (the develop-queue/option-desk
+  GTM) once validated; zero effect on the beta until activation.
+- **Status:** staged-on-branch (`feature/scoring-v2`, pushed). NOT active anywhere.
+  Activation gates (all required): (1) Ali's deliberate freeze-lift decision logged here;
+  (2) PI-attorney review + Yang §VII compliance review (prompt, gates, decline/refer
+  language, fairness rails); (3) phase-1 validation — regenerated golds through the
+  harness, v1-vs-v2 comparisons (`compare-v1-v2.js`), canaries for over-conversion /
+  Prop-213 / Spanish / borderline develop-sign; (4) phase-2 validation — 100–150
+  dual-labeled transcripts with the human-human QWK ceiling measured first; (5) the
+  Spanish reliability gate before any Spanish call is scored in production.
+- **Review date:** 2026-07-25
+
 ## 2026-07-10 — Engine-v2 Wave 10: LACBA piece QC-cleared ×2 + channel verdict  ·  agent: main session · lane: outreach
 - **Change:** QC pass #2 on the five-questions piece (verdict → fixes applied → **CLEARED FOR
   YANG READ**): §3333.4(c) DUI exception narrowed to its true owner-only scope (the one

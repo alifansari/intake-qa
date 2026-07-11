@@ -258,7 +258,9 @@ async function main() {
   const args = process.argv.slice(2);
   const cfgIdx = args.indexOf("--config");
   const firmConfigPath = cfgIdx !== -1 ? args[cfgIdx + 1] : DEFAULT_CONFIG;
-  const target = args.filter((a, i) => a !== "--config" && i !== cfgIdx + 1)[0];
+  const target = args.filter(
+    (a, i) => a !== "--config" && (cfgIdx === -1 || i !== cfgIdx + 1)
+  )[0];
   if (!target) {
     console.error(
       "Usage: node scoring-v2/score-v2.js <transcript.txt | x.transcript.json | audio | --fixture> [--config firm-config-v2.md]"
