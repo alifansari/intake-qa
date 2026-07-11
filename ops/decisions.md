@@ -350,3 +350,21 @@
     implied, until fieldwork runs.
 
 <!-- New decisions go above this line, newest on top. -->
+
+## 2026-07-10 — LACBA-beta readiness pass (commit 80d8852)
+
+**Change:** Full readiness check + website redesign for the LACBA Small Firms post
+(4,000+ LA attorneys). Statewide/LA framing replaces NorCal everywhere public; all
+save-protocol-text artifacts reframed as staff callback scripts (texting = roadmap,
+A2P-gated); "our own models" and the 72-hour-purge overclaims corrected; /apply
+rate-limited + founder email ping; dead components deleted. Drafted (staged, NOT
+sent): mutual NDA, design-partner MOU, LACBA post + reply (ops/drafts/).
+**Hypothesis:** the beta converts on one number (confirmed recovered fees), so the
+site must sell exactly the loop we run — ingest recordings → daily flags → firm's
+own staff call back → ledger — with zero contradicting surfaces for a diligent
+LA attorney or their ethics counsel.
+**Expected effect:** LACBA traffic lands on a coherent, compliant, single-CTA funnel;
+applications reach Ali same-day via email ping instead of waiting on a /studio visit.
+**Verified:** prod /apply works end-to-end (probe applicant created + cleaned up);
+hosted migrations 0023/0030 confirmed applied; prod audit storage configured.
+**Review:** at first LACBA applications, or 2026-07-24.
