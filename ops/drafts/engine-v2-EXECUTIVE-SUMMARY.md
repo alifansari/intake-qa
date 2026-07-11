@@ -18,6 +18,66 @@ checks whether your rep asked the disqualifying + value-determining questions an
 tracks the unresolved ones to resolution with an owner and a clock.** Ship the conveyor,
 not the oracle.
 
+## WAVE 4 — final adjudication (competitive verification + red-team)
+
+**Competitive map STRENGTHENS the verdict.** Verified: **nobody QAs the firm's OWN
+human intake rep against a PI case-making rubric + runs a develop-queue + surfaces lost
+high-value cases.** The closest players each miss: **CallRail Premium CI ($145/mo)**
+scores the *lead/campaign*, not the rep, and "lacks QA/coaching workflows"; **Observe.AI/
+CallMiner** do 100%-of-calls agent QA but have zero PI DNA (you'd build the rubric —
+that's the product); **Eve ($1B, plaintiff-native)** does voice intake + a nightly
+"Auditor," but the voice product *replaces* the human rep and Auditor reads *case docs*,
+not intake-call rep QA. The case-selection **ORACLE is the crowded/defended zone**
+(CaseYak value-prediction, EvenUp $2B case analysis, Eve) — deferring it is textbook
+correct: *attack where nobody is (rep QA + develop-queue), defer the fight where everyone
+is.* **The develop-queue is the most defensible, least-copied primitive — make IT the
+headline, not the QA scoring** (which is closer to commoditized). **Watch-items:**
+CallRail (cheap, already on the call stream — never lead with "we transcribe calls");
+**Eve is the existential threat** (one Auditor release from intake-call QA — the window
+is real, not indefinite). **Positioning correction:** say "your reps' calls go un-QA'd,"
+NOT "nobody does this" (refutable in a sales call). **Pricing:** the market anchors are
+$50–200/mo call tools (commoditized — avoid) and $80–200/agent enterprise QA (wrong
+buyer — avoid); EvenUp normalized per-case value pricing for this buyer — **BUT our
+compliance spine is FLAT-fee-only (Rule 5.4 / §6152); per-recovered-case pricing is OFF
+the table for us.** Price flat, sell on the recovered-case ROI story, don't structure the
+fee as a share.
+
+**Red-team verdict: AMENDED-WITH-CHANGES.** The product sequencing survives every attack;
+the one genuine crack is the ASSET judgment. Three load-bearing amendments:
+1. **START THE OUTCOME-DATA FLYWHEEL NOW (non-optional).** The moat in PI triage isn't
+   the model — it's the *outcome-labeled dataset* (intake facts → selection decision →
+   net recovery), which only accrues with CALENDAR TIME (cases resolve in 12–36 months).
+   "Wait for the validation loop, then build it" is a contradiction: the loop IS the
+   thing you build first, SILENTLY. Instrument outcomes on every case the conveyor
+   touches from day one, scoring 100% internal/unshipped — or you arrive in 2028 with a
+   conveyor and no corpus while a funded competitor has 2 years of labels. Deferring the
+   model is right; deferring the DATA is the strategic error.
+2. **Split the value-output rule BY STAGE.** Keep the hard NO on dollars at
+   INTAKE/pre-signing. Roadmap a *disclaimed, discovery-hardened value RANGE at the
+   DEMAND/develop stage* (records in hand, attorney-directed) — exactly where EvenUp/
+   Supio already prove it's viable. (Discoverability turns on the contractual architecture
+   — no-training/retention/access terms — not the label; *Heppner* 2026.)
+3. **Shrink the conveyor toward the rescue packet.** Thinnest instrumented wrapper;
+   ratification ≤1 touch per case, terminal moments only (else "ratifiable" degrades to
+   "review everything" and the tool dies on throughput); drop the "conveyor as platform"
+   framing and the "follow-up NOT selection" OVERCLAIM → reframe **"follow-up is the
+   beachhead; selection is the expansion,"** and don't throw away the selection signal you
+   generate along the way (amendment 1).
+
+**THE 3 ASSUMPTIONS TO TEST EMPIRICALLY WITH THE 5 BETA FIRMS (do this before betting):**
+1. **Which bleed is bigger — missed follow-up or bad selection?** A 2–4 week audit: of
+   lost economic value, what share is viable cases lost to slow follow-up vs signed cases
+   that net-negative at disbursement (liens/min-limits/MIST)? Tells you if the beachhead
+   is even right.
+2. **Will a partner act on / PAY for a value signal?** A/B a TIER vs a disclaimed RANGE
+   (internal-only) — do partners ask for the number, ignore it, or change behavior?
+3. **Does "value-determining questions resolved within SLA" correlate with DOLLARS
+   RECOVERED?** If the headline metric doesn't track recovered revenue, firms won't renew
+   on it (they buy outcomes, not SLAs). Instrument from case one — validates the conveyor
+   metric AND the outcome-data pipeline simultaneously.
+
+---
+
 ## Why not just build the case-value scorer
 - **It commits v1's own sin worse.** The two dimensions that decide a PI case —
   coverage adequacy (~30%) and liability (~22%) — are the LEAST observable on a first
@@ -87,15 +147,30 @@ aggregate + short-TTL + work-product, never a named-staffer durable record · re
 NEVER monetized through Intake QA (the B&P §6152/SB 37 anti-capping tripwire) · the three
 fairness fixes above.
 
-## Recommended sequencing
-1. **Now (beta):** double down on the rescue packet + call-QA + develop-queue; instrument
-   2–3 "you almost lost this" recovered-case stories. Don't call it an engine.
-2. **Beta → paid:** add per-rep process-compliance QA *as coaching, not scoring*; quietly
-   begin capturing outcome data (the monthly 15-min reconciliation) the future engine needs.
-3. **v2 (post-validation):** the tiering/selection engine, sold up-market to high-volume
-   firms, AFTER ≥1 outcome cycle proves the backbone tier correlates with realized value —
-   behind a deliberate freeze-lift + QWK re-validation + regenerated golds + a `ScoredCall`
-   sibling migration + Yang sign-off.
+## Recommended sequencing (final, post-Wave-4)
+1. **Now (beta):** make the rescue packet indispensable; add the **call-QA layer +
+   develop-queue** as the thinnest instrumented wrapper (build design in
+   `engine-v2-conveyor-MVP.md` — ships on the existing app, NO freeze lift); instrument
+   2–3 "you almost lost this" recovered-case stories. **Start the outcome-data flywheel
+   from case one** (intake facts → decision → net recovery, internal-only). Run the
+   3 empirical tests above. Don't call it an engine; lead with the **develop-queue**.
+2. **Beta → paid:** per-rep process-compliance QA *as coaching, not scoring*; the monthly
+   15-min outcome reconciliation matures the corpus. Consider the gated, disclaimed
+   value-RANGE at the *demand* stage (not intake).
+3. **v2 (post-validation):** the tiering/selection engine, up-market to high-volume firms,
+   AFTER ≥1 outcome cycle proves the backbone tier correlates with realized value — behind
+   a deliberate freeze-lift + QWK re-validation + regenerated golds + a `ScoredCall`
+   sibling migration + Yang sign-off. **The model waits; the data does not.**
+
+## The full deliverable (files in ops/drafts/)
+- `engine-v2-EXECUTIVE-SUMMARY.md` (this) — the verdict + sequencing + beta tests.
+- `engine-v2-triage-design.md` — the full research log (3 waves, ~20 cited briefs) +
+  the v2 rubric spec + all the adversarial/compliance/fairness revisions.
+- `engine-v2-conveyor-MVP.md` — the near-term shippable (call-QA + develop-queue on the
+  existing app, no freeze lift, 5-increment sequence).
+- `engine-v2-system-prompt-DRAFT.md` — the promptable v2 system-prompt (for freeze-lift).
+- `engine-v2-config-and-validation.md` — the outcome-validation loop + firm-config YAML.
+- `engine-v2-gold-examples.md` — the 6-example calibration set.
 
 **Building the selection engine now is building the thing that distracts from the thing
 that's selling. The research was worth doing — it tells you exactly what the north star
