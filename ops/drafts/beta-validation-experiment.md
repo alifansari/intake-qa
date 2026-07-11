@@ -53,6 +53,20 @@ event), and gather the first realized-outcome data points as any early cases res
 the metric is real, lead with it. If resolution rarely changes anything → the develop-queue
 is theater and the wedge is wrong; pivot before building the SLA machinery.
 
+### TEST 4 (added Wave 6) — the call-language mix
+**The claim under test:** Spanish-first callers are a material share of the beta firms'
+intake volume, and their calls get measurably worse question-capture (the market brief
+`spanish-first-intake-qa.md` estimates 25–40% Spanish-first for LA consumer-PI firms buying
+Spanish media, but no public number exists — this GROUP BY is the first real datum).
+**Method:** language-tag every call in the dark QA pass (AssemblyAI language detection is a
+parameter, not new infra); report capture-rate and (once live) SLA-resolution-rate **by call
+language** per firm.
+**Decision rule:** if Spanish share is material (>15%) and the capture gap is real → the
+bilingual develop-queue increments move up the build order and "capture rate by language"
+becomes a demo artifact; if Spanish volume is negligible in this cohort → park bilingual as
+a sales option, don't build yet. Either way the fairness tripwire (§4sexies four-fifths
+check) ships with the QA pass.
+
 ## How to run it (cheap, on existing infrastructure)
 - **No new product needed.** Tests 1 & 3's leading indicators come from the QA pass +
   flag/flag_status data you already have or can add as the dark backend pass (conveyor
@@ -75,7 +89,7 @@ is theater and the wedge is wrong; pivot before building the SLA machinery.
 | Partners demand dollars, won't act on tier | Prioritize the demand-stage disclaimed range (post-signing); the intake tier is necessary but not sufficient |
 | SLA-resolution rarely changes a case | STOP — the develop-queue is theater; the value is elsewhere (probably just the rescue packet); don't build the SLA platform |
 
-**Bottom line:** these three tests convert the entire multi-wave strategy from a
+**Bottom line:** these four tests convert the entire multi-wave strategy from a
 well-argued hypothesis into something the 5 beta firms can confirm or kill in six weeks,
 for the cost of one dark backend pass + a monthly spreadsheet. That is the honest next step
 — cheaper than building on faith, and the only thing that can actually settle the questions
