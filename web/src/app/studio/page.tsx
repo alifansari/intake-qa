@@ -150,8 +150,8 @@ export default async function StudioHome() {
               Applications waiting on you
             </div>
             <div className="mt-1 text-xs text-muted">
-              New firms that applied for the beta. Nothing emails you — this tile is the
-              notification. Onboard them here.
+              New firms that applied for the beta (you also get an email per application).
+              Onboard them here; they clear once onboarded.
             </div>
           </Link>
           <Link

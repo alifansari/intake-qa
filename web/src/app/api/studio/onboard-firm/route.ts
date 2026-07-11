@@ -21,7 +21,9 @@ export const runtime = "nodejs";
 const Body = z.object({
   firm_name: z.string().min(2).max(120),
   email: z.string().email().max(200),
-  avg_case_fee: z.number().int().nonnegative().optional(),
+  // Accept a typed dollar amount like 12000.50 without a cryptic "invalid body";
+  // round to whole dollars (the column is an integer).
+  avg_case_fee: z.number().nonnegative().transform((n) => Math.round(n)).optional(),
 });
 
 let _pool: Pool | null = null;
@@ -60,6 +62,39 @@ export async function POST(req: Request) {
   try {
     await client.query("begin");
 
+    // 0) Idempotency: if this email already has a firm, DON'T create a second
+    // one. Re-running onboarding (e.g. clicking a still-listed application after
+    // already onboarding it) would otherwise mint a duplicate firm and split the
+    // desk between two firm_members rows — calls flow to one, the desk shows the
+    // other. Reuse the existing firm instead.
+    const priorUser = await client.query(`select id from auth.users where email = $1`, [email]);
+    if (priorUser.rows.length > 0) {
+      const priorFirm = await client.query(
+        `select f.id, f.name from firm_members m join firms f on f.id = m.firm_id
+          where m.user_id = $1 order by m.firm_id limit 1`,
+        [priorUser.rows[0].id],
+      );
+      if (priorFirm.rows.length > 0) {
+        await client.query(
+          `update beta_applicants set status = 'onboarding' where lower(email) = $1 and status in ('applied','nda_pending','nda_signed')`,
+          [email],
+        );
+        await client.query("commit");
+        const origin = process.env.APP_URL?.replace(/\/$/, "") || "https://plaintiffops.com";
+        return Response.json({
+          ok: true,
+          firm_id: priorFirm.rows[0].id,
+          firm_name: priorFirm.rows[0].name,
+          email,
+          password: null,
+          existing_account: true,
+          already_onboarded: true,
+          signin_url: `${origin}/login`,
+          webhook_url: `${origin}/webhooks/callrail/${priorFirm.rows[0].id}`,
+        });
+      }
+    }
+
     // 1) The firm (kill_switch stays ON — the safe default from 0001).
     const firm = (
       await client.query(
@@ -71,7 +106,7 @@ export async function POST(req: Request) {
     // 2) The auth user — reuse by email, else create with a temp password.
     let password: string | null = null;
     let userId: string;
-    const existing = await client.query(`select id from auth.users where email = $1`, [email]);
+    const existing = priorUser;
     if (existing.rows.length > 0) {
       userId = existing.rows[0].id;
     } else {
@@ -102,6 +137,13 @@ export async function POST(req: Request) {
     await client.query(
       `insert into firm_members (firm_id, user_id) values ($1, $2) on conflict do nothing`,
       [firm.id, userId],
+    );
+
+    // 4) Clear this firm from the "Applications waiting on you" tile — otherwise
+    // it lingers with a live prefill link that invites a duplicate onboarding.
+    await client.query(
+      `update beta_applicants set status = 'onboarding' where lower(email) = $1 and status in ('applied','nda_pending','nda_signed')`,
+      [email],
     );
 
     await client.query("commit");
