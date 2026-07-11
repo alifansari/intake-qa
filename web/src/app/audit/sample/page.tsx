@@ -8,6 +8,7 @@ import { money } from "@/lib/format";
 import { SampleStatement } from "@/components/marketing/SampleStatement";
 import { ConfidenceTierTable } from "@/components/marketing/ConfidenceTierTable";
 import {
+  CTA_PRIMARY,
   GOLD_ALTERNATIVE_VIEW,
   GOLD_RIGHT_OF_REPLY,
   GOLD_VALUATION_DISCLAIMER,
@@ -22,10 +23,10 @@ export const metadata: Metadata = {
 
 const CALL_COUNT = 8;
 const TOTAL_FEE_AT_RISK = 27000;
-const MONTHLY_VOLUME = 150;
-const PER_CALL = TOTAL_FEE_AT_RISK / CALL_COUNT;
-const PROJ_HIGH = Math.round(PER_CALL * MONTHLY_VOLUME);
-const PROJ_LOW = Math.round(PROJ_HIGH * 0.5);
+// Copy-audit 2026-07-11: the monthly projection ($253k–$506k extrapolated from 8
+// synthetic calls) was removed — vendor-computed extrapolation is the #1 distrust
+// trigger for this audience, and it contradicted this page's own "not a
+// projection" subhead. The section below now sells the refusal instead.
 
 const WALKED = [
   {
@@ -106,19 +107,15 @@ export default function SampleAuditPage() {
         </div>
       </section>
 
-      {/* Demoted monthly projection — labeled range */}
+      {/* No projection — the refusal is the pitch */}
       <section className="mt-8 rounded-sm border border-line bg-paper p-4">
         <p className="text-sm font-semibold uppercase tracking-wide text-muted">
-          What a full month might look like
+          What a full month looks like — we won&apos;t tell you from a sample
         </p>
         <p className="mt-2 max-w-prose text-sm text-ink">
-          If this rate held for a full month, that&apos;s roughly{" "}
-          <b className="tabular-nums">{money(PROJ_LOW)}</b> to{" "}
-          <b className="tabular-nums">{money(PROJ_HIGH)}</b>, and the low end conservatively assumes
-          only half the rate we observed. The honest way to know is to run a full month.
-        </p>
-        <p className="mt-2 text-xs text-faint">
-          A projection, not a claim or a guarantee, just a reason to run a full month.
+          Eight synthetic calls prove the method, not your number. Extrapolating a monthly dollar
+          figure from a sample is the kind of math you&apos;ve been pitched before, so we don&apos;t
+          do it. The honest way to know is a month on your own calls, and the first look is free.
         </p>
       </section>
 
@@ -190,7 +187,7 @@ export default function SampleAuditPage() {
           href="/audit"
           className="mt-4 inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover"
         >
-          Run your free Leak Audit
+          {CTA_PRIMARY}
         </Link>
       </section>
 

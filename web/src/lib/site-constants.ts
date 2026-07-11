@@ -101,8 +101,10 @@ export const CHECKOUT_REASSURANCE =
 // The lift line (staff time), pulled near pricing/audit CTAs.
 export const LIFT_LINE =
   "About 20 minutes from you and a one-time ~2 hours from your office manager to forward recordings. Built to make your intake manager look good.";
-// Trust strip: we publish our error rate. Points at the calibration page.
-export const HONESTY_STRIP_LINE = "We publish how often we're wrong.";
+// Trust strip: points at the calibration page. Copy-audit 2026-07-11: must not
+// promise a published error rate until /honesty actually publishes one (the page
+// currently, correctly, withholds precision/recall until the corpus is documented).
+export const HONESTY_STRIP_LINE = "We tell you what we won't claim yet.";
 // Reviewer line near buy buttons (role, not a named person — see compliance §V).
 // Matches WHO_DOES_THE_WORK: Ali is a former PI paralegal who sat in the intake seat.
 export const REVIEWER_LINE = "A former PI paralegal who sat in the intake seat reviews every score.";
@@ -163,7 +165,7 @@ export const GUARANTEE_CANONICAL =
 export const GUARANTEE_BADGE_LINE =
   "$25,000 find-it-free guarantee: if the audit doesn't surface at least $25k in estimated missed signable case value, we won't pitch you, and if you subscribe anyway your first month is free. An estimate of what walked, not a promise of recovery.";
 export const GUARANTEE_METHODOLOGY =
-  "How we estimate missed signable case value: we count the signable cases our model flags that didn't sign, then multiply by your firm's own average fee per signed case for that case type. Where you haven't given us your average fee, we substitute a named, sourced benchmark (e.g., auto soft-tissue ~$16,000; serious injuries $55,000+) and label every substituted figure. Estimates are estimates, not a promise of recovered fees; our model's precision and recall are published on this page.";
+  "How we estimate missed signable case value: we count the signable cases our model flags that didn't sign, then multiply by your firm's own average fee per signed case for that case type. Where you haven't given us your average fee, we substitute a named, sourced benchmark (e.g., auto soft-tissue ~$16,000; serious injuries $55,000+) and label every substituted figure. Estimates are estimates, not a promise of recovered fees; our model's precision and recall will be published on this page the day the test corpus is documented — and not before.";
 // TODO(Ali): collect each firm's average fee per case type (guarantee methodology input).
 
 // ─── Founding cohort (honest, durable language — no countdown, no "N seats left") ───
@@ -204,27 +206,30 @@ export const STAT_ANSWER_RATE = {
   source: "Clio 2024 Legal Trends Report (Lux secret-shopper study of 500 US firms)",
 };
 
-// Speed-to-lead. Ali's call (July 2026): keep the on-page phrasing GENERIC (no
-// hard percentage stacked against a study), so the How-It-Works copy speaks to the
-// principle, not a single figure. This constant is retained for future use but is
-// intentionally NOT rendered as a headline number.
-export const STAT_SPEED_TO_LEAD = {
+// Speed-to-lead. REFUTED — DO NOT RENDER, EVER (copy-audit 2026-07-11): the
+// "5 minutes = 400%" multiplier failed independent 3-vote verification; it traces
+// to recycled vendor lineage, not a checkable primary source. Speed claims stay
+// GENERIC and directional (as How-It-Works already phrases it). The constant is
+// kept only so nobody re-adds the number from memory without seeing this note.
+export const STAT_SPEED_TO_LEAD_REFUTED_DO_NOT_RENDER = {
   value: "400%",
   label: "higher conversion when a firm responds within the first five minutes of an inquiry",
-  source: "ALM Global, 2025",
+  source: "ALM Global, 2025 — REFUTED in verification, never cite",
 };
 
 // PI acquisition economics — cite the ORIGIN (Pareto Legal), not the aggregator.
+// Copy-audit 2026-07-11: the old "$468 per signed case" figure printed a broken
+// derivation ($284/lead at 7% conversion ≈ $4,057, not $468) and cost-per-signed-
+// case dollar benchmarks failed verification as a class. Use the clean, verified
+// per-LEAD anchor and let the reader do their own signed-case math.
 export const STAT_PI_COST_PER_CASE = {
-  value: "$468",
-  label: "blended cost to acquire one signed PI case (at $284 per lead and a 7% conversion rate; blends channels)",
+  value: "$284",
+  label: "average cost of a single PI lead — paid before your intake team ever picks up the phone",
   source: "Pareto Legal, \"State of Law Firm PPC\": 13 plaintiff-side firms, $3.3M combined Google Ads + LSA spend, 2025",
 };
-export const STAT_PI_PPC_COST_PER_CASE = {
-  value: "$2,500 to $3,000",
-  label: "cost to acquire one signed PI case in competitive PPC-only markets",
-  source: "The National Law Review, 2025",
-};
+// REMOVED (copy-audit 2026-07-11): STAT_PI_PPC_COST_PER_CASE ("$2,500 to $3,000
+// per signed PI case", National Law Review 2025) — same refuted benchmark class;
+// do not reintroduce a cost-per-signed-case dollar figure without a primary source.
 // Agency-reporting distrust — attribute to WEBRIS by name; NOT an industry statistic.
 export const STAT_WEBRIS_DISTRUST = {
   value: "<10%",

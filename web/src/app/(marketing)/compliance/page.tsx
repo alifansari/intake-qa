@@ -159,7 +159,8 @@ export default function CompliancePage() {
       <Sec rule="Penal Code §632 / §632.7 · call recording" title="You record the calls. We process the recordings you already made.">
         <p>
           California is an all-party-consent state: Penal Code §632 requires the consent of all
-          parties to record a confidential communication (a fine up to $2,500 per violation), and
+          parties to record a confidential communication (a criminal fine up to $2,500 per
+          violation, plus $5,000 per-violation civil statutory damages under §637.2), and
           §632.7 extends that to cell and cordless calls (Smith v. LoanMe, Cal. 2021). Intake QA
           processes calls your firm already recorded. We do not obtain consent for you, and your firm
           is responsible for having obtained it. A disclosure at the outset that the call is being
