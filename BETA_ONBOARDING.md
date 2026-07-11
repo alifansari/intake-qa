@@ -15,6 +15,9 @@ Total founder effort per firm: ~20 minutes, most of it the setup call.
    account, and the membership that scopes the desk to them — and composes the
    welcome email with their sign-in link, one-time temporary password, and their
    firm's paste-once webhook address. Copy, paste into your email client, send.
+   *(Onboarding is idempotent as of 2026-07-10: re-running it for an email that
+   already has a firm reuses that firm instead of creating a duplicate, and the
+   applicant drops off the "Applications waiting on you" tile automatically.)*
 4. **They sign in** → land directly on **Missed cases**, scoped to *their* firm.
    With no calls connected yet they see "One step left: connect your calls" with
    the three integration paths — never a false all-clear, never plumbing errors.
@@ -29,8 +32,27 @@ Total founder effort per firm: ~20 minutes, most of it the setup call.
    connector (Lead Docket / Filevine native; anything else via signed webhook).
    Create-only — their existing matters are never touched; nothing writes until
    they approve a test record.
-7. **Live.** Misses appear on their desk the same day calls are read; the daily
-   digest goes to their sign-in email; the monthly statement lands in Documents.
+7. **Live.** Misses appear on their desk the same day calls are read, each card
+   showing the caller, case type, estimated fee value, a tap-to-dial number, a
+   warm callback opener, and one-tap outcomes (spoke to them / left a message /
+   bad number / signed / passed). The coordinator also sees a "Your week" wins
+   strip (callbacks worked / reached / signed) — recognition, not a score. The
+   daily digest goes to their sign-in email **once you enable live email**
+   (RESEND_API_KEY + RESEND_FROM in Vercel, then TEST_MODE=false and
+   KILL_SWITCH=false); until then the desk itself is the live surface.
+
+## What is real vs. still your hand (as of 2026-07-10)
+
+- **Real & automatic:** scoring→flag→desk (case type + fee shown), status
+  persistence, the daily digest (renders to a file until live email is on), the
+  free Leak Audit pipeline, the founder email ping on each new application.
+- **Still your hand:** the **NDA** (no Dropbox Sign template yet — send it
+  manually within the one-business-day promise); the **monthly statement**
+  (the generator isn't built — you compose/send it after the firm's first full
+  month; the Documents page now says "arrives after your first full month," not
+  "lands automatically"); **CallRail** needs a per-firm signing secret and a
+  live signature-format check before firm #1's setup call — until then, lead
+  with "send us your recordings."
 
 ## What each piece is (for reference)
 
