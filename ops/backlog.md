@@ -107,3 +107,23 @@ paying-firm autopsy data later.
 - **Status:** standing (revisit every cycle)
 
 <!-- Add new hypotheses below; re-sort by ICE score after each cycle. -->
+
+### B-010 — Queue hygiene: terminal cards out of the way, oldest-actionable first  ·  ICE: 8×8×8 = 512  ·  lane: product
+- **Hypothesis:** If resolved cards (signed/passed/bad number) collapse into a "Done" section and the queue orders actionable-first, then daily desk use survives week 3 because the coordinator's list stays a "today's list," not a graveyard (2026-07-10 field guide: one queue, one next action).
+- **Deliverable:** PR on /desk/queue.
+- **Status:** queued
+
+### B-011 — Attempt-count nudge toward 6 touches  ·  ICE: 7×8×6 = 336  ·  lane: product
+- **Hypothesis:** If each flagged case shows "attempt 2 of 6" with the Velocify basis (93% of conversions happen by call 6; most firms stop at 2), then rescue→sign rate rises because persistence gets legitimized as process, not pestering (callback-science insight, 2026-07-10).
+- **Deliverable:** attempts counter on flag_status (updated_at history or count column) + card copy; PR.
+- **Status:** queued
+
+### B-012 — Coordinator "your wins" tally (credit, not caught)  ·  ICE: 8×7×5 = 280  ·  lane: product
+- **Hypothesis:** If the desk shows a simple weekly "callbacks → reached → signed" tally the coordinator can screenshot for Friday's meeting, then daily engagement holds because the tool becomes her recognition ammunition (per-case bonuses are ethically barred; recognition is the only upside we can offer her).
+- **Deliverable:** small stats strip on /desk/queue + weekly line in the digest; PR.
+- **Status:** queued
+
+### B-013 — Statute clock on flagged cases  ·  ICE: 9×6×4 = 216  ·  lane: product
+- **Hypothesis:** If each flag carries "statute runs ~X months" from incident date (sol.mjs exists), then partner urgency + trust rise because the desk speaks in the firm's own risk language (already promised in the queue footnote — currently vaporware).
+- **Deliverable:** incident-date capture in pipeline + SOL render; PR.
+- **Status:** queued

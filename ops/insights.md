@@ -148,4 +148,43 @@ These are the intellectual load-bearing walls. Agents should reach for them, not
 
 **Single highest-leverage next move this cycle:** Fund **B-006 → B-001**: build the independent, CIPA-safe NorCal PI intake benchmark (with Yang-signed protocol) — it simultaneously (a) replaces the self-interested vendor stats we currently lean on with OUR OWN citable number, (b) is the second-touch authority asset that earns first meetings, (c) is the vehicle for the Spanish-gap PR wedge, and (d) instantiates the independent-scorer moat that competitors structurally cannot copy. One asset, four strategic jobs.
 
+## 2026-07-10 — Persona field guides (5 verified web-research passes; full guides in session transcript)
+
+**The managing partner (2–10 atty CA PI):** ~45% of time is admin; vendor tools get one
+distracted 20–30 min first session and <5 min/week after. Bounce triggers: "AI-powered" as
+headline, no pricing, vendor-computed "you're losing $84k" math (65% of B2B buyers call
+vendor ROI math inflated), superlatives, non-PI language (billable hours = outsider tell).
+Trust builders: peer names (CAALA listservs are THE channel), founder-inside-the-vertical,
+run-it-on-MY-calls demos, published methodology he can hand a skeptic, humility about AI
+("flags for a human to review"). Daily email survives week 3 only if exception-based and
+forwardable without login; monthly statement = P&L-style, ≤2 pages, HIS arithmetic.
+Vocabulary: signable/PNC/policy limits/MIST/dog/specials/statute; never "clients" for
+unsigned callers.
+
+**The intake coordinator:** also the receptionist and often a case manager (192-case
+loads documented); ~47-second attention spans, 5–15 fragmented min/day for any new tool.
+Adoption killers: boss-sees-score-first, red numbers with no path to green, scored on
+things she can't control, tool-as-surveillance-witness (HBR: monitoring RAISES
+rule-breaking unless perceived fair), data-entry taxes (37% admit faking required CRM
+fields), leaderboards in a 2-person team. Wins: she sees her own calls first, credit
+framing ("3 signed cases came from your callbacks"), callback list as a gift not a quota,
+one screen/one queue/tap-to-dial, one-tap logging (Reached/Left VM/Bad number/Signed/Not
+interested), warm 2-sentence openers (service framing), symmetric tracking (attorney
+follow-up tracked too). Per-case bonuses are ethically barred (Rule 5.4 analogs) —
+recognition and discretionary-bonus ammunition are the only upside the tool can offer her.
+
+**Callback science (for the rescue loop):** 93% of converted leads are reached by the
+6th call attempt but most firms quit after ~2 (Velocify, 3.5M leads); Falkowitz retained
+250 of 1,000 nine-month-old "dead" leads; stopping rule = "not interested / hired another
+firm," nothing else. Best contact windows: 4–6pm, Wed/Thu (MIT/InsideSales). Gong (90k
+cold calls): stating the reason for the call 2.1×'s success — openers referencing THEIR
+prior call are the mechanism. Talk tracks beat verbatim scripts except for brand-new reps.
+
+**Applied 2026-07-10 (commit 969c30a):** LeakCard one-tap phone-reality statuses +
+bad_number + undo/reopen + warm opener; grading language off the staff surface; honest
+heartbeat; demo caller names/phones; beta-aware Settings/Billing; zero-call Calls page.
+**Not yet applied (backlog):** queue ordering/archival of terminal cards, attempt-count
+nudge toward 6 touches, 4–6pm callback-window hint, statute clock, coordinator
+"your wins" tally, engine v2 triage rubric (gated on attorney review).
+
 <!-- New research insights go above this line, newest on top. -->
