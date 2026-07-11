@@ -8,6 +8,8 @@
   },
   "scripts": {
     "fake-test": "node fake-test.js",
+    "test:v2": "node --no-warnings --test scoring-v2/test/*.test.mjs",
+    "smoke:v2": "node scoring-v2/score-v2.js --fixture",
     "e2e-synthetic": "node --no-warnings web/scripts/e2e-synthetic.mjs"
   },
   "dependencies": {
