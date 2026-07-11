@@ -129,3 +129,52 @@ the monthly-statement north-star reframe (stage the copy).
 `0014_recovery_desk_additive.sql`); `flag_status` (`0022`); fee ranges (`0014`, `0025`);
 the reusable ownership/SLA/event/disposition engine (`supabase/migrations/0026_escalations.sql`,
 `0027_oncall.sql`, `0028_tuning.sql`).
+
+---
+
+## 6. Increment 0 — the OUTCOME-DATA FLYWHEEL (ship FIRST; the moat)
+
+The red-team's one non-optional amendment: **the moat in PI triage isn't the model — it's
+the outcome-labeled corpus (intake facts → the firm's decision → realized net recovery),
+which accrues ONLY with calendar time (cases resolve in 12–36 months).** Every month
+without instrumentation is permanently-lost training data. So this ships BEFORE the
+user-facing conveyor, silently, scoring 100% internal.
+
+**Minimal day-one schema (two thin siblings; extends the existing `Outcome` record
+keyed by `call_id`, per CLAUDE.md "extend with siblings, never edit ScoredCall"):**
+- **`case_disposition`** (what the firm DID, captured near intake): `flag_id`/`call_id`,
+  `firm_id`, `disposition ∈ {signed, developing, referred_out, declined, no_action}`,
+  `decided_by` (role, not a scored staffer), `decided_at`, and an **immutable
+  `intake_feature_snapshot`** (the backbone facts + question-check states the decision
+  was made on — you validate against what was KNOWN then, never what was learned later).
+- **`case_outcome`** (what HAPPENED, captured at the monthly 15-min reconciliation, T+
+  months/years): `end_state ∈ {settled, tried, dropped, withdrew, referred_resolved,
+  open}`, `gross`, `costs_advanced`, `lien_load`, `net_to_client`, **`net_fee_to_firm`**,
+  `referral_fee`, `time_to_resolution`. Missing fields = **censored, never zero**;
+  declines are censored (never assume declined = worthless — that's circular).
+
+**Ingestion:** the SAME monthly 15-min reconciliation the conveyor already asks for (firm
+exports "closed/settled last month" from its CMS, or a short guided form) — this is why
+the flywheel is nearly free once the conveyor exists. Plus a **retrodiction bulk export
+at onboarding** (the firm's last 12–24 months of already-closed cases → an instant
+backtest + the firm's first band→outcome map on day one; the single highest-leverage 30
+minutes).
+
+**What it powers (later, internal-only):** the target metric is **realized net-fee per
+case / PIY**, NEVER sign-rate (Goodhart). Retrodict first, then prospective; Brier/QWK/
+calibration per band, recalibrated quarterly; cold-start Bayesian seeding from published
+base rates with wide intervals until ~30 resolved cases per band. **No score is ever
+shown, no staff metric attached, until ≥1 real outcome cycle closes.** (Full mechanics:
+`engine-v2-config-and-validation.md`.)
+
+**This also directly serves beta-test #3** ("does 'questions resolved within SLA'
+correlate with dollars recovered?") — the flywheel is the instrument that answers it.
+
+**Compliance:** internal-only ledger (no dollars surfaced at intake); Intake QA is NOT
+the system of record (the firm's CMS wins on conflict); no per-staffer scoring; deletion
+cascade honored (§VI); the feedback loop must be audited for language/proxy disparity
+BEFORE it ever recalibrates (§4sexies — don't launder historical under-service).
+
+**Build cost:** two Postgres/Supabase tables + the reconciliation form already in the
+conveyor + a nightly stamp of the intake snapshot at decision time. It ships as
+Increment 0 precisely because it's cheap now and irreplaceable later.
