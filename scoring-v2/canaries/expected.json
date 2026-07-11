@@ -1,0 +1,110 @@
+{
+  "c1": {
+    "gates": {
+      "g1_underwater": false,
+      "g2_deadline_trap": false,
+      "g3_client_risk": false,
+      "g4_trial_capital": false
+    },
+    "recommended_disposition": "develop",
+    "value_tier": "low",
+    "confidence_tier": "low",
+    "abstained": false,
+    "attorney_review_required": false,
+    "mist_flag": false,
+    "urgency_flags": []
+  },
+  "c2": {
+    "gates": {
+      "g1_underwater": true,
+      "g2_deadline_trap": false,
+      "g3_client_risk": false,
+      "g4_trial_capital": false
+    },
+    "recommended_disposition": "decline_with_grace",
+    "value_tier": "low",
+    "confidence_tier": "high",
+    "abstained": false,
+    "attorney_review_required": false,
+    "mist_flag": false,
+    "urgency_flags": []
+  },
+  "c3": {
+    "gates": {
+      "g1_underwater": false,
+      "g2_deadline_trap": false,
+      "g3_client_risk": false,
+      "g4_trial_capital": false
+    },
+    "recommended_disposition": "sign_now",
+    "value_tier": "standard",
+    "confidence_tier": "high",
+    "abstained": false,
+    "attorney_review_required": true,
+    "mist_flag": false,
+    "urgency_flags": []
+  },
+  "c4": {
+    "gates": {
+      "g1_underwater": false,
+      "g2_deadline_trap": false,
+      "g3_client_risk": false,
+      "g4_trial_capital": false
+    },
+    "recommended_disposition": "sign_now",
+    "value_tier": "standard",
+    "confidence_tier": "high",
+    "abstained": false,
+    "attorney_review_required": false,
+    "mist_flag": false,
+    "urgency_flags": []
+  },
+  "c5": {
+    "gates": {
+      "g1_underwater": false,
+      "g2_deadline_trap": false,
+      "g3_client_risk": false,
+      "g4_trial_capital": false
+    },
+    "recommended_disposition": "develop",
+    "value_tier": "low",
+    "confidence_tier": "high",
+    "abstained": false,
+    "attorney_review_required": false,
+    "mist_flag": true,
+    "urgency_flags": []
+  },
+  "c6": {
+    "gates": {
+      "g1_underwater": false,
+      "g2_deadline_trap": true,
+      "g3_client_risk": false,
+      "g4_trial_capital": false
+    },
+    "recommended_disposition": "refer_out",
+    "value_tier": "indeterminate",
+    "confidence_tier": "medium",
+    "abstained": false,
+    "attorney_review_required": true,
+    "mist_flag": false,
+    "urgency_flags": [
+      "sol_adjacent",
+      "government_entity_window"
+    ]
+  },
+  "c7": {
+    "gates": {
+      "g1_underwater": false,
+      "g2_deadline_trap": false,
+      "g3_client_risk": false,
+      "g4_trial_capital": false
+    },
+    "recommended_disposition": "sign_now",
+    "value_tier": "standard",
+    "confidence_tier": "high",
+    "abstained": false,
+    "attorney_review_required": false,
+    "mist_flag": false,
+    "urgency_flags": []
+  }
+}
