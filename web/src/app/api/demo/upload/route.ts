@@ -10,6 +10,7 @@
 import { writeFile, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { randomBytes } from "node:crypto";
 import {
   openPipelineDb,
   closePipelineDb,
@@ -96,7 +97,12 @@ export async function POST(req: Request) {
       }
     }
 
-    const id = await createDemoCall(db, { client_ip: ip, filename: upload.name });
+    const statusToken = randomBytes(24).toString("base64url");
+    const { id } = await createDemoCall(db, {
+      client_ip: ip,
+      filename: upload.name,
+      public_token: statusToken,
+    });
     if (auditSessionId != null) await attachDemoCallToSession(db, auditSessionId, id);
 
     // Persist bytes to a temp file the pipeline transcribes then deletes.
@@ -116,7 +122,7 @@ export async function POST(req: Request) {
       .catch(() => {})
       .finally(() => closePipelineDb(db));
 
-    return Response.json({ id: String(id) }, { status: 202 });
+    return Response.json({ id: String(id), statusToken }, { status: 202 });
   } catch (err: unknown) {
     // P1(c): log details server-side, return a generic message to the client.
     await logError(db, {

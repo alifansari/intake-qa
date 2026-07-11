@@ -7,7 +7,7 @@
 
 import { z } from "zod";
 import { unlink } from "node:fs/promises";
-import { openPipelineDb, closePipelineDb, getDemoCall, logError } from "../../../../../ingest/store.mjs";
+import { openPipelineDb, closePipelineDb, getDemoCall, setDemoCallError, logError } from "../../../../../ingest/store.mjs";
 import { runDemoPipeline } from "../../../../../ingest/demo.mjs";
 import {
   isDemoStorageConfigured,
@@ -62,6 +62,10 @@ export async function POST(req: Request) {
     return Response.json({ ok: res.ok !== false, error: res.error ?? null }, { status: 200 });
   } catch (err: unknown) {
     // P1(c): generic client message; details logged server-side only.
+    // CRITICAL: mark the row errored so the client poll goes terminal. Without
+    // this, a failure BEFORE runDemoPipeline (e.g. the storage download throws)
+    // leaves status 'queued' forever and the visitor watches an endless spinner.
+    await setDemoCallError(db, parsed.id, err instanceof Error ? err.message : "processing failed").catch(() => {});
     await logError(db, {
       source: "api.demo.process",
       message: err instanceof Error ? err.message : "processing failed",

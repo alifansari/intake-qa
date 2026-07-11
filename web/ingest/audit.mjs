@@ -18,6 +18,7 @@ import {
   getAuditSessionCalls,
   countAuditSessionCalls,
   countRecentAuditSessionsByFingerprint,
+  getRecentAuditSessionByFingerprint,
   purgeExpiredAuditSessions,
 } from "./store.mjs";
 
@@ -111,6 +112,13 @@ export async function startAuditSession({
     ).toISOString();
     const recent = await countRecentAuditSessionsByFingerprint(db, fingerprint, sinceIso);
     if (recent >= MAX_SESSIONS_PER_FINGERPRINT_7D) {
+      // Don't 7-day-lock a visitor whose first attempt hiccuped mid-upload:
+      // if they still have a live session, RESUME it (same 10-call cap) rather
+      // than block. Only if there's no usable session do we report the limit.
+      const existing = await getRecentAuditSessionByFingerprint(db, fingerprint, new Date(now).toISOString());
+      if (existing?.token) {
+        return { ok: true, token: existing.token, sessionId: existing.id, resumed: true };
+      }
       return { ok: false, reason: "session_limit", retryHint: "one audit per 7 days" };
     }
   }

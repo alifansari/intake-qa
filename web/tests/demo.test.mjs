@@ -107,7 +107,7 @@ test("pure: scoreBand / estimateFeeAtRisk / pickEvidenceQuotes", () => {
 
 test("leaked-signable demo call -> fee-at-risk + watermarked draft preview", async (t) => {
   const db = makeDb(t);
-  const id = createDemoCall(db, { client_ip: "10.0.0.1", filename: "call.mp3" });
+  const { id } = createDemoCall(db, { client_ip: "10.0.0.1", filename: "call.mp3" });
 
   let deletedPath = null;
   const res = await runDemoPipeline({
@@ -151,7 +151,7 @@ test("leaked-signable demo call -> fee-at-risk + watermarked draft preview", asy
 
 test("non-signable demo call -> honest 'no leak', no preview, $0 at risk", async (t) => {
   const db = makeDb(t);
-  const id = createDemoCall(db, { client_ip: "10.0.0.2", filename: "call2.mp3" });
+  const { id } = createDemoCall(db, { client_ip: "10.0.0.2", filename: "call2.mp3" });
 
   const res = await runDemoPipeline({
     db,
@@ -194,8 +194,8 @@ test("rate limit: 1 concurrent, 3 per hour", async (t) => {
   assert.equal(r.reason, "concurrent");
 
   // Move all of this IP's rows to terminal; now build up to the hourly cap.
-  const first = createDemoCall(db, { client_ip: ip });
-  const second = createDemoCall(db, { client_ip: ip });
+  const { id: first } = createDemoCall(db, { client_ip: ip });
+  const { id: second } = createDemoCall(db, { client_ip: ip });
   for (const rowId of [1, first, second]) setDemoCallStatus(db, rowId, "done", NOW.toISOString());
   // 3 rows created within the hour -> 4th refused by the hourly gate.
   r = await checkDemoRateLimit({ db, ip, now: NOW });
@@ -209,7 +209,7 @@ test("rate limit: 1 concurrent, 3 per hour", async (t) => {
 
 test("retention: purge nulls transcript + result for rows older than 72h", async (t) => {
   const db = makeDb(t);
-  const id = createDemoCall(db, { client_ip: "10.0.0.3" });
+  const { id } = createDemoCall(db, { client_ip: "10.0.0.3" });
   // Simulate a completed demo whose row is now 4 days old.
   const old = new Date(NOW.getTime() - 4 * 24 * 3600 * 1000).toISOString();
   db.prepare(
@@ -223,7 +223,7 @@ test("retention: purge nulls transcript + result for rows older than 72h", async
   assert.equal(row.result_json, null);
 
   // A fresh row is untouched.
-  const fresh = createDemoCall(db, { client_ip: "10.0.0.4" });
+  const { id: fresh } = createDemoCall(db, { client_ip: "10.0.0.4" });
   db.prepare("UPDATE demo_calls SET transcript = 'keep' WHERE id = ?").run(fresh);
   const purged2 = await purgeDemo({ db, now: NOW, retentionHours: 72 });
   assert.equal(purged2, 0);

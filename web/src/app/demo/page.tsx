@@ -99,11 +99,11 @@ export default function DemoPage() {
     pollRef.current = null;
   };
 
-  const poll = useCallback((id: string) => {
+  const poll = useCallback((token: string) => {
     stopPolling();
     pollRef.current = setInterval(async () => {
       try {
-        const r = await fetch(`/api/demo/status?id=${encodeURIComponent(id)}`);
+        const r = await fetch(`/api/demo/status?token=${encodeURIComponent(token)}`);
         const s: Status = await r.json();
         setStatus(s);
         if (s.status === "done") {
@@ -120,12 +120,13 @@ export default function DemoPage() {
     }, 2000);
   }, []);
 
-  // Deep-link: /demo?id=... loads an existing result.
+  // Deep-link: /demo?t=<statusToken> resumes an in-flight result. (The old
+  // ?id= handle is gone — status is keyed by the unguessable token now.)
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("id");
-    if (id) {
+    const t = new URLSearchParams(window.location.search).get("t");
+    if (t) {
       setPhase("processing");
-      poll(id);
+      poll(t);
     }
     return stopPolling;
   }, [poll]);
@@ -139,7 +140,7 @@ export default function DemoPage() {
       const r = await fetch("/api/demo/upload", { method: "POST", body });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error ?? "Upload failed.");
-      return String(data.id);
+      return String(data.statusToken);
     },
     [],
   );
@@ -178,11 +179,11 @@ export default function DemoPage() {
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ id: data.id }),
           }).catch(() => {});
-          poll(data.id);
+          poll(data.statusToken);
         } else {
           // Local / direct fallback.
-          const id = await uploadDirect(file);
-          poll(id);
+          const statusToken = await uploadDirect(file);
+          poll(statusToken);
         }
       } catch (err) {
         setErrorMsg(err instanceof Error ? err.message : "Upload failed. Check your connection.");

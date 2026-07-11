@@ -10,9 +10,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Confirm — Intake QA", robots: { index: false } };
 
+// Must match the desk's LeakCard labels so one caller doesn't have three names
+// across the digest → confirm → desk flow.
 const STATUS_LABEL: Record<string, string> = {
-  reached_out: "We reached out",
-  back_in_touch: "They responded",
+  reached_out: "Left a message",
+  back_in_touch: "Spoke to them",
 };
 
 const ERROR_COPY: Record<string, string> = {
@@ -31,28 +33,34 @@ async function confirmAction(formData: FormData) {
   const store = await import("../../../../ingest/store.mjs");
   if (!store.pipelineDbConfigured()) redirect("/desk/queue");
   const db = await store.openPipelineDb();
+  let outcome = "done";
   try {
     // Firm scoping enforced inside setFlagStatus, before any write — the
-    // token's firm must own the flag.
-    await store.setFlagStatus(db, {
+    // token's firm must own the flag. guardTerminal: a stale link tapped days
+    // after the team already resolved the case must not regress it.
+    const res = await store.setFlagStatus(db, {
       flag_id: check.flagId,
       status: check.status,
       updated_by: "email-digest-link",
       firm_id: check.firmId,
+      guardTerminal: true,
     });
+    if (res && res.alreadyResolved) outcome = "already";
+    else if (!res || res.forbidden || res.ok === false) outcome = "failed";
   } finally {
     await store.closePipelineDb(db);
   }
-  redirect(`/digest/confirm?token=${encodeURIComponent(token)}&done=1`);
+  redirect(`/digest/confirm?token=${encodeURIComponent(token)}&r=${outcome}`);
 }
 
 export default async function DigestConfirmPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; done?: string }>;
+  searchParams: Promise<{ token?: string; r?: string }>;
 }) {
   const params = await searchParams;
   const token = params.token ?? "";
+  const result = params.r ?? null;
   const check = verifyDigestToken(token) as {
     error?: string;
     firmId?: string;
@@ -74,7 +82,27 @@ export default async function DigestConfirmPage({
             {ERROR_COPY[check.error ?? "malformed"] ?? ERROR_COPY.malformed}
           </p>
         </>
-      ) : params.done ? (
+      ) : result === "already" ? (
+        <>
+          <h1 className="mt-1 font-display text-2xl font-semibold text-ink">
+            Already handled ✓
+          </h1>
+          <p className="mt-3 text-sm text-ink-muted">
+            Your team already marked this caller signed, passed, or a bad number on the desk, so we
+            left it as-is. Nothing to do here.
+          </p>
+        </>
+      ) : result === "failed" ? (
+        <>
+          <h1 className="mt-1 font-display text-2xl font-semibold text-ink">
+            Couldn&apos;t save that
+          </h1>
+          <p className="mt-3 text-sm text-ink-muted">
+            Something went wrong marking this caller. Your desk always has the live list — open it
+            and mark it there.
+          </p>
+        </>
+      ) : result === "done" ? (
         <>
           <h1 className="mt-1 font-display text-2xl font-semibold text-ink">
             Marked: {STATUS_LABEL[status] ?? status} ✓

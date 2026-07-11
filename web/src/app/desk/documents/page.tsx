@@ -59,22 +59,20 @@ export default async function DocumentsPage() {
         <p className="eyebrow">The desk{firmName ? ` · ${firmName}` : ""}</p>
         <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Documents</h1>
         <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
-          Everything the desk writes for your firm lands here automatically &mdash; nothing to
-          build, export, or remember. The monthly statement&apos;s first page is a 90-second read;
-          each document is a PDF you own.
+          Your monthly statement and audit readouts live here &mdash; nothing to build, export, or
+          remember. The statement&apos;s first page is a 90-second read; each document is a PDF you own.
         </p>
       </div>
 
       {!showDemoDocs ? (
         <div className="rounded-card border border-hairline bg-surface p-8">
           <h2 className="font-display text-xl font-semibold text-ink">
-            Your first statement lands here on the 1st.
+            Your first statement arrives after your first full month.
           </h2>
           <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
-            Once your calls are flowing, the desk writes your documents automatically: the
-            monthly Missed-Revenue Statement (page one is a 90-second read) and any audit
-            readouts. Nothing for you to generate &mdash; they appear here and a copy goes to
-            your email.
+            Once your calls have been flowing for a month, Ali sends your first Missed-Revenue
+            Statement (page one is a 90-second read) and it lands here as a PDF you own. Nothing
+            for you to generate.
           </p>
         </div>
       ) : (

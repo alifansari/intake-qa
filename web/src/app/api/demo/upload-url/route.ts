@@ -7,6 +7,7 @@
 //
 // NOTHING here can send — it only writes demo_calls and never creates a message.
 
+import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import {
   openPipelineDb,
@@ -100,13 +101,18 @@ export async function POST(req: Request) {
       }
     }
 
-    const id = await createDemoCall(db, { client_ip: ip, filename: parsed.filename });
+    const statusToken = randomBytes(24).toString("base64url");
+    const { id } = await createDemoCall(db, {
+      client_ip: ip,
+      filename: parsed.filename,
+      public_token: statusToken,
+    });
 
     if (!isDemoStorageConfigured()) {
       // Local / no-storage fallback: the client re-uploads the bytes to
       // /api/demo/upload (passing the session itself, which creates + attaches
       // its own row there). This row is unused in direct mode; it purges at 72h.
-      return Response.json({ mode: "direct", id: String(id) }, { status: 200 });
+      return Response.json({ mode: "direct", id: String(id), statusToken }, { status: 200 });
     }
 
     // Storage mode: the row created here is the one that gets processed, so
@@ -114,9 +120,11 @@ export async function POST(req: Request) {
     if (auditSessionId != null) await attachDemoCallToSession(db, auditSessionId, id);
 
     const path = demoObjectPath(String(id), ext);
+    // `token` here is the Supabase signed-upload token — distinct from
+    // statusToken, which is the unguessable handle the client polls with.
     const { signedUrl, token } = await createSignedDemoUpload(path);
     return Response.json(
-      { mode: "storage", id: String(id), bucket: DEMO_BUCKET, path, signedUrl, token },
+      { mode: "storage", id: String(id), statusToken, bucket: DEMO_BUCKET, path, signedUrl, token },
       { status: 200 },
     );
   } catch (err: unknown) {

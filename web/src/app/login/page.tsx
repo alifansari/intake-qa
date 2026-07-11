@@ -10,12 +10,22 @@ import { getSupabaseBrowser } from "@/lib/supabase/client";
 const inputClass =
   "rounded-sm border border-line-strong bg-paper p-2 text-sm text-ink focus:border-accent focus:outline-none";
 
+// Only allow same-origin, path-only redirect targets. An absolute or
+// protocol-relative `next` (e.g. //evil.com) would let a sign-in link phish.
+function safeNext(raw: string | null): string {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/desk/queue";
+  return raw;
+}
+
 function LoginForm() {
   const params = useSearchParams();
-  const next = params.get("next") ?? "/desk/queue";
+  const next = safeNext(params.get("next"));
   // Set when someone signed-in but not on the founder allowlist tried to open
   // the studio — explain instead of silently bouncing them.
-  const notAuthorized = params.get("error") === "not_authorized";
+  const errorParam = params.get("error");
+  const notAuthorized = errorParam === "not_authorized";
+  // Any other error (e.g. an expired magic link from the callback) is shown as text.
+  const linkError = errorParam && !notAuthorized ? errorParam : null;
   const [mode, setMode] = React.useState<"password" | "magic">("password");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -45,7 +55,13 @@ function LoginForm() {
     if (!supabase) return setError("Supabase is not configured yet.");
     setPending(true);
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
-    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
+    // shouldCreateUser:false — accounts are provisioned by the founder during
+    // onboarding. Without this, Supabase's default silently creates a user for
+    // ANY email typed here, and a member-less session could reach the desk.
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: redirectTo, shouldCreateUser: false },
+    });
     setPending(false);
     if (error) setError(error.message);
     else setSent(true);
@@ -71,6 +87,12 @@ function LoginForm() {
           <p className="mb-4 rounded-sm border border-line-strong bg-paper px-3 py-2 text-xs text-ink">
             The studio is limited to the founder account. Sign in with that account to continue,
             or head to <a href="/desk/queue" className="underline">your desk</a>.
+          </p>
+        ) : null}
+        {linkError ? (
+          <p className="mb-4 rounded-sm border border-line-strong bg-paper px-3 py-2 text-xs text-ink">
+            That sign-in link didn&apos;t work (it may have expired or already been used). Enter your
+            email below for a fresh one, or use your password.
           </p>
         ) : null}
         {mode === "password" ? (

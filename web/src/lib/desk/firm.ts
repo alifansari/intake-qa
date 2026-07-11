@@ -1,5 +1,6 @@
 import "server-only";
 import { getCurrentUser } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 // ---------------------------------------------------------------------------
 // Which firm does the signed-in user see? THE simplicity rule of the desk:
@@ -41,11 +42,24 @@ export async function resolveDeskFirm(
         if (row) return { id: row.id as string, name: String(row.name ?? "Your firm"), source: "membership" };
       }
     } catch {
-      // fall through — membership tables absent or unreadable
+      // membership tables absent/unreadable — do NOT fall through to another
+      // firm's data when real auth is in play (see the hard rule below).
+      if (isSupabaseConfigured()) return null;
+    }
+
+    // Signed-in but no membership row, on a real (Supabase-configured) deploy:
+    // NEVER bind them to firms[0] — that would show a stranger, or a firm whose
+    // onboarding half-failed, another firm's callers and phone numbers. Only a
+    // firm explicitly named DEMO is a safe fallback (founder demo/seed data);
+    // otherwise there is no firm for this user.
+    if (isSupabaseConfigured()) {
+      const firms = await listFirms(db);
+      const demo = firms.find((f) => (f.name ?? "").includes("DEMO"));
+      return demo ? { id: demo.id, name: String(demo.name ?? "Firm"), source: "fallback" } : null;
     }
   }
 
-  // 2) Pilot fallback: demo firm, then first firm.
+  // 2) Local/pilot fallback (no Supabase auth): demo firm, then first firm.
   const firms = await listFirms(db);
   const firm = firms.find((f) => (f.name ?? "").includes("DEMO")) ?? firms[0];
   return firm ? { id: firm.id, name: String(firm.name ?? "Firm"), source: "fallback" } : null;

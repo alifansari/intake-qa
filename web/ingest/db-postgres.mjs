@@ -404,16 +404,21 @@ export async function sumRecoveredMonthToDate(db, firmId, monthStartDate, throug
 
 // --- Demo Mode (public, no-auth, hard-isolated from the firm pipeline) --------
 
-export async function createDemoCall(db, { client_ip = null, filename = null } = {}) {
+export async function createDemoCall(db, { client_ip = null, filename = null, public_token = null } = {}) {
   const info = await db.query(
-    `INSERT INTO demo_calls (client_ip, filename) VALUES ($1, $2) RETURNING id`,
-    [client_ip, filename]
+    `INSERT INTO demo_calls (client_ip, filename, public_token) VALUES ($1, $2, $3) RETURNING id`,
+    [client_ip, filename, public_token]
   );
-  return info.rows[0].id;
+  return { id: info.rows[0].id, token: public_token };
 }
 
 export async function getDemoCall(db, id) {
   const r = await db.query("SELECT * FROM demo_calls WHERE id = $1", [id]);
+  return r.rows[0];
+}
+
+export async function getDemoCallByToken(db, token) {
+  const r = await db.query("SELECT * FROM demo_calls WHERE public_token = $1", [token]);
   return r.rows[0];
 }
 
@@ -699,6 +704,16 @@ export async function countRecentAuditSessionsByFingerprint(db, fingerprint, sin
     [fingerprint, sinceIso]
   );
   return Number(r.rows[0].n);
+}
+
+export async function getRecentAuditSessionByFingerprint(db, fingerprint, nowIso) {
+  const r = await db.query(
+    `SELECT * FROM audit_sessions
+      WHERE visitor_fingerprint = $1 AND expires_at > $2
+      ORDER BY id DESC LIMIT 1`,
+    [fingerprint, nowIso]
+  );
+  return r.rows[0];
 }
 
 export async function listRecentAuditSessions(db, limit = 50) {
@@ -1153,7 +1168,12 @@ export async function listLeakedFlags(db, firmId) {
        LEFT JOIN flag_confidence fc ON fc.flag_id = f.id
        LEFT JOIN flag_status fs ON fs.flag_id = f.id
       WHERE f.firm_id = $1 AND f.is_leaked_signable = true
-      ORDER BY (CASE WHEN fc.confidence_tier = 'strong' THEN 0 ELSE 1 END), f.id`,
+      ORDER BY
+        -- Resolved cards (signed / passed / bad number) sink to the bottom so the
+        -- top of the queue stays "today's list," not a growing graveyard.
+        (CASE WHEN fs.status IN ('signed','didnt_sign','bad_number') THEN 1 ELSE 0 END),
+        (CASE WHEN fc.confidence_tier = 'strong' THEN 0 ELSE 1 END),
+        c.received_at DESC`,
     [firmId]
   );
   return r.rows;
@@ -1161,13 +1181,25 @@ export async function listLeakedFlags(db, firmId) {
 
 // Upsert the workflow status beside a flag (sibling record; flags stays frozen).
 // Returns the flag's firm_id so callers can enforce firm scoping.
-export async function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null }) {
+const TERMINAL_STATUSES = new Set(["signed", "didnt_sign", "bad_number"]);
+
+export async function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null, guardTerminal = false }) {
   const owner = await db.query("SELECT firm_id FROM flags WHERE id = $1", [flag_id]);
   if (!owner.rows[0]) return null;
   // Firm scoping is enforced HERE, before any write: a caller passing its own
   // firm_id can never touch another firm's queue.
   if (firm_id != null && String(owner.rows[0].firm_id) !== String(firm_id)) {
     return { ok: false, forbidden: true, firm_id: owner.rows[0].firm_id };
+  }
+  // guardTerminal (used by the emailed digest link): never regress a case the
+  // team already resolved on the desk. A stale link tapped days later must not
+  // un-sign a signed case.
+  if (guardTerminal) {
+    const cur = await db.query("SELECT status FROM flag_status WHERE flag_id = $1", [flag_id]);
+    const current = cur.rows[0]?.status ?? null;
+    if (current && TERMINAL_STATUSES.has(current)) {
+      return { ok: false, alreadyResolved: true, current };
+    }
   }
   await db.query(
     `INSERT INTO flag_status (flag_id, status, updated_by, updated_at)

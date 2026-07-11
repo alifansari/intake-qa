@@ -63,6 +63,7 @@ export const sumRecoveredMonthToDate = wrap("sumRecoveredMonthToDate");
 // Demo Mode (public, no-auth, hard-isolated).
 export const createDemoCall = wrap("createDemoCall");
 export const getDemoCall = wrap("getDemoCall");
+export const getDemoCallByToken = wrap("getDemoCallByToken");
 export const setDemoCallStatus = wrap("setDemoCallStatus");
 export const setDemoCallTranscript = wrap("setDemoCallTranscript");
 export const setDemoCallResult = wrap("setDemoCallResult");
@@ -100,6 +101,7 @@ export const attachDemoCallToSession = wrap("attachDemoCallToSession");
 export const getAuditSessionCalls = wrap("getAuditSessionCalls");
 export const countAuditSessionCalls = wrap("countAuditSessionCalls");
 export const countRecentAuditSessionsByFingerprint = wrap("countRecentAuditSessionsByFingerprint");
+export const getRecentAuditSessionByFingerprint = wrap("getRecentAuditSessionByFingerprint");
 export const listRecentAuditSessions = wrap("listRecentAuditSessions");
 export const purgeExpiredAuditSessions = wrap("purgeExpiredAuditSessions");
 

@@ -468,16 +468,23 @@ export function sumRecoveredMonthToDate(db, firmId, monthStartDate, throughWeekO
 // --- Demo Mode (public, no-auth, hard-isolated from the firm pipeline) --------
 // These never touch calls/conversations/messages; a demo upload can never send.
 
-// Create a demo call row (status 'queued'). Returns the new id.
-export function createDemoCall(db, { client_ip = null, filename = null } = {}) {
+// Create a demo call row (status 'queued'). Returns { id, token }.
+// public_token is an unguessable per-row handle: the demo result contains the
+// uploader's own callers' PII, so polling must be by token, never by the
+// sequential integer id (which any visitor could enumerate).
+export function createDemoCall(db, { client_ip = null, filename = null, public_token = null } = {}) {
   const info = db
-    .prepare(`INSERT INTO demo_calls (client_ip, filename) VALUES (?, ?)`)
-    .run(client_ip, filename);
-  return Number(info.lastInsertRowid);
+    .prepare(`INSERT INTO demo_calls (client_ip, filename, public_token) VALUES (?, ?, ?)`)
+    .run(client_ip ?? null, filename ?? null, public_token ?? null);
+  return { id: Number(info.lastInsertRowid), token: public_token ?? null };
 }
 
 export function getDemoCall(db, id) {
   return db.prepare("SELECT * FROM demo_calls WHERE id = ?").get(id);
+}
+
+export function getDemoCallByToken(db, token) {
+  return db.prepare("SELECT * FROM demo_calls WHERE public_token = ?").get(token);
 }
 
 // Advance the lifecycle status ('queued'->'transcribing'->'scoring'->'done'|'error').
@@ -780,6 +787,19 @@ export function countRecentAuditSessionsByFingerprint(db, fingerprint, sinceIso)
     )
     .get(fingerprint, sinceIso);
   return row.n;
+}
+
+// Most recent still-valid (unexpired) session for a fingerprint — used to RESUME
+// an in-flight audit after a mid-batch upload hiccup instead of 7-day-locking the
+// visitor out for a failure that was ours.
+export function getRecentAuditSessionByFingerprint(db, fingerprint, nowIso) {
+  return db
+    .prepare(
+      `SELECT * FROM audit_sessions
+        WHERE visitor_fingerprint = ? AND expires_at > ?
+        ORDER BY id DESC LIMIT 1`
+    )
+    .get(fingerprint, nowIso);
 }
 
 // Operator console: recent sessions (newest first) with their call counts.
@@ -1257,7 +1277,10 @@ export function listLeakedFlags(db, firmId) {
          LEFT JOIN flag_confidence fc ON fc.flag_id = f.id
          LEFT JOIN flag_status fs ON fs.flag_id = f.id
         WHERE f.firm_id = ? AND f.is_leaked_signable = 1
-        ORDER BY (CASE WHEN fc.confidence_tier = 'strong' THEN 0 ELSE 1 END), f.id`
+        ORDER BY
+          (CASE WHEN fs.status IN ('signed','didnt_sign','bad_number') THEN 1 ELSE 0 END),
+          (CASE WHEN fc.confidence_tier = 'strong' THEN 0 ELSE 1 END),
+          c.received_at DESC`
     )
     .all(firmId);
 }
@@ -1265,11 +1288,20 @@ export function listLeakedFlags(db, firmId) {
 // Calls that did NOT reach 'analyzed' — the actionable rows on the reconciliation
 // screen (excluded/failed with their reasons; null = still processing).
 // Upsert the workflow status beside a flag (sibling record; flags stays frozen).
-export function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null }) {
+const TERMINAL_STATUSES = new Set(["signed", "didnt_sign", "bad_number"]);
+
+export function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null, guardTerminal = false }) {
   const owner = db.prepare("SELECT firm_id FROM flags WHERE id = ?").get(flag_id);
   if (!owner) return null;
   if (firm_id != null && String(owner.firm_id) !== String(firm_id)) {
     return { ok: false, forbidden: true, firm_id: owner.firm_id };
+  }
+  // guardTerminal (emailed digest link): never regress a resolved case.
+  if (guardTerminal) {
+    const cur = db.prepare("SELECT status FROM flag_status WHERE flag_id = ?").get(flag_id);
+    if (cur?.status && TERMINAL_STATUSES.has(cur.status)) {
+      return { ok: false, alreadyResolved: true, current: cur.status };
+    }
   }
   db.prepare(
     `INSERT INTO flag_status (flag_id, status, updated_by, updated_at)

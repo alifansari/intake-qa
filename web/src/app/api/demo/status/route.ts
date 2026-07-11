@@ -1,17 +1,20 @@
-// GET /api/demo/status?id=... — poll a demo call's processing state + result.
-// Public (no-auth) but returns ONLY demo data (never firm data). Node runtime.
+// GET /api/demo/status?token=... — poll a demo call's processing state + result.
+// Public (no-auth). The result contains the uploader's OWN callers' names and
+// callback numbers, so the handle is an unguessable per-row token, never the
+// sequential integer id (which any visitor could enumerate to harvest PII).
+// The legacy ?id= parameter is intentionally NOT honored.
 
-import { openPipelineDb, closePipelineDb, getDemoCall } from "../../../../../ingest/store.mjs";
+import { openPipelineDb, closePipelineDb, getDemoCallByToken } from "../../../../../ingest/store.mjs";
 
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
-  const id = new URL(req.url).searchParams.get("id");
-  if (!id) return Response.json({ error: "missing id" }, { status: 400 });
+  const token = new URL(req.url).searchParams.get("token");
+  if (!token) return Response.json({ error: "missing token" }, { status: 400 });
 
   const db = await openPipelineDb();
   try {
-    const row = await getDemoCall(db, id);
+    const row = await getDemoCallByToken(db, token);
     if (!row) return Response.json({ error: "not found" }, { status: 404 });
     let result = null;
     if (row.result_json) {

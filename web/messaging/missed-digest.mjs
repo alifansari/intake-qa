@@ -83,7 +83,7 @@ export function renderMissedDigest(data, { appUrl, env = process.env } = {}) {
           <div class="meta">${esc([i.caseType, i.tier ? `${i.tier} confidence` : null].filter(Boolean).join(" · "))}</div>
           ${i.reason ? `<div class="reason">${esc(i.reason)}</div>` : ""}
         </td>
-        <td class="call">${i.phone ? `<a class="btn call-btn" href="tel:${esc(i.phone)}">Call ${esc(i.phone)}</a>` : `<span class="meta">no number captured</span>`}</td>
+        <td class="call">${i.phone ? `<a class="btn call-btn" href="tel:${esc(i.phone.replace(/[^+\d]/g, ""))}">Call ${esc(i.phone)}</a>` : `<span class="meta">no number captured</span>`}</td>
         <td class="act">${action}</td>
       </tr>`;
     })

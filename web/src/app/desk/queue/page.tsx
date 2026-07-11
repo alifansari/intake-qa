@@ -157,11 +157,39 @@ export default async function QueuePage() {
             </div>
           )
         ) : (
-          <div className="flex flex-col gap-3">
-            {leaks.map((l) => (
-              <LeakCard key={String(l.id)} leak={l} firmName={firm.name} />
-            ))}
-          </div>
+          (() => {
+            const TERMINAL = new Set(["signed", "didnt_sign", "bad_number"]);
+            const active = leaks.filter((l) => !TERMINAL.has(l.saveStatus ?? ""));
+            const done = leaks.filter((l) => TERMINAL.has(l.saveStatus ?? ""));
+            return (
+              <div className="flex flex-col gap-3">
+                {active.length === 0 ? (
+                  <div className="rounded-card border border-hairline bg-surface p-6">
+                    <h2 className="font-display text-lg font-semibold text-ink">
+                      Nothing left to call back today.
+                    </h2>
+                    <p className="mt-1 text-sm text-ink-muted">
+                      Every flagged case is handled. New misses appear here the same day we read the call.
+                    </p>
+                  </div>
+                ) : (
+                  active.map((l) => <LeakCard key={String(l.id)} leak={l} firmName={firm.name} />)
+                )}
+                {done.length > 0 ? (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-sm font-semibold text-ink-muted hover:text-ink">
+                      Handled ({done.length}) — signed, passed, or bad number
+                    </summary>
+                    <div className="mt-3 flex flex-col gap-3">
+                      {done.map((l) => (
+                        <LeakCard key={String(l.id)} leak={l} firmName={firm.name} />
+                      ))}
+                    </div>
+                  </details>
+                ) : null}
+              </div>
+            );
+          })()
         )}
 
         <p className="mt-6 text-xs text-faint">

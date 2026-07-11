@@ -102,16 +102,33 @@ test("normalizeVolume rejects junk and keeps positive integers", () => {
 
 // --- Session lifecycle -------------------------------------------------------
 
-test("startAuditSession enforces one session per fingerprint per 7 days", async (t) => {
+test("startAuditSession resumes the same session for a repeat fingerprint (no 7-day lockout on retry)", async (t) => {
   const db = makeDb(t);
   const first = await startAuditSession({ db, fingerprint: "fp-1" });
   assert.equal(first.ok, true);
+  // A second call within the window RESUMES the existing live session instead of
+  // 429-locking the visitor — a mid-upload hiccup must not cost them 7 days.
   const second = await startAuditSession({ db, fingerprint: "fp-1" });
-  assert.equal(second.ok, false);
-  assert.equal(second.reason, "session_limit");
-  // A different fingerprint is unaffected.
+  assert.equal(second.ok, true);
+  assert.equal(second.resumed, true);
+  assert.equal(second.token, first.token, "resumes the same session token");
+  // A different fingerprint gets its own fresh session.
   const other = await startAuditSession({ db, fingerprint: "fp-2" });
   assert.equal(other.ok, true);
+  assert.notEqual(other.token, first.token);
+});
+
+test("startAuditSession reports the limit when the prior session isn't resumable", async (t) => {
+  const db = makeDb(t);
+  // A session whose TTL was computed as already-expired: it counts against the
+  // 7-day gate but can't be resumed, so the visitor is told the limit rather
+  // than silently getting a dead token.
+  const expiredTtl = new Date(Date.now() - 35 * 24 * 3600 * 1000);
+  const old = await startAuditSession({ db, fingerprint: "fp-exp", now: expiredTtl });
+  assert.equal(old.ok, true);
+  const next = await startAuditSession({ db, fingerprint: "fp-exp" });
+  assert.equal(next.ok, false);
+  assert.equal(next.reason, "session_limit");
 });
 
 test("addCallToAuditSession caps a session at 10 calls", async (t) => {
