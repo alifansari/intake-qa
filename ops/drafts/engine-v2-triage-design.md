@@ -626,6 +626,16 @@ forced take/decline. Communicate in a fixed likelihood ladder, never a bare poin
 score. Distinguish `call_observable` facts from `requires_development` facts (§3.1
 latency) — never score the transcript as if it were the file.
 
+### 4.8-DRAFTS Buildable artifacts staged (Wave 3)
+- **Promptable v2 system-prompt** → `ops/drafts/engine-v2-system-prompt-DRAFT.md` (the
+  text that replaces `system-prompt.md` at freeze-lift; structure + the 6 constraint
+  tensions; full verbatim in session record).
+- **Outcome-validation loop + firm-config v2 YAML** →
+  `ops/drafts/engine-v2-config-and-validation.md` (shadow-ledger, PIY target,
+  Brier/QWK/calibration, retrodict-first, cold-start Bayesian, per-case-type posture,
+  hard compliance invariants).
+- **Gold calibration set** → `ops/drafts/engine-v2-gold-examples.md`.
+
 ### 4.8 Validation loop (the actuarial precondition — §3.6.4)
 Not shippable as "actuarial" without it: follow every scored case to disposition,
 back-test (**Brier** headline, **QWK** for drift, **calibration curves** per band
@@ -899,6 +909,107 @@ settlements), premises (Ortega/Huckey/Ann M./Delgado).
 213 split, the SB 371 rideshare numbers, and the Veh §16056 cite. All statute
 citations get a "verify-against-current-code" note (law drifts; SB 371 and SB 1107
 are live-moving).
+
+---
+
+## 4sexies. FAIRNESS / TESTIMONIAL-INJUSTICE AUDIT (Wave 3 — a differentiator, not just a safeguard)
+
+Grounded in Ali's Fricker framing: an intake engine is a **hearer at scale**; if it
+down-weights callers who are crying, ESL/Spanish-first, or trauma-disorganized, it
+industrializes the exact "identity-prejudicial credibility deficit" Fricker names.
+Quarantining an explicit credibility score (already in §4ter) is necessary but NOT
+sufficient — the deficit re-enters through PROXIES.
+
+**Hidden credibility-deficit channels + fixes (the ones the design hadn't caught):**
+- **A — the `invalid→0` collapse in the live deterministic rubric (`rubric.mjs`).**
+  Absent input maps to 0 ("Poor"); but a *degraded transcript* (diarization noise, an
+  ESL caller the ASR mistranscribed) is UNOBSERVED, not absent — flooring the
+  hardest-to-understand caller's dimensions is a mechanized credibility deficit.
+  **FIX (top-3): add an `unobserved` state → `null` (excluded from denominator), per
+  §4ter's own "absence ≠ negative" invariant. Transcription-confidence below
+  threshold → unobserved, never 0.**
+- **B — mechanism-archetype misclassified on disordered narrative.** A trauma/ESL
+  narrator telling a clean rear-end out of order gets scored "disputed/unclear" from
+  the *telling*, not the facts. FIX: extract on **reordered, entity-resolved facts**
+  (timeline reconstruction before classification); narrative disorder NEVER demotes
+  an archetype — demote only on a cited contradiction span; low confidence → follow-up
+  question, never silent demotion.
+- **C — stated-injury severity rewards MEDICAL VOCABULARY (a class proxy).** "L4-L5
+  herniation with radiculopathy" out-scores "my back's killing me, I can't lift my
+  kid" for the SAME injury; medical fluency proxies education/insurance/English.
+  **FIX (top-3): score a LAY-SYMPTOM ontology at PARITY with clinical terms; tag
+  severity `stated, unverified`; coach the follow-up ("did you get an MRI?") rather
+  than penalize its absence.**
+- **D — hedged/deferential speech read as fault admission.** A bare apology/deference
+  token ("I'm sorry to bother you, maybe it was my fault") is NOT a comparative-fault
+  admission — require a *factual* admission span ("I was looking at my phone"), never
+  an affective one. Hedging never lowers confidence.
+- **E — `capture`/`follow_up` penalize the hard call.** "Rep didn't ask" (real
+  coaching) vs "rep asked, distressed caller couldn't answer in 4 min" (not a demerit)
+  — call length/distress is a COVERAGE variable, never case demerit.
+- **F — the machine's own decline as a one-way ratchet.** The engine itself must
+  NEVER emit `decline` on a distress/ESL/low-observability profile → route to
+  develop/sign-and-investigate with a follow-up set (no-terminal-output rule).
+
+**Disparate-impact of DECLINES (Griggs / Barocas-Selbst; "fairness through
+unawareness" fails — proxies discriminate):** backbone signals (min-limits coverage,
+lay-vocab injuries, unwitnessed-neighborhood mechanisms) cluster in lower-income
+Latino populations. **Detect WITHOUT collecting protected data:** audit dispositions
+by **intake language** (already known, zero new collection — the single most
+actionable axis), **BISG** surname+ZIP for *aggregate audit only* (walled analytics,
+never in the scoring path), and a blind human panel. **Metric: EEOC four-fifths rule
+tripwire** (Spanish-line sign-and-investigate rate < 80% of English on *matched case
+types* = flag) + subgroup calibration + equalized-odds on the outcome loop.
+**Correct the FEATURE (vocabulary parity / null-0 fix), not the outcome** (per-group
+thresholds raise Unruh/§351.2 → last resort, Yang).
+
+**Spanish pipeline (top-3 gap):** ASR error is materially higher for accented/L2/
+code-switched speech (Koenecke PNAS 2020); translate-then-extract compounds two lossy
+steps and can FLIP a disposition ("no había seguro"). **Requirement: extract on a
+NATIVE-Spanish path (don't round-trip load-bearing fields through MT); per-span
+translation-confidence → unobserved routing; a parallel Spanish GOLD set; per-language
+QWK in the loop — if Spanish reliability underperforms English, the engine is NOT
+cleared to score Spanish, full stop.** **Evid. Code §351.2** (immigration status
+inadmissible): NEVER extract/store/score immigration status; and surface §351.2 as a
+**trust fact** the rep voices ("your immigration status is not part of this case") —
+Fricker's remedy rendered as product.
+
+**Trauma-informed hard rules:** disorganized/nonlinear narrative, flat affect, and
+delayed *disclosure* NEVER lower a case-quality signal (fragmented recall is a feature
+of traumatic memory, not fabrication); treatment-*seeking* delay is a genuine file
+signal but flagged `stated, verify`, never conflated with disclosure delay; extraction
+weights factual spans by content, not emotional salience (anti-peak-end).
+
+**Feedback-loop bias (gravest long-run risk — Obermeyer Science 2019):** if the firm
+historically under-served Spanish-first/low-income claimants, realized outcomes are a
+BIASED label the loop launders into an objective-looking score. **Guards: audit the
+training label for language/proxy disparity BEFORE recalibrating; never treat
+`declined` as `worthless` (circular — seed with referred-out + base-rate
+counterfactuals, widen uncertainty); monitor sign-rate BY LANGUAGE; stratify attorney
+overrides by language as a bias sensor; FREEZE recalibration while any four-fifths
+flag is open.**
+
+**Governance / CA law (route novel to Yang):** **Unruh Act (Civ §51)** — disparate
+service by proxy is the live exposure (the firm's USE on claimants is where it bites);
+**CPPA ADMT regs (adopted 2025, verify phase-in)** — a decline affecting access to
+representation is plausibly an automated decision needing pre-use notice + human-appeal
+→ design those now; **AB 2013** (GenAI training-data transparency); §351.2; proposed
+CRPC 1.1. Ship a **model card** (the quarantine decision, vocabulary-parity commitment,
+null/0 fix, per-language reliability, residual disparity with confidence tiers).
+
+**The Fricker positioning must be FALSIFIABLE design commitments, not a tagline:**
+(1) vocabulary parity (lay = clinical); (2) `unobserved` ≠ `Poor`; (3) narrative
+disorder/flat affect never lower a case-quality signal; (4) Spanish scored at an
+audited-equal bar or not at all; (5) §351.2 as a trust fact; (6) published per-language
+disparity numbers. **The engine's version of testimonial justice as a virtue: give the
+benefit of missing/ambiguous signal to the CALLER (route to develop/investigate, coach
+the follow-up) rather than to the decline — structurally, by design, on every
+hard-to-understand call. That is simultaneously the differentiator and the safeguard.**
+
+**Three highest-leverage gaps to close before ANY ship (all §VII → Yang):** (1) the
+`invalid→0` → `unobserved→null` fix; (2) lay-vocabulary severity parity; (3)
+per-language disparate-impact audit + Spanish reliability gate wired into the loop
+before it recalibrates.
 
 ---
 
