@@ -100,7 +100,8 @@ test("abstain: transcript-quality gate tripped", () => {
 
 test("thin question capture downgrades the tier one step (never below low)", () => {
   const medium = assessConfidence(llmOutput({ questionsAsked: 0 }), CFG);
-  assert.equal(medium.tier, "medium"); // 7 dims read, but 0/10 asked
+  assert.equal(medium.tier, "medium"); // 7 dims read, but 0/10 applicable asked
+  assert.equal(medium.observability.capture_stepdown, true);
   const out = llmOutput({
     questionsAsked: 0,
     dimensionReads: dims({ damages_credibility: "unknown", coverage_path: "unknown" }),
@@ -108,6 +109,54 @@ test("thin question capture downgrades the tier one step (never below low)", () 
   const low = assessConfidence(out, CFG); // 5 dims read → medium, then downgrade
   assert.equal(low.tier, "low");
   assert.equal(low.abstained, false);
+});
+
+test("capture ratio is N/A-aware: not_applicable questions leave the denominator", () => {
+  // 2 asked + 6 not_applicable + 2 not_asked → 2/4 = 50% ≥ 40%: no stepdown.
+  // (The gold-5 med-mal profile: an MVA-shaped checklist must not penalize
+  // a non-MVA intake.) Old raw-count rule would have downgraded (2 < 4).
+  const c = assessConfidence(
+    llmOutput({ questionsAsked: 2, questionsNotApplicable: 6 }),
+    CFG
+  );
+  assert.equal(c.tier, "high");
+  assert.equal(c.observability.capture_stepdown, false);
+  assert.equal(c.observability.questions_asked, 2);
+  assert.equal(c.observability.questions_not_asked, 2);
+  assert.equal(c.observability.questions_not_applicable, 6);
+  assert.equal(c.observability.question_capture_ratio, 0.5);
+});
+
+test("all-not_applicable capture: no applicable questions → no stepdown, null ratio", () => {
+  const c = assessConfidence(
+    llmOutput({ questionsAsked: 0, questionsNotApplicable: 10 }),
+    CFG
+  );
+  assert.equal(c.tier, "high");
+  assert.equal(c.observability.capture_stepdown, false);
+  assert.equal(c.observability.question_capture_ratio, null);
+});
+
+test("hysteresis: ratio below 40% but fewer than 3 applicable questions unasked → no stepdown", () => {
+  // 1 asked + 2 not_asked + 7 N/A → ratio 33% < 40% but only 2 unasked (< 3).
+  // A ±1 extraction wobble on an N/A-heavy call cannot flip the tier.
+  const c = assessConfidence(
+    llmOutput({ questionsAsked: 1, questionsNotApplicable: 7 }),
+    CFG
+  );
+  assert.equal(c.tier, "high");
+  assert.equal(c.observability.capture_stepdown, false);
+});
+
+test("stepdown boundary: exactly 40% asked does NOT step down; just below does", () => {
+  // 4 asked / 6 not_asked → 40% exactly: threshold is strict-less-than.
+  const at = assessConfidence(llmOutput({ questionsAsked: 4 }), CFG);
+  assert.equal(at.tier, "high");
+  assert.equal(at.observability.capture_stepdown, false);
+  // 3 asked / 7 not_asked → 30% < 40% and 7 unasked ≥ 3: step down.
+  const below = assessConfidence(llmOutput({ questionsAsked: 3 }), CFG);
+  assert.equal(below.tier, "medium");
+  assert.equal(below.observability.capture_stepdown, true);
 });
 
 test("tier is never sourced from any model self-report field", () => {

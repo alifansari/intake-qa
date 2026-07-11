@@ -4,9 +4,14 @@
 // invalid payload (garbage in must not become an actuarially-laundered
 // verdict out).
 
-import { DIMENSION_IDS } from "./confidence.mjs";
+import { DIMENSION_IDS, QUESTION_CAPTURE_IDS } from "./confidence.mjs";
 
 export const LEVELS = Object.freeze(["strong", "adequate", "thin", "unknown", "fatal"]);
+export const QUESTION_STATUSES = Object.freeze([
+  "asked",
+  "not_asked",
+  "not_applicable",
+]);
 export const OBSERVABILITY = Object.freeze([
   "observed_on_call",
   "inferred",
@@ -84,6 +89,33 @@ export function validateLlmOutput(out) {
       // No citation, no claim: an observed fact must carry a quote.
       if (f.observability === "observed_on_call" && f.evidence === "checked, absent")
         errors.push(`fact ${id}: observed_on_call without a quote`);
+    }
+  }
+
+  // Question capture (schema 2.1): all ten checklist entries, three-state.
+  // The stepdown math in confidence.mjs is only meaningful when every entry
+  // declares itself asked / not_asked / not_applicable — a missing entry or
+  // a legacy boolean `asked` field silently corrupts the ratio.
+  const qc = out.question_capture;
+  if (!qc || typeof qc !== "object") {
+    errors.push("question_capture missing");
+  } else {
+    for (const id of QUESTION_CAPTURE_IDS) {
+      const q = qc[id];
+      if (!q || typeof q !== "object") {
+        errors.push(`question_capture missing entry: ${id}`);
+        continue;
+      }
+      if (!QUESTION_STATUSES.includes(q.status))
+        errors.push(`question_capture ${id}: bad status ${q.status}`);
+      // No citation, no claim: an asked question quotes the rep's span.
+      if (
+        q.status === "asked" &&
+        (typeof q.evidence !== "string" ||
+          q.evidence.length === 0 ||
+          q.evidence === "checked, absent")
+      )
+        errors.push(`question_capture ${id}: asked without a rep quote`);
     }
   }
 

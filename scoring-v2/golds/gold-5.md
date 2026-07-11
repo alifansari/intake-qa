@@ -54,7 +54,7 @@ capital. Reads only; refer-vs-decline is downstream arithmetic.
 </analysis>
 {
   "engine": "scoring-v2",
-  "schema_version": "2.0",
+  "schema_version": "2.1",
   "call_id": "gold-5",
   "transcript_quality": { "scoreable": true, "language": "en", "issues": [] },
   "call_type": "new_pi_inquiry",
@@ -91,16 +91,16 @@ capital. Reads only; refer-vs-decline is downstream arithmetic.
     "property_damage_stated": { "value": { "described": null, "minimal_impact_signal": false }, "evidence": "checked, absent", "observability": "not_on_call", "confidence": "high" }
   },
   "question_capture": {
-    "q1_exact_incident_date": { "asked": true, "answer_summary": "birth at Valley Regional; child turned four in March", "evidence": "She was born here in California? And she just turned four?" },
-    "q2_prop213_insured_status": { "asked": false, "answer_summary": "not applicable — not a motor-vehicle claim", "evidence": "checked, absent" },
-    "q3_priors_same_body_part": { "asked": false, "answer_summary": "not applicable to a birth-injury profile", "evidence": "checked, absent" },
-    "q4_citation_ticket": { "asked": false, "answer_summary": "not applicable", "evidence": "checked, absent" },
-    "q5_independent_witnesses": { "asked": false, "answer_summary": "delivery records volunteered; not further explored (appropriate — specialist's work)", "evidence": "checked, absent" },
-    "q6_defendant_scope_rideshare": { "asked": false, "answer_summary": "not applicable", "evidence": "checked, absent" },
-    "q7_coverage_um": { "asked": false, "answer_summary": "not applicable at intake for an institutional med-mal defendant", "evidence": "checked, absent" },
-    "q8_treatment_gap_lien": { "asked": true, "answer_summary": "ongoing PT and specialist care described", "evidence": "And what does her care look like day to day?" },
-    "q9_mist_guard": { "asked": false, "answer_summary": "not applicable", "evidence": "checked, absent" },
-    "q10_retained_elsewhere": { "asked": false, "answer_summary": "no prior counsel apparent from the call; not explicitly asked", "evidence": "checked, absent" }
+    "q1_exact_incident_date": { "status": "asked", "answer_summary": "birth at Valley Regional; child turned four in March", "evidence": "She was born here in California? And she just turned four?" },
+    "q2_prop213_insured_status": { "status": "not_applicable", "answer_summary": "not applicable — not a motor-vehicle claim", "evidence": "checked, absent" },
+    "q3_priors_same_body_part": { "status": "not_applicable", "answer_summary": "not applicable to a birth-injury profile", "evidence": "checked, absent" },
+    "q4_citation_ticket": { "status": "not_applicable", "answer_summary": "not applicable", "evidence": "checked, absent" },
+    "q5_independent_witnesses": { "status": "not_asked", "answer_summary": "delivery records volunteered; not further explored (appropriate — specialist's work)", "evidence": "checked, absent" },
+    "q6_defendant_scope_rideshare": { "status": "not_applicable", "answer_summary": "not applicable", "evidence": "checked, absent" },
+    "q7_coverage_um": { "status": "not_applicable", "answer_summary": "not applicable at intake for an institutional med-mal defendant", "evidence": "checked, absent" },
+    "q8_treatment_gap_lien": { "status": "asked", "answer_summary": "ongoing PT and specialist care described", "evidence": "And what does her care look like day to day?" },
+    "q9_mist_guard": { "status": "not_applicable", "answer_summary": "not applicable", "evidence": "checked, absent" },
+    "q10_retained_elsewhere": { "status": "not_asked", "answer_summary": "no prior counsel apparent from the call; not explicitly asked", "evidence": "checked, absent" }
   },
   "dimension_reads": {
     "liability_comparative_fault": {
@@ -173,7 +173,7 @@ EXPECTED PIPELINE VERDICT (harness-only — never shown to the LLM)
   "recommended_disposition": "refer_out",
   "value_tier": "high",
   "posture_applied": "selective",
-  "confidence_tier": "medium",
+  "confidence_tier": "high",
   "abstained": false,
   "urgency_flags": ["sol_adjacent"],
   "attorney_review_required": false,
@@ -190,6 +190,11 @@ CALIBRATION NOTES (never shown to the LLM)
 - G2 (deadline-adjacent) fires on the observed sol_adjacent fact and caps out
   DEVELOP — a ticking minor's med-mal claim cannot sit in anyone's queue; the
   same-day warm referral is exactly the forced early exercise the gate wants.
-- Confidence medium: liability is honestly unknown (expert territory) and
-  the MVA-shaped checklist mostly reads not-applicable — the pipeline should
-  not pretend MVA-grade certainty on a med-mal intake.
+- Confidence high (schema 2.1): six of the MVA-shaped checklist questions
+  are structurally not_applicable to a birth-injury intake, and the N/A-aware
+  capture ratio (2 asked of 4 applicable = 50%) clears the 40% bar — the rep
+  is not penalized for questions that cannot apply. Liability reads unknown
+  (expert territory) but 6/7 dimensions rest on cited evidence; the tier
+  grades the ROUTING confidence (refer to a specialist today), which is high.
+  Under schema 2.0 this gold pinned medium because the raw asked-count rule
+  (< 4 of 10) treated not-applicable as unasked.

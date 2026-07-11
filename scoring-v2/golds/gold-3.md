@@ -60,7 +60,7 @@ pipeline's call, not mine.
 </analysis>
 {
   "engine": "scoring-v2",
-  "schema_version": "2.0",
+  "schema_version": "2.1",
   "call_id": "gold-3",
   "transcript_quality": { "scoreable": true, "language": "en", "issues": [] },
   "call_type": "new_pi_inquiry",
@@ -97,16 +97,16 @@ pipeline's call, not mine.
     "property_damage_stated": { "value": { "described": "passenger-side impact in an intersection T-bone", "minimal_impact_signal": false }, "evidence": { "quote": "She ran the red and hit my passenger side.", "timestamp": "00:29", "speaker": "CALLER" }, "observability": "observed_on_call", "confidence": "medium" }
   },
   "question_capture": {
-    "q1_exact_incident_date": { "asked": true, "answer_summary": "July 2nd, ~6pm", "evidence": "What day was last Tuesday, the 2nd?" },
-    "q2_prop213_insured_status": { "asked": true, "answer_summary": "insured — GEICO with UM", "evidence": "Do you have your own auto insurance, and were you insured that day?" },
-    "q3_priors_same_body_part": { "asked": true, "answer_summary": "no prior knee injuries or claims", "evidence": "Ever hurt that knee before — any old injuries or claims?" },
-    "q4_citation_ticket": { "asked": true, "answer_summary": "unknown to caller; report will show", "evidence": "Was a ticket issued that you know of?" },
-    "q5_independent_witnesses": { "asked": true, "answer_summary": "witness identified; contact info captured on call", "evidence": "That witness is gold — I'll take his info before we hang up." },
-    "q6_defendant_scope_rideshare": { "asked": false, "answer_summary": "no rideshare/employment facts in play", "evidence": "checked, absent" },
-    "q7_coverage_um": { "asked": true, "answer_summary": "defendant Mercury, limits to verify; caller GEICO with UM", "evidence": "Do you know if she has insurance?" },
-    "q8_treatment_gap_lien": { "asked": true, "answer_summary": "same-night urgent care, no gap; payment path not discussed", "evidence": "Now your knee — what's happening with it?" },
-    "q9_mist_guard": { "asked": false, "answer_summary": "T-bone impact described; drivable/airbags/towed not asked", "evidence": "checked, absent" },
-    "q10_retained_elsewhere": { "asked": true, "answer_summary": "no other attorney", "evidence": "Have you hired or talked to another lawyer on this?" }
+    "q1_exact_incident_date": { "status": "asked", "answer_summary": "July 2nd, ~6pm", "evidence": "What day was last Tuesday, the 2nd?" },
+    "q2_prop213_insured_status": { "status": "asked", "answer_summary": "insured — GEICO with UM", "evidence": "Do you have your own auto insurance, and were you insured that day?" },
+    "q3_priors_same_body_part": { "status": "asked", "answer_summary": "no prior knee injuries or claims", "evidence": "Ever hurt that knee before — any old injuries or claims?" },
+    "q4_citation_ticket": { "status": "asked", "answer_summary": "unknown to caller; report will show", "evidence": "Was a ticket issued that you know of?" },
+    "q5_independent_witnesses": { "status": "asked", "answer_summary": "witness identified; contact info captured on call", "evidence": "That witness is gold — I'll take his info before we hang up." },
+    "q6_defendant_scope_rideshare": { "status": "not_applicable", "answer_summary": "no rideshare/employment facts in play", "evidence": "checked, absent" },
+    "q7_coverage_um": { "status": "asked", "answer_summary": "defendant Mercury, limits to verify; caller GEICO with UM", "evidence": "Do you know if she has insurance?" },
+    "q8_treatment_gap_lien": { "status": "asked", "answer_summary": "same-night urgent care, no gap; payment path not discussed", "evidence": "Now your knee — what's happening with it?" },
+    "q9_mist_guard": { "status": "not_asked", "answer_summary": "T-bone impact described; drivable/airbags/towed not asked", "evidence": "checked, absent" },
+    "q10_retained_elsewhere": { "status": "asked", "answer_summary": "no other attorney", "evidence": "Have you hired or talked to another lawyer on this?" }
   },
   "dimension_reads": {
     "liability_comparative_fault": {
@@ -192,6 +192,6 @@ CALIBRATION NOTES (never shown to the LLM)
   (damages, pending MRI) routes to develop regardless of posture — the
   information is cheap and no deadline forces early exercise.
 - Confidence HIGH lives in the routing, not the case: the unknowns are
-  named, the exit condition is pre-registered, and the rep asked 8/10
-  checklist questions. Develop-with-a-clock is the opposite of a graveyard.
+  named, the exit condition is pre-registered, and the rep asked 8 of 9
+  applicable checklist questions. Develop-with-a-clock is the opposite of a graveyard.
 - Value tier indeterminate — the honest tier while damages are unknown.

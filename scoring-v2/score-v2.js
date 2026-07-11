@@ -168,7 +168,7 @@ export async function scoreV2({ transcript, callId, firmConfigPath = DEFAULT_CON
 
   return {
     engine: "scoring-v2",
-    schema_version: "2.0",
+    schema_version: "2.1",
     call_id: parsed.call_id,
     model: MODEL,
     generated_at: new Date().toISOString(),

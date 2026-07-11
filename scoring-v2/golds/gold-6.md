@@ -48,7 +48,7 @@ reads speak; the pipeline does the shouting.
 </analysis>
 {
   "engine": "scoring-v2",
-  "schema_version": "2.0",
+  "schema_version": "2.1",
   "call_id": "gold-6",
   "transcript_quality": { "scoreable": true, "language": "en", "issues": [] },
   "call_type": "new_pi_inquiry",
@@ -85,16 +85,16 @@ reads speak; the pipeline does the shouting.
     "property_damage_stated": { "value": { "described": "drove into a jackknifed semi at freeway speed", "minimal_impact_signal": false }, "evidence": { "quote": "a semi jackknifed right across the 5 near Coalinga and I went into it", "timestamp": "00:03", "speaker": "CALLER" }, "observability": "observed_on_call", "confidence": "medium" }
   },
   "question_capture": {
-    "q1_exact_incident_date": { "asked": false, "answer_summary": "'twelve days ago' volunteered; exact date never pinned", "evidence": "checked, absent" },
-    "q2_prop213_insured_status": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q3_priors_same_body_part": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q4_citation_ticket": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q5_independent_witnesses": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q6_defendant_scope_rideshare": { "asked": true, "answer_summary": "company truck confirmed — marked logistics tractor, DOT number recorded", "evidence": "Was it a company truck?" },
-    "q7_coverage_um": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q8_treatment_gap_lien": { "asked": false, "answer_summary": "surgical course volunteered; payment path never raised", "evidence": "checked, absent" },
-    "q9_mist_guard": { "asked": false, "answer_summary": "impact severity self-evident from the account; not asked", "evidence": "checked, absent" },
-    "q10_retained_elsewhere": { "asked": false, "answer_summary": null, "evidence": "checked, absent" }
+    "q1_exact_incident_date": { "status": "not_asked", "answer_summary": "'twelve days ago' volunteered; exact date never pinned", "evidence": "checked, absent" },
+    "q2_prop213_insured_status": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q3_priors_same_body_part": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q4_citation_ticket": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q5_independent_witnesses": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q6_defendant_scope_rideshare": { "status": "asked", "answer_summary": "company truck confirmed — marked logistics tractor, DOT number recorded", "evidence": "Was it a company truck?" },
+    "q7_coverage_um": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q8_treatment_gap_lien": { "status": "not_asked", "answer_summary": "surgical course volunteered; payment path never raised", "evidence": "checked, absent" },
+    "q9_mist_guard": { "status": "not_asked", "answer_summary": "impact severity self-evident from the account; not asked", "evidence": "checked, absent" },
+    "q10_retained_elsewhere": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" }
   },
   "dimension_reads": {
     "liability_comparative_fault": {
@@ -194,6 +194,7 @@ CALIBRATION NOTES (never shown to the LLM)
   budget with no trial-capital gate; the attorney ratifies the keep-or-refer
   call. Nothing here is terminal.
 - Confidence medium, deliberately: the reads rest on strong volunteered
-  facts, but the rep asked 1/10 checklist questions — capture failure caps
-  read-confidence even on an obviously huge case. Not ending the gold set on
+  facts, but the rep asked 1 of 10 applicable checklist questions (10% < 40%
+  with 9 unasked) — capture failure caps read-confidence even on an obviously
+  huge case. Not ending the gold set on
   a decline (order rule): this file ends on the highest-value sign profile.

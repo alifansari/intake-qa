@@ -52,7 +52,7 @@ date, and made concrete referrals. Reads only; the gate is code's to fire.
 </analysis>
 {
   "engine": "scoring-v2",
-  "schema_version": "2.0",
+  "schema_version": "2.1",
   "call_id": "gold-4",
   "transcript_quality": { "scoreable": true, "language": "en", "issues": [] },
   "call_type": "new_pi_inquiry",
@@ -89,16 +89,16 @@ date, and made concrete referrals. Reads only; the gate is code's to fire.
     "property_damage_stated": { "value": { "described": null, "minimal_impact_signal": false }, "evidence": "checked, absent", "observability": "unknown", "confidence": "high" }
   },
   "question_capture": {
-    "q1_exact_incident_date": { "asked": false, "answer_summary": "May 20th volunteered by caller in the first breath", "evidence": "checked, absent" },
-    "q2_prop213_insured_status": { "asked": true, "answer_summary": "caller owns the car and was uninsured that day — lapse since January", "evidence": "the car you were driving, is it yours, and did you have insurance on it that day?" },
-    "q3_priors_same_body_part": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q4_citation_ticket": { "asked": true, "answer_summary": "ticket to defendant", "evidence": "Was a police report taken?" },
-    "q5_independent_witnesses": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q6_defendant_scope_rideshare": { "asked": false, "answer_summary": "no employment/rideshare facts in play", "evidence": "checked, absent" },
-    "q7_coverage_um": { "asked": true, "answer_summary": "defendant Allstate with claim number; caller's own coverage lapsed", "evidence": "Does the other driver have insurance?" },
-    "q8_treatment_gap_lien": { "asked": true, "answer_summary": "no gap — chiro from first week; payment path not discussed", "evidence": "Any X-rays, MRI, anything like that? Emergency room?" },
-    "q9_mist_guard": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q10_retained_elsewhere": { "asked": false, "answer_summary": null, "evidence": "checked, absent" }
+    "q1_exact_incident_date": { "status": "not_asked", "answer_summary": "May 20th volunteered by caller in the first breath", "evidence": "checked, absent" },
+    "q2_prop213_insured_status": { "status": "asked", "answer_summary": "caller owns the car and was uninsured that day — lapse since January", "evidence": "the car you were driving, is it yours, and did you have insurance on it that day?" },
+    "q3_priors_same_body_part": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q4_citation_ticket": { "status": "asked", "answer_summary": "ticket to defendant", "evidence": "Was a police report taken?" },
+    "q5_independent_witnesses": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q6_defendant_scope_rideshare": { "status": "not_applicable", "answer_summary": "no employment/rideshare facts in play", "evidence": "checked, absent" },
+    "q7_coverage_um": { "status": "asked", "answer_summary": "defendant Allstate with claim number; caller's own coverage lapsed", "evidence": "Does the other driver have insurance?" },
+    "q8_treatment_gap_lien": { "status": "asked", "answer_summary": "no gap — chiro from first week; payment path not discussed", "evidence": "Any X-rays, MRI, anything like that? Emergency room?" },
+    "q9_mist_guard": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q10_retained_elsewhere": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" }
   },
   "dimension_reads": {
     "liability_comparative_fault": {
@@ -193,5 +193,6 @@ CALIBRATION NOTES (never shown to the LLM)
   lost-signable framing exists in v2 output — after the gate there is no
   signable case to lose.
 - Confidence high despite the decline: 7/7 dims on cited evidence, the gate
-  fact observed at high confidence, 5/10 questions asked including the one
-  that mattered most (q2, asked carefully).
+  fact observed at high confidence, and 4 of 9 applicable questions asked
+  (44% — above the 40% capture bar; q6 rideshare-scope is N/A) including the
+  one that mattered most (q2, asked carefully).

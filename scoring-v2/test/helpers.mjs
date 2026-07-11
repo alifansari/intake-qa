@@ -104,15 +104,25 @@ export function tiers(effort = "standard", carry = "medium", capital = "minimal"
   return { effort_tier: mk(effort), carry_tier: mk(carry), capital_tier: mk(capital) };
 }
 
-export function questionCapture(askedCount = 8) {
+import { QUESTION_CAPTURE_IDS } from "../lib/confidence.mjs";
+
+// Three-state capture (schema 2.1): first `askedCount` ids asked, then
+// `notApplicableCount` not_applicable, the rest not_asked.
+export function questionCapture(askedCount = 8, notApplicableCount = 0) {
   const out = {};
-  for (let i = 1; i <= 10; i++) {
-    out[`q${i}_test`] = {
-      asked: i <= askedCount,
-      answer_summary: i <= askedCount ? "answered" : null,
-      evidence: i <= askedCount ? "asked span" : "checked, absent",
+  QUESTION_CAPTURE_IDS.forEach((id, i) => {
+    const status =
+      i < askedCount
+        ? "asked"
+        : i < askedCount + notApplicableCount
+          ? "not_applicable"
+          : "not_asked";
+    out[id] = {
+      status,
+      answer_summary: status === "asked" ? "answered" : null,
+      evidence: status === "asked" ? "asked span" : "checked, absent",
     };
-  }
+  });
   return out;
 }
 
@@ -121,16 +131,17 @@ export function llmOutput({
   dimensionReads = dims(),
   resourceTiers = tiers(),
   questionsAsked = 8,
+  questionsNotApplicable = 0,
   scoreable = true,
 } = {}) {
   return {
     engine: "scoring-v2",
-    schema_version: "2.0",
+    schema_version: "2.1",
     call_id: "test-call",
     transcript_quality: { scoreable, language: "en", issues: [] },
     call_type: "new_pi_inquiry",
     extracted_facts: facts,
-    question_capture: questionCapture(questionsAsked),
+    question_capture: questionCapture(questionsAsked, questionsNotApplicable),
     dimension_reads: dimensionReads,
     resource_tiers: resourceTiers,
   };

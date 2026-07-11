@@ -58,7 +58,7 @@ the reads: no disposition, no value, no dates.
 </analysis>
 {
   "engine": "scoring-v2",
-  "schema_version": "2.0",
+  "schema_version": "2.1",
   "call_id": "gold-1",
   "transcript_quality": { "scoreable": true, "language": "en", "issues": [] },
   "call_type": "new_pi_inquiry",
@@ -95,16 +95,16 @@ the reads: no disposition, no value, no dates.
     "property_damage_stated": { "value": { "described": "whole rear end crushed, car in the shop", "minimal_impact_signal": false }, "evidence": { "quote": "My car's still in the shop too, the whole rear end was crushed.", "timestamp": "01:43", "speaker": "CALLER" }, "observability": "observed_on_call", "confidence": "high" }
   },
   "question_capture": {
-    "q1_exact_incident_date": { "asked": true, "answer_summary": "March 14th, morning", "evidence": "When did this happen?" },
-    "q2_prop213_insured_status": { "asked": true, "answer_summary": "caller insured, AAA full coverage", "evidence": "Do you have your own auto insurance, and do you know what kind?" },
-    "q3_priors_same_body_part": { "asked": true, "answer_summary": "no prior neck injuries or claims", "evidence": "Have you ever injured your neck before this — any prior claims or old injuries to that area?" },
-    "q4_citation_ticket": { "asked": true, "answer_summary": "citation to defendant driver only; nothing to caller", "evidence": "Was a ticket issued to anyone besides their driver — anything to you?" },
-    "q5_independent_witnesses": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q6_defendant_scope_rideshare": { "asked": true, "answer_summary": "driver on a service call — course-and-scope confirmed via caller's account", "evidence": "You said Roto-Rooter — a marked company van, logo and everything?" },
-    "q7_coverage_um": { "asked": true, "answer_summary": "caller carries AAA full coverage; defendant commercial", "evidence": "Do you have your own auto insurance, and do you know what kind?" },
-    "q8_treatment_gap_lien": { "asked": true, "answer_summary": "no gap — same-night ER, continuous MD-directed care", "evidence": "And your neck — what care have you had?" },
-    "q9_mist_guard": { "asked": false, "answer_summary": "property damage volunteered (rear end crushed) but drivable/airbags/towed not asked", "evidence": "checked, absent" },
-    "q10_retained_elsewhere": { "asked": true, "answer_summary": "no other attorney", "evidence": "Have you spoken with or hired any other lawyer on this?" }
+    "q1_exact_incident_date": { "status": "asked", "answer_summary": "March 14th, morning", "evidence": "When did this happen?" },
+    "q2_prop213_insured_status": { "status": "asked", "answer_summary": "caller insured, AAA full coverage", "evidence": "Do you have your own auto insurance, and do you know what kind?" },
+    "q3_priors_same_body_part": { "status": "asked", "answer_summary": "no prior neck injuries or claims", "evidence": "Have you ever injured your neck before this — any prior claims or old injuries to that area?" },
+    "q4_citation_ticket": { "status": "asked", "answer_summary": "citation to defendant driver only; nothing to caller", "evidence": "Was a ticket issued to anyone besides their driver — anything to you?" },
+    "q5_independent_witnesses": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q6_defendant_scope_rideshare": { "status": "asked", "answer_summary": "driver on a service call — course-and-scope confirmed via caller's account", "evidence": "You said Roto-Rooter — a marked company van, logo and everything?" },
+    "q7_coverage_um": { "status": "asked", "answer_summary": "caller carries AAA full coverage; defendant commercial", "evidence": "Do you have your own auto insurance, and do you know what kind?" },
+    "q8_treatment_gap_lien": { "status": "asked", "answer_summary": "no gap — same-night ER, continuous MD-directed care", "evidence": "And your neck — what care have you had?" },
+    "q9_mist_guard": { "status": "not_asked", "answer_summary": "property damage volunteered (rear end crushed) but drivable/airbags/towed not asked", "evidence": "checked, absent" },
+    "q10_retained_elsewhere": { "status": "asked", "answer_summary": "no other attorney", "evidence": "Have you spoken with or hired any other lawyer on this?" }
   },
   "dimension_reads": {
     "liability_comparative_fault": {
@@ -186,5 +186,5 @@ CALIBRATION NOTES (never shown to the LLM)
   reads. The pair teaches the decision boundary, not the behavior.
 - The LLM output contains no disposition/tier; sign_now emerges from the
   decision table (all load-bearing reads strong, no gates, selective posture
-  satisfied). Confidence high: 7/7 dimensions read on cited evidence, 8/10
-  checklist questions asked.
+  satisfied). Confidence high: 7/7 dimensions read on cited evidence, 8 of 10
+  applicable checklist questions asked (80%).

@@ -50,7 +50,7 @@ have happened is downstream's judgment, not mine.
 </analysis>
 {
   "engine": "scoring-v2",
-  "schema_version": "2.0",
+  "schema_version": "2.1",
   "call_id": "gold-2",
   "transcript_quality": { "scoreable": true, "language": "en", "issues": [] },
   "call_type": "new_pi_inquiry",
@@ -87,16 +87,16 @@ have happened is downstream's judgment, not mine.
     "property_damage_stated": { "value": { "described": "bumper scuff, estimate about nine hundred dollars", "minimal_impact_signal": true }, "evidence": { "quote": "It was just a tap, honestly — a bumper scuff. The body shop estimate was maybe nine hundred bucks.", "timestamp": "00:14", "speaker": "CALLER" }, "observability": "observed_on_call", "confidence": "high" }
   },
   "question_capture": {
-    "q1_exact_incident_date": { "asked": false, "answer_summary": "only 'about two months ago' accepted, never pinned", "evidence": "checked, absent" },
-    "q2_prop213_insured_status": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q3_priors_same_body_part": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q4_citation_ticket": { "asked": false, "answer_summary": "report asked about, citation never", "evidence": "checked, absent" },
-    "q5_independent_witnesses": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q6_defendant_scope_rideshare": { "asked": false, "answer_summary": null, "evidence": "checked, absent" },
-    "q7_coverage_um": { "asked": false, "answer_summary": "defendant carrier volunteered by caller; caller's own UM/UIM never raised", "evidence": "checked, absent" },
-    "q8_treatment_gap_lien": { "asked": false, "answer_summary": "gap volunteered by caller and dismissed by rep, not explored", "evidence": "checked, absent" },
-    "q9_mist_guard": { "asked": false, "answer_summary": "impact severity volunteered ($900 scuff); drivable/airbags/towed never asked", "evidence": "checked, absent" },
-    "q10_retained_elsewhere": { "asked": false, "answer_summary": null, "evidence": "checked, absent" }
+    "q1_exact_incident_date": { "status": "not_asked", "answer_summary": "only 'about two months ago' accepted, never pinned", "evidence": "checked, absent" },
+    "q2_prop213_insured_status": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q3_priors_same_body_part": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q4_citation_ticket": { "status": "not_asked", "answer_summary": "report asked about, citation never", "evidence": "checked, absent" },
+    "q5_independent_witnesses": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" },
+    "q6_defendant_scope_rideshare": { "status": "not_applicable", "answer_summary": null, "evidence": "checked, absent" },
+    "q7_coverage_um": { "status": "not_asked", "answer_summary": "defendant carrier volunteered by caller; caller's own UM/UIM never raised", "evidence": "checked, absent" },
+    "q8_treatment_gap_lien": { "status": "not_asked", "answer_summary": "gap volunteered by caller and dismissed by rep, not explored", "evidence": "checked, absent" },
+    "q9_mist_guard": { "status": "not_asked", "answer_summary": "impact severity volunteered ($900 scuff); drivable/airbags/towed never asked", "evidence": "checked, absent" },
+    "q10_retained_elsewhere": { "status": "not_asked", "answer_summary": null, "evidence": "checked, absent" }
   },
   "dimension_reads": {
     "liability_comparative_fault": {
@@ -184,4 +184,6 @@ CALIBRATION NOTES (never shown to the LLM)
   clinic referral is recorded but is not an underwater-economics fact yet),
   and insured status was never asked — unknown is not a trigger.
 - Confidence medium, not high: reads rest on cited evidence (7/7 observed)
-  but 0/10 checklist questions were asked — capture quality caps confidence.
+  but 0 of 9 applicable checklist questions were asked (q6 rideshare-scope is
+  structurally N/A) — ratio 0% < 40% with 9 unasked ≥ 3, so the capture
+  stepdown fires.
