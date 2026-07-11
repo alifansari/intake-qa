@@ -93,7 +93,7 @@ aggregate/privileged analytics, deferred.
 ## How to run
 
 ```
-npm run test:v2          # 46 unit + gold-integration tests, zero network
+npm run test:v2          # 57 unit + gold-integration tests, zero network
 npm run smoke:v2         # fixture transcript → live API → verdict JSON
 node scoring-v2/score-v2.js <transcript.txt | x.transcript.json | audio | --fixture> [--config <firm-v2.md>]
 node scoring-v2/compare-v1-v2.js <transcript | --fixture>   # v1 vs v2 side-by-side
@@ -132,7 +132,8 @@ surface requires ALL of:
    10x-weighted; abstention coverage ≥ 85% with abstained calls routed to
    human review.
 5. **Spanish gate:** v2 does not score Spanish calls in production until
-   per-language reliability is audited equal (four-fifths tripwire wired in).
+   per-language reliability is audited equal (four-fifths tripwire to be
+   wired in before Spanish scoring — it does not exist in the package yet).
 
 Drift discipline once live: pinned model; full gold rerun on ANY change;
 5–10 canaries scored weekly even with no changes; every production failure
@@ -155,8 +156,33 @@ scoring-v2/
 │   └── parse.mjs             # <analysis>/JSON splitting, balanced-brace parse
 ├── score-v2.js               # harness (LLM call + code pipeline → verdict)
 ├── compare-v1-v2.js          # A/B against frozen v1 (reused by import)
-└── test/                     # 46 tests: gates, every table row, confidence,
+└── test/                     # 57 tests: gates, every table row, confidence,
                               #   six-gold end-to-end reproduction
 ```
+
+## QC status
+
+Adversarial QC pass run **2026-07-11** — verdict was FIXES NEEDED FIRST; all
+gating findings fixed in the same pass (each with a regression test):
+
+- 2.1 (blocker): G1 was blind to the §3333.4(c) DUI-restoration exception —
+  now a machine-readable `dui_indicator` on `defendant_fault_indicators`;
+  observed DUI withholds the cap and routes to attorney review.
+- 3.1 (blocker): unknown-driven marginality under G2/R8 declined — now
+  refers out with attorney review; unobserved never produces a decline.
+- 3.2 (blocker): MIST overlay acted on inferred triggers — now observed-only,
+  with an inferred-trigger abstention probe in confidence.mjs.
+- 2.2: Prop 213 anchor fixed for non-owner operators (§3333.4(a)(3)) with a
+  disambiguated insured-status enum; G1 fires on the barred profile.
+- 3.3: `mist_handling: "sign"` was a silent no-op — now maps to sign_now.
+- 3.4: thin thresholds clamp to ≥ 1 (config poisoning could decline
+  all-strong files).
+- 1.1: the two descoped disposition-gated alerts are now recorded in
+  ops/decisions.md (2026-07-11 entry) so spec and package agree.
+- 5.1: gold-3's expected develop_payload corrected to the decision table's
+  real output and asserted in the golds test.
+- NITs: esign_on_call_enabled moved to PART B; Spanish tripwire wording made
+  honest; dead develop-payload `urgency_flags` field deleted; D3 rideshare
+  anchor split (engaged/en-route strong; app-on-idle adequate at best).
 
 v1 (`scoring/`, `lib/score-call.js`) is read and imported, never modified.

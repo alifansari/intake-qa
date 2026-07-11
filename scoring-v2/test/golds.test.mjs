@@ -27,6 +27,8 @@ test("firm config template splits into a prompt-visible PART A and code-side PAR
   assert.match(partA, /FIRM CONFIG — PART A/);
   assert.match(partA, /case_types_accepted/);
   assert.ok(!partA.includes("posture"), "PART A must not leak posture");
+  assert.ok(!partA.includes("esign"), "esign_on_call_enabled lives in PART B, not the prompt");
+  assert.equal(CONFIG.esign_on_call_enabled, true);
   assert.equal(CONFIG.posture_default, "selective");
   assert.equal(CONFIG.posture_by_case_type.mva_standard, "volume");
   assert.equal(CONFIG.trial_capital, false);

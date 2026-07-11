@@ -7,7 +7,6 @@ state: CA
 case_types_accepted: mva_standard, mva_commercial, motorcycle, premises, dog_bite
 case_types_declined: med_mal, workers_comp, government_entity
 languages_supported: en, es (bilingual staff)
-esign_on_call_enabled: true
 END FIRM CONFIG — PART A
 
 TRANSCRIPT

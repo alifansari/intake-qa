@@ -22,7 +22,6 @@ state: CA
 case_types_accepted: mva_standard, mva_commercial, motorcycle, premises, dog_bite
 case_types_declined: med_mal, workers_comp, government_entity
 languages_supported: en, es (bilingual staff)
-esign_on_call_enabled: true
 END FIRM CONFIG — PART A
 <!-- PART A: END -->
 
@@ -45,6 +44,11 @@ posture_by_case_type:
 develop_thin_threshold: 2
 thin_threshold_by_case_type:
   dog_bite: 1
+
+# Can the rep send e-sign on the call? Operational posture, not a fact the
+# LLM needs — the extraction schema records what the rep DID regardless.
+# Consumed by product surfaces downstream of the verdict, never the prompt.
+esign_on_call_enabled: true
 
 # Will this firm carry a case that can only resolve at trial?
 # false => gate G4 caps trial-only profiles to refer_out / decline_with_grace.

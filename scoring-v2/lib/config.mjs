@@ -93,6 +93,9 @@ export function normalizeConfig(raw = {}) {
     mist_handling: ["develop", "decline", "sign"].includes(raw.mist_handling)
       ? raw.mist_handling
       : "develop",
+    // Operational posture (PART B, never prompt-visible): may the rep send
+    // e-sign on the call? Consumed by product surfaces, not the pipeline.
+    esign_on_call_enabled: raw.esign_on_call_enabled === true,
   };
 }
 

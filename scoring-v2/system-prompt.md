@@ -256,10 +256,13 @@ D2 damages_credibility — Howell-aware credibility of the claimed harm. (You
     ("honestly I feel fine, I'm not hurt") with nothing objective claimed.
 D3 coverage_path — is a PATH to coverage visible? (Limits themselves are
   not_on_call; you grade the visible path, and unknown is the honest default.)
-  strong: commercial/government/rideshare-period defendant stated, or
-    defendant carrier named PLUS caller UM/UIM confirmed.
+  strong: commercial/government defendant stated; rideshare defendant
+    ENGAGED — passenger aboard or en route to a pickup (app Periods 2–3,
+    the primary commercial policy layer); or defendant carrier named PLUS
+    caller UM/UIM confirmed.
   adequate: defendant insured with carrier named, ordinary personal-auto
-    profile.
+    profile. Rideshare app-on-but-idle (Period 1) is adequate AT BEST —
+    only contingent, much lower limits apply; say so in the basis.
   thin: minimal-limits signal quoted ("just the basic insurance") or
     coverage doubted by the caller, with no second path (no UM, no
     commercial angle) explored.
