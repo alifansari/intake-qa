@@ -517,3 +517,21 @@ conveyor the rescue packet already partly delivers.
 deadline flags, over-conversion retention, refer-out monetization, the 3 fairness fixes.
 **Review:** when Ali decides whether to lift the freeze; not before a PI-attorney +
 Yang review.
+
+## 2026-07-11 — Marketing-copy audit staged + P0/P1 fixes applied to working tree
+**Change:** `ops/drafts/copy-audit-2026-07-11.md` — word-by-word audit of every
+customer-visible surface, graded against a 106-agent adversarially-verified research pass
+on PI-attorney vendor psychology + persona guides + compliance-invariants. P0/P1 fixes
+APPLIED (build green, verified in browser): honesty strip/footer/GUARANTEE_METHODOLOGY no
+longer claim a published error rate (/honesty withholds it correctly); homepage stat now
+the clean verified $284/lead (broken $468 derivation removed; $2.5–3k PPC stat removed —
+refuted class); /audit/sample $253k–$506k synthetic projection replaced with the
+"we won't project from a sample" refusal; 400% speed stat renamed
+`..._REFUTED_DO_NOT_RENDER`; /privacy §6 now states the 90-day desk window (matches
+/security, /faq, DPA); SampleStatement imports GOLD_ATTESTATION verbatim (restores the
+no-penalty-of-perjury clause); /compliance §632 now gives both criminal $2,500 and civil
+$5,000/§637.2 figures; /audit/sample CTA unified to CTA_PRIMARY.
+**Gated on Ali (§VII):** /letter still promises a published error rate — proposed v1.4
+edits staged at `ops/drafts/letter-v1.4-proposed-edits.md`; nothing pushed/published.
+**Hypothesis:** closing the promise/click-through gap removes the top credibility break
+before the next LACBA wave. **Review:** at letter v1.4 decision.

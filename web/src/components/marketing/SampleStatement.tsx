@@ -12,6 +12,7 @@
 // "Recovered" — to avoid any recovered-dollars / earnings optic.
 
 import { DEMO_SNAPSHOT } from "@/lib/leak-report/demo-snapshot.mjs";
+import { GOLD_ATTESTATION } from "@/lib/site-constants";
 
 // Map the composed save-status vocabulary to a marketing-safe, non-earnings label.
 function displayStatus(saveStatus: string): { label: string; won: boolean } {
@@ -143,11 +144,7 @@ export function SampleStatement() {
 
         {/* Signature + narrow attestation */}
         <div className="mt-6 border-t border-hairline pt-4">
-          <p className="max-w-[64ch] text-xs leading-relaxed text-faint">
-            This is a record of the procedures we performed and the fidelity of the transcripts we
-            reviewed. It is not an opinion on the value or legal merit of any case. Where we judge, we
-            show the transcript moment behind the judgment so you can check it yourself.
-          </p>
+          <p className="max-w-[64ch] text-xs leading-relaxed text-faint">{GOLD_ATTESTATION}</p>
           <p className="mt-3 font-display text-sm font-semibold text-ink">Ali F. Ansari</p>
           <p className="text-xs text-ink-muted">Analyst of Record · Plaintiff Ops LLC</p>
         </div>

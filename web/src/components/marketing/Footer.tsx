@@ -9,7 +9,7 @@ const LINKS = [
   { href: "/manifesto", label: "Manifesto" },
   { href: "/letter", label: "The letter" },
   ...(CARTA_READY ? [{ href: "/carta", label: "La carta (español)" }] : []),
-  { href: "/honesty", label: "Our error rate" },
+  { href: "/honesty", label: "Calibration & honesty" },
   { href: "/founder", label: "Founder" },
   { href: "/security", label: "Security" },
   { href: "/demo", label: "See a call scored" },

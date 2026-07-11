@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   DELETION_HOURS,
+  FIRM_RETENTION_DAYS,
   FOUNDER_EMAIL,
   LEGAL_ENTITY,
   LEGAL_DBA,
@@ -105,8 +106,11 @@ export default function PrivacyPage() {
 
         <Section n="6" title="How long we keep it, and deletion">
           <p>
-            Call audio is deleted the moment it is transcribed. Transcripts and reports are deleted
-            within {DELETION_HOURS}{" "}hours of your readout, or immediately if you ask in writing. If you
+            Call audio is deleted the moment it is transcribed. Free Leak Audit transcripts and
+            reports are deleted within {DELETION_HOURS}{" "}hours of your readout, or immediately if
+            you ask in writing. For firms on the desk, transcripts are kept only while we serve you
+            (so your team can check the evidence behind each flag), purged on a rolling{" "}
+            {FIRM_RETENTION_DAYS}-day window, and deleted immediately if you ask in writing. If you
             move from a free Leak Audit to a paid subscription, the data carries over under the
             subscription agreement and the same deletion right applies.
           </p>

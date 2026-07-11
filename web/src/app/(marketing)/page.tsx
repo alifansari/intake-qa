@@ -124,7 +124,7 @@ export default function HomePage() {
         <p className="mt-2 text-sm text-faint">
           {HONESTY_STRIP_LINE}{" "}
           <Link href="/honesty" className="font-semibold text-accent hover:text-accent-hover">
-            See our error rate →
+            See the calibration page →
           </Link>
         </p>
       </Section>
