@@ -26,7 +26,7 @@
 
 *A methodology note for managing partners and intake managers at California plaintiff firms*
 
-Most plaintiff firms record their intake calls. Almost nobody listens to them. Pull twenty at random and you'll find your reps are good at the things intake scripts train for — empathy, contact information, "were you injured," "do they have insurance." What's usually missing are the five questions that actually determine whether a file makes money: the underwriting questions. They go unasked for a predictable reason — every honest answer to a hard question can lower the sign rate, and most intake training optimizes for conversion, not case selection.
+Most plaintiff firms record their intake calls. Almost nobody listens to them. Pull twenty at random and count. The near-universal pattern intake scripts train for is empathy, contact information, "were you injured," "do they have insurance." What the scripts rarely train are the five questions that actually determine whether a file makes money: the underwriting questions. Your intake sheet almost certainly has a field for every one of them — the recordings tell you whether each field was filled by an answer or by an assumption. The questions go unasked for a predictable reason — every honest answer to a hard question can lower the sign rate, and most intake training optimizes for conversion, not case selection.
 
 Here are the five, why reps skip them, what a non-lawyer rep can say verbatim, and what the answer changes downstream. One framing rule first: intake staff gather facts; they never interpret them. Every phrasing below is an information question. The moment a rep says "that means you're covered" or "you still have time to file," you have an unauthorized-practice-of-law problem — the facts go in the file, the interpretation goes to a lawyer.
 
@@ -34,9 +34,9 @@ Here are the five, why reps skip them, what a non-lawyer rep can say verbatim, a
 
 **Why reps skip it:** the script asks about the *other* driver's insurance and stops. The caller's own coverage feels irrelevant — the other guy hit them.
 
-**Why it's case-making, twice over.** First, Proposition 213 (Civil Code §3333.4) generally bars an uninsured driver or vehicle owner from recovering non-economic damages — a clean-liability rear-end soft-tissue case can collapse to its modest economic damages if your client was driving uninsured. The liability facts look perfect on the call; the recovery doesn't survive the statute. Second, California's minimum liability limits were 15/30/5 for decades; SB 1107 raised them to 30/60/15 for policies issued or renewed on or after January 1, 2025 — but a large installed base of minimum-limits policies persists. A minimum-limits defendant plus a real injury is only a viable file if there's a second layer: the client's own UM/UIM stack, an umbrella policy, or a commercial defendant. "Do you have full coverage?" is one of the highest-value questions available on a first call.
+**Why it's case-making, twice over.** First, Proposition 213 (Civil Code §3333.4) generally bars an uninsured driver or vehicle owner from recovering non-economic damages — subject to narrow exceptions, most notably where the defendant is convicted of DUI arising from the crash. A clean-liability rear-end soft-tissue case can collapse to its modest economic damages if your client was driving uninsured. The liability facts look perfect on the call; the recovery doesn't survive the statute. Second, California's minimum liability limits were 15/30/5 for decades; SB 1107 raised them to 30/60/15 for policies issued or renewed on or after January 1, 2025 — but a large installed base of minimum-limits policies persists. A minimum-limits defendant plus a real injury is only a viable file if there's a second layer: the client's own UM/UIM stack, an umbrella policy, or a commercial defendant. "Do you have full coverage?" is one of the highest-value questions available on a first call.
 
-**Suggested rep phrasing:** "Two quick insurance questions, just for the file — were you insured on the day this happened? And do you happen to know whether your policy includes uninsured or underinsured motorist coverage, or an umbrella policy?" *(UPL flag: the rep records the answers. The rep never says what Prop 213 means, whether UIM applies, or whether coverage is adequate.)*
+**Suggested rep phrasing:** "Two quick insurance questions, just for the file — were you insured on the day this happened? And do you happen to know if your policy includes uninsured or underinsured motorist coverage? And do you have any extra coverage, like an umbrella policy?" *(UPL flag: the rep records the answers. The rep never says what Prop 213 means, whether UIM applies, or whether coverage is adequate.)*
 
 **Downstream:** confirmed UM/UIM or umbrella can move a marginal minimum-limits file from decline to sign. An uninsured client on a soft-tissue claim routes to attorney review before anyone celebrates the "clear liability."
 
@@ -48,7 +48,7 @@ Here are the five, why reps skip them, what a non-lawyer rep can say verbatim, a
 
 **Suggested rep phrasing:** "Where have you been treated so far — ER, your own doctor, a chiropractor? And is that going through your health insurance, or some other arrangement?" *(Rep records; rep never advises where or how to treat.)*
 
-**Downstream:** insured, physician-directed, continuous treatment supports sign. Heavy lien treatment against thin limits routes to develop — get the lien picture before the retainer, not after.
+**Downstream:** insured, physician-directed, continuous treatment supports signing. Heavy lien treatment against thin limits routes to a develop-and-verify track — get the lien picture before the retainer, not after.
 
 ## 3. "Did police respond? Was anyone cited? Was there anyone else who saw it happen?"
 
@@ -58,13 +58,13 @@ Here are the five, why reps skip them, what a non-lawyer rep can say verbatim, a
 
 **Suggested rep phrasing:** exactly as titled above, plus: "What did the officer say or write down, if you know?" *(Rep never characterizes fault, never reassures "that wasn't your fault" — that's a legal conclusion.)*
 
-**Downstream:** cited defendant, independent witness, or video supports sign-and-investigate. He-said/she-said with no corroboration routes to develop — pull the report before committing the firm's capital.
+**Downstream:** cited defendant, independent witness, or video supports sign-and-investigate. He-said/she-said with no corroboration routes to develop-and-verify — pull the report before committing the firm's capital.
 
 ## 4. "Was the other driver working at the time — a company vehicle, a delivery, a rideshare? Or was any government vehicle or public property involved?"
 
 **Why reps skip it:** the caller says "a guy hit me," the rep writes "auto accident," and the case type is settled in the first sixty seconds.
 
-**Why it's case-making — and clock-starting.** The same collision can differ enormously in available coverage depending on one unasked question. A company truck usually means a commercial policy. A rideshare driver's coverage varies dramatically with app status — on-trip coverage is commonly $1 million, while an app-on/no-passenger period can look more like a minimum-limits case. And a public-entity defendant — city bus, government vehicle, dangerous condition of public property — is simultaneously the deepest pocket on the board and the most time-urgent: Government Code §911.2 generally requires a claim for personal injury to be presented to the public entity within **six months** of accrual, as a precondition to suit. A rep who never asks "was it a city vehicle?" can let that clock run inside your own CRM.
+**Why it's case-making — and clock-starting.** The same collision can differ enormously in available coverage depending on one unasked question. A company truck usually means a commercial policy. A rideshare driver's coverage varies dramatically with app status — on-trip coverage is commonly $1 million, while an app-on/no-passenger period carries far lower contingent limits (commonly 50/100/30) — a materially different case. And a public-entity defendant — city bus, government vehicle, dangerous condition of public property — is simultaneously the deepest pocket on the board and the most time-urgent: Government Code §911.2 generally requires a claim for personal injury to be presented to the public entity within **six months** of accrual, as a precondition to suit. A rep who never asks "was it a city vehicle?" can let that clock run inside your own CRM.
 
 **Suggested rep phrasing:** "Do you know if the other driver was working — company car, delivery, Uber or Lyft? If rideshare, do you know whether they had a passenger or a trip on the app? And was any city, county, or state vehicle or property involved?" *(Rep flags any government answer for immediate attorney review — the rep never calculates or communicates deadlines.)*
 
@@ -78,17 +78,17 @@ Here are the five, why reps skip them, what a non-lawyer rep can say verbatim, a
 
 **Suggested rep phrasing:** "Standard question we ask everyone: have you ever hurt this same part of your body before, even years ago? Any prior accidents, injury claims, or workers' comp claims? It genuinely helps to know now." *(Normalize it — "we ask everyone" — and record the answer verbatim. The rep never opines on what a prior does to the case.)*
 
-**Downstream:** a disclosed prior with a clear aggravation story can still be a sign. An evasive answer routes to develop. Either way, the attorney decides with the fact in hand instead of discovering it at deposition.
+**Downstream:** a disclosed prior with a clear aggravation story can still be a signup. An evasive answer routes to develop-and-verify. Either way, the attorney decides with the fact in hand instead of discovering it at deposition.
 
 ---
 
 > ### Sidebar — Audit yourself in one afternoon
 >
-> Pull your last **20 recorded intake calls**. Make a five-column tally sheet — client's own coverage/UM-UIM, treatment payment source, liability exposure facts, employer/rideshare/government status, priors — and mark each call: asked, partially asked, or never asked. Two numbers matter: your coverage rate per question, and the count of open case-making questions that **nobody was ever assigned to resolve**. In our experience the second number is the expensive one — not the question that was skipped, but the question that was skipped and then never chased. Give every open item an owner and a callback date, and re-run the tally next month.
+> Pull your last **20 recorded intake calls**. Make a five-column tally sheet — client's own coverage/UM-UIM, treatment payment source, liability exposure facts, employer/rideshare/government status, priors — and mark each call: asked, partially asked, or never asked. Two numbers matter: your coverage rate per question, and the count of open case-making questions that **nobody was ever assigned to resolve**. The second number is the expensive one — not the question that was skipped, but the question that was skipped and then never chased. Give every open item an owner and a callback date, and re-run the tally next month. One housekeeping note: have a lawyer direct the audit and label the tally attorney work product — treat it like any other self-evaluative document.
 
 None of this requires new software, and none of it turns intake reps into lawyers. It requires deciding that the intake call is an underwriting document, not a sales transcript — and that someone in the firm is accountable for the questions it leaves open.
 
-*Ali Ansari is the founder of Plaintiff Ops LLC (Intake QA), an independent, flat-fee review desk for California PI firms' recorded intake calls; if you'd like a hand with the 20-call tally, he'll run one for you at no charge — ali@plaintiffops.com.*
+*Ali Ansari is the founder of Intake QA, an independent, flat-fee review desk for California PI firms' recorded intake calls — ali@plaintiffops.com.*
 
 ---
 
@@ -96,9 +96,9 @@ None of this requires new software, and none of it turns intake reps into lawyer
 
 **Subject: The 5 case-making questions most PI intake calls never ask**
 
-Most of us record intake calls; almost none of us listen to them. I recently tallied recorded plaintiff-PI intake calls against the five questions that actually decide whether a file makes money — the caller's own UM/UIM and insured status (Prop 213 hides here), how treatment is being paid (the *Howell* and lien reality), the comparative-fault exposure facts, whether the defendant was working / rideshare / a public entity (with the Gov Code §911.2 six-month clock), and prior injuries or claims. The pattern: reps reliably ask what conversion scripts reward and reliably skip what underwriting requires — because every honest answer to a hard question can lower the sign rate.
+Most of us record intake calls; almost none of us listen to them. There are five questions that actually decide whether a file makes money — and they're exactly the questions conversion-optimized intake scripts have no incentive to ask: the caller's own UM/UIM and insured status (Prop 213 hides here), how treatment is being paid (the *Howell* and lien reality), the comparative-fault exposure facts, whether the defendant was working / rideshare / a public entity (with the Gov Code §911.2 six-month clock), and prior injuries or claims. The pattern is structural: scripts reward what closes and skip what underwrites, because every honest answer to a hard question can lower the sign rate.
 
-I wrote up the five, with verbatim phrasings a non-lawyer rep can safely use, plus a DIY audit: pull your last 20 recordings and tally them yourself. Full piece here: [LINK]. Happy to discuss on-list.
+I wrote up the five, with verbatim phrasings written as pure information questions — reps gather the fact, lawyers read it — plus a DIY audit: pull your last 20 recordings and tally them yourself. Full piece here: [LINK]. Happy to discuss on-list.
 
 — Ali Ansari, Plaintiff Ops LLC
 
@@ -106,6 +106,21 @@ I wrote up the five, with verbatim phrasings a non-lawyer rep can safely use, pl
 
 ## Author's notes (not for publication)
 
-- Deliberately omitted: Pebley/Corenbaum detail (too deep for the format), dram shop, any dollar-value or outcome claims.
-- The teaser's "I recently tallied recorded plaintiff-PI intake calls" — before posting, confirm Ali has actually run at least one tally on real (consented) recordings, or soften to "I've been tallying." §IV: no citation, no claim applies to experience claims too.
-- The 20-call free-tally offer requires the firm's recording-consent chain to be intact before audio is shared (§II). Add that to the offer's intake step.
+- **QC pass #1 applied 2026-07-10** (adversarial review, verdict SHIP AFTER FIXES → all 14
+  defects fixed in this revision): the BLOCKER false-empirical teaser claim ("I recently
+  tallied…") replaced with the structural-claim version; rideshare Period 1 corrected to
+  50/100/30 contingent (AB 2293) — it is NOT "minimum-limits"; Prop 213 DUI-defendant
+  exception acknowledged; "In our experience" removed (no client experience exists yet);
+  "safely use" UPL-assurance removed from teaser; work-product caveat added to sidebar;
+  free-tally offer REMOVED from the bio (listserv vendor-solicitation exposure — the offer
+  moves to 1:1 follow-up, where it must include "on recordings your firm is authorized to
+  share, under NDA" per §II); intro now preempts the "we ask all of these" objection
+  (form-vs-recording gap); internal jargon ("routes to develop," "a sign") translated;
+  single public name (Intake QA). All legal cites re-verified in QC: Howell 52 Cal.4th 541,
+  SB 1107 30/60/15 (policies issued/renewed ≥2025-01-01), Gov Code §911.2 six months +
+  "generally" hedge, Li v. Yellow Cab, $1M on-trip (Periods 2/3, AB 2293).
+- **Posting gates remaining:** (1) verify the specific LACBA listserv's vendor-content
+  policy before posting; (2) Yang read (public-facing legal statements under Ali's name);
+  (3) Ali presses post (§VII). QC pass #2 = the Yang read.
+- Deliberately omitted: Pebley/Corenbaum detail (too deep for the format), dram shop, any
+  dollar-value or outcome claims.
