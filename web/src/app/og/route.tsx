@@ -6,7 +6,7 @@ export const runtime = "edge";
 // Usage: /og?title=Your+headline
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const title = (searchParams.get("title") || "Recover the cases your intake let slip").slice(0, 120);
+  const title = (searchParams.get("title") || "Recover the cases that slipped").slice(0, 120);
 
   return new ImageResponse(
     (

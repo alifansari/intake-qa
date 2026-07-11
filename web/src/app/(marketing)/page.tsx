@@ -167,6 +167,10 @@ export default function HomePage() {
       {/* STAT BAR — why this problem is expensive */}
       <Section className="pb-4">
         <StatBar stats={STATS} />
+        <p className="mt-3 text-xs text-faint">
+          Why these four numbers: what a lead costs, how often nobody answers, who&apos;s calling,
+          and how few firms know their own number. Sources named under each.
+        </p>
       </Section>
 
       {/* INDEPENDENCE — the one differentiator that matters */}
@@ -258,7 +262,7 @@ export default function HomePage() {
           <div className="mt-6 grid gap-px overflow-hidden rounded-card border border-hairline bg-hairline sm:grid-cols-2">
             {[
               ["What you get", "The full desk on your own calls: every call scored, misses flagged the same day, the monthly statement, free for the whole beta."],
-              ["What it takes", "A mutual NDA, connecting or uploading your recorded intake calls, and candid feedback on what's useful. Your staff make every callback; we never contact your prospects."],
+              ["What it takes", "A mutual NDA, connecting or uploading your recorded intake calls, and candid feedback on what's useful. Your staff make every callback; we never contact your callers."],
             ].map(([h, b]) => (
               <div key={h} className="bg-surface p-5">
                 <p className="font-display text-base font-semibold text-ink">{h}</p>

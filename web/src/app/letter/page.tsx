@@ -10,7 +10,7 @@ export const dynamic = "force-static";
 
 const PUBLICATION_DATE = "July 6, 2026"; // set once; used in dateline, attestation, OG
 const PUBLICATION_ISO = "2026-07-06";
-const REVISION_DATE = "July 9, 2026"; // last text revision; shown in the version line/colophon
+const REVISION_DATE = "July 11, 2026"; // last text revision; shown in the version line/colophon
 
 // The Spanish translation at /carta is scaffolded but not yet published. Flip this
 // (and paste content into app/carta) to emit hreflang alternates + link it.
@@ -88,7 +88,7 @@ export default function LetterPage() {
           <p className={styles.attLine}>{PUBLICATION_DATE}</p>
 
           <p className={styles.attMeta}>
-            I publish my own error rate at <a href="/honesty">/honesty</a>.
+            What I will and will not claim is at <a href="/honesty">/honesty</a>.
           </p>
 
           <p className={styles.attMeta}>
@@ -100,13 +100,16 @@ export default function LetterPage() {
             <span className={styles.monogram} aria-hidden="true">
               IQ
             </span>
-            <span className={styles.version}>Version 1.3 · updated {REVISION_DATE}</span>
+            <span className={styles.version}>Version 1.4 · updated {REVISION_DATE}</span>
           </div>
         </footer>
 
         <aside className={styles.colophon}>
           <p>
-            Changelog. 1.3: the invitation was updated for the beta window: the first five firms
+            Changelog. 1.4: the Calibration &amp; Honesty references were corrected to match the
+            page as it stands: the method and the failure modes are public now; the error rate is
+            published together with its documented test corpus, not before. 1.3: the invitation was
+            updated for the beta window: the first five firms
             test the desk free under a mutual NDA in exchange for structured feedback, with
             preferred pricing locked in at launch; no dollar figure is published during the beta,
             and the fee remains flat and outcome-decoupled. 1.2: the invitation was reconciled to

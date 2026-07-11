@@ -3,7 +3,6 @@
 // the cohort is full, the CTA flips to a waitlist state automatically.
 
 import Link from "next/link";
-import { STAKE_LINE } from "@/lib/site-constants";
 import { SEAT_LINE, COHORT_CTA_LABEL, COHORT_CTA_HREF, COHORT_FULL } from "@/lib/cohort";
 
 export function PilotCohortBanner() {
@@ -16,7 +15,6 @@ export function PilotCohortBanner() {
         <p className="text-sm font-medium text-ink">
           Start with a free Leak Audit; a small founding cohort then tests the full desk, free
           during the beta, with preferred pricing locked in at launch.{" "}
-          <span className="text-ink-muted">{STAKE_LINE}</span>{" "}
           <span className="tnum font-semibold text-ink">{SEAT_LINE}</span>
         </p>
       </div>

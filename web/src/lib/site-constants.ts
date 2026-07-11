@@ -145,7 +145,7 @@ export const BETA_CONDITIONS: string[] = [
 ];
 // The unchanged ground rules, stated wherever the conditions appear.
 export const BETA_GROUND_RULES =
-  "Two things never change, beta or not: your own staff make every callback, and we never contact your prospects.";
+  "Two things never change, beta or not: your own staff make every callback, and we never contact your callers.";
 // How pricing is handled during the beta (transparent deferral, no games).
 export const BETA_PRICING_LINE =
   "There is a real price, and it's flat: a monthly subscription tiered by call volume, never per case, never per signed client, never a share of any recovery. We share the number individually, after your free Leak Audit, so you can weigh it against what the audit found in your own calls.";
@@ -165,7 +165,7 @@ export const GUARANTEE_CANONICAL =
 export const GUARANTEE_BADGE_LINE =
   "$25,000 find-it-free guarantee: if the audit doesn't surface at least $25k in estimated missed signable case value, we won't pitch you, and if you subscribe anyway your first month is free. An estimate of what walked, not a promise of recovery.";
 export const GUARANTEE_METHODOLOGY =
-  "How we estimate missed signable case value: we count the signable cases our model flags that didn't sign, then multiply by your firm's own average fee per signed case for that case type. Where you haven't given us your average fee, we substitute a named, sourced benchmark (e.g., auto soft-tissue ~$16,000; serious injuries $55,000+) and label every substituted figure. Estimates are estimates, not a promise of recovered fees; our model's precision and recall will be published on this page the day the test corpus is documented — and not before.";
+  "How we estimate missed signable case value: we count the signable cases our model flags that didn't sign, then multiply by your firm's own average fee per signed case for that case type. Where you haven't given us your average fee, we substitute a named, sourced benchmark (e.g., auto soft-tissue ~$16,000; serious injuries $55,000+) and label every substituted figure. Estimates are estimates, not a promise of recovered fees; our model's precision and recall will be published on this page the day the test corpus is documented, and not before.";
 // TODO(Ali): collect each firm's average fee per case type (guarantee methodology input).
 
 // ─── Founding cohort (honest, durable language — no countdown, no "N seats left") ───
@@ -224,7 +224,7 @@ export const STAT_SPEED_TO_LEAD_REFUTED_DO_NOT_RENDER = {
 // per-LEAD anchor and let the reader do their own signed-case math.
 export const STAT_PI_COST_PER_CASE = {
   value: "$284",
-  label: "average cost of a single PI lead — paid before your intake team ever picks up the phone",
+  label: "average cost of a single PI lead, paid before your intake team ever picks up the phone",
   source: "Pareto Legal, \"State of Law Firm PPC\": 13 plaintiff-side firms, $3.3M combined Google Ads + LSA spend, 2025",
 };
 // REMOVED (copy-audit 2026-07-11): STAT_PI_PPC_COST_PER_CASE ("$2,500 to $3,000
@@ -354,7 +354,7 @@ export const PRICING_TIERS: PricingTier[] = [
     priceCents: 500000,
     callCap: 800,
     volume: "everything in Core, plus higher volume",
-    sub: "Everything in Core at higher call volume. The recovered-lead recovery workflow is included once it is legally cleared (on the roadmap, not yet live).",
+    sub: "Everything in Core at higher call volume. The lead win-back workflow is included once it is legally cleared (on the roadmap, not yet live).",
     featured: false,
     checkoutPlan: "pro",
   },

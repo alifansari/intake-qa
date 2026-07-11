@@ -356,7 +356,7 @@ function Results({
           sub={BAND_LABEL[result.scoreBand] ?? result.scoreBand} />
         <Stat label="Case signability" value={SIGNABILITY_LABEL[result.signability] ?? result.signability}
           sub={`signability ${result.signabilityScore}/100`} />
-        <Stat label="Did your team ask?" value={result.askMade == null ? "-" : result.askMade ? "Yes" : "No ask"}
+        <Stat label="Did your team ask for the signup?" value={result.askMade == null ? "-" : result.askMade ? "Yes" : "No ask"}
           sub={`outcome: ${result.conversionOutcome}`} tone={result.askMade === false ? "red" : "ink"} />
       </div>
 

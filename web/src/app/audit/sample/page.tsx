@@ -110,7 +110,7 @@ export default function SampleAuditPage() {
       {/* No projection — the refusal is the pitch */}
       <section className="mt-8 rounded-sm border border-line bg-paper p-4">
         <p className="text-sm font-semibold uppercase tracking-wide text-muted">
-          What a full month looks like — we won&apos;t tell you from a sample
+          What a full month looks like: we won&apos;t tell you from a sample
         </p>
         <p className="mt-2 max-w-prose text-sm text-ink">
           Eight synthetic calls prove the method, not your number. Extrapolating a monthly dollar

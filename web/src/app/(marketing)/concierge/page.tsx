@@ -15,12 +15,12 @@ export default function ConciergePage() {
     <div className="mx-auto max-w-[820px] px-5 py-16">
       <p className="eyebrow">Concierge</p>
       <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink text-balance sm:text-5xl">
-        White-glove recovery for founding firms.
+        Setup is on us.
       </h1>
       <p className="mt-6 max-w-[68ch] text-lg leading-relaxed text-ink-muted">
         Once you join the founding beta, we don&apos;t just hand you a dashboard. We&apos;ll sit
-        with your staff while they work the first callback list — your team makes every call, we
-        make sure the setup, the scripts, and the ledger are working — so you see signed cases early.
+        with your staff while they work the first callback list. Your team makes every call; we
+        make sure the setup, the scripts, and the ledger are working, so you see signed cases early.
       </p>
       <div className="mt-10">
         <PilotCohortBanner />

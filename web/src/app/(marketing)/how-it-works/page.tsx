@@ -18,13 +18,13 @@ export const metadata: Metadata = {
 
 const STEPS: [string, string, string][] = [
   ["Month-Zero Baseline, co-signed", "Before we change anything, we co-sign a Baseline that records where your intake stands today, so every later number is measured against a line we both agreed to.", "You approve the starting point; nobody moves the goalposts later."],
-  ["Call arrives", "Every intake call comes in through your existing phone system or a manual upload.", "Nothing changes about how your clients reach you."],
+  ["Call arrives", "Every intake call comes in through your existing phone system (CallRail, RingCentral, 8x8, Dialpad, or any system that records) or a manual upload.", "Nothing changes about how your clients reach you."],
   ["Transcribed", "Our transcription model produces a speaker-separated transcript.", "The audio is deleted the moment the transcript exists."],
   ["Scored, and placed in a tier", "Each call is scored against a frozen, calibrated rubric and placed in one of five plain-English signability tiers.", "The rubric is version-locked, so a Tier 4 means the same thing every month."],
   ["Signable-case detection", "A case is flagged when it reaches Tier 4 or above, it wasn't converted, and it's within 72 hours.", "Pure, inspectable logic, not a black box."],
   ["Ali reviews every flagged call", "A named analyst reviews every flag and the transcript moment behind it before it reaches your queue.", "Not an autonomous model deciding on its own; a person who knows what a signable case sounds like."],
   ["Same-day Recoverable-Lead Alert", "You get a one-screen Alert the same day. Lead value fades fast, so the play is a callback within the hour.", "A specific, same-day SLA, because speed is the biggest lever on recovery."],
-  ["Your staff make the callback", "Every flagged case comes with the number, the evidence, and a suggested script — and a person at your firm makes the call. During the beta that's the whole play: no texts, no automation touching your prospects.", "We never contact your callers. A drafted, human-approved text assist is on the roadmap, gated on A2P 10DLC registration and seven compliance gates."],
+  ["Your staff make the callback", "Every flagged case comes with the number, the evidence, and a suggested script; a person at your firm makes the call. During the beta that's the whole play: no texts, no automation touching your callers.", "We never contact your callers. A drafted, human-approved text assist is on the roadmap, gated on A2P 10DLC registration and seven compliance gates."],
   ["Monthly Missed-Revenue Statement", "A two-page monthly Statement, signed by the analyst, shows what walked in dollars, the trend, and the Saved-Case Ledger. A standing 15-minute review call and a Right of Reply come with it.", "Challenge any finding; your correction runs, unedited, in the next Statement's Corrections column."],
   ["Flat monthly fee", "You pay one flat monthly fee tiered by call volume, the same whether you sign zero cases or fifty.", "Never per case, per client, or per recovered dollar (Cal. B&P §§6151-6152)."],
 ];

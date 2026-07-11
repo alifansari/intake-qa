@@ -54,7 +54,7 @@ function Result({ tone, rate, casesLost, avgFee }: { tone: string; rate: number;
   return (
     <div className="flex flex-col gap-2 rounded-card border border-hairline bg-canvas p-5">
       <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{tone}</p>
-      <p className="text-xs text-faint">Wins back {Math.round(rate * 100)}% of the signable cases that didn&apos;t convert</p>
+      <p className="text-xs text-faint">That&apos;s {Math.round(rate * 100)}% of the signable cases that didn&apos;t convert</p>
       <dl className="mt-1 flex flex-col gap-1.5 text-sm">
         <div className="flex justify-between"><dt className="text-ink-muted">Cases won back / yr</dt><dd className="tnum font-semibold text-ink">{recoveredCases.toFixed(1)}</dd></div>
         <div className="flex justify-between"><dt className="text-ink-muted">Fees recovered / yr</dt><dd className="tnum font-semibold text-accent">{usd(recoveredFees)}</dd></div>
@@ -90,11 +90,12 @@ export function ROICalculator() {
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <Result tone="Conservative" rate={CONSERVATIVE} casesLost={casesLost} avgFee={avgFee} />
-        <Result tone="Optimistic" rate={OPTIMISTIC} casesLost={casesLost} avgFee={avgFee} />
+        <Result tone="If you win back 1 in 5" rate={CONSERVATIVE} casesLost={casesLost} avgFee={avgFee} />
+        <Result tone="If you win back 2 in 5" rate={OPTIMISTIC} casesLost={casesLost} avgFee={avgFee} />
       </div>
       <p className="mt-3 text-xs text-faint">
-        Estimates on your own inputs, at illustrative 20% / 40% recovery rates. Not a guarantee.
+        Estimates on your own inputs. The 1-in-5 and 2-in-5 win-back rates are illustrative
+        assumptions, not observed results. Not a guarantee.
         The desk is free during the beta; at launch the fee is a flat monthly subscription, never
         a share of any recovery.
       </p>

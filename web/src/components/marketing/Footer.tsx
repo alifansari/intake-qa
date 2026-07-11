@@ -52,7 +52,7 @@ export function Footer() {
         <p className="mt-6 max-w-[80ch] text-xs text-faint">
           Intake QA is a service of Plaintiff Ops LLC. Estimates and calibration figures are not
           legal advice; your firm and its counsel make the final call on ethics and consent. During
-          the beta your own staff make every callback; we never contact your prospects. ©{" "}
+          the beta your own staff make every callback; we never contact your callers. ©{" "}
           {COPYRIGHT_YEAR} Plaintiff Ops LLC.
         </p>
       </div>
