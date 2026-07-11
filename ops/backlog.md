@@ -127,3 +127,13 @@ paying-firm autopsy data later.
 - **Hypothesis:** If each flag carries "statute runs ~X months" from incident date (sol.mjs exists), then partner urgency + trust rise because the desk speaks in the firm's own risk language (already promised in the queue footnote — currently vaporware).
 - **Deliverable:** incident-date capture in pipeline + SOL render; PR.
 - **Status:** queued
+
+### B-014 — Unify the fee number across the audit report and the desk  ·  ICE: 6×7×5 = 210  ·  lane: product
+- **Hypothesis:** If the Leak Audit report and the desk derive the fee from the SAME source (the vetted getFeeValueRange table × contingency), then a diligent attorney comparing the free audit to their live desk won't catch a discrepancy (audit currently uses the demo-config point estimate; desk uses the published range). Both are labeled estimates today, so it's defensible — but one number is more trustworthy. Decide: is the audit's generic-benchmark basis intentional (we don't have the firm's avg fee yet) or should it unify?
+- **Deliverable:** decision + (if unifying) PR on ingest/demo.mjs estimateFeeAtRisk / from-audit.mjs.
+- **Status:** queued (needs product decision)
+
+### B-015 — Decide the Readout PDF's analyst-release gate  ·  ICE: 5×6×7 = 210  ·  lane: product
+- **Hypothesis:** compliance-invariants §VII wants human approval before a deliverable leaves the building. The leak-report route gates on report_status='released'; the Readout PDF route does not (it mirrors the intentionally-ungated /audit page). Decide whether the auto-generated Readout should also require analyst release, or is explicitly the visitor's own instant artifact (like the /audit page).
+- **Deliverable:** Ali/Yang decision; gate the route if yes.
+- **Status:** queued (needs §VII decision)
