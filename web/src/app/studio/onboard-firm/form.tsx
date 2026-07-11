@@ -2,6 +2,7 @@
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { CallRailSecretForm } from "./callrail-secret-form";
 
 interface Result {
   firm_id: string;
@@ -116,6 +117,10 @@ export function OnboardFirmForm({
           <p className="mt-3 text-xs text-faint">
             Sending the email is yours to do — nothing was sent automatically.
           </p>
+          {/* If this firm uses CallRail, store their account's signing key now —
+              their webhooks 401 until it's saved (each CallRail account has its
+              own key; the shared env secret only covers firm #1). */}
+          <CallRailSecretForm initialFirmId={result.firm_id} compact />
         </CardContent>
       </Card>
     );

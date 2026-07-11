@@ -240,6 +240,16 @@ export async function addInboundMessage(db, { conversation_id, body }) {
   return info.rows[0].id;
 }
 
+// Per-firm CallRail signing secret (supabase migration 0034). Pass null to
+// clear (falls back to the shared env secret). Returns true when a row updated.
+export async function setFirmCallRailSecret(db, firmId, secret) {
+  const r = await db.query(
+    "UPDATE firms SET callrail_webhook_secret = $1 WHERE id = $2",
+    [secret == null ? null : String(secret), firmId],
+  );
+  return (r.rowCount ?? 0) > 0;
+}
+
 export async function setFirmKillSwitch(db, firmId, on) {
   if (firmId == null) {
     await db.query("UPDATE firms SET kill_switch = $1", [Boolean(on)]);

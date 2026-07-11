@@ -278,6 +278,16 @@ export function addInboundMessage(db, { conversation_id, body }) {
   return Number(info.lastInsertRowid);
 }
 
+// Per-firm CallRail signing secret (migration 0026 local / 0034 supabase).
+// Pass null to clear it (the per-firm webhook route then falls back to the
+// shared env secret). Returns true when a firm row was updated.
+export function setFirmCallRailSecret(db, firmId, secret) {
+  const info = db
+    .prepare("UPDATE firms SET callrail_webhook_secret = ? WHERE id = ?")
+    .run(secret == null ? null : String(secret), firmId);
+  return Number(info.changes) > 0;
+}
+
 // Flip the per-firm kill switch (operator halt). firmId=null flips ALL firms.
 export function setFirmKillSwitch(db, firmId, on) {
   const val = on ? 1 : 0;
