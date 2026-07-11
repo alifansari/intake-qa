@@ -562,7 +562,13 @@ recalibrated quarterly), anchor bands to the firm's **own realized base rates**,
 grade the model on the true target — **realized net-per-case / profitable
 inventory** — NOT sign-rate (Goodhart). Log attorney overrides + outcomes.
 
-### 4.9 The fourth GOLD example (D8)
+### 4.9 The GOLD calibration set (D8) — DRAFTED
+Full six-example v2 gold set staged in **`ops/drafts/engine-v2-gold-examples.md`**
+(not installed in `scoring/` — frozen). Contains the four cases v1 never tested:
+correct **decline** (Prop 213), correct **develop**, correct **refer-out** (CRPC
+1.5.1 med-mal), **over-conversion** (`questionable_sign`), plus a clean sign and a
+genuine lost trucking case — and the re-score of v1's golds showing both alerts are
+disposition-gated (context-dependent), not mechanical. Original requirement below:
 Add a calibration anchor v1 has never been tested against: **a marginal min-limits
 / low-PD soft-tissue (or uninsured-dog, or non-catastrophic med-mal) case that
 intake correctly develops-then-defers or declines/refers — scored WELL.** Re-score
@@ -776,6 +782,52 @@ discoverable admission + UPL-adjacent + a 7.1 landmine, for marginal utility ove
 tier. (Converges exactly with adversarial P0-1.) **This whole feature is NOT
 clear-to-ship; the advisory-only / no-terminal-output / tier-not-dollars /
 generic-reminder-not-dates design is the plausibly-shippable path — Yang's call.**
+
+---
+
+## 4quinquies. CA-LAW VERIFICATION — corrections to encode (Wave 2)
+
+An independent CA-law fact-check (primary sources: leginfo, eCFR, State Bar, Justia)
+verified the design's law. 8 of 13 claims VERIFIED as-is; 5 PARTLY-RIGHT with the
+corrections below. **Three are product-logic-critical:**
+
+1. **PROP 213 (Civ. §3333.4) — get the split EXACTLY right (a genuine mispricing
+   risk):** an uninsured owner/operator or DUI-convicted driver loses **NON-economic
+   damages ONLY**; **economic damages are ALWAYS recoverable** (so a $60k soft-tissue
+   case collapses to ~$8k *economic*, not to $0). Precision: **§3333.4(c) is a DUI
+   RESTORATION** exception — it *restores* non-economic damages to the uninsured owner
+   injured by a DUI-convicted driver (not "economic where DUI"). **§3333.3 is a
+   SEPARATE felony bar** — bars *all* damages where plaintiff's own felony (convicted)
+   proximately caused the injury; not the uninsured-motorist rule. Exceptions to the
+   §3333.4 bar: passengers, non-owners. (Our §3.2/§3.4 synthesis stated the non-econ
+   bar correctly; encode the §3333.4(c)/§3333.3 precision + exceptions in the rubric.)
+2. **RIDESHARE / SB 371:** tiers correct (P1 $50k/$100k/$30k contingent; P2–3 **$1M
+   primary liability**) but cite is **Pub. Util. Code §5433 ONLY (§5440 is wrong** —
+   it's WAV access). **SB 371, eff. Jan 1 2026, cut on-trip UM/UIM from $1M to
+   $60k/person / $300k/incident** and made the TNC solely responsible — it did NOT
+   change the $1M primary liability. (Fresh change → easy to go stale.)
+3. **AUTO MIN LIMITS:** numbers/dates right (15/30/5 → **30/60/15 for policies
+   issued/renewed on-or-after Jan 1 2025** → 50/100/25 on-or-after Jan 1 2035, SB 1107)
+   but the dollar floor lives in **Veh. Code §16056** (NOT "Ins. Code §11580.1b" which
+   doesn't exist); keys off issuance/renewal date, not mid-term.
+
+**Other corrections:** MICRA/AB 35 schedule confirmed ($350k/$500k from 2023, +$40k/
++$50k per year to **$750k/$1M on Jan 1 2033**, then 2% annual from 2034; up to 3 caps;
+§6146 fee tiers 25%/33⅓%; §340.5 + §364). Dram shop: **Cory v. Shierloh (1981)
+*upheld* the immunity statutes (not "reinstated")**; the social-host minor exception is
+**Civ. §1714(d)** (not b/c) and triggers on furnishing to someone **under 21 at one's
+residence — the trigger is AGE, not obvious intoxication** (that's the §25602.1
+*commercial-licensee* trigger). Trucking: $750k general freight at **49 CFR §387.9**
+(hazmat ladder $1M/$5M); MCS-90 form at §387.15. VERIFIED as-written: Howell/Corenbaum/
+Pebley trilogy (the medical-damages backbone — lock it down), MICRA, Gov Claims Act,
+Li pure-comparative, dog-bite §3342/Uccello, CRPC 1.5.1 pure referral fee, CCP §998 +
+**Madrigal v. Hyundai (2025) 17 Cal.5th 480** (§998 shifting applies to pre-trial
+settlements), premises (Ortega/Huckey/Ann M./Delgado).
+
+**Action:** the v0.2 consolidated spec + gold examples must carry the corrected Prop
+213 split, the SB 371 rideshare numbers, and the Veh §16056 cite. All statute
+citations get a "verify-against-current-code" note (law drifts; SB 371 and SB 1107
+are live-moving).
 
 ---
 
