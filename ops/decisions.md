@@ -397,3 +397,28 @@ cleaned from hosted DB.
 verification; XFF-trusted rate-limit IP on Vercel; storage bucket size cap; engine-v2
 triage rubric (frozen — needs attorney review); statute clock; attempt-count nudge.
 **Review:** at first real beta firm's first week.
+
+## 2026-07-10 — Engine v2 triage-first: research + design (3 waves, staged for Ali+Yang)
+
+**Change:** Exhaustive research + design for rebuilding the intake scoring engine to
+optimize for TRIAGE (case selection) not conversion, per Ali's request. Engine left
+FROZEN; produced a reviewed design deliverable (NOT a code change): exec summary +
+research log (~20 cited PI-attorney/decision-science/ethics briefs across 3 waves) +
+promptable v2 system-prompt DRAFT + outcome-validation-loop & firm-config YAML + a
+6-example gold calibration set. All in ops/drafts/engine-v2-*.md.
+**Hypothesis:** v1 scores intake as a conversion funnel; the CAALA/CAOC firms we sell
+to run it as case-selection; a triage engine (coverage-adequacy gate, net-of-lien value,
+two-sided over-conversion alert, actuarial validation loop) matches the real buyer.
+**Key finding (adversarial + compliance converged):** the full case-VALUE oracle is a
+post-validation, up-market product; its beta-appropriate form is a call-QA + develop-
+queue CONVEYOR (headline metric = "value-determining questions resolved within SLA," not
+a score). No terminal outputs, tier-not-dollars, generic-deadline-reminders, aggregate
+(not per-staffer) over-conversion signal, Fricker-grounded fairness fixes. **Do NOT ship
+the selection engine to the current beta** (small firms' problem is follow-up not
+selection; tiers need a 12-24mo validation cycle).
+**Expected effect:** north-star engine design banked; near-term product clarified as the
+conveyor the rescue packet already partly delivers.
+**Hard STOPs → Yang (§VII):** freeze-lift, case-VALUE-at-intake, no-auto-decline,
+deadline flags, over-conversion retention, refer-out monetization, the 3 fairness fixes.
+**Review:** when Ali decides whether to lift the freeze; not before a PI-attorney +
+Yang review.
