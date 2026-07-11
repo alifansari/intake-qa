@@ -100,14 +100,15 @@ export function insertFlag(db, flag) {
     qualification_score = null,
     is_leaked_signable = 0,
     reason = null,
+    case_type = null,
   } = flag;
   const info = db
     .prepare(
       `INSERT INTO flags
-         (call_id, firm_id, qualification_score, is_leaked_signable, reason)
-       VALUES (?, ?, ?, ?, ?)`
+         (call_id, firm_id, qualification_score, is_leaked_signable, reason, case_type)
+       VALUES (?, ?, ?, ?, ?, ?)`
     )
-    .run(call_id, firm_id, qualification_score, is_leaked_signable, reason);
+    .run(call_id, firm_id, qualification_score, is_leaked_signable, reason, case_type ?? null);
   return Number(info.lastInsertRowid);
 }
 

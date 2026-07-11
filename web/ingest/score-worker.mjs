@@ -104,6 +104,7 @@ export async function scoreUnscored({
       qualification_score: mapped.qualification_score,
       is_leaked_signable: mapped.is_leaked_signable,
       reason: mapped.reason,
+      case_type: mapped.case_type,
     });
 
     let conversationId = null;

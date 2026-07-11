@@ -81,11 +81,12 @@ export async function insertFlag(db, flag) {
     qualification_score = null,
     is_leaked_signable = false,
     reason = null,
+    case_type = null,
   } = flag;
   const info = await db.query(
-    `INSERT INTO flags (call_id, firm_id, qualification_score, is_leaked_signable, reason)
-     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-    [call_id, firm_id, qualification_score, Boolean(is_leaked_signable), reason]
+    `INSERT INTO flags (call_id, firm_id, qualification_score, is_leaked_signable, reason, case_type)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+    [call_id, firm_id, qualification_score, Boolean(is_leaked_signable), reason, case_type ?? null]
   );
   return info.rows[0].id;
 }

@@ -41,6 +41,37 @@ export function withinReengageWindow(receivedAt, windowHours = 72, now = new Dat
   return ageMs >= 0 && ageMs <= windowHours * 3600 * 1000;
 }
 
+// Map the scorer's machine case-type code to the human display label the desk
+// shows AND the fee_value_ranges table is keyed by. Only labels that exist in
+// the vetted, sourced fee seed get a dollar range on the card; anything else
+// shows the case type but NO fee (honest — we never fabricate a range).
+const CASE_TYPE_LABELS = {
+  mva_standard: "Auto accident",
+  mva_commercial: "Auto accident",
+  motorcycle: "Auto accident",
+  auto: "Auto accident",
+  premises: "Slip & fall",
+  slip_fall: "Slip & fall",
+  dog_bite: "Dog bite",
+};
+
+// Turn an unmapped machine code (e.g. "product_liability") into a readable
+// label ("Product liability") so the card is never blank, without claiming a fee.
+function humanizeCaseType(code) {
+  if (!code || typeof code !== "string") return null;
+  const known = CASE_TYPE_LABELS[code.toLowerCase()];
+  if (known) return known;
+  const cleaned = code.replace(/_/g, " ").trim();
+  return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : null;
+}
+
+// Pull the case type from a score payload (only present on leaked/at-risk calls,
+// under alerts.revenue_at_risk.case_type_matched).
+export function caseTypeFromScore(score) {
+  const code = score?.alerts?.revenue_at_risk?.case_type_matched;
+  return humanizeCaseType(code);
+}
+
 // Evaluate a scored call into a flag decision. Returns the columns the flags
 // table needs plus the signability score used. `qualification_score` remains
 // the rubric OVERALL score (dashboard continuity); `reason` records the verdict.
@@ -74,5 +105,6 @@ export function evaluateFlag({
     qualification_score: overall == null ? null : Math.round(overall),
     signability_score: signability,
     reason,
+    case_type: caseTypeFromScore(score),
   };
 }

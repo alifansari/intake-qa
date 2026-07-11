@@ -18,9 +18,15 @@ import { isTestMode } from "./compliance.mjs";
 
 const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
 
-// Statuses that still need the firm's action — mirrors the desk queue's idea
-// of "open". Anything the firm already worked leaves the digest.
-const OPEN_STATUSES = new Set([null, undefined, "", "needs_callback"]);
+// A case leaves the digest only once it reaches a TERMINAL outcome (signed,
+// passed, or bad number) — matching the desk queue's active/Handled split
+// exactly. A caller you only left a message for stays on the list so the second
+// and later attempts happen (most conversions land by the 6th attempt; most
+// firms quit after 2 — Velocify). "Anything not terminal still needs action."
+const TERMINAL_STATUSES = new Set(["signed", "didnt_sign", "bad_number"]);
+function isOpen(status) {
+  return !TERMINAL_STATUSES.has(status ?? "");
+}
 
 function esc(v) {
   if (v == null) return "";
@@ -33,7 +39,7 @@ function esc(v) {
 
 // Pure: flags (listLeakedFlags rows) → digest view model.
 export function buildMissedDigest({ firm, flags, callsReceived = 0, now = new Date() }) {
-  const open = (flags ?? []).filter((f) => OPEN_STATUSES.has(f.save_status ?? null));
+  const open = (flags ?? []).filter((f) => isOpen(f.save_status ?? null));
   const items = open.map((f) => ({
     flagId: f.id,
     name: f.caller_name || "Unknown caller",

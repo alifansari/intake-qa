@@ -71,18 +71,24 @@ test("only workflow statuses are linkable — terminal outcomes are not", () => 
 const FIRM = { id: 9, name: "Test Firm LLP" };
 const FLAGS = [
   { id: 1, caller_name: "Maria G.", caller_phone: "+15105551234", case_type: "mva", save_status: null, confidence_tier: "strong", reason: "Rear-ended, treated same day", received_at: "2026-07-09" },
-  { id: 2, caller_name: "Handled Already", caller_phone: "+15105550000", case_type: "mva", save_status: "reached_out", confidence_tier: "strong", reason: "x", received_at: "2026-07-08" },
+  // Left a message but not yet resolved — stays on the list so the next attempt happens.
+  { id: 2, caller_name: "Left A Message", caller_phone: "+15105550001", case_type: "mva", save_status: "reached_out", confidence_tier: "strong", reason: "vm", received_at: "2026-07-08" },
+  // Terminal outcome — leaves the digest.
+  { id: 3, caller_name: "Already Signed", caller_phone: "+15105550000", case_type: "mva", save_status: "signed", confidence_tier: "strong", reason: "x", received_at: "2026-07-08" },
 ];
 
-test("builder keeps open misses, drops worked ones", () => {
+test("builder keeps every non-terminal miss (incl. left-a-message), drops only resolved ones", () => {
   const d = buildMissedDigest({ firm: FIRM, flags: FLAGS, callsReceived: 14 });
-  assert.equal(d.missCount, 1);
-  assert.equal(d.items[0].name, "Maria G.");
+  assert.equal(d.missCount, 2); // Maria (needs callback) + Left A Message (second attempt due)
+  const names = d.items.map((i) => i.name);
+  assert.ok(names.includes("Maria G."));
+  assert.ok(names.includes("Left A Message"));
+  assert.ok(!names.includes("Already Signed"));
   assert.equal(d.callsReceived, 14);
 });
 
 test("zero-miss day still produces a digest with the all-clear subject", () => {
-  const d = buildMissedDigest({ firm: FIRM, flags: [FLAGS[1]], callsReceived: 14 });
+  const d = buildMissedDigest({ firm: FIRM, flags: [FLAGS[2]], callsReceived: 14 });
   assert.equal(d.missCount, 0);
   assert.match(digestSubject(d), /14 calls read, all handled/);
 });
@@ -150,7 +156,7 @@ test("live mode uses the injected mailer; zero recipients skips", async () => {
   });
   assert.equal(res.mode, "live");
   assert.deepEqual(sent[0].to, ["owner@firm.com"]);
-  assert.match(sent[0].subject, /1 missed case needs a callback/);
+  assert.match(sent[0].subject, /2 missed cases need a callback/);
 
   const skipped = await sendMissedDigest({
     store, db: {}, firm: FIRM, recipients: [],
