@@ -43,7 +43,7 @@ usable.
 ## COMPLIANCE GUARDRAILS (non-negotiable, enforce in code)
 
 These are legal requirements, not preferences. Enforce them in a **single send chokepoint**
-(`web/src/lib/messaging/send.ts`) — no code path may send around it.
+(`web/messaging/send.mjs`) — no code path may send around it.
 
 (a) **PILOT MODE** — no autonomous sends. A human must approve every outbound message before
     it can be sent.
