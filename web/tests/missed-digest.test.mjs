@@ -1,6 +1,7 @@
 // Missed-cases digest: token signing/verification (the security boundary of
 // the no-login action links) and the pure digest builder/renderer. No network,
-// no DB — the send path is exercised with an injected mailer and TEST_MODE.
+// no DB — the send path is exercised with an injected mailer and the
+// EMAIL_ENABLED gate (email is decoupled from TEST_MODE, which arms SMS only).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -116,7 +117,37 @@ test("render degrades to desk links when no secret is configured", () => {
 
 // ── send gating ───────────────────────────────────────────────────────────
 
-test("TEST_MODE renders to file and never calls the mailer", async () => {
+test("EMAIL_ENABLED off (default) renders to file and never calls the mailer", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "digest-"));
+  try {
+    let mailed = 0;
+    const store = {
+      listLeakedFlags: async () => FLAGS,
+      getCallReconciliation: async () => ({ received: 14 }),
+    };
+    // TEST_MODE=false on purpose: email must stay off until EMAIL_ENABLED=true,
+    // no matter what the SMS switches say.
+    const res = await sendMissedDigest({
+      store,
+      db: {},
+      firm: FIRM,
+      recipients: ["a@b.c"],
+      mailer: async () => { mailed++; return { id: "x" }; },
+      env: { ...ENV, TEST_MODE: "false", RESEND_API_KEY: "set" },
+      outDir: dir,
+    });
+    assert.equal(res.mode, "test");
+    assert.match(String(res.reason), /EMAIL_ENABLED/);
+    assert.equal(mailed, 0);
+    const files = readdirSync(dir);
+    assert.equal(files.length, 1);
+    assert.match(readFileSync(join(dir, files[0]), "utf8"), /Maria G\./);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("KILL_SWITCH halts email even when EMAIL_ENABLED is on", async () => {
   const dir = mkdtempSync(join(tmpdir(), "digest-"));
   try {
     let mailed = 0;
@@ -130,26 +161,25 @@ test("TEST_MODE renders to file and never calls the mailer", async () => {
       firm: FIRM,
       recipients: ["a@b.c"],
       mailer: async () => { mailed++; return { id: "x" }; },
-      env: { ...ENV, TEST_MODE: "true", RESEND_API_KEY: "set" },
+      env: { ...ENV, KILL_SWITCH: "true", EMAIL_ENABLED: "true", RESEND_API_KEY: "set", RESEND_FROM: "d@x.t" },
       outDir: dir,
     });
     assert.equal(res.mode, "test");
+    assert.match(String(res.reason), /KILL_SWITCH/);
     assert.equal(mailed, 0);
-    const files = readdirSync(dir);
-    assert.equal(files.length, 1);
-    assert.match(readFileSync(join(dir, files[0]), "utf8"), /Maria G\./);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 });
 
-test("live mode uses the injected mailer; zero recipients skips", async () => {
+test("live mode (EMAIL_ENABLED, TEST_MODE still on) uses the mailer; zero recipients skips", async () => {
   const store = {
     listLeakedFlags: async () => FLAGS,
     getCallReconciliation: async () => ({ received: 14 }),
   };
   const sent = [];
-  const env = { ...ENV, TEST_MODE: "false", RESEND_API_KEY: "k", RESEND_FROM: "d@x.t" };
+  // TEST_MODE=true: SMS stays simulated; email is armed independently.
+  const env = { ...ENV, TEST_MODE: "true", EMAIL_ENABLED: "true", RESEND_API_KEY: "k", RESEND_FROM: "d@x.t" };
   const res = await sendMissedDigest({
     store, db: {}, firm: FIRM, recipients: ["owner@firm.com"],
     mailer: async (m) => { sent.push(m); return { id: "id1" }; }, env,

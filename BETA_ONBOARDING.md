@@ -38,8 +38,10 @@ Total founder effort per firm: ~20 minutes, most of it the setup call.
    bad number / signed / passed). The coordinator also sees a "Your week" wins
    strip (callbacks worked / reached / signed) — recognition, not a score. The
    daily digest goes to their sign-in email **once you enable live email**
-   (RESEND_API_KEY + RESEND_FROM in Vercel, then TEST_MODE=false and
-   KILL_SWITCH=false); until then the desk itself is the live surface.
+   (RESEND_API_KEY + RESEND_FROM + `EMAIL_ENABLED=true` in Vercel, and
+   KILL_SWITCH=false). **Leave `TEST_MODE=true`** — it governs texting only
+   (see GO_LIVE.md gates 1–3) and never needs to change to turn email on.
+   Until then the desk itself is the live surface.
 
 ## What is real vs. still your hand (as of 2026-07-10)
 

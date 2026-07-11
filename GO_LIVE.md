@@ -9,6 +9,12 @@ This is the checklist a non-coder must finish **before** flipping `TEST_MODE` to
 `false`. These are legal and safety requirements, not nice-to-haves. If you are unsure
 about any item, **stop and ask** — do not guess.
 
+> **Email is a separate switch.** `TEST_MODE` governs **texting (SMS) only**. The daily
+> digest / weekly report / operator alert emails are turned on with **`EMAIL_ENABLED=true`**
+> (plus `RESEND_API_KEY` + `RESEND_FROM`) and do **not** require touching `TEST_MODE` or
+> any gate below. Turning email on never arms texting; completing the gates below never
+> turns email on. `KILL_SWITCH=true` still halts everything, email included.
+
 > Prove the whole pipeline still works end-to-end at any time (safely, nothing sent):
 > from `web/` run **`npm run e2e-synthetic`**. Every stage should print `PASS`. That
 > command uses fake data with `TEST_MODE=true` and never contacts anyone.
@@ -43,8 +49,9 @@ AssemblyAI** must be on file before any real call is transcribed.
 ### [ ] 4. Flip `TEST_MODE` to `false` — ONLY after 1–3
 Do **not** change `TEST_MODE` until gates 1, 2, and 3 above are all complete. Once they
 are, set `TEST_MODE=false` in your live environment variables (`.env.local` / host env).
-Until this moment, the system only simulates sends. **This is the single switch that
-starts real texting — treat it with care.**
+Until this moment, the system only simulates text sends. **This is the single switch that
+starts real texting — treat it with care.** (It has no effect on email — digests and
+reports are governed by `EMAIL_ENABLED`, see the note at the top.)
 
 ### [ ] 5. PILOT MODE stays ON (human approval required)
 PILOT MODE is **not** something you turn off. Every single outbound text must still be

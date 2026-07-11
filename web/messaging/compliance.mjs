@@ -20,6 +20,16 @@ export function isTestMode(env = process.env) {
   return truthy(env.TEST_MODE);
 }
 
+// EMAIL_ENABLED: gates ONLY the Resend email paths (daily digests, weekly
+// reports, operator alerts). Deliberately decoupled from TEST_MODE: TEST_MODE +
+// KILL_SWITCH arm SMS through the send chokepoint (send.mjs) and stay exactly
+// as they are — enabling email must never arm texting, and flipping TEST_MODE
+// for texting must never silently start emailing firms. Default (unset) is
+// FALSE: no email leaves the system until EMAIL_ENABLED=true is set explicitly.
+export function isEmailEnabled(env = process.env) {
+  return truthy(env.EMAIL_ENABLED);
+}
+
 // Read the quiet-hours window from env, defaulting to 20 (8pm) → 8 (8am).
 export function quietHoursFromEnv(env = process.env) {
   const start = Number(env.QUIET_HOURS_START ?? 20);
