@@ -44,6 +44,47 @@ test("abstain: gate-relevant fact would fire only on an inferred value", () => {
   assert.deepEqual(c.observability.inferred_gate_triggers, ["g1"]);
 });
 
+test("abstain: gate outcome would change only via an inferred value (§3333.4(c) DUI exception inferred)", () => {
+  const out = llmOutput({
+    facts: baseFacts({
+      caller_insured_status: observed("uninsured_owner_operator", "I let it lapse"),
+      defendant_fault_indicators: inferred({
+        description: "caller believes the other driver had been drinking",
+        dui_indicator: true,
+      }),
+    }),
+  });
+  const c = assessConfidence(out, CFG);
+  assert.equal(c.abstained, true);
+  assert.equal(c.route, "attorney_review");
+  assert.ok(c.reasons.some((r) => r.includes("gate_exception_inferred_not_observed_g1")));
+  assert.deepEqual(c.observability.inferred_gate_exceptions, ["g1"]);
+});
+
+test("abstain: MIST minimal-impact trigger present only at inferred observability → human review", () => {
+  const out = llmOutput({
+    facts: baseFacts({
+      property_damage_stated: inferred({ described: "sounded minor", minimal_impact_signal: true }),
+    }),
+    dimensionReads: dims({ damages_credibility: "thin" }),
+  });
+  const c = assessConfidence(out, CFG);
+  assert.equal(c.abstained, true);
+  assert.equal(c.route, "attorney_review");
+  assert.ok(c.reasons.includes("mist_trigger_inferred_not_observed"));
+  assert.equal(c.observability.inferred_mist_trigger, true);
+});
+
+test("observed MIST trigger does NOT abstain (the overlay simply acts)", () => {
+  const out = llmOutput({
+    facts: baseFacts({
+      property_damage_stated: observed({ described: "bumper scuff", minimal_impact_signal: true }),
+    }),
+    dimensionReads: dims({ damages_credibility: "thin" }),
+  });
+  assert.equal(assessConfidence(out, CFG).abstained, false);
+});
+
 test("observed gate trigger does NOT abstain (the gate simply fires)", () => {
   const out = llmOutput({
     facts: baseFacts({ caller_insured_status: observed("uninsured_owner_operator") }),

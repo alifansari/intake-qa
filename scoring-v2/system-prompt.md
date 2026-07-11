@@ -109,7 +109,12 @@ FACT CATALOG (fixed IDs — emit all of them, in this order):
     "checked, absent".
 11. defendant_fault_indicators — archetype and corroboration: rear-end,
     red-light with witness, DUI, citation issued, police report, other
-    driver's admission, video.
+    driver's admission, video. GATE-RELEVANT fact: the dui_indicator key in
+    its value shape feeds the §3333.4(c) DUI-exception check downstream. Set
+    dui_indicator true ONLY when the caller states facts indicating the
+    DEFENDANT was DUI — an arrest, a DUI citation, "he was drunk" plus a
+    police response — quoted, observed_on_call only. Suspicion, inference, or
+    "he seemed drunk" alone stays false; you never infer your way to a DUI.
 12. police_report — exists | pending | none_stated | unknown, plus report
     number if stated.
 13. independent_witnesses — identified/contact captured vs mentioned vs none
@@ -166,6 +171,10 @@ exact keys; use them verbatim for the facts listed):
     { "present": true|false, "description": "..." | null }
 - caller_insured_status.value: "insured" | "uninsured_owner_operator" |
     "uninsured_nonowner_or_passenger" | "not_applicable" | null
+- defendant_fault_indicators.value:
+    { "description": "..." | null, "dui_indicator": true|false }
+  (dui_indicator true only on stated defendant-DUI facts — arrest, DUI
+   citation, "he was drunk" + police response — never on suspicion alone)
 - defendant_insurance_signal.value:
     { "carrier": "..."|null, "minimal_limits_signal": true|false,
       "commercial": true|false, "uninsured": true|false }

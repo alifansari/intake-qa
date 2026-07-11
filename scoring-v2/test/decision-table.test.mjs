@@ -8,6 +8,7 @@ import { normalizeConfig } from "../lib/config.mjs";
 import {
   baseFacts,
   observed,
+  inferred,
   dims,
   tiers,
   llmOutput,
@@ -113,6 +114,21 @@ test("MIST overlay: borderline MIST file follows mist_handling", () => {
   assert.equal(r2.rec.recommended_disposition, "develop");
 });
 
+test("MIST overlay never acts on an INFERRED minimal-impact trigger", () => {
+  const inferredMist = baseFacts({
+    property_damage_stated: inferred({ described: "sounded like a light tap", minimal_impact_signal: true }),
+  });
+  const borderline = { damages_credibility: "thin", coverage_path: "thin" };
+  const declineCfg = normalizeConfig({ posture_default: "volume", mist_handling: "decline" });
+  const { rec } = run({ facts: inferredMist, reads: borderline, config: declineCfg });
+  assert.equal(rec.mist_flag, false, "inferred trigger must not flag MIST");
+  assert.equal(rec.recommended_disposition, "develop", "no MIST decline action; base R4-volume result stands");
+  // isMistProfile probe: inferred pass sees it, observed pass does not.
+  const reads = dims(borderline);
+  assert.equal(isMistProfile(inferredMist, reads), false);
+  assert.equal(isMistProfile(inferredMist, reads, { includeInferred: true }), true);
+});
+
 test("R7: heavy capital against a minimal budget flips sign_now to refer_out", () => {
   const cfg = normalizeConfig({ posture_default: "selective", capital_budget_tier: "minimal" });
   const { rec } = run({
@@ -134,7 +150,7 @@ test("R8: deadline-adjacent flips a near-clean develop to sign_now (forced exerc
   assert.ok(rec.disposition_basis.some((b) => b.includes("forced option exercise")));
 });
 
-test("R8: deadline-adjacent + marginal profile does NOT sit in develop — declines", () => {
+test("R8: deadline-adjacent + marginal profile with CITED adverse evidence (thin reads) — decline allowed", () => {
   const facts = baseFacts({
     sol_adjacent_signal: observed({ present: true, description: "over a year ago" }),
   });
@@ -143,6 +159,26 @@ test("R8: deadline-adjacent + marginal profile does NOT sit in develop — decli
     reads: { damages_credibility: "unknown", coverage_path: "thin", liability_comparative_fault: "thin" },
   });
   assert.equal(rec.recommended_disposition, "decline_with_grace");
+  assert.ok(rec.disposition_basis.some((b) => b.includes("cited adverse evidence")));
+});
+
+test("R8: unknown-driven marginality under deadline pressure NEVER declines — refers out with attorney review", () => {
+  // Government defendant (G2 fires) + two unknown load-bearing dims and zero
+  // cited adverse evidence: unobserved facts must not produce a decline.
+  const facts = baseFacts({
+    government_entity_signal: observed({ present: true, description: "city bus" }, "it was a city bus"),
+  });
+  const { rec } = run({
+    facts,
+    reads: { damages_credibility: "unknown", coverage_path: "unknown" },
+  });
+  assert.notEqual(rec.recommended_disposition, "decline_with_grace");
+  assert.equal(rec.recommended_disposition, "refer_out");
+  assert.equal(rec.attorney_review_required, true);
+  assert.ok(
+    rec.disposition_basis.some((b) => b.includes("do not sit")),
+    "basis explains refer-or-expedite"
+  );
 });
 
 test("R9: gate caps override the base rule (Prop 213 vs strong liability)", () => {

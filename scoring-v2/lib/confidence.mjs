@@ -6,11 +6,16 @@
 // Abstention rules (objective-spec §5):
 //   (a) transcript-quality gate tripped                     → abstain
 //   (b) more than 2 of the 7 dimensions read `unknown`      → abstain
-//   (c) any gate-relevant fact would fire a gate only on an
-//       INFERRED (not observed) value                       → abstain
+//   (c) any gate-relevant fact would CHANGE a gate's outcome
+//       only on an INFERRED (not observed) value — firing it
+//       (e.g. an inferred Prop-213 trigger) or suppressing it
+//       (e.g. an inferred §3333.4(c) DUI exception)          → abstain
+//   (d) the MIST overlay's minimal-impact trigger is present
+//       only at INFERRED observability                       → abstain
 // Abstained calls withhold the disposition and route to attorney review.
 
 import { evaluateGates } from "./gates.mjs";
+import { isMistProfile } from "./decision-table.mjs";
 
 export const DIMENSION_IDS = Object.freeze([
   "liability_comparative_fault",
@@ -42,8 +47,10 @@ export function assessConfidence(llmOutput, config) {
   if (unknownDims.length > 2)
     reasons.push(`unknown_dimensions_${unknownDims.length}_of_7`);
 
-  // (c) inferred-only gate triggers: a gate that fires when inferred values
-  // are allowed but NOT on observed-only values is resting on a guess.
+  // (c) inferred-only gate triggers: a gate whose OUTCOME changes when
+  // inferred values are allowed is resting on a guess — either it fires only
+  // on an inferred trigger, or an inferred fact (e.g. a §3333.4(c) DUI
+  // indicator) would suppress a gate that fires on observed facts alone.
   const observedPass = evaluateGates(facts, config, { includeInferred: false });
   const inferredPass = evaluateGates(facts, config, { includeInferred: true });
   const inferredTriggers = ["g1", "g2", "g3", "g4"].filter(
@@ -53,6 +60,21 @@ export function assessConfidence(llmOutput, config) {
     reasons.push(
       `gate_fact_inferred_not_observed_${inferredTriggers.join("_")}`
     );
+  const inferredSuppressions = ["g1", "g2", "g3", "g4"].filter(
+    (g) => !inferredPass[g].fired && observedPass[g].fired
+  );
+  if (inferredSuppressions.length > 0)
+    reasons.push(
+      `gate_exception_inferred_not_observed_${inferredSuppressions.join("_")}`
+    );
+
+  // (d) inferred-only MIST trigger: the overlay itself only acts on observed
+  // minimal-impact facts (decision-table.mjs); when the profile appears only
+  // with inferred values allowed, route to human review instead of acting.
+  const mistObserved = isMistProfile(facts, dims, { includeInferred: false });
+  const mistInferred = isMistProfile(facts, dims, { includeInferred: true });
+  if (mistInferred && !mistObserved)
+    reasons.push("mist_trigger_inferred_not_observed");
 
   const abstained = reasons.length > 0;
 
@@ -85,6 +107,8 @@ export function assessConfidence(llmOutput, config) {
       dims_unknown: unknownDims.length,
       questions_asked: questionsAsked,
       inferred_gate_triggers: inferredTriggers,
+      inferred_gate_exceptions: inferredSuppressions,
+      inferred_mist_trigger: mistInferred && !mistObserved,
       transcript_scoreable: !unscoreable,
     },
   };

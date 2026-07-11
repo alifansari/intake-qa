@@ -22,7 +22,9 @@ export const ALL_DISPOSITIONS = Object.freeze([
   "decline_with_grace",
 ]);
 
-function actionable(fact, includeInferred) {
+// Exported: the MIST overlay (decision-table.mjs) applies the same
+// observed-only trigger discipline as the gates.
+export function actionable(fact, includeInferred) {
   if (!fact) return false;
   if (fact.observability === "observed_on_call") return true;
   return includeInferred === true && fact.observability === "inferred";
@@ -46,17 +48,34 @@ function signalPresent(fact, includeInferred) {
   );
 }
 
+// caller_insured_status values that put the caller inside the §3333.4 bar:
+// an uninsured OWNER/operator, or a non-owner OPERATOR of a vehicle that was
+// itself uninsured (§3333.4(a)(3)). A permissive user of an INSURED vehicle
+// ("uninsured_driver_of_insured_vehicle") and passengers are excepted.
+export const PROP213_BARRED_INSURED_VALUES = Object.freeze([
+  "uninsured_owner_operator",
+  "uninsured_driver_of_uninsured_vehicle",
+]);
+
 // G1 — UNDERWATER: lien load ≈/> plausible limits, or a Prop 213 profile
 // where the recoverable scope collapses to economic-only on a soft-tissue
 // file. Two trigger profiles, both requiring the ABSENCE of observed
 // objective-injury anchors (imaging/surgery) — a surgical case is never
 // gated underwater from an intake call.
+//
+// §3333.4(c) DUI exception: when the caller states facts indicating the
+// DEFENDANT was DUI (defendant_fault_indicators.value.dui_indicator, observed
+// on call), non-economic damages MAY be restored — but restoration turns on a
+// CONVICTION, which is unknowable at intake. The gate must not assume either
+// way: it withholds the refer/decline cap and raises attorney_review_required
+// so the attorney determines conviction status.
 export function gateG1Underwater(facts, opts = {}) {
   const inc = opts.includeInferred;
   const insured = facts.caller_insured_status;
   const defIns = facts.defendant_insurance_signal;
   const lien = facts.lien_treatment_signal;
   const imaging = facts.imaging_or_surgery_signal;
+  const faultInd = facts.defendant_fault_indicators;
 
   const objectiveAnchors =
     actionable(imaging, false) &&
@@ -64,12 +83,22 @@ export function gateG1Underwater(facts, opts = {}) {
     typeof imaging.value === "object" &&
     imaging.value.present === true;
 
-  // Profile A — Prop 213 (Civ. Code §3333.4): uninsured owner/operator, no
+  // Profile A — Prop 213 (Civ. Code §3333.4): barred uninsured profile, no
   // objective anchors → non-economic damages barred, economic-only remains.
-  const prop213 =
+  const prop213Profile =
     actionable(insured, inc) &&
-    insured.value === "uninsured_owner_operator" &&
+    PROP213_BARRED_INSURED_VALUES.includes(insured.value) &&
     !objectiveAnchors;
+
+  // §3333.4(c) escape hatch: defendant-DUI indicator actionable at this pass.
+  const duiIndicated =
+    actionable(faultInd, inc) &&
+    faultInd.value &&
+    typeof faultInd.value === "object" &&
+    faultInd.value.dui_indicator === true;
+
+  const prop213 = prop213Profile && !duiIndicated;
+  const duiExceptionReview = prop213Profile && duiIndicated;
 
   // Profile B — min-limits + treating on lien + no objective anchors:
   // lien load plausibly ≈/> limits.
@@ -90,16 +119,26 @@ export function gateG1Underwater(facts, opts = {}) {
     gate: "G1",
     name: "underwater",
     fired,
-    trigger_quote: fired ? quoteOf(prop213 ? insured : defIns) : null,
+    trigger_quote: fired
+      ? quoteOf(prop213 ? insured : defIns)
+      : duiExceptionReview
+        ? quoteOf(insured)
+        : null,
     rationale: fired
       ? prop213
-        ? "Uninsured owner/operator with no objective injury anchors: §3333.4 bars non-economic damages; economic-only recovery profile."
+        ? "Uninsured owner/operator (§3333.4 barred profile) with no objective injury anchors: §3333.4 bars non-economic damages; economic-only recovery profile."
         : "Minimal-limits signal with lien-based treatment and no objective injury anchors: lien load plausibly meets or exceeds limits."
-      : null,
+      : duiExceptionReview
+        ? "Prop 213 profile with possible §3333.4(c) DUI exception — attorney determines conviction status; underwater cap withheld (conviction status cannot be known at intake)."
+        : null,
     capped_dispositions: fired
       ? ["refer_out", "decline_with_grace"]
       : [...ALL_DISPOSITIONS],
-    flags: fired ? ["underwater_profile"] : [],
+    flags: fired
+      ? ["underwater_profile"]
+      : duiExceptionReview
+        ? ["attorney_review_required", "possible_3333_4c_dui_exception"]
+        : [],
   };
 }
 
@@ -223,12 +262,14 @@ export function evaluateGates(facts, config, opts = {}) {
     g4,
     allowed,
     flags,
-    attorney_review_required: g3.fired,
+    // G3 firing and the G1 §3333.4(c) DUI-exception path both raise the flag.
+    attorney_review_required: flags.includes("attorney_review_required"),
   };
 }
 
-// Fact ids whose observed values can fire a gate — used by confidence.mjs
-// for the inferred-trigger abstention rule.
+// Fact ids whose observed values can fire a gate or change a gate/overlay
+// outcome — the abstention probe set (confidence.mjs abstains when any of
+// these would change behavior only at inferred observability).
 export const GATE_RELEVANT_FACT_IDS = Object.freeze([
   "caller_insured_status",
   "defendant_insurance_signal",
@@ -238,4 +279,6 @@ export const GATE_RELEVANT_FACT_IDS = Object.freeze([
   "perishable_evidence_signal",
   "client_risk_markers",
   "trial_posture_signal",
+  "defendant_fault_indicators", // §3333.4(c) DUI exception flips G1's outcome
+  "property_damage_stated", // minimal-impact trigger drives the MIST overlay
 ]);

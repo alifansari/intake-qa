@@ -5,6 +5,7 @@
 // nothing here is terminal, and nothing here emits a dollar or a date.
 
 import { postureFor, thinThresholdFor } from "./config.mjs";
+import { actionable } from "./gates.mjs";
 
 export const LOAD_BEARING_DIMS = Object.freeze([
   "liability_comparative_fault",
@@ -19,11 +20,17 @@ const tierOf = (tiers, name) => (tiers && tiers[name] ? tiers[name].tier : "unkn
 // ---------------------------------------------------------------------------
 // MIST profile: minor-impact soft-tissue — minimal property impact stated,
 // no objective injury anchors, damages read thin or unknown.
-export function isMistProfile(facts, dims) {
+// The minimal-impact trigger requires observed_on_call exactly like the
+// gates: an INFERRED trigger never acts here — confidence.mjs probes for it
+// (includeInferred) and routes the call to human review instead.
+export function isMistProfile(facts, dims, opts = {}) {
   const pd = facts.property_damage_stated;
   const imaging = facts.imaging_or_surgery_signal;
   const minimalImpact =
-    pd && pd.value && typeof pd.value === "object" && pd.value.minimal_impact_signal === true;
+    actionable(pd, opts.includeInferred) &&
+    pd.value &&
+    typeof pd.value === "object" &&
+    pd.value.minimal_impact_signal === true;
   const anchors =
     imaging &&
     imaging.observability === "observed_on_call" &&
@@ -192,16 +199,25 @@ export function decideDisposition({ llmOutput, gates, config }) {
   }
 
   // --- urgency overlay (G2: the file cannot sit) ---------------------------
+  let r8ReviewRequired = false;
   if (gates.g2.fired && base === "develop") {
     if (fatalLB.length === 0 && thinLB.length <= 1 && unknownLB.length <= 1) {
       base = "sign_now";
       basis.push(
         "R8 deadline-adjacent + near-clean profile → develop flips to sign_now (forced option exercise; sign-and-investigate under the clock)"
       );
+    } else if (fatalLB.length === 0 && thinLB.length <= 1) {
+      // Marginality driven ONLY by unknown load-bearing reads: no cited
+      // adverse evidence exists, and unobserved must never produce a decline.
+      base = "refer_out";
+      r8ReviewRequired = true;
+      basis.push(
+        `R8 deadline pressure + unresolved facts (${unknownLB.map((x) => x.dim).join(", ")} unknown; no cited adverse evidence) → refer_out + attorney review — refer or expedite workup; do not sit`
+      );
     } else {
       base = damages === "strong" ? "refer_out" : "decline_with_grace";
       basis.push(
-        `R8 deadline-adjacent + marginal profile → develop is a malpractice trap → ${base}`
+        `R8 deadline-adjacent + marginal profile (cited adverse evidence on load-bearing reads) → develop is a malpractice trap → ${base}`
       );
     }
   }
@@ -233,7 +249,7 @@ export function decideDisposition({ llmOutput, gates, config }) {
     case_type: caseType,
     mist_flag: mist,
     urgency_flags: gates.g2.flags,
-    attorney_review_required: gates.attorney_review_required,
+    attorney_review_required: gates.attorney_review_required || r8ReviewRequired,
     develop_payload,
     refer_comparison,
     disposition_basis: basis,
