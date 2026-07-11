@@ -108,6 +108,113 @@ export const Outcome = z.object({
 });
 export type Outcome = z.infer<typeof Outcome>;
 
+// ---------------------------------------------------------------------------
+// Increment 0 — the outcome-data flywheel (ops/drafts/engine-v2-conveyor-MVP.md
+// §6 + AMENDMENT). Two NEW siblings keyed by call_id. They extend the model
+// exactly the way CLAUDE.md requires: sibling records, never edits to
+// ScoredCall or to the existing Outcome above.
+//
+//   CaseDisposition — what the firm DID, captured near intake, with an
+//     IMMUTABLE intake_feature_snapshot (what was KNOWN at decision time).
+//   CaseOutcome — what HAPPENED, captured at the monthly reconciliation,
+//     T+months/years. Every money field is nullable: missing = censored,
+//     NEVER zero. Open cases are right-censored. Declines are censored too.
+// ---------------------------------------------------------------------------
+
+export const DISPOSITION_CODES = [
+  "signed",
+  "developing",
+  "referred_out",
+  "declined",
+  "no_action",
+] as const;
+export const DispositionCode = z.enum(DISPOSITION_CODES);
+export type DispositionCode = z.infer<typeof DispositionCode>;
+
+export const CaseDisposition = z.object({
+  call_id: z.string(),
+  flag_id: z.string().nullable(),
+  firm_id: z.string(),
+  disposition: DispositionCode,
+  decided_by: z.string(), // ROLE text (e.g. "attorney"), never a scored staffer
+  decided_at: z.string(), // ISO — when the firm made the call
+  // Immutable once set: backbone facts + question-check states + answer_values
+  // as known AT DECISION TIME. Repository upserts never overwrite a non-empty
+  // snapshot (validate against what was known then, not learned later).
+  intake_feature_snapshot: z.record(z.string(), z.unknown()).default({}),
+  external_case_ref: z.string().nullable(), // CMS matter id (Filevine/Litify/Clio)
+  created_at: z.string(),
+});
+export type CaseDisposition = z.infer<typeof CaseDisposition>;
+
+export const END_STATES = [
+  "settled",
+  "tried",
+  "dropped",
+  "withdrew",
+  "referred_resolved",
+  "open",
+] as const;
+export const EndState = z.enum(END_STATES);
+export type EndState = z.infer<typeof EndState>;
+
+// A money/duration value in the flywheel is either unknown (null — censored),
+// a point value, or a BAND the firm reported ("$10k–$25k") kept as a band —
+// collapsing a band to a point would manufacture precision we don't have.
+export const ValueBand = z.object({
+  kind: z.literal("band"),
+  low: z.number(),
+  high: z.number(),
+  raw: z.string(), // the band exactly as the firm reported it
+});
+export type ValueBand = z.infer<typeof ValueBand>;
+
+export const CensoredNumber = z.union([z.number(), ValueBand]).nullable();
+export type CensoredNumber = z.infer<typeof CensoredNumber>;
+
+// Prior snapshot appended on every edit (same audit pattern as OutcomeEdit).
+export const CaseOutcomeEdit = z.object({
+  end_state: EndState,
+  gross: CensoredNumber,
+  costs_advanced: CensoredNumber,
+  lien_load: CensoredNumber,
+  net_to_client: CensoredNumber,
+  net_fee_to_firm: CensoredNumber,
+  referral_fee: CensoredNumber,
+  time_to_resolution_days: z.number().nullable(),
+  demand_sent_at: z.string().nullable(),
+  demand_amount: CensoredNumber,
+  first_offer: CensoredNumber,
+  entered_by: z.string(),
+  entered_at: z.string(),
+  outcome_version: z.number().int(),
+});
+export type CaseOutcomeEdit = z.infer<typeof CaseOutcomeEdit>;
+
+export const CaseOutcome = z.object({
+  call_id: z.string(),
+  firm_id: z.string(),
+  end_state: EndState, // "open" = right-censored, still accruing
+  gross: CensoredNumber,
+  costs_advanced: CensoredNumber,
+  lien_load: CensoredNumber,
+  net_to_client: CensoredNumber,
+  net_fee_to_firm: CensoredNumber, // the target metric's numerator, when known
+  referral_fee: CensoredNumber,
+  time_to_resolution_days: z.number().nullable(),
+  // Demand milestones (AMENDMENT #4): intake facts -> demand -> recovery.
+  demand_sent_at: z.string().nullable(),
+  demand_amount: CensoredNumber,
+  first_offer: CensoredNumber,
+  entered_by: z.string(),
+  entered_at: z.string(),
+  outcome_version: z.number().int(),
+  edits: z.array(CaseOutcomeEdit).default([]),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+export type CaseOutcome = z.infer<typeof CaseOutcome>;
+
 // A blank "unknown" outcome for any call that has never been reconciled.
 export function defaultOutcome(callId: string): Outcome {
   return {
