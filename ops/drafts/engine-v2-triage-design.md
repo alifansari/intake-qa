@@ -572,6 +572,152 @@ under-conversion penalty).
 
 ---
 
+## 4bis. WAVE 2 — ADVERSARIAL REVISIONS (these SUPERSEDE parts of §4 above)
+
+A defense-lawyer + trial-lawyer adversarial pass produced the sharpest finding of
+the whole project and it forces real changes. **Central indictment: the engine
+outputs its most AUTHORITATIVE signals exactly where its INPUTS are weakest.**
+Coverage (30%) + liability (22%) = 52% of the model, and both are the *least*
+reliably extractable from a first intake call (defendant limits are unknown pre-suit;
+a comparative-fault % from a lay narrative is "astrology"; degenerative-vs-traumatic
+is on an MRI that doesn't exist yet). That is v1's false-precision sin with a bigger
+multiplier. Meehl only holds when predictors are *reliably measured* (Dawes-Faust-
+Meehl 1989) — garbage in, actuarially-laundered garbage out. Four P0 changes:
+
+**P0-1 — KILL the intake dollar output.** Remove `value_at_stake` as a displayed
+number/band at intake. Multiplying five soft priors and subtracting two semi-knowns
+yields a false decimal tail; a band wide enough to be honest ("$8k–$340k") is an
+admission the engine has no idea. Replace with a **coarse tier label**
+(gate-clear / needs-records / adverse-signal) + "value not estimable pre-records."
+Keep the formula INTERNAL as an ordering heuristic only, never surfaced as dollars.
+(This ALSO resolves the compliance risk of a non-lawyer tool emitting case-value —
+see §5.) *Supersedes §4.4's dollar output at intake. NOTE: the desk/statement dollar
+figures are a SEPARATE, post-outcome product surface and are unaffected.*
+
+**P0-2 — Gate ONLY on legally-determinable facts, never on narrative inferences.**
+No dimension the call can't reliably measure may carry a HARD GATE. Legitimate gates
+(legally determinable): **Prop 213** (uninsured claimant — a status the caller
+states), **med-mal-without-economic-loss** (a MICRA/AB 35 legal cap), **an expired
+or imminent deadline** (from a stated incident date + defendant type). ILLEGITIMATE
+gates (narrative guesses) → demote to **investigation FLAGS, not gates**: coverage
+adequacy / defendant limits (unknown by default → triggers records/limits work),
+comparative-fault %, injury severity/objectivity, causation-integrity. *Supersedes
+§4.2's hard-cap list: coverage & liability become heavy FLAGS that route to
+investigate, not gates that can auto-decline.*
+
+**P0-3 — DELETE the per-staffer `questionable_sign` flag.** Three fatal problems:
+(a) surveillance dynamic that kills staff adoption (the intake-staff research);
+(b) defamation/employment exposure (a written imputation of incompetence);
+(c) **discoverable party-admission** (Evid. Code §1220) — a timestamped business
+record of the firm judging its own signed case substandard, usable by a later
+malpractice/fee/bad-faith adversary. Replace with an **anonymized, aggregate,
+monthly calibration report** ("sign rate on min-limits soft-tissue rose 18% — spot
+check"), work-product-framed, retention-limited, never tied to a named person or a
+specific signed case. *Supersedes §3.8/§4.5's per-case over-conversion alert — keep
+the SIGNAL, move it to aggregate + privilege.*
+
+**P0-4 — Collapse the four-valued output; give every non-decline an OWNER + a
+CLOCK.** The unowned "develop" lane is a malpractice generator — the modal outcome
+becomes a graveyard where the CCP §335.1 clock runs unwatched. Replace with
+**`sign-and-investigate` vs `decline`** (refer_out = a sub-type of decline); anything
+not declined gets an owner and an **SOL-anchored tickle date**. This also matches the
+trial-lawyer truth: for most viable cases the right call is "sign and investigate,"
+not score-then-maybe-sign. *Supersedes §4.1's free-floating develop state.*
+
+**P1 revisions:** (a) every extracted dimension carries an **observability tag**
+(observed-on-call / inferred / unknown); any disposition resting on inferred/unknown
+must show it (this is the real Meehl discipline — reliability tagging is what makes
+the actuarial claim legitimate, not cosmetic). (b) **Posture is per-case-type, not a
+global firm toggle** (a firm is selective on soft-tissue MVAs and volume on
+clear-liability rear-enders; and most small firms are opportunistic by cash flow).
+(c) **Attach NO staff-performance metric to engine outputs** until the outcome loop
+has ≥1 real cycle; until then the engine ships as an **investigation/triage
+CHECKLIST that coaches better qualification**, not a scorer — which is honestly all
+the call data supports.
+
+**The reframe that survives the critique:** v2 is not an actuarial case-*value*
+oracle at intake. It is a **triage + investigation-checklist aid** that (1) reliably
+classifies case TYPE and its pivotal missing questions, (2) flags legally-determinable
+gates (Prop 213, deadlines, out-of-scope), (3) surfaces the disqualifying questions
+the rep should have asked (coverage, priors, insured status), (4) recommends
+sign-and-investigate vs decline/refer with an honest confidence + observability tag,
+and (5) NEVER prints a case-value dollar figure at intake. The actuarial value model
+is a BACK-OFFICE, outcome-validated layer that earns its authority only after a real
+outcome loop — not a front-line intake pronouncement. "The tool's authority must
+never exceed its accuracy."
+
+---
+
+## 4ter. EXTRACTION BACKBONE — what the engine may actually SCORE (Wave 2)
+
+Governing invariant (compliance §IV "no citation, no claim" + §VIII): **a signal's
+ABSENCE from the transcript is never evidence of its negative state.** Silence on
+priors ≠ "no priors"; silence on fault ≠ clean liability. These map to `unknown`,
+which is **visibly distinct from `absent`** in the data model. This single rule is
+what stops the engine from committing v1's false-precision sin.
+
+**Every extracted field carries: {value, citation_span, speaker, confidence,
+observability ∈ observed_on_call | inferred | unknown | not_on_call}.**
+
+**TIER 1 — the SCORING BACKBONE (decisive AND reliably on the call — score with a
+cited span):**
+1. **Case type** (reliably volunteered in first 60s) — emit **multi-label**
+   (primary+secondary; never force one bucket on hybrids like rideshare=auto+app).
+2. **Mechanism / liability ARCHETYPE** — rear-end/red-light are decisive + explicit;
+   disputed/unwitnessed variants **demote to develop** (the one-sided call hides the
+   dispute).
+3. **Incident date** — SOL / gov six-month clock; the single most consequential
+   time-sensitive fact; pin exact date via follow-up when vague/near a boundary.
+4. **Rep committing action** (e-sign sent / hard push) and **rep verified-or-routed**
+   (ordered report / verified coverage / routed to develop) — fully on-call, the
+   engine's *coaching* backbone (note: "sent ≠ signed," "promised ≠ performed").
+5. **Stated injury severity/objectivity** — claimed fracture/surgery/imaging anchors
+   are reliable enough to TIER (verification deferred to records).
+
+**TIER 2 (reliable, lower weight):** property-damage words, treatment
+immediacy/provider, police-report existence — captured as *quote-tier* stated value,
+not measurements.
+
+**BELOW THE LINE — decisive but UNRELIABLE → route to develop, DO NOT SCORE:**
+comparative-fault as an absence, pre-existing/prior injury (the single most
+under-disclosed field — never score "no priors" from silence), policy limits
+(NOT-ON-CALL — defendant limits unknowable pre-suit), lien exposure (NOT-ON-CALL),
+Prop 213 insured-status when unanchored, rideshare-app/gov scope, retained-elsewhere
+when ambiguous.
+
+**Client credibility is QUARANTINED entirely — no score.** LLMs manufacture the most
+false precision here, and accent/dialect/**ESL/Spanish-intake** speech patterns +
+diarization noise get misread as "low credibility" — a bias/fairness hazard
+(compliance §VI). At most, flag *specific cited internal contradictions* (span A vs
+span B) as neutral observations for human review. (This DROPS `client_reliability`
+from §4.2's scored dimensions.)
+
+**THE TOOL'S HIGHER-VALUE MOVE — a FOLLOW-UP-QUESTION COACH, not a guesser.** When a
+decisive signal is missing/ambiguous, emit a rep-facing follow-up prompt instead of
+inventing the datum — and distinguish "rep asked and got X" from "rep never asked"
+(itself a coaching finding). The follow-up set: priors ("ever injured this same body
+part / prior claim?"), exact incident date, citation ("ticket, to whom?"),
+independent witnesses + contact, **Prop 213** ("were YOU insured that day?"),
+defendant scope/rideshare ("working / logged into the app?"), coverage ("did they
+have insurance; do you carry UM?"), treatment gap/lien, MIST guard ("drivable? airbags?
+towed?"), retained-elsewhere. Comparative fault is NOT a scripted question (don't
+coach reps to carelessly elicit self-blame) — flag internally only when an admission
+span exists.
+
+**Diarization / short-call guards:** speaker mislabeling inverts fault/rep-action
+signals → require a speaker-tagged span, suppress those signals on low diarization
+confidence/cross-talk. A <2-min call or voicemail legitimately yields mostly
+`unknown` + a big follow-up set — treat **call length as a coverage variable, never
+penalize the case for thin data** (that would manufacture false precision). Spanish/
+bilingual intake is scored at the SAME reliability bar (fairness).
+
+**Net effect:** the engine grades what was actually said (case type, archetype, date,
+rep actions, claimed injury), surfaces what should have been asked, and structurally
+CANNOT score what only post-intake investigation can know. This is the honest core
+that survives the adversarial critique.
+
+---
+
 ## 5. OPEN QUESTIONS FOR ALI / YANG (accumulating)
 
 - Confirm v2 is a "lift the freeze deliberately" decision, not a silent edit.
