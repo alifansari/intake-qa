@@ -33,6 +33,77 @@ selling Group A's rubric to Group B — v2 fixes that.
 
 ---
 
+## 0bis. STRATEGIC VERDICT (Wave 3 adversarial — READ THIS FIRST)
+
+A fresh adversarial pass on the *revised* (post-concession) design reached the most
+important conclusion of the project. **The concessions did not water it to
+uselessness — but they changed WHAT the product is: from a "case-selection engine"
+to a call-QA + investigation-discipline (develop-queue) tool that happens to triage.
+The value moved from PREDICTION to OBSERVATION — "a mirror + a memory."**
+
+**Willingness-to-pay ranking (what a PI managing partner actually buys):**
+1. **"Did my rep ask the disqualifying + value-determining questions?" — call-content
+   QA.** The crown jewel; nobody does it (calls are recorded, never listened to).
+   Defensible (it's about *your rep's behavior*, not a legal prediction), legible,
+   scalable (a director can't hear 300 calls/week). Highest WTP.
+2. **Surfacing the lost high-value case** (the uninsured-looking trucking case that's
+   a $2M policy). The ROI story that closes the sale — but low-frequency, hard to
+   attribute; the hook, not the retention driver.
+3. **The develop-queue discipline** — the unglamorous RETENTION engine: unresolved
+   decisive question + owner + clock = a loss-prevention conveyor mapping to real
+   recovered dollars. Boring, sticky, high LTV.
+4. Over-conversion aggregate trend — honest but neutered (managing-partner conscience,
+   not a purchase driver).
+5. Generic deadline reminders — near-zero standalone WTP; hygiene, not a selling point.
+   **Sell on 1+2, retain on 3, whisper 4, bury 5.**
+
+**Positioning:** "your intake director, but they hear every call" (beats "does the
+director's job," which invites a losing *judgment* comparison). vs CRM QA the edge is
+**call-content vs form-content**. **v2 loses the demo, wins the renewal** (no score to
+be wrong about → can't get switched off for being confidently wrong, the way v1 did).
+Price as a **$200–500/mo operational QA tool, NOT a $2k/mo "AI underwriting engine"** —
+sell it as the latter and the "expensive checklist" critique wins on contact.
+
+**THE BETA RECOMMENDATION (blunt): do NOT ship the case-SELECTION engine to the
+current 5-firm beta. It's a post-beta v2/v3.** Three reasons: (a) small CA PI firms
+sign almost everything not disqualified — their constraint is **volume + follow-up,
+not selection discipline**; selection engines matter to high-volume/high-ad-spend
+firms drowning in marginal leads. **We'd be building a selection tool for a segment
+whose problem is follow-up.** (b) Tiering only earns trust AFTER an outcome-validation
+cycle (≥1 real cycle = 12–24 months of PI case maturation) — un-validatable inside a
+short beta → the exact credibility trap the concessions were meant to escape. (c) It
+reintroduces the argument surface — the moment you show a ranking a partner disagrees
+with one, and you're defending an algorithm instead of delivering a rescue packet.
+**The beta is ALREADY shipping the irreducible value** (rescue packet = call-QA +
+develop-queue), it just isn't calling it an "engine." Don't reframe a service they
+love into a prediction they distrust.
+
+**SEQUENCING:** (Now/beta) double down on rescue packet + call-QA + develop-queue;
+instrument 2–3 "you almost lost this" recovered-case stories. (Beta→paid) add
+per-rep process-compliance QA *as coaching, not scoring* — and quietly begin
+accumulating the outcome data a future selection engine needs. (v2, post-validation)
+the tiering/selection engine, sold UP-MARKET to high-volume firms, AFTER ≥1 outcome
+cycle proves the backbone tier correlates with realized value. Building the engine
+now is building the thing that distracts from the thing that's selling.
+
+**THE SINGLE HIGHEST-LEVERAGE CHANGE:** make the product's headline metric
+**"value-determining questions resolved within SLA," NOT any tier or score.** Convert
+every unscoreable-but-decisive signal into a tracked, owned, clocked open item in the
+develop-queue. This *increases* WTP (a conveyor that recovers specific dollars, not
+insight that dies in a dashboard) with ZERO compliance/false-precision cost ("did the
+umbrella-policy question get answered within 72h, yes/no" is a *fact about your own
+process*, not a legal opinion). The backbone score becomes almost cosmetic; the
+**open-item SLA becomes the product**. The rare case where the compliance-safe move
+and the commercial move are the same move. **Ship the conveyor, not the oracle.**
+
+> Implication for the rest of this doc: §1–§5 remain the correct DESIGN of the
+> selection engine for when it's built (up-market, post-validation). But the
+> near-term PRODUCT is the develop-queue/QA conveyor — much of which the beta's
+> rescue packet already delivers. The full triage rubric is the north star, not the
+> next sprint.
+
+---
+
 ## 1. The nine defects in v1 (the fix list)
 
 | # | v1 defect | Where (system-prompt.md) | v2 fix (summary) |
