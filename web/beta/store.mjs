@@ -554,3 +554,24 @@ export async function upsertComplianceConfig(db, firmId, cfg, now = new Date()) 
 export async function setCallConsentStatus(db, callId, consentStatus) {
   await run(db, "UPDATE calls SET consent_status = ? WHERE id = ?", [consentStatus, callId]);
 }
+
+// Firm self-serve uploads (/desk/upload): the firm's uploaded calls with the
+// pipeline facts their status derives from (deriveUploadStatus in
+// ingest/uploads.mjs). Uploads are `source='manual'` rows whose
+// external_call_id carries the 'upload:' marker; firm-scoped by the WHERE.
+export async function listFirmUploads(db, firmId, limit = 30) {
+  return all(
+    db,
+    `SELECT c.id, c.external_call_id, c.received_at, c.created_at,
+            c.status, c.status_reason,
+            (c.transcript IS NOT NULL) AS has_transcript,
+            EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id) AS scored
+       FROM calls c
+      WHERE c.firm_id = ?
+        AND c.source = 'manual'
+        AND c.external_call_id LIKE 'upload:%'
+      ORDER BY c.created_at DESC, c.id DESC
+      LIMIT ?`,
+    [firmId, limit]
+  );
+}
