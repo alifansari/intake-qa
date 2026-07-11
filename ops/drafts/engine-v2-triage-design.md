@@ -718,14 +718,91 @@ that survives the adversarial critique.
 
 ---
 
+## 4quater. COMPLIANCE / ETHICS RISK REGISTER (Wave 2 — routes to YANG, §VII)
+
+A CA legal-ethics pre-review (NOT a sign-off) independently confirms every
+adversarial P0 from a legal-risk angle and lands on ONE master guardrail. Anything
+novel here is a hard §VII gate → Yang before ship.
+
+**THE THREE NON-NEGOTIABLE GUARDRAILS (all must hold to be shippable):**
+1. **NO TERMINAL OUTPUTS — EVER.** Every v2 output (select / decline / value / deadline)
+   is a confidence-tiered *signal a licensed lawyer must affirmatively review, ratify,
+   or override*, with the human decision LOGGED. The system never auto-declines,
+   auto-values, or asserts a controlling deadline. This single rule answers UPL (R1),
+   reliance-malpractice (R2), Rule 5.4(c) independence (R5), AND the **May 2026
+   proposed CA Rule 1.1 amendment** (a lawyer "must independently review, verify, and
+   exercise professional judgment regarding any [AI] output") — so "no terminal
+   output" is where CA law is *heading*, not just prudent.
+2. **Deadlines are GENERIC REMINDERS, never computed authoritative dates; Intake QA is
+   never the system of record.** Category-level "a short pre-suit window may apply —
+   confirm the governing clock and docket independently" + mandatory firm-acknowledgment
+   UX + disclaimer of reliance. A *computed* date applied to the matter's facts is the
+   highest-UPL, highest-consequence output (an SOL miss is per se malpractice). Ship
+   only de-specified, or defer.
+3. **No conclusory, durable, individually-attributed adverse records; dollars never
+   leak past the engine.** The over-conversion signal is evidence-anchored,
+   forward-looking coaching with a SHORT TTL — no "signed a dog / over-converted"
+   labels, no named-employee blame (→ aggregate, per P0-3). Any case-value output is
+   walled off from every client-facing and marketing surface.
+
+**Risk register (severity / hard-STOP→Yang):**
+- **R1 UPL** — non-lawyer tool recommending take/decline + flagging deadlines edges
+  toward "practice of law" (B&P §6125-6126; *Reynoso*/petition-preparer line; COPRAC
+  GenAI Guidance; ABA Op. 512 "no abdication of professional judgment"). *High;
+  deadline-flags Critical. STOP.*
+- **R2 Reliance-malpractice / Rule 1.18** — firm following an auto-decline on a
+  meritorious case; duty to prospective client. *High. STOP (bless the no-auto-decline
+  rule).*
+- **R3 `questionable_sign` = discoverable party-admission** (Evid. Code §1220; CCP
+  §2017.010; work-product §2018.030 DOUBTFUL for a non-lawyer vendor record) usable by
+  a later malpractice/fee/bad-faith adversary + employment/defamation. *High. STOP
+  (retention schedule + label wording).*
+- **R4 Case-VALUE dollars** — (a) discoverable admission of value, (b) reads as vendor
+  "valuing a claim" (UPL-adjacent), (c) Rule 7.1 landmine if it migrates to marketing.
+  *Critical. STOP.*
+- **R5 Rule 5.4(c) independence / capping (SB 37, proposed §6153 PRA up to $100k)** —
+  a non-lawyer steering the caseload; today NOT triggered (flat-fee, steers within the
+  firm's own book, not to a lawyer for a fee) — **but a MONETIZED refer-out lights up
+  §6152/SB 37.** *Medium (High if refer-out monetized). STOP only if monetized.*
+- **R6 Deadline flag WRONG** — highest-consequence error mode (SOL miss = per se
+  malpractice). *Critical. STOP — ship generic-reminder form only or defer.*
+- **R7 Shifting CA AI rules** — proposed Rule 1.1/1.4/5.1/5.3 amendments require
+  independent verification + firm AI governance; design so the firm's USE *satisfies*
+  the coming rules (never a public compliance claim pre-Yang). *Medium-High.*
+
+**VERDICT ON DOLLARS-AT-INTAKE: do NOT ship dollar figures. Ship a relative
+priority/value TIER with driving factors.** A specific band on a specific matter is a
+discoverable admission + UPL-adjacent + a 7.1 landmine, for marginal utility over a
+tier. (Converges exactly with adversarial P0-1.) **This whole feature is NOT
+clear-to-ship; the advisory-only / no-terminal-output / tier-not-dollars /
+generic-reminder-not-dates design is the plausibly-shippable path — Yang's call.**
+
+---
+
 ## 5. OPEN QUESTIONS FOR ALI / YANG (accumulating)
 
-- Confirm v2 is a "lift the freeze deliberately" decision, not a silent edit.
-- Which posture is Intake QA's DEFAULT for the beta cohort (selective, given we
-  sell to CAALA/CAOC-type firms)?
-- Does surfacing an "over-conversion / questionable sign" signal to a firm about
-  its OWN staff create any employment/defamation sensitivity? (Frame as
-  process-not-person, like v1's rule at line 131.)
-- Any Rule 5.4 / UPL exposure in the engine outputting case-VALUE or
-  case-SELECTION judgments (vs. the current careful "estimate, not legal opinion,
-  your firm's call" framing)? Route to Yang.
+**Hard §VII STOPs (must clear Yang before any ship) — from §4quater:** R1 deadline
+flags (generic-reminder form only, or defer); R2 no-terminal-auto-decline rule; R3
+over-conversion retention schedule + label wording; R4 dollars-at-intake (verdict:
+DON'T — ship a tier); R6 deadline-wrong error mode. R5 (capping) only if refer-out is
+ever monetized.
+
+**Decisions for Ali:**
+- Confirm v2 is a "lift the freeze deliberately" decision, not a silent edit — AND
+  that it ships in the **advisory-only, no-terminal-output, tier-not-dollars** form
+  the two Wave-2 reviews converged on (both the adversarial and compliance passes
+  independently killed dollars-at-intake and the auto-decline).
+- Posture is **per-case-type, not a global firm toggle** (P1 revision) — confirm the
+  beta default (selective on soft-tissue MVAs; the config tunes per type from the
+  firm's own outcome data once the loop has data).
+- Ship gating: **the engine ships first as an investigation/qualification CHECKLIST +
+  follow-up-question coach with NO staff-performance metric attached, until the
+  outcome-validation loop has ≥1 real cycle** (Goodhart guard). The full actuarial
+  value model is a back-office, outcome-validated layer earned later.
+- The over-conversion signal moves to **aggregate + short-TTL + work-product framing**
+  (never per-named-staffer, never a durable "signed a dog" record).
+
+**Resolved by Wave 2 (no longer open):** the case-VALUE-in-dollars question (answer:
+tier, not dollars); the per-staffer alert question (answer: aggregate/privileged);
+the "gate on narrative inferences" question (answer: gate only on legally-determinable
+facts). Client-credibility scoring is DROPPED (bias/fairness).
