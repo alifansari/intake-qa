@@ -15,6 +15,8 @@
     "ingest": "node --no-warnings ingest/cli.mjs",
     "queue": "node --no-warnings messaging/cli.mjs",
     "smoke": "node --no-warnings scripts/smoke.mjs",
+    "callrail:verify": "node --no-warnings scripts/callrail-verify.mjs",
+    "callrail:selftest": "node --no-warnings scripts/callrail-selftest.mjs",
     "e2e-synthetic": "node --no-warnings scripts/e2e-synthetic.mjs",
     "test": "node --no-warnings --test tests/*.test.mjs"
   },
