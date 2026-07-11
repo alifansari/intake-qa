@@ -31,6 +31,40 @@
 
 ---
 
+## 2026-07-11 — Beta Session 1: CallRail webhook bulletproofing  ·  agent: product-dev session · lane: product
+- **Change (branch `beta/s1-callrail`, NOT pushed):** (1) Researched CallRail's REAL
+  webhook signature spec against their docs (apidocs.callrail.com → Security →
+  Validating Payloads): header `Signature`, **HMAC-SHA1 of the raw body, Base64** —
+  NOT the sha256-hex our code assumed; their published test vector (key
+  `072e77e426f92738a72fe23c4d1953b4` → `UZAHbUdfm3GqL7qzilGozGzWV64=`) is now a
+  bundled fixture and reproduces exactly. `verifyCallRailSignature` accepts the
+  documented format first, then sha256-base64 / sha256-hex (back-compat) / sha1-hex,
+  and logs which format matched on each firm's first verified webhook. (2)
+  `scripts/callrail-verify.mjs` — setup-call diagnostic: feed it a captured webhook +
+  secret, it names the matching format or prints every computed digest
+  (`--self-check` runs the docs vector). (3) Founder-only per-firm secret entry:
+  `/api/studio/callrail-secret` (Zod, store-seam `setFirmCallRailSecret`) + a
+  CallRail-signing-key card on `/studio/onboard-firm` (incl. the onboarding success
+  panel) — no more manual DB edits, firms #2+ stop 401ing. (4)
+  `scripts/callrail-selftest.mjs` — POSTs a synthetic correctly-signed payload at
+  `/webhooks/callrail/<firm>`: asserts 200+call row, replay dedupe, and 401 on bad
+  signature — every setup call ends on a green check. (5) Failure loudness: webhook
+  401/400 now writes `error_log` (`webhooks.callrail*.bad_signature/.bad_payload`)
+  with firm slug, reason, formats tried. (6) `ops/drafts/callrail-setup-runbook.md` —
+  the 10-minute setup-call script.
+- **Hypothesis:** the #1 predicted week-1 killer is a silent signature 401 → firm sees
+  "0 calls" forever; verifying the *documented* format + per-firm secrets + a
+  self-test converts that failure mode into a 2-minute visible fix.
+- **Expected effect:** firm #1 setup call ends verified-green Monday 7/14; zero
+  silent-ingest incidents in week 1.
+- **Depends on:** migration 0034 applied to hosted Supabase before any per-firm key
+  is saved (the save button reports this plainly if missing).
+- **Status:** staged on branch (442 tests pass incl. 18 new signature tests, build green);
+  merge before Monday deploy
+- **Review date:** 2026-07-18 (end of beta week 1)
+
+---
+
 ## 2026-07-10 — Engine-v2 Wave 10: LACBA piece QC-cleared ×2 + channel verdict  ·  agent: main session · lane: outreach
 - **Change:** QC pass #2 on the five-questions piece (verdict → fixes applied → **CLEARED FOR
   YANG READ**): §3333.4(c) DUI exception narrowed to its true owner-only scope (the one
