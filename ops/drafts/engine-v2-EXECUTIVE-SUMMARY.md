@@ -162,6 +162,24 @@ fairness fixes above.
    a deliberate freeze-lift + QWK re-validation + regenerated golds + a `ScoredCall`
    sibling migration + Yang sign-off. **The model waits; the data does not.**
 
+## Two positioning refinements from the Eve teardown (Wave 5 — fold into the wedge)
+Eve ($1B, plaintiff-only, "Jenny" voice intake that REPLACES the rep, Auditor that reviews
+DOCS not calls) is the existential competitor. The technical moat is weak (call-QA is ~one
+Auditor release away) but the **strategic moat is real: building human-rep QA would
+cannibalize Eve's "fire your reps" narrative** — the incumbent's dilemma. Two refinements
+this forces:
+1. **Be Switzerland — audit WHOEVER handles the call, human OR AI (incl. Eve's Jenny).**
+   Firms adopting autonomous intake need *independent* QA MORE (verify the AI didn't drop a
+   viable case — a malpractice exposure). Every Jenny deployment becomes a firm that needs
+   you → **Eve's growth is your tailwind.**
+2. **Center the durable asset on the DEVELOP-QUEUE / case-making-question intelligence, NOT
+   human-rep coaching** — "surface every case-making question + lost case across EVERY intake
+   channel," so the AI-answers-every-call trend can't shrink your TAM.
+Messaging: attack the PREMISE, not the unicorn — "we don't replace your intake team, we make
+it the best in your market and catch the cases it's losing." Beachhead: small firms that
+still answer their own phones (Eve ignores them). **Do NOT build a competing voice agent.**
+(Full: `competitive-eve-defense.md`; GTM: `develop-queue-GTM.md`.)
+
 ## The full deliverable (files in ops/drafts/)
 - `engine-v2-EXECUTIVE-SUMMARY.md` (this) — the verdict + sequencing + beta tests.
 - `engine-v2-triage-design.md` — the full research log (3 waves, ~20 cited briefs) +
@@ -171,6 +189,9 @@ fairness fixes above.
 - `engine-v2-system-prompt-DRAFT.md` — the promptable v2 system-prompt (for freeze-lift).
 - `engine-v2-config-and-validation.md` — the outcome-validation loop + firm-config YAML.
 - `engine-v2-gold-examples.md` — the 6-example calibration set.
+- `develop-queue-GTM.md` — go-to-market for the wedge (positioning, closing demo script,
+  flat-fee price table, beta→paid, LACBA/CAALA channel, objection table).
+- `competitive-eve-defense.md` — Eve teardown + the channel-agnostic differentiation.
 
 **Building the selection engine now is building the thing that distracts from the thing
 that's selling. The research was worth doing — it tells you exactly what the north star
