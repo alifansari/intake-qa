@@ -64,4 +64,5 @@ export type AuditReport = {
   calls?: AuditCall[];
   summary?: AuditSummary;
   pending?: number;
+  errored?: number;
 };

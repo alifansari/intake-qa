@@ -198,7 +198,8 @@ export async function buildAuditReport({ db, token, now = new Date(), monthlyCal
   });
 
   const pending = calls.filter((c) => c.status !== "done" && c.status !== "error").length;
-  return { ok: true, session, calls, summary, pending };
+  const errored = calls.filter((c) => c.status === "error").length;
+  return { ok: true, session, calls, summary, pending, errored };
 }
 
 // Save the visitor's email + volume onto a session (from the report email capture).

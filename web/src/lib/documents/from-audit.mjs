@@ -110,9 +110,14 @@ export function auditReportToDocData(report, opts = {}) {
   // never a point), consistent with the Leak Report's compose rule.
   const missedLowCents = leaks.reduce((a, l) => a + l.feeLowCents, 0);
   const missedHighCents = leaks.reduce((a, l) => a + l.feeHighCents, 0);
-  const received = summary.callsReviewed ?? calls.length;
+  // `received` must be the TRUE total of attached calls — not summary.callsReviewed,
+  // which is the processed (done+scored) count and would make the reconciliation
+  // table read a false identity like "7 = 7 + 0 + 3" when 3 of 10 errored.
+  const received = calls.length;
   const processed = done.length;
   const failed = calls.filter((c) => c && c.status === "error").length;
+  // Whatever is neither processed nor failed (e.g. still-pending rows) is the honest
+  // remainder, so received = processed + excluded + failed always balances.
   const excluded = Math.max(0, received - processed - failed);
 
   return {

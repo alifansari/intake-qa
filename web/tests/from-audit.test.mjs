@@ -97,10 +97,14 @@ test("quotes carrying inline timing ({quote, timestamp}) are cited directly", ()
 test("reconciliation reconciles: received = processed + excluded + failed", () => {
   const doc = auditReportToDocData(sampleReport, {});
   const r = doc.reconciliation;
-  assert.equal(r.received, 3);
+  // 4 calls attached: 3 done (2 leaked + 1 not-leaked) + 1 errored.
+  // received is the TRUE total, so the identity actually balances (was 3=3+0+1
+  // before — a false equation on the "every call accounted for" table).
+  assert.equal(r.received, 4);
   assert.equal(r.processed, 3);
   assert.equal(r.failed, 1);
   assert.equal(r.excluded, 0);
+  assert.equal(r.received, r.processed + r.excluded + r.failed); // genuinely balances
 });
 
 test("statement headline = arithmetic sum of the derived per-leak fee bands", () => {

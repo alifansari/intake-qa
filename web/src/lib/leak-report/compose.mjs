@@ -132,7 +132,13 @@ export function composeLeakReport(data, { now = "2026-07-05", falseAlarm = null 
   // deadlineDate carried on the leak (from sol.mjs computeSol upstream); otherwise
   // derive it from the days-remaining that already drives the urgency badge, so the
   // printed date and the "N days" figure are always consistent. Never invent one.
-  const mostUrgentLeak = leaks.find((l) => l.callerId === mostUrgent.displayId);
+  // mostUrgent can be undefined when every leaked call is moderate-confidence
+  // (leaks.length > 0 but strong/exhibits are empty) — page-one numbers then
+  // legitimately read $0 and the cover memo/next-action are already null-guarded.
+  // Guard this lookup too, or `.displayId` throws a 500 on that real-data case.
+  const mostUrgentLeak = mostUrgent
+    ? leaks.find((l) => l.callerId === mostUrgent.displayId)
+    : null;
   const muDays = mostUrgentLeak?.statuteDays;
   const deadlineText = mostUrgentLeak?.deadlineDate
     ? fmtDate(mostUrgentLeak.deadlineDate)

@@ -46,6 +46,24 @@ test("page-one numbers count ONLY strong, non-expired flags", () => {
   assert.equal(m.pageOne.recoverable, 2);
 });
 
+test("all-moderate session composes without crashing (regression: mostUrgent undefined)", () => {
+  // A real session can have leaked-but-moderate calls only (signability 60-74),
+  // so `strong`/`exhibits` are empty while `leaks` is not. This used to throw a
+  // TypeError (mostUrgent.displayId) → 500 on the leak-report route.
+  const allModerate = {
+    ...base,
+    leaks: base.leaks
+      .filter((l) => !l.statuteExpired)
+      .map((l) => ({ ...l, confidence: "moderate" })),
+  };
+  const m = composeLeakReport(allModerate);
+  assert.equal(m.pageOne.count, 0); // no strong rows counted
+  assert.equal(m.pageOne.feeLowCents, 0);
+  assert.deepEqual(m.pageOne.threeActions, []); // null-guarded, no crash
+  assert.equal(m.coverMemo, null);
+  assert.equal(m.pageOne.nextAction, null);
+});
+
 test("headline fee low equals the arithmetic sum of the shown strong rows", () => {
   const m = composeLeakReport(base);
   assert.equal(m.schedule.headlineLow, 600000 + 500000); // $11,000

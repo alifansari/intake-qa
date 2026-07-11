@@ -142,14 +142,15 @@ export default async function AuditReportPage({
         <p className="mt-1 text-sm text-muted">
           {callCount} call{callCount === 1 ? "" : "s"} reviewed
           {report.pending ? ` · ${report.pending} still processing` : ""}
+          {report.errored ? ` · ${report.errored} couldn't be processed` : ""}
         </p>
       </header>
 
       {/* 1. Sample-anchored headline (verifiable) */}
       <section className="mt-8">
         <p className="font-display text-3xl font-bold leading-tight text-ink sm:text-4xl">
-          <span className="text-red">{money(s.totalFeeAtRisk)}</span> in signable fees walked in{" "}
-          {callCount === 1 ? "this" : "these"}{" "}
+          An estimated <span className="text-red">{money(s.totalFeeAtRisk)}</span> in signable fees
+          walked in {callCount === 1 ? "this" : "these"}{" "}
           <span className="tabular-nums">{callCount}</span> call{callCount === 1 ? "" : "s"}.
         </p>
         <p className="mt-2 max-w-prose text-sm text-muted">
