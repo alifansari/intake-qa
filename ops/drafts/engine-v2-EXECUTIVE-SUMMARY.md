@@ -180,6 +180,46 @@ it the best in your market and catch the cases it's losing." Beachhead: small fi
 still answer their own phones (Eve ignores them). **Do NOT build a competing voice agent.**
 (Full: `competitive-eve-defense.md`; GTM: `develop-queue-GTM.md`.)
 
+## WAVE 6 — adjacency verification (2026-07-10, post-Wave-5): three amendments
+
+**1. The window is compressing — Supio shipped our wedge.** The demand-stage adjacency scan
+(`demand-stage-adjacency.md`) found **Supio Intake is live** with a Scoring Agent that "grades
+every call and agent against your intake SOP with report cards" plus a Coaching Agent, and
+EvenUp's march backward to intake is confirmed (Communication Agents Jan 2026 → PLAAS May 2026,
+$10M+ early subscriptions). The white-space claim survives in narrowed form — nobody offers
+*independent* rep-QA on the develop-queue/SLA model, and Supio grading Supio's own Voice Agent
+is the Eve-Auditor conflict again (second Switzerland proof) — but "nobody does call-content QA"
+is now FALSE as stated and must not be said in any pitch. Practical effect: the conveyor build
+and the beta validation experiment move from "soon" to "now"; the moat is speed + independence
++ the outcome corpus, not the feature.
+
+**2. Increment 0 amendment (adopt before it ships): store answers, not just ask-states.**
+Add a typed `answer_value` (+ `answer_citation`) to `question_checks` and stamp it into
+`intake_feature_snapshot`; freeze `question_key` as an additive-only ontology; add nullable
+`external_case_ref` (CMS matter ID) to `case_disposition`; add `demand_sent_at` /
+`demand_amount` / `first_offer` to the monthly outcome reconciliation. ~3 columns + one form
+tweak, same Claude pass. This turns the QA log into the intake-to-demand data spine — it keeps
+the demand-stage option (partnership export or 2027 product) open for near-zero cost, and it's
+the corpus behind "cases with all value-determining facts captured demand faster/settle closer
+to limits." Hard boundary confirmed: **never build demand generation** (EvenUp's $2B knife
+fight); neutral cited-fact export any demand tool consumes, no deep bilateral integration.
+(Full: `demand-stage-adjacency.md`.)
+
+**3. Spanish parity is a proof point, not a headline — and beta test #4.** The Spanish-first
+scan (`spanish-first-intake-qa.md`): the market is real (Spanish ≈ 89% of all CA court
+interpretations; Spanish PI leads cost 40–60% less, so firms buy them and then can't QA them —
+Spanish QA coverage at English-dominant firms is zero, not degraded). But "the only intake QA
+that works in Spanish" is banned (§V superlative, refutable in one call). The credible claim:
+*"same case-making-question QA in English or Spanish, cited in the caller's own words — and we
+show you your capture rate by language."* Cheapest increments: native-Spanish QA pass (no
+translation round-trip, citations stay in the caller's Spanish) + per-language capture/SLA
+telemetry (a GROUP BY — and it productizes the fairness audit's biased-abandonment tripwire).
+**Beta test #4: measure the 5 firms' call-language mix.**
+
+Also staged this wave: `lacba-five-questions-piece.md` — the publication-ready LACBA
+methodology piece (human-post gate + Yang read flagged), the public articulation of the
+develop-queue thesis whose DIY-audit sidebar is the manual version of the product.
+
 ## The full deliverable (files in ops/drafts/)
 - `engine-v2-EXECUTIVE-SUMMARY.md` (this) — the verdict + sequencing + beta tests.
 - `engine-v2-triage-design.md` — the full research log (3 waves, ~20 cited briefs) +
@@ -192,6 +232,14 @@ still answer their own phones (Eve ignores them). **Do NOT build a competing voi
 - `develop-queue-GTM.md` — go-to-market for the wedge (positioning, closing demo script,
   flat-fee price table, beta→paid, LACBA/CAALA channel, objection table).
 - `competitive-eve-defense.md` — Eve teardown + the channel-agnostic differentiation.
+- `demand-stage-adjacency.md` (Wave 6) — EvenUp/Supio reverse-threat check + the
+  intake-to-demand data spine (the Increment 0 `answer_value` amendment).
+- `spanish-first-intake-qa.md` (Wave 6) — Spanish-first market/failure-mode/ASR scan +
+  the bilingual develop-queue increments + the credible parity claim.
+- `lacba-five-questions-piece.md` (Wave 6) — publication-ready LACBA methodology piece
+  (staged; human posts; Yang read first).
+- `beta-validation-experiment.md` — the 6-week thesis test on the 5 beta firms
+  (now four tests, incl. call-language mix).
 
 **Building the selection engine now is building the thing that distracts from the thing
 that's selling. The research was worth doing — it tells you exactly what the north star

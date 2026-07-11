@@ -31,6 +31,28 @@
 
 ---
 
+## 2026-07-10 — Engine-v2 Wave 6: adjacency verification + LACBA authority piece  ·  agent: main session · lane: research/outreach
+- **Change:** four staged docs — `ops/drafts/lacba-five-questions-piece.md` (publication-ready
+  methodology piece; §VII human-post gate + Yang read flagged), `demand-stage-adjacency.md`,
+  `spanish-first-intake-qa.md`; amendments folded into `engine-v2-EXECUTIVE-SUMMARY.md` and
+  `engine-v2-conveyor-MVP.md` (Increment 0 data-spine amendment). Nothing sent/published.
+- **Findings:** (1) **Supio Intake is LIVE with a call-scoring agent** and EvenUp is marching
+  to intake (PLAAS, $10M+ early subs) — "nobody does call-content QA" is now false as stated;
+  the wedge survives narrowed to *independent* rep-QA + develop-queue/SLA (Supio grading its
+  own voice agent = second Switzerland proof), and the window compressed → conveyor + beta
+  validation experiment move to NOW. (2) Cheapest option-preserving move: Increment 0 stores
+  typed `answer_value` + `answer_citation` (not just ask-states) + `external_case_ref` + demand
+  milestones — the intake-to-demand data spine; hard boundary: never build demand generation.
+  (3) Spanish parity is a proof point, not a headline — "the only intake QA in Spanish" banned
+  (§V superlative); credible claim = same bar both languages + capture rate by language;
+  **beta test #4 = the 5 firms' call-language mix**.
+- **Expected effect:** LACBA piece feeds live outreach (authority-asset input metric); spine
+  amendment preserves 2027 demand-stage optionality at ~zero cost; refutable pitch language
+  corrected before any prospect hears it.
+- **Status:** staged-for-approval (LACBA piece → Ali posts after Yang read; spine amendment →
+  adopt when Increment 0 is built).
+- **Review date:** 2026-07-24
+
 ## 2026-07-10 — /onboard retired + digest-first desk shipped (Ali sign-off)  ·  agent: main session (Ali directive) · lane: product
 - **Change:** (committed to main on Ali's explicit instruction) 1) The orphaned 5-step
   /onboard wizard is retired — page + /api/onboard deleted, /onboard 308→/apply; the pure

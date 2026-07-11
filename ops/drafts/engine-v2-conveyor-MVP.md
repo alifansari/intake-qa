@@ -178,3 +178,28 @@ BEFORE it ever recalibrates (§4sexies — don't launder historical under-servic
 **Build cost:** two Postgres/Supabase tables + the reconciliation form already in the
 conveyor + a nightly stamp of the intake snapshot at decision time. It ships as
 Increment 0 precisely because it's cheap now and irreplaceable later.
+
+### Increment 0 AMENDMENT (Wave 6, 2026-07-10 — adopt before it ships): the demand-shaped data spine
+
+Source: `demand-stage-adjacency.md`. Four cheap changes that turn the QA log into the
+intake-to-demand data spine (keeps the demand-stage partnership/product option open for
+~3 columns and a form tweak; hard boundary: never build demand *generation*):
+
+1. **Store answers, not just ask-states.** `question_checks` gains a typed
+   **`answer_value`** (`date`|`text`|`enum`|`json`) + **`answer_citation`** (verbatim
+   transcript span). "They asked about UM/UIM" is QA; "UM/UIM = $100k/$300k, Farmers" is
+   a demand-package fact. Same Claude pass, one more extraction field — and the answer
+   values flow into `intake_feature_snapshot`.
+2. **Canonical fact keys, additive-only.** `question_key` is a frozen ontology
+   (`coverage.um_uim`, `incident.date`, `witnesses[]`, `priors[]`); keys are never
+   repurposed, only added (rides the existing `rubric_version`).
+3. **`external_case_ref`** (nullable text, CMS matter ID — Filevine/Litify/Clio) on
+   `case_disposition`. The join key to the firm's CMS cannot be backfilled later.
+4. **Demand milestones in `case_outcome`:** `demand_sent_at`, `demand_amount`,
+   `first_offer` — making the corpus *intake facts → demand → recovery* and powering the
+   partnership stat ("cases with all value-determining facts captured demand faster").
+
+Competitive context (why now): EvenUp and Supio are both marching backward into intake —
+**Supio Intake ships a call-scoring agent today** — so the window for the independent
+develop-queue wedge is compressing, and the provenance asset (Day-0 cited facts) is the
+part they cannot retroactively replicate.
