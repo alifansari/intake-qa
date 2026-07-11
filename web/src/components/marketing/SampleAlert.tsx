@@ -52,7 +52,7 @@ export function SampleAlert() {
         </dl>
 
         <p className="mt-4 border-t border-hairline pt-3 text-xs text-faint">
-          A person on your team approves any text before it sends. This is our read of the
+          Your own staff make the callback; we never contact your callers. This is our read of the
           transcript, not a legal opinion on the case. Reply here to add context or correct this flag.
         </p>
       </div>

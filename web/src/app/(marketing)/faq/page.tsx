@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FAQAccordion, type QA } from "@/components/marketing/FAQAccordion";
-import { COHORT_MAX, DELETION_HOURS, CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF, LIFT_LINE, FOUNDER_EMAIL } from "@/lib/site-constants";
+import { COHORT_MAX, DELETION_HOURS, FIRM_RETENTION_DAYS, CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF, LIFT_LINE, FOUNDER_EMAIL } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "FAQ | Intake QA",
@@ -23,7 +23,7 @@ const ITEMS: QA[] = [
   },
   {
     q: "Why is the Leak Audit free?",
-    a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Leak Audit is free for qualifying Northern California PI firms. A real analyst scores up to 10 of your own recorded calls and walks you through the signable cases that slipped, live, and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. Ali",
+    a: "Because we're early and honest about it: I'd rather earn your trust with a real report than ask for money and trust at the same time. The Leak Audit is free for qualifying California PI firms. A real analyst scores up to 10 of your own recorded calls and walks you through the signable cases that slipped, live, and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. Ali",
   },
   {
     q: "I already have an AI receptionist / answering service / Lead Docket / a marketing agency that reports on this.",
@@ -47,7 +47,7 @@ const ITEMS: QA[] = [
   },
   {
     q: "What happens to my prospective clients' data?",
-    a: `We treat every call as confidential prospective-client information (Cal. Rule 1.18). Call audio is deleted the moment it's transcribed; transcripts and reports are purged within ${DELETION_HOURS} hours of your readout, or immediately if you ask in writing. Your calls are handled by Intake QA — transcription and analysis run on specialist engines under our DPA (encrypted in transit and at rest, never used to train AI models, never sold or shared), and we're the single party accountable to you. We'll sign your NDA and a DPA. The full posture is on the security page.`,
+    a: `We treat every call as confidential prospective-client information (Cal. Rule 1.18). Call audio is deleted the moment it's transcribed. Free Leak Audit transcripts and reports are purged within ${DELETION_HOURS} hours of your readout; for firms on the desk, transcripts are kept only while we serve you (so your team can check the evidence behind each flag), purged on a rolling ${FIRM_RETENTION_DAYS}-day window, and deleted immediately if you ask in writing. Your calls are handled by Intake QA — transcription and analysis run on specialist engines under our DPA (encrypted in transit and at rest, never used to train AI models, never sold or shared), and we're the single party accountable to you. We'll sign your NDA and a DPA. The full posture is on the security page.`,
   },
   {
     q: "You're a solo founder. Will this be around in a year?",
@@ -59,7 +59,7 @@ const ITEMS: QA[] = [
   },
   {
     q: "Is texting old callers solicitation, or a TCPA problem?",
-    a: "The same-day save protocol goes only to people who already called your firm. Responding to an inbound inquiry is treated differently from soliciting a stranger under Rule 7.3. On the TCPA: the FCC's one-to-one consent rule was vacated (Insurance Marketing Coalition v. FCC, Jan. 2025) and the prior rules reinstated, so bundled consent is again permissible; marketing texts still require prior express written consent and must honor opt-out. That's exactly why the protocol is compliance-gated: every draft includes 'Reply STOP,' nothing sends until A2P 10DLC registration clears, and a person approves each one. Confirm your consent basis with counsel.",
+    a: "First, the beta reality: nothing texts anyone today. During the beta your own staff make every callback, and we never contact your prospects. The texting assist is a roadmap feature, and when it arrives the same-day save protocol goes only to people who already called your firm. Responding to an inbound inquiry is treated differently from soliciting a stranger under Rule 7.3. On the TCPA: the FCC's one-to-one consent rule was vacated (Insurance Marketing Coalition v. FCC, Jan. 2025) and the prior rules reinstated, so bundled consent is again permissible; marketing texts still require prior express written consent and must honor opt-out. That's exactly why the protocol is compliance-gated: every draft includes 'Reply STOP,' nothing sends until A2P 10DLC registration clears, and a person approves each one. Confirm your consent basis with counsel.",
   },
   {
     q: "Can I even share call recordings with a vendor in California?",
@@ -75,7 +75,7 @@ const ITEMS: QA[] = [
   },
   {
     q: "Do you handle Spanish-language calls?",
-    a: "Yes, the desk analyzes and drafts in English and Spanish, natively, not translated afterward. In Northern California that matters: in the San Francisco-Oakland-Fremont metro, 16.7% of people age 5 and older speak Spanish at home (U.S. Census Bureau, 2024 American Community Survey 1-year, table C16001), and a signable Spanish-speaking caller is worth exactly as much as any other. Ali is bilingual and built the scoring against real calls in both languages.",
+    a: "Yes, the desk analyzes and drafts in English and Spanish, natively, not translated afterward. In California that matters: 48.4% of Los Angeles County residents are Hispanic or Latino (U.S. Census Bureau, 2020 Census redistricting data), Spanish-first callers are often where English-only intake leaks most, and a signable Spanish-speaking caller is worth exactly as much as any other. Ali is bilingual and built the scoring against real calls in both languages.",
   },
 ];
 

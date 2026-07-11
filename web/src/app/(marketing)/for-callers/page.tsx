@@ -23,9 +23,10 @@ export default function ForCallersPage() {
           don&apos;t get missed.
         </p>
         <p>
-          We work only for the firm you called, under their instructions. We never sell your
-          information, and we don&apos;t add you to marketing lists. If the firm follows up, it is so
-          a person there can help. You can reply STOP to any text and we will stop immediately.
+          We work only for the firm you called, under their instructions. We never contact you
+          ourselves, we never sell your information, and we don&apos;t add you to marketing lists. If
+          the firm follows up, it is a person at that firm calling so they can help. If the firm ever
+          texts you, replying STOP tells them to stop.
         </p>
         <p>
           Your call is treated as confidential. Recordings are deleted right after they are turned
@@ -48,9 +49,10 @@ export default function ForCallersPage() {
           </p>
           <p>
             Trabajamos únicamente para el bufete al que usted llamó, siguiendo sus instrucciones.
-            Nunca vendemos su información ni lo agregamos a listas de publicidad. Si el bufete se
-            comunica con usted, es para que una persona pueda ayudarle. Puede responder STOP o ALTO a
-            cualquier mensaje de texto y dejaremos de enviarlos de inmediato.
+            Nosotros nunca lo contactamos directamente, nunca vendemos su información ni lo agregamos
+            a listas de publicidad. Si el bufete se comunica con usted, es una persona de ese bufete
+            llamando para ayudarle. Si el bufete alguna vez le envía un mensaje de texto, puede
+            responder STOP o ALTO para que dejen de enviarlos.
           </p>
           <p>
             Su llamada se trata como confidencial. Las grabaciones se eliminan justo después de

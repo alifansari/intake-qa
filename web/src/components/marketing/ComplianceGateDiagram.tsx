@@ -5,7 +5,7 @@ const GATES = [
   ["Human approval", "A person on your team approves every message before it can send."],
   ["Opt-out", "STOP / QUIT / REVOKE / OPT OUT / CANCEL / UNSUBSCRIBE / END (plus Spanish keywords) opt a number out instantly and permanently."],
   ["Global kill switch", "One switch halts all sending across every firm."],
-  ["Per-firm autonomy lock", "A firm must be explicitly set to manual; there is no autonomous mode."],
+  ["Per-firm autonomy lock", "A firm must be explicitly set to manual; no autonomous sending mode is enabled for any firm."],
   ["Per-firm kill switch", "Each firm can halt its own sending independently."],
   ["Quiet hours", "No messages 8:00pm to 8:00am in the recipient's local time."],
   ["Test mode", "Until A2P 10DLC is approved, sends are simulated and logged, never transmitted."],

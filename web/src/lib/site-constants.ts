@@ -117,7 +117,7 @@ export const AUDIT_DELIVERABLES: string[] = [
   "A per-call score on our frozen, calibrated PI rubric.",
   "The signable cases that didn't sign, with the transcript evidence behind each flag.",
   "A dollar figure for the estimated missed signable fee revenue.",
-  "A watermarked sample of the staff-sent win-back message we'd recommend.",
+  "The same-day callback script we'd hand your staff for the flagged cases.",
   "A shareable written report your firm keeps.",
 ];
 // The one funnel (present as a single path, no competing offers). During the
@@ -174,11 +174,14 @@ export const COHORT_MAX = 5;
 export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MAX} California PI firms into the beta, after each firm's free Leak Audit.`;
 
 // ─── Data handling (one reconciled promise) ──────────────────────────────────
-// Canonical retention (Round 7 master): audio deleted at transcription; transcripts
-// and reports purged within 72 hours. Stated identically on Security, Compliance,
-// Privacy, Demo, and FAQ. The demo pipeline already purges on this 72-hour window.
+// Canonical retention, reconciled to what the code actually does (2026-07-10):
+// audio deleted at transcription (true everywhere); the 72-hour purge is true for
+// the FREE AUDIT pipeline (demo TTL); firm desk data purges on the rolling
+// DATA_RETENTION_DAYS sweep (default 90 — keep FIRM_RETENTION_DAYS in sync with
+// the env default in inngest/functions.mjs), plus immediate deletion on request.
 export const DELETION_HOURS = 72;
-export const DELETION_LINE = `Call audio is deleted the moment it's transcribed; transcripts and reports are purged within ${DELETION_HOURS} hours of your readout, or immediately if you ask in writing.`;
+export const FIRM_RETENTION_DAYS = 90;
+export const DELETION_LINE = `Call audio is deleted the moment it's transcribed. Free Leak Audit transcripts and reports are purged within ${DELETION_HOURS} hours of your readout; for firms on the desk, transcripts are kept only while we serve you, purged on a rolling ${FIRM_RETENTION_DAYS}-day window, and deleted immediately if you ask in writing.`;
 // Breach-notification commitment confirmed by Ali (July 2026): within 72 hours.
 export const BREACH_NOTICE_HOURS = 72;
 
@@ -228,13 +231,12 @@ export const STAT_WEBRIS_DISTRUST = {
   label: "of PI firms one legal-marketing agency audited could state their true client-acquisition cost with confidence",
   source: "WEBRIS, \"Personal Injury Leads: How Much Should They Cost?\" (after auditing 500+ PI firms)",
 };
-// Spanish-language / NorCal — ONE figure, Bay Area metro (NorCal relevance).
-// TODO(Ali): confirm — Bay Area metro 16.7% (Census ACS 2024 1-year, table C16001:
-// 739,982 Spanish-at-home of 4,422,876 age 5+). Swapped from the prior LA-metro figure.
-export const STAT_BAY_SPANISH = {
-  value: "16.7%",
-  label: "of people age 5+ in the San Francisco-Oakland-Fremont metro speak Spanish at home (about 740,000 people)",
-  source: "U.S. Census Bureau, 2024 American Community Survey (1-year), table C16001",
+// Spanish-language / Los Angeles — ONE figure, LA County (the beta recruits via
+// LACBA, so the region anchor is LA; the product serves all of California).
+export const STAT_LA_HISPANIC = {
+  value: "48.4%",
+  label: "of Los Angeles County residents are Hispanic or Latino (about 4.75 million people)",
+  source: "U.S. Census Bureau, 2020 Census redistricting data",
 };
 
 // ─── Calibration / test corpus ───

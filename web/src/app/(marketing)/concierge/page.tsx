@@ -18,8 +18,9 @@ export default function ConciergePage() {
         White-glove recovery for founding firms.
       </h1>
       <p className="mt-6 max-w-[68ch] text-lg leading-relaxed text-ink-muted">
-        Once you join the founding beta, we don&apos;t just hand you a dashboard. We&apos;ll
-        personally help work your first recovered callbacks with you, so you see signed cases early.
+        Once you join the founding beta, we don&apos;t just hand you a dashboard. We&apos;ll sit
+        with your staff while they work the first callback list — your team makes every call, we
+        make sure the setup, the scripts, and the ledger are working — so you see signed cases early.
       </p>
       <div className="mt-10">
         <PilotCohortBanner />

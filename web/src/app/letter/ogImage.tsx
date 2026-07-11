@@ -36,7 +36,7 @@ export function renderLetterOG() {
             fontFamily: "Helvetica, Arial, sans-serif",
           }}
         >
-          An open letter to Northern California PI managing partners
+          An open letter to California PI managing partners
         </div>
         <div style={{ fontSize: 88, lineHeight: 1.05, marginTop: 34, maxWidth: 960 }}>
           The Unscored Conversation

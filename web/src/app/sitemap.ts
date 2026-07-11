@@ -6,6 +6,7 @@ const BASE = "https://plaintiffops.com";
 // disallowed in robots.ts and omitted here.
 const ROUTES = [
   "",
+  "/apply",
   "/how-it-works",
   "/compliance",
   "/pricing",
@@ -13,7 +14,7 @@ const ROUTES = [
   "/faq",
   "/security",
   "/founder",
-  "/concierge",
+  "/letter",
   "/audit",
   "/demo",
   "/terms",

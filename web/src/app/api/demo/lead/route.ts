@@ -7,6 +7,7 @@ import { z } from "zod";
 import { openPipelineDb, closePipelineDb, createDemoLead } from "../../../../../ingest/store.mjs";
 import { saveAuditContact } from "../../../../../ingest/audit.mjs";
 import { isTestMode } from "../../../../../messaging/compliance.mjs";
+import { rateLimited } from "@/lib/intake/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -20,6 +21,10 @@ const Body = z.object({
 });
 
 export async function POST(req: Request) {
+  if (rateLimited(req)) {
+    return Response.json({ error: "too many requests" }, { status: 429 });
+  }
+
   let json: unknown;
   try {
     json = await req.json();

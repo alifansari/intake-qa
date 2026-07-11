@@ -13,8 +13,6 @@ const LINKS = [
   { href: "/founder", label: "Founder" },
   { href: "/security", label: "Security" },
   { href: "/demo", label: "See a call scored" },
-  { href: "/intake-demo", label: "Try the intake agent" },
-  { href: "/concierge", label: "Concierge" },
   { href: "/for-callers", label: "For callers" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
@@ -53,9 +51,9 @@ export function Footer() {
         </nav>
         <p className="mt-6 max-w-[80ch] text-xs text-faint">
           Intake QA is a service of Plaintiff Ops LLC. Estimates and calibration figures are not
-          legal advice; your firm and its counsel make the final call on ethics and consent. Texting
-          features activate only after your A2P 10DLC registration is approved. © {COPYRIGHT_YEAR}{" "}
-          Plaintiff Ops LLC.
+          legal advice; your firm and its counsel make the final call on ethics and consent. During
+          the beta your own staff make every callback; we never contact your prospects. ©{" "}
+          {COPYRIGHT_YEAR} Plaintiff Ops LLC.
         </p>
       </div>
     </footer>

@@ -7,6 +7,7 @@ import {
   LEGAL_LAST_UPDATED,
   LEGAL_GOVERNING_STATE,
   DELETION_HOURS,
+  FIRM_RETENTION_DAYS,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
@@ -122,15 +123,15 @@ export default function DpaPage() {
               underlying recording after transcription.
             </li>
             <li>
-              <strong>Transcripts and reports are purged within {DELETION_HOURS} hours of your
-              readout</strong>, or immediately on written request. A Leak Audit&apos;s data is purged
-              automatically {DELETION_HOURS} hours after the readout if the Firm does not continue.
-              Demo data and expired audit sessions are purged automatically on a daily scheduled job.
+              <strong>Free Leak Audit transcripts and reports are purged within {DELETION_HOURS} hours
+              of your readout</strong>, or immediately on written request. Demo data and expired audit
+              sessions are purged automatically on a daily scheduled job.
             </li>
             <li>
-              For ongoing subscriptions, derived data (transcripts, scores, reports) is retained only
-              as long as needed to provide the service and is purged on the same retention window
-              unless the Firm asks us to keep a specific statement.
+              For ongoing service, derived data (transcripts, scores, reports) is retained only as
+              long as needed to provide the service, purged on a rolling {FIRM_RETENTION_DAYS}-day
+              window (and immediately on written request), unless the Firm asks us to keep a specific
+              statement.
             </li>
           </ul>
           <p>

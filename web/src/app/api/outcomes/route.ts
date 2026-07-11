@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { repo } from "@/lib/json-repository";
 import { OutcomeCode } from "@/lib/schema";
+import { getCurrentUser } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 export const runtime = "nodejs";
 
@@ -17,6 +19,13 @@ const Body = z.object({
 });
 
 export async function POST(req: Request) {
+  // Local/pilot (no Supabase) stays open for the JSON-backed demo dashboard;
+  // in any deploy with auth configured this write requires a signed-in user.
+  if (isSupabaseConfigured()) {
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
   let json: unknown;
   try {
     json = await req.json();

@@ -16,7 +16,7 @@ import {
   ACCOUNTABLE_PARTY_LINE,
   STAT_PI_COST_PER_CASE,
   STAT_ANSWER_RATE,
-  STAT_SPEED_TO_LEAD,
+  STAT_LA_HISPANIC,
   STAT_WEBRIS_DISTRUST,
 } from "@/lib/site-constants";
 
@@ -33,10 +33,12 @@ export const metadata: Metadata = {
   },
 };
 
+// STAT_SPEED_TO_LEAD is intentionally NOT here: site-constants marks it
+// "not rendered as a headline number" (speed-to-lead stays a principle, not a stat).
 const STATS = [
   STAT_PI_COST_PER_CASE,
   STAT_ANSWER_RATE,
-  STAT_SPEED_TO_LEAD,
+  STAT_LA_HISPANIC,
   STAT_WEBRIS_DISTRUST,
 ];
 

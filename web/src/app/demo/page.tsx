@@ -210,13 +210,11 @@ export default function DemoPage() {
         </h1>
         <p className="mt-2 text-muted">
           Upload a single call recording. In a few minutes you&apos;ll see how it scored, whether it
-          was a signable case your team let slip, and the exact re-engagement text we&apos;d draft.
-          In the real product a human approves every send.
+          was a signable case your team let slip, and the same-day callback script we&apos;d hand
+          your staff. We never contact your callers.
         </p>
         <p className="mt-2 text-sm text-muted">
-          No recording handy? <a href="/intake-demo" className="underline hover:text-ink">Try the
-          web intake agent instead</a> — a live chat that qualifies an injured caller without ever
-          giving advice. Or start with the{" "}
+          No recording handy? Start with the{" "}
           <a href="/audit" className="underline hover:text-ink">free Leak Audit</a> on a batch of
           real calls.
         </p>
@@ -385,7 +383,7 @@ function Results({
       {/* Draft preview: watermarked, never sent */}
       {result.leaked && result.draftPreview && (
         <div className="rounded-lg border border-line bg-paper p-6">
-          <p className="eyebrow">Re-engagement text we&apos;d draft</p>
+          <p className="eyebrow">The callback script we&apos;d hand your staff</p>
           <div className="mt-2 rounded-md border border-line bg-canvas p-4 text-sm text-ink">
             {result.draftPreview}
           </div>
@@ -393,8 +391,7 @@ function Results({
             {result.draftWatermark}
           </p>
           <p className="mt-1 text-xs text-faint">
-            In the real product a human approves, edits, or rejects every message before it can be
-            sent.
+            Your own staff make every callback; we never contact your callers.
           </p>
         </div>
       )}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   ACCOUNTABLE_PARTY_LINE,
   DELETION_HOURS,
+  FIRM_RETENTION_DAYS,
   BREACH_NOTICE_HOURS,
   FOUNDER_NAME,
   FOUNDER_EMAIL,
@@ -12,7 +13,7 @@ import {
 export const metadata: Metadata = {
   title: "Security & data handling | Intake QA",
   description:
-    "Encryption, access controls, retention and deletion, DPA/NDA willingness, and breach notification. Your calls are never used to train our models, and one party is accountable to you.",
+    "Encryption, access controls, retention and deletion, DPA/NDA willingness, and breach notification. Your calls are never used to train AI models, and one party is accountable to you.",
   alternates: { canonical: "/security" },
 };
 
@@ -80,17 +81,18 @@ export default function SecurityPage() {
         </Row>
         <Row q="Retention & deletion">
           <p>
-            Your audio is deleted the moment it is transcribed, and transcripts and reports are
-            purged within {DELETION_HOURS} hours of your readout, or immediately if you ask in
-            writing. If you move to a paid subscription, your data carries over under the
-            subscription agreement, and the same 72-hour purge applies. Your calls are never used to
-            train our models.
+            Your audio is deleted the moment it is transcribed. Free Leak Audit transcripts and
+            reports are purged within {DELETION_HOURS} hours of your readout. If you join the desk,
+            transcripts are kept only while we serve you (so your team can check the evidence behind
+            each flag), purged on a rolling {FIRM_RETENTION_DAYS}-day window, and deleted immediately
+            if you ask in writing. Your calls are never used to train AI models.
           </p>
         </Row>
-        <Row q="Our models">
+        <Row q="The engines we use">
           <p>
-            We analyze and transcribe your calls with our own models, over encrypted connections. We
-            do not use your calls, transcripts, or the results to train our models, and we do not sell
+            We analyze and transcribe your calls on specialist engines under our data-processing
+            agreement — every subprocessor is named in the DPA — over encrypted connections. Your
+            calls, transcripts, and results are never used to train AI models, and we do not sell
             or share your data. Intake QA does not claim to be SOC 2 certified or HIPAA compliant as a
             company. We make plain-English commitments and put them in writing.
           </p>

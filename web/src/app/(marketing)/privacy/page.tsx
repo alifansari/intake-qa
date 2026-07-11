@@ -74,9 +74,10 @@ export default function PrivacyPage() {
             approve, produce reports, and support and improve the service for that firm.
           </p>
           <p>
-            <b className="text-ink">We do not use your calls, transcripts, or results to train our
-            models. We do not sell your data, and we do not share it for anyone else&apos;s
-            advertising.</b>
+            <b className="text-ink">We do not use your calls, transcripts, or results to train AI
+            models, and we use our transcription and analysis providers under terms that do not
+            permit training on your data. We do not sell your data, and we do not share it for
+            anyone else&apos;s advertising.</b>
           </p>
         </Section>
 
@@ -142,10 +143,11 @@ export default function PrivacyPage() {
 
         <Section n="9" title="Text messages">
           <p>
-            Follow-up texts go only to a firm&apos;s own prior callers, include an opt-out, and send
-            only after a person at the firm approves each one and the firm&apos;s carrier registration
-            clears. Reply STOP to any message to opt out; once opted out, that number is not texted
-            again.
+            No text messages are sent today; during the beta, follow-up happens by the firm&apos;s own
+            staff calling back. If and when the texting feature is enabled, follow-up texts will go
+            only to a firm&apos;s own prior callers, include an opt-out, and send only after a person
+            at the firm approves each one and the firm&apos;s carrier registration clears. Reply STOP
+            to any message to opt out; once opted out, that number is not texted again.
           </p>
         </Section>
 

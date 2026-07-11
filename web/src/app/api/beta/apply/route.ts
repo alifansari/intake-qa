@@ -10,10 +10,29 @@ import { NextResponse } from "next/server";
 import { applyToBeta } from "../../../../../beta/applicants.mjs";
 import { sendNdaRequest } from "../../../../../beta/nda.mjs";
 import { openPipelineDb, closePipelineDb, logError } from "../../../../../ingest/store.mjs";
+import { rateLimited } from "@/lib/intake/rate-limit";
 
 export const runtime = "nodejs";
 
+// Founder ping on a new application. This is an INTERNAL ops notification to
+// Ali, not a message to a firm or a lead, so it is deliberately not behind
+// TEST_MODE / KILL_SWITCH (those gate outbound product sends). Best-effort:
+// the studio "Applications waiting on you" tile remains the source of truth.
+async function notifyFounder(subject: string, text: string): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM;
+  const to = process.env.FOUNDER_EMAIL;
+  if (!apiKey || !from || !to) return;
+  const { Resend } = await import("resend");
+  const resend = new Resend(apiKey);
+  await resend.emails.send({ from, to, subject, text });
+}
+
 export async function POST(req: Request) {
+  if (rateLimited(req)) {
+    return NextResponse.json({ error: "too many requests" }, { status: 429 });
+  }
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();
@@ -41,6 +60,14 @@ export async function POST(req: Request) {
         return null;
       });
     }
+
+    // Ping the founder so an application never sits unseen until the next
+    // /studio visit (the tile is the fallback, not the only signal).
+    const firmName = typeof body.firm_name === "string" ? body.firm_name : "unknown firm";
+    notifyFounder(
+      `New beta application: ${firmName}`,
+      `Status: ${result.status}\nApplicant: ${String(body.name ?? "?")} <${String(body.email ?? "?")}>\nFirm: ${firmName}\nReview and onboard: /studio`,
+    ).catch(() => {});
 
     // True only when the NDA actually went out through Dropbox Sign. In
     // TEST_MODE (or with no API key) the send is simulated and the founder

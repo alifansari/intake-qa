@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ComplianceGateDiagram } from "@/components/marketing/ComplianceGateDiagram";
 import {
   CTA_PRIMARY,
-  STAT_BAY_SPANISH,
+  STAT_LA_HISPANIC,
   MONTH_6_INTRO,
   MONTH_6_ITEMS,
   CHAMPION_LINE,
@@ -24,7 +24,7 @@ const STEPS: [string, string, string][] = [
   ["Signable-case detection", "A case is flagged when it reaches Tier 4 or above, it wasn't converted, and it's within 72 hours.", "Pure, inspectable logic, not a black box."],
   ["Ali reviews every flagged call", "A named analyst reviews every flag and the transcript moment behind it before it reaches your queue.", "Not an autonomous model deciding on its own; a person who knows what a signable case sounds like."],
   ["Same-day Recoverable-Lead Alert", "You get a one-screen Alert the same day. Lead value fades fast, so the play is a callback within the hour.", "A specific, same-day SLA, because speed is the biggest lever on recovery."],
-  ["A human approves the follow-up", "Your staff reviews, edits, or rejects every ≤320-character follow-up (with “Reply STOP”) before anything sends, and each message clears seven compliance gates in order.", "No autonomous sends, ever, in pilot. The first failed gate stops the message."],
+  ["Your staff make the callback", "Every flagged case comes with the number, the evidence, and a suggested script — and a person at your firm makes the call. During the beta that's the whole play: no texts, no automation touching your prospects.", "We never contact your callers. A drafted, human-approved text assist is on the roadmap, gated on A2P 10DLC registration and seven compliance gates."],
   ["Monthly Missed-Revenue Statement", "A two-page monthly Statement, signed by the analyst, shows what walked in dollars, the trend, and the Saved-Case Ledger. A standing 15-minute review call and a Right of Reply come with it.", "Challenge any finding; your correction runs, unedited, in the next Statement's Corrections column."],
   ["Flat monthly fee", "You pay one flat monthly fee tiered by call volume, the same whether you sign zero cases or fifty.", "Never per case, per client, or per recovered dollar (Cal. B&P §§6151-6152)."],
 ];
@@ -113,13 +113,13 @@ export default function HowItWorksPage() {
         </p>
       </section>
 
-      {/* Spanish-language intake (NorCal edge) */}
+      {/* Spanish-language intake (California edge) */}
       <section className="mt-6 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-xl font-semibold text-ink">Spanish-language calls, analyzed natively</h2>
         <p className="mt-2 max-w-[72ch] text-ink-muted">
-          We analyze Spanish-language intake calls natively, not translated afterward. In the San
-          Francisco-Oakland-Fremont metro, {STAT_BAY_SPANISH.value} of people age 5 and older speak
-          Spanish at home ({STAT_BAY_SPANISH.source}), and a signable Spanish-speaking caller is worth
+          We analyze Spanish-language intake calls natively, not translated afterward. {STAT_LA_HISPANIC.value} of
+          Los Angeles County residents are Hispanic or Latino ({STAT_LA_HISPANIC.source}), Spanish-first callers
+          are where English-only intake leaks most, and a signable Spanish-speaking caller is worth
           exactly as much as any other. Ali is bilingual and built the scoring against real calls in both languages.
         </p>
       </section>

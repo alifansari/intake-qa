@@ -168,8 +168,10 @@ export default function CompliancePage() {
         </p>
       </Sec>
 
-      <Sec rule="TCPA / SMS (2026)" title="Texts go to your own prior callers, with opt-out, only after registration.">
+      <Sec rule="TCPA / SMS (2026)" title="A roadmap feature: texts to your own prior callers, with opt-out, only after registration.">
         <p>
+          No texting runs during the beta — your own staff make every callback. When the texting
+          assist is enabled, this is the posture it ships under.
           The FCC&apos;s &ldquo;one-to-one consent&rdquo; rule was vacated by the Eleventh Circuit in
           Insurance Marketing Coalition Ltd. v. FCC (Jan. 24, 2025), which held it
           &ldquo;impermissibly conflict[ed] with the ordinary statutory meaning of &lsquo;prior

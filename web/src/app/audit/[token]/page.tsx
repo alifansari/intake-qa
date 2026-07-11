@@ -280,22 +280,22 @@ export default async function AuditReportPage({
         )}
       </section>
 
-      {/* 4. Sample same-day save-protocol text (watermarked) */}
+      {/* 4. Sample same-day callback script (watermarked) */}
       {walkedCalls.some((c) => c.draftPreview) && (
         <section className="mt-10">
           <h2 className="font-display text-xl font-semibold text-ink">
-            A same-day save-protocol text we&apos;d draft
+            The same-day callback script we&apos;d hand your staff
           </h2>
           <div className="mt-2 rounded-sm border border-line bg-paper p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-amber">
-              Draft preview: nothing is sent
+              Draft preview: we never contact your callers
             </p>
             <p className="mt-2 text-sm text-ink">
               {walkedCalls.find((c) => c.draftPreview)?.draftPreview}
             </p>
           </div>
           <p className="mt-2 text-xs text-faint">
-            In the product, a human approves every message before it can send.
+            Your own staff make every callback. The desk supplies the number, the evidence, and the words.
           </p>
         </section>
       )}
@@ -306,8 +306,8 @@ export default async function AuditReportPage({
           Turn this audit into recovered cases
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Book a 20-minute walkthrough and we&apos;ll show you how to win these cases back,
-          compliantly, with a human approving every text.
+          Book a 20-minute walkthrough and we&apos;ll show you how your own team wins these cases
+          back, compliantly — we find them, your staff make the calls.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {/* The headline action never disappears: no calendar configured →

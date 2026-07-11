@@ -174,13 +174,14 @@ status (warm contact, not retained). Follow it.
 
 ## Mission
 
-Intake QA is the **independent recovery desk** for Northern California personal-injury firms:
+Intake QA is the **independent recovery desk** for California personal-injury firms:
 we score intake calls and surface lost-case / lost-revenue leaks that firms can't see
 themselves. Positioning is the independent scorer — the Moody's / Michelin / J.D. Power of PI
 intake — not a vendor and not a fee participant.
 
-Business state: **pre-revenue**, hunting a founding cohort of **3–5 Northern California PI
-firms** via free 30-day pilots anchored by the free "Leak Audit" wedge. Stack:
+Business state: **pre-revenue**, hunting a founding cohort of **3–5 California PI
+firms** (LACBA/LA outreach live as of July 2026) via free pilots anchored by the free
+"Leak Audit" wedge. Stack:
 Next.js/Vercel, Supabase, AssemblyAI, Anthropic API, Twilio, Dropbox Sign. Public repo:
 `alifansari/intake-qa`.
 
