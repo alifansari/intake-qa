@@ -29,6 +29,16 @@ export default async function ReconciliationPage() {
     const nonAnalyzed = await store.listNonAnalyzedCalls(db, firm.id);
     const balances = Number(r.received) === Number(r.processed) + Number(r.excluded) + Number(r.failed);
 
+    // Zero calls ≠ "everything processed": before the feed is connected, an
+    // equation about zeros is a false all-clear. Show the setup story instead.
+    if (Number(r.received) === 0) {
+      return (
+        <Shell firmName={firm.name}>
+          <SettingUp detail="no calls received yet — connect your calls on the Settings screen" />
+        </Shell>
+      );
+    }
+
     return (
       <Shell firmName={firm.name}>
         <div
@@ -87,8 +97,9 @@ function SettingUp({ detail }: { detail: string }) {
     <div>
       <div className="rounded-card border border-hairline bg-surface p-6">
         <p className="max-w-[70ch] text-sm text-ink-muted">
-          Your call ledger will appear here once your calls start arriving. We&apos;re finishing
-          your setup &mdash; nothing for you to do.
+          Your call ledger will appear here once your calls start arriving. Connect your calls on
+          the <a href="/desk/settings" className="font-medium text-accent hover:text-accent-hover">Settings screen</a>{" "}
+          &mdash; or we do it with you on the 15-minute setup call.
         </p>
       </div>
       <p className="mt-4 text-xs text-faint">Setup status: {detail}.</p>

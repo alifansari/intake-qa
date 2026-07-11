@@ -4,6 +4,12 @@
 // STATUS IS REAL: every click persists via /api/desk/flag-status (sibling
 // table beside the frozen flag) — it survives reload, device changes, and
 // colleagues see the same state. Optimistic UI with revert on failure.
+//
+// Designed around the coordinator's actual callback moment (see the intake-staff
+// field guide, 2026-07-10): one screen, tap-to-dial, one-tap outcomes that match
+// what really happens on the phone (spoke to them / left a message / bad number /
+// signed / passed), a two-sentence warm opener, an undo for misclicks, and NO
+// grading language — scores live in the attorney's documents, not on the queue.
 
 import { useState } from "react";
 import { fmtDate } from "@/pdf/doc-helpers.mjs";
@@ -14,7 +20,7 @@ export type Leak = {
   callDate: string;
   initials: string;
   displayId: string;
-  score: number | null;
+  score: number | null; // still flows from the server; deliberately not rendered here
   tier: "strong" | "moderate" | null;
   feeRange: string | null;
   citationCount: number;
@@ -29,34 +35,49 @@ const CONFIDENCE_TEXT: Record<string, string> = {
 };
 
 // Canonical status keys ↔ what an intake coordinator would actually say.
+// "reached_out" is the tried-but-didn't-connect state (voicemail / no answer) —
+// the digest's one-click "We called them" lands here too.
 const STATUS_LABEL: Record<string, string> = {
   needs_callback: "Needs a callback",
-  reached_out: "We reached out",
-  back_in_touch: "Back in touch",
+  reached_out: "Left a message",
+  back_in_touch: "Spoke to them",
   signed: "Signed",
   didnt_sign: "Didn't sign",
+  bad_number: "Bad number",
 };
 
-// Allowed forward transitions (display-only mirror of the state machine).
+// One-tap outcomes per state — mirrors the phone call, not a form. Every
+// terminal state can be reopened; every active state can be undone.
 const NEXT: Record<string, { label: string; to: string }[]> = {
-  needs_callback: [{ label: "We reached out", to: "reached_out" }],
-  reached_out: [{ label: "They responded", to: "back_in_touch" }],
+  needs_callback: [
+    { label: "Spoke to them", to: "back_in_touch" },
+    { label: "Left a message", to: "reached_out" },
+    { label: "Bad number", to: "bad_number" },
+  ],
+  reached_out: [
+    { label: "Spoke to them", to: "back_in_touch" },
+    { label: "They signed", to: "signed" },
+    { label: "They passed", to: "didnt_sign" },
+  ],
   back_in_touch: [
     { label: "They signed", to: "signed" },
     { label: "They passed", to: "didnt_sign" },
   ],
   signed: [],
   didnt_sign: [],
+  bad_number: [],
 };
 
-export function LeakCard({ leak }: { leak: Leak }) {
+const TERMINAL = new Set(["signed", "didnt_sign", "bad_number"]);
+
+export function LeakCard({ leak, firmName }: { leak: Leak; firmName?: string }) {
   const [status, setStatus] = useState(leak.saveStatus ?? "needs_callback");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const terminal = status === "signed" || status === "didnt_sign";
+  const terminal = TERMINAL.has(status);
   const badge = leak.tier ? (leak.tier === "strong" ? "Strong flag" : "Moderate flag") : "Unrated";
 
-  async function advance(to: string) {
+  async function save(to: string) {
     const prev = status;
     setStatus(to); // optimistic — the click must feel instant
     setSaving(true);
@@ -76,6 +97,11 @@ export function LeakCard({ leak }: { leak: Leak }) {
     }
   }
 
+  // The warm opener: service framing, references their own call. Two sentences.
+  const opener = `Hi, this is [your name] from ${firmName ?? "the firm"} — you called us on ${fmtDate(
+    leak.callDate,
+  )}${leak.caseType ? ` about your ${leak.caseType.toLowerCase()} case` : ""}. I wanted to make sure you got your questions answered.`;
+
   return (
     <div className="rounded-card border border-hairline bg-surface p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -84,7 +110,7 @@ export function LeakCard({ leak }: { leak: Leak }) {
             {leak.initials} · {leak.displayId}
           </p>
           <p className="mt-0.5 text-sm text-ink-muted">
-            {leak.caseType ?? "Signable case"} · {fmtDate(leak.callDate)}
+            {leak.caseType ?? "Signable case"} · called {fmtDate(leak.callDate)}
           </p>
         </div>
         <span
@@ -97,18 +123,27 @@ export function LeakCard({ leak }: { leak: Leak }) {
         </span>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
+      {leak.reason ? <p className="mt-2 text-sm text-ink-muted">{leak.reason}</p> : null}
+
+      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
         {leak.feeRange ? (
           <span>
             Est. fee value: <span className="font-semibold text-ink">{leak.feeRange}</span>
             <sup>1</sup>
           </span>
         ) : null}
-        {leak.score != null ? <span>Score: {leak.score}</span> : null}
-        <span>{leak.citationCount} cited fact{leak.citationCount === 1 ? "" : "s"}</span>
       </div>
 
-      {leak.reason ? <p className="mt-2 text-sm text-ink-muted">{leak.reason}</p> : null}
+      {/* The words for the awkward part — a warm two-sentence opener that turns
+          the callback into a service call. Openers get used; scripts get ignored. */}
+      <details className="mt-2">
+        <summary className="cursor-pointer text-xs font-semibold text-accent hover:text-accent-hover">
+          What to say when they pick up
+        </summary>
+        <p className="mt-1 max-w-[70ch] rounded-base border border-hairline bg-canvas px-3 py-2 text-sm italic text-ink">
+          &ldquo;{opener}&rdquo;
+        </p>
+      </details>
 
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-hairline pt-3">
         {/* THE one action on this screen. Tap-to-dial on phones. Coordinators
@@ -118,7 +153,7 @@ export function LeakCard({ leak }: { leak: Leak }) {
           <a
             href={`tel:${leak.phone.replace(/[^+\d]/g, "")}`}
             className={
-              status === "needs_callback"
+              status === "needs_callback" || status === "reached_out"
                 ? "rounded-pill bg-accent px-4 py-1.5 text-xs font-bold text-white hover:bg-accent-hover"
                 : "rounded-pill border border-hairline px-3 py-1 text-xs font-semibold text-ink-muted hover:border-accent hover:text-ink"
             }
@@ -129,19 +164,40 @@ export function LeakCard({ leak }: { leak: Leak }) {
         <span className="rounded-pill bg-canvas px-2.5 py-1 text-xs font-semibold text-ink">
           {STATUS_LABEL[status] ?? status}
         </span>
-        {!terminal &&
-          (NEXT[status] ?? []).map((n) => (
+        {(NEXT[status] ?? []).map((n) => (
+          <button
+            key={n.to}
+            type="button"
+            disabled={saving}
+            onClick={() => save(n.to)}
+            className="rounded-pill border border-hairline px-3 py-1 text-xs font-semibold text-ink hover:border-accent disabled:opacity-60"
+          >
+            {n.label}
+          </button>
+        ))}
+        {terminal ? (
+          <>
+            <span className="text-xs text-faint">Done — nothing further here.</span>
             <button
-              key={n.to}
               type="button"
               disabled={saving}
-              onClick={() => advance(n.to)}
-              className="rounded-pill border border-hairline px-3 py-1 text-xs font-semibold text-ink hover:border-accent disabled:opacity-60"
+              onClick={() => save("needs_callback")}
+              className="text-xs font-medium text-faint underline hover:text-ink disabled:opacity-60"
             >
-              {n.label}
+              Reopen
             </button>
-          ))}
-        {terminal ? <span className="text-xs text-faint">Done — nothing further here.</span> : null}
+          </>
+        ) : status !== "needs_callback" ? (
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => save("needs_callback")}
+            className="text-xs font-medium text-faint underline hover:text-ink disabled:opacity-60"
+            title="Misclick? Put it back in the callback queue."
+          >
+            Undo
+          </button>
+        ) : null}
         {error ? <span className="text-xs text-red">{error}</span> : null}
       </div>
     </div>

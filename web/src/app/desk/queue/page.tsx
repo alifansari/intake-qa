@@ -25,6 +25,13 @@ function relativeTime(iso: string): string {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+// A feed silent for 72+ hours shouldn't wear a checkmark.
+function isStale(iso: string | null): boolean {
+  if (!iso) return false;
+  const ms = Date.now() - new Date(iso).getTime();
+  return Number.isFinite(ms) && ms > 72 * 3600_000;
+}
+
 function initialsOf(name: string | null): string {
   if (!name) return "PNC";
   const parts = name.replace(/\(.*?\)/g, "").trim().split(/\s+/).filter(Boolean);
@@ -103,7 +110,14 @@ export default async function QueuePage() {
           {callsReceived > 0 ? (
             <p className="mt-2 text-xs text-faint tnum">
               Listening for calls · {callsReceived} call{callsReceived === 1 ? "" : "s"} received
-              {lastCallAt ? ` · last call ${relativeTime(lastCallAt)}` : ""} ✓
+              {lastCallAt ? ` · last call ${relativeTime(lastCallAt)}` : ""}
+              {/* The checkmark must never vouch for a silent feed: past 72h it
+                  becomes an honest nudge instead (dead-man's-switch lite). */}
+              {isStale(lastCallAt) ? (
+                <span> — quieter than usual? If that surprises you, email ali@plaintiffops.com</span>
+              ) : (
+                " ✓"
+              )}
             </p>
           ) : null}
         </div>
@@ -145,7 +159,7 @@ export default async function QueuePage() {
         ) : (
           <div className="flex flex-col gap-3">
             {leaks.map((l) => (
-              <LeakCard key={String(l.id)} leak={l} />
+              <LeakCard key={String(l.id)} leak={l} firmName={firm.name} />
             ))}
           </div>
         )}

@@ -20,30 +20,6 @@ export function SettingsClient({
 }) {
   const [confirming, setConfirming] = useState(false);
   const [requested, setRequested] = useState(false);
-  const [portalLoading, setPortalLoading] = useState(false);
-  const [portalError, setPortalError] = useState<string | null>(null);
-
-  async function openBillingPortal() {
-    setPortalLoading(true);
-    setPortalError(null);
-    try {
-      const r = await fetch("/api/portal", { method: "POST" });
-      const data = await r.json();
-      if (!r.ok || !data.url) {
-        setPortalError(
-          data.error === "no_stripe_customer"
-            ? "No billing account is linked yet. It appears after your first subscription payment."
-            : (data.error ?? "Could not open the billing portal."),
-        );
-        return;
-      }
-      window.location.href = data.url as string;
-    } catch {
-      setPortalError("Network error. Please try again.");
-    } finally {
-      setPortalLoading(false);
-    }
-  }
 
   return (
     <div>
@@ -103,8 +79,9 @@ export function SettingsClient({
       <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-lg font-semibold text-ink">Data handling</h2>
         <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
-          Call audio is deleted the moment it&apos;s transcribed; transcripts and reports are purged
-          within 72 hours of your readout, or immediately if you ask in writing.
+          Call audio is deleted the moment it&apos;s transcribed. Transcripts are kept only while we
+          serve you &mdash; so your team can check the evidence behind each flag &mdash; purged on a
+          rolling 90-day window, and deleted immediately if you ask in writing.
         </p>
         {!requested ? (
           <button
@@ -122,25 +99,19 @@ export function SettingsClient({
         )}
       </section>
 
-      {/* Billing — self-serve Stripe Customer Portal */}
+      {/* Billing — beta-aware. The beta is free with no card on file; showing a
+          Stripe portal button here would 503 and read as a bill coming. The
+          portal returns with paid plans at launch. */}
       <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-lg font-semibold text-ink">Billing</h2>
         <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
-          Update your card, download invoices, or cancel your flat monthly subscription anytime in
-          the secure Stripe portal.
+          The beta is free &mdash; no card on file, no invoices, nothing to cancel. When paid plans
+          begin at launch, the fee is a flat monthly subscription (never a share of any recovery),
+          founding testers lock in preferred pricing, and this is where you&apos;ll manage it.
         </p>
-        <button
-          type="button"
-          onClick={openBillingPortal}
-          disabled={portalLoading}
-          className="mt-4 rounded-pill border border-hairline px-4 py-2 text-sm font-semibold text-ink hover:border-accent disabled:opacity-60"
-        >
-          {portalLoading ? "Opening…" : "Manage billing"}
-        </button>
-        {portalError && <p className="mt-2 text-xs text-alert">{portalError}</p>}
         <p className="mt-3 text-xs">
           <a href="/billing" className="font-medium text-accent hover:text-accent-hover">
-            Invoices &amp; plan details &rarr;
+            Plan details &rarr;
           </a>
         </p>
       </section>
@@ -162,20 +133,16 @@ export function SettingsClient({
       <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-lg font-semibold text-ink">Notifications</h2>
         <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
-          You don&apos;t need to check the desk. A daily digest goes to your sign-in email each
-          morning with anything that needs action, and same-day flags land as they&apos;re found.
-          Want a different address, more people on it, or a different rhythm? Email{" "}
+          You don&apos;t need to check the desk. Once your calls are connected, a daily digest goes
+          to your sign-in email each morning &mdash; even on all-clear days, so silence never means
+          &ldquo;broken.&rdquo; Want a different address, more people on it, or a different rhythm?
+          Email{" "}
           <a href="mailto:ali@plaintiffops.com" className="font-medium text-accent hover:text-accent-hover">
             ali@plaintiffops.com
           </a>{" "}
           and it&apos;s changed the same day.
         </p>
       </section>
-
-      <p className="mt-4 text-xs text-faint">
-        The prior tabs (dashboard, triage, team coaching, calibration, funnel, statement) now live
-        inside these screens; their old links redirect here automatically.
-      </p>
 
       {/* Deletion confirmation (verbatim) */}
       {confirming ? (

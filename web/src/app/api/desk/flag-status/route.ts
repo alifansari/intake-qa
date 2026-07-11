@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 
 const Body = z.object({
   flag_id: z.union([z.string().min(1).max(64), z.number().int()]),
-  status: z.enum(["needs_callback", "reached_out", "back_in_touch", "signed", "didnt_sign"]),
+  status: z.enum(["needs_callback", "reached_out", "back_in_touch", "signed", "didnt_sign", "bad_number"]),
 });
 
 export async function POST(req: Request) {

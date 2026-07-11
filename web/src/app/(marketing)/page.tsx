@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     "We read your firm's intake calls, find the signable cases that walked, and show you what they cost — for a flat fee, never a share. Start with a free Leak Audit of 10 calls.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Find the signable cases your intake team let walk.",
+    title: "Find the signable cases that walked out of your intake.",
     description:
       "The independent desk that checks every intake call against what actually got signed. Free Leak Audit of 10 calls; you keep the report.",
     images: ["/og?title=The+independent+recovery+desk"],
@@ -99,12 +99,13 @@ export default function HomePage() {
       <Section className="pt-16 pb-12 sm:pt-24">
         <p className="eyebrow">The independent recovery desk for personal injury firms</p>
         <h1 className="mt-3 max-w-[22ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
-          Find the signable cases your intake team let walk &mdash; and what they cost you.
+          Find the signable cases that walked out of your intake &mdash; and what they cost you.
         </h1>
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
           We read your firm&apos;s recorded intake calls, flag the qualified callers who never
           signed, and put a dollar figure on the misses &mdash; independently, for a flat fee,
-          never a share of anything. Start with a free audit of 10 calls. {STAKE_LINE}
+          never a share of anything. Start with a free audit of 10 calls.{" "}
+          <em>&ldquo;{STAKE_LINE}&rdquo; &mdash; Ali, founder</em>
         </p>
         <div className="mt-8">
           <CTA />
@@ -315,7 +316,7 @@ export default function HomePage() {
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">
             A signed report you keep, a say in what the desk becomes, and no obligation to continue.
-            {" "}{STAKE_LINE}{" "}
+            {" "}<em>&ldquo;{STAKE_LINE}&rdquo; &mdash; Ali</em>{" "}
             <span className="tnum font-medium text-ink">{SEAT_LINE}</span>
           </p>
           <CTA />
