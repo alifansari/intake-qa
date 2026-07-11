@@ -50,6 +50,31 @@ These are the intellectual load-bearing walls. Agents should reach for them, not
 
 ---
 
+## 2026-07-10 — Engine-v2 Waves 6–9: adjacency verification + QC findings  ·  lanes: product, outreach, GTM  ·  mostly verified (primary sources)
+- **Window compression (verified):** Supio Intake is LIVE — Scoring Agent "grades every call
+  and agent against your intake SOP," Coaching Agent, RingCentral/CallRail integration — and
+  EvenUp is marching to intake (PLAAS May 2026, $10M+ early subs). "Nobody does call-content
+  QA" is FALSE as stated; the wedge survives narrowed to *independent* rep-QA +
+  develop-queue/SLA. Battle card with verified facts/landmines/talk track:
+  `ops/drafts/competitive-supio-battlecard.md`. Affects: GTM, outreach.
+- **Data spine (design):** Increment 0 must store typed `answer_value` + citation (not just
+  ask-states) + `external_case_ref` + demand milestones — turns the QA log into the
+  intake-to-demand spine; neutral cited-fact export spec'd (`intake-fact-sheet-spec.md`).
+  Hard boundary: never build demand generation. Affects: product.
+- **Spanish (verified):** ≈89% of CA court interpretations are Spanish; Spanish PI leads run
+  40–60% cheaper, so firms buy them and can't QA them — Spanish QA at English-dominant firms
+  is zero. Parity is a proof point, not a headline ("only intake QA in Spanish" banned, §V).
+  Beta test #4 = the 5 firms' call-language mix. Affects: product, GTM.
+- **QC meta-finding (verified in-house):** outward-facing competitor research verified nearly
+  perfectly against primary sources; every QC failure was about OUR OWN facts (pricing
+  three-way split — now BLOCKED ON ALI in decisions.md; "we publish ours" false during beta;
+  self-comparatives). Weight inward-consistency checks in future QC passes. Affects: all lanes.
+- **Staged this cycle:** LACBA five-questions piece (QC pass 1 applied), Yang Review Packet #2
+  (Q0–Q8), pricing decision brief (recommends Table C: list $2,500/$5,000, founding
+  $1,500×12mo cohort-capped), retrodiction onboarding playbook, fact-sheet spec.
+
+---
+
 ## 2026-07-07 — CYCLE: Strategic foundation for $1M ARR (NorCal PI). Regulatory-first scan + path-to-$1M model + wedge.
 
 ### A. REGULATORY WATCH (first-order — clears the model, with two live flags)

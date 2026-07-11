@@ -137,3 +137,28 @@ paying-firm autopsy data later.
 - **Hypothesis:** compliance-invariants §VII wants human approval before a deliverable leaves the building. The leak-report route gates on report_status='released'; the Readout PDF route does not (it mirrors the intentionally-ungated /audit page). Decide whether the auto-generated Readout should also require analyst release, or is explicitly the visitor's own instant artifact (like the /audit page).
 - **Deliverable:** Ali/Yang decision; gate the route if yes.
 - **Status:** queued (needs §VII decision)
+
+### B-016 — Conveyor Increment 0: outcome flywheel schema WITH the answer_value spine  ·  ICE: 9×8×5 = 360  ·  lane: product
+- **Hypothesis:** the moat is the outcome-labeled corpus, which accrues only with calendar time — every month uninstrumented is permanently-lost training data; and storing typed `answer_value` + citation (not just ask-states) keeps the demand-stage option open for ~3 columns (Wave 6 amendment). Ship dark, internal-only, no freeze lift.
+- **Deliverable:** `case_disposition` + `case_outcome` siblings + question_checks answer_value/citation + external_case_ref per `engine-v2-conveyor-MVP.md` §6 (+ amendment); PR.
+- **Status:** queued (top of product lane per exec-summary sequencing)
+
+### B-017 — Dark backend QA pass + beta validation instrumentation (Increment 1)  ·  ICE: 9×7×4 = 252  ·  lane: product
+- **Hypothesis:** the 6-week beta validation experiment (4 tests incl. call-language mix) settles conveyor-vs-oracle empirically for the cost of one dark backend pass + a monthly spreadsheet; nothing user-facing, no scoring-freeze lift.
+- **Deliverable:** question-catalog QA pass running silently per `engine-v2-conveyor-MVP.md` Increment 1 + `beta-validation-experiment.md` metrics; PR.
+- **Status:** queued (after B-016)
+
+### B-018 — Language-tag every call + per-language capture telemetry  ·  ICE: 7×7×6 = 294  ·  lane: product
+- **Hypothesis:** AssemblyAI language detection is a parameter, not new infra; per-language capture/SLA rates are the fairness tripwire productized AND the first real datum on Spanish-first intake share (beta test #4). Cheapest Wave 6 increment.
+- **Deliverable:** language tag in pipeline + GROUP BY telemetry per `spanish-first-intake-qa.md` §4.1–4.2; PR.
+- **Status:** queued (rides B-017's pass)
+
+### B-019 — Supio/EvenUp quarterly tripwire monitor  ·  ICE: 5×8×7 = 280  ·  lane: research
+- **Hypothesis:** the wedge window is compressing; the 7 tripwires in `competitive-supio-battlecard.md` §5 (pricing page, standalone Scoring SKU, SMB AE postings, small-firm content, Spanish launch, Clio listing, <10-atty reviews) give an early-warning system for down-market moves at ~30 min/quarter.
+- **Deliverable:** quarterly research-analyst check logged to insights.md; first run 2026-10-01.
+- **Status:** queued
+
+### B-020 — LACBA five-questions piece: publication run  ·  ICE: 8×7×7 = 392  ·  lane: outreach (GATED)
+- **Hypothesis:** the piece is the authority-asset articulation of the develop-queue thesis; the DIY-audit sidebar is the product demo in prose. QC pass 1 applied; gates remaining: LACBA vendor-content policy check, Yang read (Packet #2 Q1–Q3), Ali posts (§VII).
+- **Deliverable:** posted piece + teaser once gates clear; free 20-call tally offered only in 1:1 follow-up with NDA/consent language.
+- **Status:** queued (BLOCKED on Yang read + Ali)
