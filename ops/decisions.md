@@ -31,6 +31,36 @@
 
 ---
 
+## 2026-07-10 — Conveyor Increment 0 staged: the outcome-data flywheel (dark, branch-only)  ·  agent: product-dev · lane: product
+- **Change:** built Increment 0 of the conveyor (`engine-v2-conveyor-MVP.md` §6 + AMENDMENT) as a
+  DARK, backend-only feature branch `feature/increment-0-flywheel` — nothing user-facing, nothing
+  deployed, no migration applied. Staged: (1) migration `web/supabase/migrations/0035_outcome_flywheel.sql`
+  creating `case_disposition` (disposition enum, role-only `decided_by`, IMMUTABLE
+  `intake_feature_snapshot`, `external_case_ref` CMS join key) and `case_outcome` (end_state enum,
+  all money fields nullable = censored never $0, demand milestones `demand_sent_at`/`demand_amount`/
+  `first_offer`, `outcome_version` + `edits` audit trail), both RLS firm-scoped read / server-only
+  write per the 0024–0029 policy style; (2) sibling Zod types in `web/src/lib/schema.ts` (ScoredCall
+  and the existing Outcome untouched, per the frozen-passthrough rule); (3) Repository seam methods +
+  `JsonFileRepository` impl (best-effort `web/data/*.json`) so the pilot works today and
+  SupabaseRepository slots in later with zero UI change; (4) pure censoring module
+  `web/src/lib/flywheel/censoring.mjs` (blank → null never 0; open = right-censored; bands stay
+  bands; declines censored, never "worth $0") + 17 unit tests (suite: 441 pass).
+- **Hypothesis:** the moat in PI triage isn't the model — it's the outcome-labeled corpus (intake
+  facts → firm decision → realized net recovery), which accrues only with calendar time because
+  cases resolve in 12–36 months. Every month without instrumentation is permanently-lost training
+  data; the demand-spine amendment (answer values, CMS ref, demand milestones) keeps the
+  demand-stage partnership option open for ~3 columns of cost.
+- **Expected effect:** none visible now (that's the point — it's dark). Value shows up at
+  retrodiction/backtest time and when beta-test #3 ("does questions-resolved-within-SLA correlate
+  with dollars recovered?") needs an instrument. Engine freeze intact; `scoring/` untouched.
+- **Status:** staged-on-branch awaiting Ali review + migration apply. To activate: review
+  `git diff main...feature/increment-0-flywheel --stat`, apply migration 0035 to hosted Supabase,
+  merge the branch. NOTE: the task brief said "migration 0031" but hosted migrations already run
+  to 0034 — the file is correctly numbered 0035. Pre-existing defect found (not from this work):
+  `main` does not build — commit 29924d2 imports `@dropbox/sign` in `web/beta/dropbox-sign-nda.mjs`
+  but never added it to `web/package.json`.
+- **Review date:** 2026-07-24
+
 ## 2026-07-10 — Engine-v2 Wave 10: LACBA piece QC-cleared ×2 + channel verdict  ·  agent: main session · lane: outreach
 - **Change:** QC pass #2 on the five-questions piece (verdict → fixes applied → **CLEARED FOR
   YANG READ**): §3333.4(c) DUI exception narrowed to its true owner-only scope (the one
