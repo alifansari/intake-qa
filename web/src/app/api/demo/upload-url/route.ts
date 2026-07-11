@@ -26,10 +26,23 @@ import {
   demoObjectPath,
   DEMO_BUCKET,
 } from "../../../../lib/supabase/storage";
+import {
+  STORAGE_UPLOAD_MAX_BYTES,
+  directUploadMaxBytes,
+  toMb,
+} from "../../../../../ingest/uploads.mjs";
 
 export const runtime = "nodejs";
 
-const MAX_BYTES = 25 * 1024 * 1024;
+// Copy = reality: the cap depends on HOW the bytes travel. Signed-URL storage
+// mode matches the studio path (200MB — a 45-minute intake call fits); direct
+// mode (no storage configured) is bounded by the request body — ~4.5MB on
+// Vercel, 25MB on a long-lived local server. The uploader UIs read this from
+// GET below instead of hard-coding a number that can lie.
+function currentMaxBytes(): number {
+  return isDemoStorageConfigured() ? STORAGE_UPLOAD_MAX_BYTES : directUploadMaxBytes();
+}
+
 const ALLOWED_EXT = new Set(["mp3", "m4a", "wav"]);
 
 const Body = z.object({
@@ -61,8 +74,14 @@ export async function POST(req: Request) {
       { status: 415 },
     );
   }
-  if (parsed.size > MAX_BYTES) {
-    return Response.json({ error: "file too large (25MB max)" }, { status: 413 });
+  const maxBytes = currentMaxBytes();
+  if (parsed.size > maxBytes) {
+    return Response.json(
+      {
+        error: `That file is ${toMb(parsed.size)}MB and the limit here is ${toMb(maxBytes)}MB — try re-exporting it as an MP3, or email it to ali@plaintiffops.com and we'll run it by hand.`,
+      },
+      { status: 413 },
+    );
   }
 
   const ip = clientIp(req);
@@ -138,4 +157,17 @@ export async function POST(req: Request) {
   } finally {
     await closePipelineDb(db).catch(() => {});
   }
+}
+
+// GET — capability probe for the uploader UIs (/audit, /demo): which mode this
+// deploy runs and the REAL size cap, so on-page copy always equals what the
+// server will actually accept. No auth, no writes, nothing sensitive.
+export async function GET() {
+  const storage = isDemoStorageConfigured();
+  const maxBytes = currentMaxBytes();
+  return Response.json({
+    mode: storage ? "storage" : "direct",
+    max_bytes: maxBytes,
+    max_mb: toMb(maxBytes),
+  });
 }

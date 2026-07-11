@@ -3,16 +3,17 @@
 // about the firm's existing workflow changes — intake staff keep answering
 // calls exactly as they do today; the desk works from recordings that already
 // exist. Three ways in, all of them "we handle it."
-const PATHS = [
+const PATHS: { title: string; body: string; cta?: { href: string; label: string } }[] = [
   {
     title: "Your phone system connects once",
     body:
       "If you use CallRail (or any system that records calls), we connect it on a 15-minute setup call and every new call flows in automatically from then on. Nobody at your firm touches anything again.",
   },
   {
-    title: "Or just send us recordings",
+    title: "Or upload recordings yourself",
     body:
-      "No connectable phone system? Upload or email call recordings whenever it suits you — end of day, end of week. Any audio format works.",
+      "No connectable phone system? Drag call recordings onto the upload page whenever it suits you — end of day, end of week. Each one is read and scored the same day, and you can watch its progress.",
+    cta: { href: "/desk/upload", label: "Upload recordings now →" },
   },
   {
     title: "Or we do the whole thing",
@@ -66,6 +67,14 @@ export function HowCallsArrive() {
             <span className="tnum font-display text-lg font-semibold text-accent">{i + 1}</span>
             <p className="mt-1 font-display text-sm font-semibold text-ink">{p.title}</p>
             <p className="mt-1 text-xs leading-relaxed text-ink-muted">{p.body}</p>
+            {p.cta ? (
+              <a
+                href={p.cta.href}
+                className="mt-2 inline-block text-xs font-semibold text-accent hover:text-accent-hover"
+              >
+                {p.cta.label}
+              </a>
+            ) : null}
           </li>
         ))}
       </ol>

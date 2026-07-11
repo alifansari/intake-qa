@@ -64,6 +64,43 @@
 - **Review date:** 2026-07-18 (end of beta week 1)
 
 ---
+## 2026-07-11 — Beta S2: firm self-serve MP3 upload (/desk/upload) + upload-cap honesty  ·  agent: product-dev session · lane: product
+
+- **Change (branch `beta/s2-upload`, NOT pushed):** (1) `/desk/upload` — firm-scoped
+  recording upload (MP3/M4A/WAV): signed-URL storage mode reusing the studio 200MB
+  pattern (`desk/<firmId>/<uuid>` in the private studio-audio bucket, object deleted the
+  moment it's transcribed) with a direct-body fallback when storage isn't configured;
+  required CIPA consent attestation (Zod `literal(true)` + per-call
+  `consent_status='consented'`); each upload becomes a normal `calls` row (source
+  `manual`, filename carried in `external_call_id` as `upload:<uuid>:<name>` — no
+  migration needed) and fires the SAME `intakeqa/call.received` → scorePipeline path as
+  the webhook, 15-min sweep as the net. (2) Per-file firm-visible status
+  (waiting → scoring → done | failed) polled from GET `/api/desk/uploads`, derived from
+  the pipeline's own rows — **failed_scoring is now visible to the firm**, not DB-only.
+  (3) Upload-cap honesty: demo/audit caps now derive from mode (signed-URL = 200MB,
+  direct = 25MB local / 4MB Vercel); `/audit` + `/demo` fetch the real cap from a new
+  GET `/api/demo/upload-url` probe instead of promising a hard-coded 25MB; friendly
+  plain-English size/type errors everywhere ("That file is a video — export the audio as
+  an MP3…"). (4) "Upload calls" added to desk nav + upload path made first-class in
+  HowCallsArrive with a `/desk/upload` CTA.
+- **Hypothesis:** a firm without working CallRail currently emails files to Ali for
+  hand-CLI ingestion — invisible to the firm and unscalable past 1–2 firms; self-serve
+  upload with honest per-file status removes the founder bottleneck before Monday's beta
+  and makes silent scoring failures impossible to miss.
+- **Expected effect:** every beta firm can get calls scored on day 0 without CallRail;
+  zero "did you get my files?" emails; upload-page copy always equals server reality.
+- **Verification:** smoke PASS, 430/430 tests (6 new in `tests/desk-upload.test.mjs`),
+  e2e-synthetic all stages PASS, production build PASS, lint at pre-existing baseline.
+  Live TEST_MODE run on local SQLite: real spoken WAV → `/api/desk/uploads/direct` →
+  AssemblyAI transcription → Claude scoring → flag row → status `done`; forced failure
+  (deleted recording) → `failed_scoring` → firm-visible `failed` + founder error log.
+  Consent-missing and video-file uploads refused with plain-English errors.
+- **Deferred:** storage objects for never-transcribed (permanently failing) uploads are
+  not garbage-collected; failed calls are retried by every 15-min sweep (pre-existing
+  behavior, costs a transcribe+score attempt per cycle — worth a retry cap); Inngest
+  event key absent locally means sweep-only scoring (hosted has the key).
+- **Status:** built on branch, awaiting Ali review/merge (nothing pushed).
+- **Review date:** 2026-07-18 (first beta week — count uploads + failure surfacing).
 
 ## 2026-07-10 — Engine-v2 Wave 10: LACBA piece QC-cleared ×2 + channel verdict  ·  agent: main session · lane: outreach
 - **Change:** QC pass #2 on the five-questions piece (verdict → fixes applied → **CLEARED FOR
