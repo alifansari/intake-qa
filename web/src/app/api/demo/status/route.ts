@@ -22,6 +22,9 @@ export async function GET(req: Request) {
     }
     return Response.json({
       id: String(row.id),
+      // Echo the caller's own poll token so the client can build a resume
+      // deep-link (/demo?t=…) — e.g. the emailed "view your result" link.
+      token: token,
       status: row.status,
       error: row.error ?? null,
       audioDeleted: row.audio_deleted === 1 || row.audio_deleted === true,

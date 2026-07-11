@@ -88,8 +88,8 @@ export default async function DigestConfirmPage({
             Already handled ✓
           </h1>
           <p className="mt-3 text-sm text-ink-muted">
-            Your team already marked this caller signed, passed, or a bad number on the desk, so we
-            left it as-is. Nothing to do here.
+            Your team already moved this caller further along on the desk, so we left it as-is.
+            Nothing to do here.
           </p>
         </>
       ) : result === "failed" ? (

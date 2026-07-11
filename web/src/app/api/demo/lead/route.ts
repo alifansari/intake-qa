@@ -14,6 +14,9 @@ export const runtime = "nodejs";
 const Body = z.object({
   email: z.string().email(),
   demoCallId: z.string().optional(),
+  // The unguessable poll token, used to build the "view your result" deep-link
+  // (/demo?t=…). The legacy ?id= link no longer resolves.
+  resume_token: z.string().min(1).max(128).nullish(),
   // Intake Quality Audit report capture: attach the email (+ any supplied volume) to the
   // audit session so the operator console can follow up on hot audits.
   session_token: z.string().min(1).max(128).optional(),
@@ -35,7 +38,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return Response.json({ error: "enter a valid email address" }, { status: 422 });
   }
-  const { email, demoCallId, session_token, monthly_call_volume } = parsed.data;
+  const { email, demoCallId, resume_token, session_token, monthly_call_volume } = parsed.data;
 
   const db = await openPipelineDb();
   try {
@@ -62,12 +65,18 @@ export async function POST(req: Request) {
       const { Resend } = await import(mod);
       const resend = new Resend(key);
       const base = process.env.PUBLIC_BASE_URL ?? "";
+      // Deep-link by the unguessable poll token (?t=…); the old ?id= no longer
+      // resolves. If we somehow have no token, omit the link rather than send a
+      // dead one.
+      const link = resume_token
+        ? `<p><a href="${base}/demo?t=${encodeURIComponent(resume_token)}">View your call score</a></p>`
+        : "";
       await resend.emails.send({
         from: process.env.RESEND_FROM ?? "Intake QA <onboarding@resend.dev>",
         to: email,
         subject: "Your Intake QA call score",
         html: `<p>Thanks for trying Intake QA. Your demo report:</p>
-               <p><a href="${base}/demo?id=${demoCallId ?? ""}">View your call score</a></p>
+               ${link}
                <p style="color:#6b6b6b;font-size:12px">Demo estimates. Not legal advice.</p>`,
       });
     } catch {

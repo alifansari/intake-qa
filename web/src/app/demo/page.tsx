@@ -57,6 +57,7 @@ type DemoResult = {
 
 type Status = {
   id: string;
+  token?: string; // the poll token, echoed back for resume deep-links
   status: "queued" | "transcribing" | "scoring" | "done" | "error";
   error: string | null;
   audioDeleted: boolean;
@@ -227,7 +228,12 @@ export default function DemoPage() {
       {phase === "processing" && <Processing status={status} />}
       {phase === "error" && <ErrorCard message={errorMsg} onRetry={() => setPhase("upload")} />}
       {phase === "results" && status?.result && (
-        <Results result={status.result} audioDeleted={status.audioDeleted} demoCallId={status.id} />
+        <Results
+          result={status.result}
+          audioDeleted={status.audioDeleted}
+          demoCallId={status.id}
+          resumeToken={status.token ?? null}
+        />
       )}
     </div>
   );
@@ -325,10 +331,12 @@ function Results({
   result,
   audioDeleted,
   demoCallId,
+  resumeToken,
 }: {
   result: DemoResult;
   audioDeleted: boolean;
   demoCallId: string;
+  resumeToken: string | null;
 }) {
   return (
     <div className="space-y-6">
@@ -401,7 +409,7 @@ function Results({
       {result.caseSummary && <CaseReadySummary summary={result.caseSummary} />}
 
       <RetentionNote audioDeleted={audioDeleted} />
-      <EmailCapture demoCallId={demoCallId} />
+      <EmailCapture demoCallId={demoCallId} resumeToken={resumeToken} />
     </div>
   );
 }
@@ -552,7 +560,7 @@ function RetentionNote({ audioDeleted = false }: { audioDeleted?: boolean }) {
   );
 }
 
-function EmailCapture({ demoCallId }: { demoCallId: string }) {
+function EmailCapture({ demoCallId, resumeToken }: { demoCallId: string; resumeToken: string | null }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -562,7 +570,7 @@ function EmailCapture({ demoCallId }: { demoCallId: string }) {
       const r = await fetch("/api/demo/lead", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, demoCallId }),
+        body: JSON.stringify({ email, demoCallId, resume_token: resumeToken }),
       });
       if (!r.ok) { const d = await r.json(); setErr(d.error ?? "Please enter a valid email."); return; }
       setSent(true);

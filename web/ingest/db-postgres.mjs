@@ -1202,7 +1202,23 @@ export async function listLeakedFlags(db, firmId) {
 
 // Upsert the workflow status beside a flag (sibling record; flags stays frozen).
 // Returns the flag's firm_id so callers can enforce firm scoping.
-const TERMINAL_STATUSES = new Set(["signed", "didnt_sign", "bad_number"]);
+// Forward progression of the callback workflow. A guarded (emailed-digest-link)
+// write may only ADVANCE a case, never regress it — so a stale "We called them"
+// link (reached_out) can't un-sign a case OR knock an already-"spoke to them"
+// (back_in_touch) case back to "left a message".
+const STATUS_RANK = {
+  needs_callback: 0,
+  reached_out: 1,
+  back_in_touch: 2,
+  signed: 3,
+  didnt_sign: 3,
+  bad_number: 3,
+};
+function isRegression(current, next) {
+  const cur = STATUS_RANK[current] ?? 0;
+  const nxt = STATUS_RANK[next] ?? 0;
+  return current != null && cur >= nxt;
+}
 
 export async function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null, guardTerminal = false }) {
   const owner = await db.query("SELECT firm_id FROM flags WHERE id = $1", [flag_id]);
@@ -1212,13 +1228,11 @@ export async function setFlagStatus(db, { flag_id, status, updated_by, firm_id =
   if (firm_id != null && String(owner.rows[0].firm_id) !== String(firm_id)) {
     return { ok: false, forbidden: true, firm_id: owner.rows[0].firm_id };
   }
-  // guardTerminal (used by the emailed digest link): never regress a case the
-  // team already resolved on the desk. A stale link tapped days later must not
-  // un-sign a signed case.
+  // guardTerminal (emailed digest link): only advance, never regress.
   if (guardTerminal) {
     const cur = await db.query("SELECT status FROM flag_status WHERE flag_id = $1", [flag_id]);
     const current = cur.rows[0]?.status ?? null;
-    if (current && TERMINAL_STATUSES.has(current)) {
+    if (isRegression(current, status)) {
       return { ok: false, alreadyResolved: true, current };
     }
   }

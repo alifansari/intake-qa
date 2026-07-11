@@ -1311,7 +1311,23 @@ export function listLeakedFlags(db, firmId) {
 // Calls that did NOT reach 'analyzed' — the actionable rows on the reconciliation
 // screen (excluded/failed with their reasons; null = still processing).
 // Upsert the workflow status beside a flag (sibling record; flags stays frozen).
-const TERMINAL_STATUSES = new Set(["signed", "didnt_sign", "bad_number"]);
+// Forward progression of the callback workflow. A guarded (emailed-digest-link)
+// write may only ADVANCE a case, never move it backward or sideways — so a stale
+// "We called them" link (status reached_out) can't un-sign a case OR knock an
+// already-"spoke to them" (back_in_touch) case back to "left a message".
+const STATUS_RANK = {
+  needs_callback: 0,
+  reached_out: 1,
+  back_in_touch: 2,
+  signed: 3,
+  didnt_sign: 3,
+  bad_number: 3,
+};
+function isRegression(current, next) {
+  const cur = STATUS_RANK[current] ?? 0;
+  const nxt = STATUS_RANK[next] ?? 0;
+  return current != null && cur >= nxt;
+}
 
 export function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null, guardTerminal = false }) {
   const owner = db.prepare("SELECT firm_id FROM flags WHERE id = ?").get(flag_id);
@@ -1319,10 +1335,10 @@ export function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null,
   if (firm_id != null && String(owner.firm_id) !== String(firm_id)) {
     return { ok: false, forbidden: true, firm_id: owner.firm_id };
   }
-  // guardTerminal (emailed digest link): never regress a resolved case.
+  // guardTerminal (emailed digest link): only advance, never regress.
   if (guardTerminal) {
     const cur = db.prepare("SELECT status FROM flag_status WHERE flag_id = ?").get(flag_id);
-    if (cur?.status && TERMINAL_STATUSES.has(cur.status)) {
+    if (isRegression(cur?.status, status)) {
       return { ok: false, alreadyResolved: true, current: cur.status };
     }
   }
