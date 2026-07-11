@@ -517,3 +517,59 @@ conveyor the rescue packet already partly delivers.
 deadline flags, over-conversion retention, refer-out monetization, the 3 fairness fixes.
 **Review:** when Ali decides whether to lift the freeze; not before a PI-attorney +
 Yang review.
+
+## 2026-07-11 — Session 5 (beta weekend): trust arsenal staged — BAA draft, security one-pager, GO_LIVE truth rewrite, NDA-promise memo
+
+**Change (all staged, nothing published/sent, branch beta/s5-trust-docs):**
+(1) `ops/drafts/external/beta-baa.md` — plain-English BAA template grounded in the real
+stack (named subprocessors incl. Twilio-parked; TLS/AES-256; RLS isolation; redaction
+defaults; audio-deleted-at-transcription; 72h audit purge; 90-day rolling firm retention;
+72h breach notice; no-training flow-down). DRAFT — PENDING ATTORNEY REVIEW banner;
+reviewer notes route the THRESHOLD QUESTION to Yang un-decided: is a BAA the right
+instrument for non-PHI PI intake, vs. the DPA carrying it with a BAA rider only for
+medical-adjacent firms (or renaming the instrument).
+(2) `ops/drafts/external/security-onepager.md` — one-page firm-facing security sheet
+built strictly from /security + web/SECURITY.md + security-posture.mjs; explicitly
+disclaims SOC 2/HIPAA; no AB 931-type compliance claims; PDF-ready; send gated on Ali
+(and the BAA line gated on Yang).
+(3) `GO_LIVE.md` rewritten as the true Monday runbook: digest-first Part A gates (hosted
+migration floor 0034; Vercel env presence incl. CRON_SECRET/DIGEST_LINK_SECRET/Resend;
+EMAIL_ENABLED with an explicit dependency note on the Session 0 branch; digest dry-run
+then live-send-to-self; synthetic call through the PROD pipeline; CallRail self-test via
+web/scripts/callrail-selftest.mjs with a Session 1 dependency note; NDA logistics;
+provider data-terms check) vs. Part B parked SMS gates (A2P 10DLC, twilio not in
+package.json, TEST_MODE stays true, quiet-hours/opt-out/kill-switch live tests, retainer
+template, ethics sign-off).
+(4) `ops/drafts/nda-promise-options.md` — decision memo for Ali: (a) keep "one business
+day" + Yang NDA read before Monday with a named Sunday-night fallback, or (b) soften the
+copy — exact diff for apply-form.tsx + api/beta/apply/route.ts staged IN THE MEMO, not
+applied; welcome/page.tsx flagged as a kickoff (not NDA) promise needing no change.
+
+**Hypothesis:** a diligent firm's ops person asks for security/legal paper in week 1;
+having honest, posture-true artifacts ready (instead of improvising or overclaiming)
+converts trust into signed NDAs without violating §IV/§V/§VII.
+
+**Factual inconsistencies found while cross-checking (flagged, not smoothed over):**
+- `web/beta/security-posture.mjs` claimed `baa.status: "template drafted"` while NO BAA
+  existed anywhere in the repo (now true only as of this session's draft).
+- Retention drift: code default 90 days (`web/inngest/functions.mjs:83`) and public
+  /security page promise 90; but `web/.env.example:122` sets 30 and
+  `security-posture.mjs` says "default 30." Deployed env value must match the public
+  promise — added to GO_LIVE after-care list.
+- `security-posture.mjs` states Anthropic "zero-retention API tier" as present-tense
+  fact while the old GO_LIVE treated Anthropic ZDR/BAA as an unmet gate — no written
+  confirmation on file. Provider data-terms check moved into Monday's Part A (the
+  digest pivot moved it EARLIER: real call audio flows Monday, texting or not).
+- `web/SECURITY.md` retention section reads the 72-hour purge as general; it is true
+  only for the free-audit pipeline (site-constants reconciled it 2026-07-10) — doc
+  should be aligned when next touched.
+- NDA reviewer note 4 said "a separate BAA/DPA covers HIPAA" — asserted a BAA that
+  didn't exist.
+
+**Gated on whom:** Yang — BAA threshold question + full BAA read; NDA template read
+(option a). Ali — NDA-promise option (a)/(b); security one-pager first send; provider
+data-terms acceptance-or-confirmation (GO_LIVE A7); deployed DATA_RETENTION_DAYS value.
+Sessions 0/1 — EMAIL_ENABLED flag and callrail-selftest.mjs (referenced as dependencies,
+not assumed shipped).
+
+**Review:** Monday 2026-07-14 go/no-go.
