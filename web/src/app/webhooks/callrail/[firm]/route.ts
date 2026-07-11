@@ -23,10 +23,16 @@ export async function POST(
   }
 
   const rawBody = await req.text();
+  // CallRail's documented header is literally `Signature`
+  // (https://apidocs.callrail.com/ → Security → Validating Payloads); Node
+  // normalizes header names to lowercase. Keep `x-callrail-signature` as a
+  // fallback for proxies/relays that rename it.
   const signature =
-    req.headers.get("x-callrail-signature") ?? req.headers.get("signature") ?? "";
+    req.headers.get("signature") ?? req.headers.get("x-callrail-signature") ?? "";
 
   const db = await openPipelineDb();
+  let firmDbId: string | number | null = null;
+  let secretSource = "env";
   try {
     // Prefer this firm's OWN CallRail account signing secret; fall back to the
     // shared env secret (the original single-pilot firm). CallRail issues one
@@ -34,7 +40,11 @@ export async function POST(
     let secret = process.env.CALLRAIL_WEBHOOK_SECRET ?? null;
     try {
       const firmRow = await getFirm(db, firm);
-      if (firmRow?.callrail_webhook_secret) secret = firmRow.callrail_webhook_secret;
+      if (firmRow?.id != null) firmDbId = firmRow.id;
+      if (firmRow?.callrail_webhook_secret) {
+        secret = firmRow.callrail_webhook_secret;
+        secretSource = "firm";
+      }
     } catch {
       /* fall back to env secret */
     }
@@ -74,16 +84,40 @@ export async function POST(
     );
   } catch (err: unknown) {
     if (err instanceof Error && (err as { code?: string }).code === "BAD_SIGNATURE") {
+      // FAILURE LOUDNESS: a silent 401 here is the #1 "firm sees 0 calls forever"
+      // failure mode. Persist an error_log row with the firm slug, the reason,
+      // and exactly which signature formats were tried, so /admin/status (and the
+      // Session-3 alerting on top of it) can surface repeated signature failures.
+      const e = err as { formatsTried?: string[]; hadSignatureHeader?: boolean };
+      await logError(db, {
+        source: "webhooks.callrail_firm.bad_signature",
+        message: `CallRail signature verification failed for firm ${firm}`,
+        context: {
+          firm_slug: firm,
+          reason: e.hadSignatureHeader === false ? "missing Signature header" : "no format matched",
+          formats_tried: e.formatsTried ?? [],
+          secret_source: secretSource,
+          body_bytes: rawBody.length,
+        },
+        firm_id: firmDbId,
+      }).catch(() => {});
       return Response.json({ error: "invalid signature" }, { status: 401 });
     }
     if (err instanceof Error && (err as { code?: string }).code === "BAD_PAYLOAD") {
+      await logError(db, {
+        source: "webhooks.callrail_firm.bad_payload",
+        message: `CallRail payload rejected for firm ${firm}: ${err.message}`,
+        context: { firm_slug: firm, body_bytes: rawBody.length },
+        firm_id: firmDbId,
+      }).catch(() => {});
       return Response.json({ error: "invalid payload" }, { status: 400 });
     }
     // Never echo raw internals; log server-side, answer generically.
     await logError(db, {
       source: "webhooks.callrail_firm",
       message: err instanceof Error ? err.message : "ingest failed",
-      firm_id: null,
+      context: { firm_slug: firm },
+      firm_id: firmDbId,
     }).catch(() => {});
     return Response.json({ error: "ingest failed" }, { status: 400 });
   } finally {
