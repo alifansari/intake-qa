@@ -75,7 +75,11 @@ const RESOLVING_FACT_MAP = {
     "coverage and asset investigation (collectability)",
 };
 
-export function buildDevelopPayload(dims, tiers, gates, posture) {
+// NOTE: no urgency_flags field here — a develop payload only exists when the
+// recommendation IS develop, and G2 (the only urgency source) caps develop
+// out, so the field could never be non-empty. Urgency flags live at the top
+// level of the recommendation (rec.urgency_flags).
+export function buildDevelopPayload(dims, tiers, posture) {
   const resolving = LOAD_BEARING_DIMS.filter((d) =>
     ["unknown", "thin"].includes(level(dims, d))
   ).map((d) => RESOLVING_FACT_MAP[d]);
@@ -98,7 +102,6 @@ export function buildDevelopPayload(dims, tiers, gates, posture) {
       `Pre-registered at entry; restate this question at review and grade only new information ` +
       `(invested hours are deliberately not displayed). The firm dockets its own review date — ` +
       `this engine never computes dates.`,
-    urgency_flags: gates.g2.flags,
   };
 }
 
@@ -178,7 +181,7 @@ export function decideDisposition({ llmOutput, gates, config }) {
 
   // --- MIST overlay (borderline files only) --------------------------------
   if (mist && ["R4", "R5"].some((r) => basis[basis.length - 1].startsWith(r))) {
-    const mapped = { develop: "develop", decline: "decline_with_grace", sign: base }[
+    const mapped = { develop: "develop", decline: "decline_with_grace", sign: "sign_now" }[
       config.mist_handling
     ];
     if (mapped !== base) basis.push(`R-MIST mist_handling=${config.mist_handling} → ${mapped}`);
@@ -239,7 +242,7 @@ export function decideDisposition({ llmOutput, gates, config }) {
 
   const vTier = valueTier(dims, gates);
   const develop_payload =
-    recommended === "develop" ? buildDevelopPayload(dims, tiers, gates, posture) : null;
+    recommended === "develop" ? buildDevelopPayload(dims, tiers, posture) : null;
   const refer_comparison = buildReferComparison(dims, tiers, vTier);
 
   return {

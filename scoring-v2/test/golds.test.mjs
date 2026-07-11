@@ -82,6 +82,8 @@ for (const filename of GOLD_ORDER) {
     assert.equal(conf.abstained, exp.abstained, "abstained");
     if (exp.g1_trigger_quote) assert.equal(gates.g1.trigger_quote, exp.g1_trigger_quote);
     if (exp.g2_trigger_quote) assert.equal(gates.g2.trigger_quote, exp.g2_trigger_quote);
+    if (exp.develop_payload)
+      assert.deepEqual(rec.develop_payload, exp.develop_payload, "develop payload");
     if (exp.refer_comparison_expected) assert.ok(rec.refer_comparison, "refer comparison surfaced");
   });
 }

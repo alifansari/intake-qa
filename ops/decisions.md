@@ -554,3 +554,38 @@ conveyor the rescue packet already partly delivers.
 deadline flags, over-conversion retention, refer-out monetization, the 3 fairness fixes.
 **Review:** when Ali decides whether to lift the freeze; not before a PI-attorney +
 Yang review.
+
+## 2026-07-11 — Full marketing-copy audit staged (research-verified, word-by-word)
+**Change (staged, not shipped):** `ops/drafts/copy-audit-2026-07-11.md` — complete audit
+of every customer-visible word (23 surfaces incl. /letter, /audit, demos, constants),
+graded against a 106-agent adversarially-verified research pass on PI-attorney vendor
+psychology + the 2026-07-10 persona guides + compliance-invariants.
+**Top findings (P0):** (1) the "we publish our error rate" promise is FALSE today across
+letter/homepage/footer/GUARANTEE_METHODOLOGY while /honesty rightly withholds
+precision-recall — worst credibility break on the site; (2) homepage $468
+cost-per-signed-case stat prints a broken derivation ($284 ÷ 7% ≈ $4,057) — replace with
+the clean $284/lead anchor; (3) /audit/sample's $253k–$506k monthly projection from 8
+synthetic calls is the canonical vendor-math bounce trigger and contradicts the page's
+own "not a projection" subhead — delete, convert to honesty pitch; (4) the 400%/5-min
+speed stat was REFUTED 0-3 in verification — never render, keep speed claims directional.
+**Hypothesis:** fixing the 8 P0/P1 items closes the gap between the site's honesty
+positioning and its click-through reality; the strengths (compliance page, AI quietness,
+fee negations, PI vocabulary) are verified correct and must not be "improved" away.
+**Gates:** all edits await Ali (§VII); the /letter fix additionally needs a v1.4
+changelog bump + Ali's signature review.
+**Review:** before the next LACBA outreach wave.
+
+## 2026-07-11 — scoring-v2: two disposition-gated alerts deliberately descoped (spec/package alignment)
+
+**Change:** Recording a descope the adversarial QC pass (2026-07-11) flagged as silent:
+the objective spec (§4) lists "the two disposition-gated alerts" among code-side
+responsibilities, but the scoring-v2 package ships neither — deliberately. (1) The
+over-conversion alert is aggregate/privileged analytics by compliance design (per-call
+rep-action divergence is exactly the per-staffer signal the rails forbid) and is deferred
+to the product layer, not the scoring package. (2) The lost-signable alert is superseded
+by the develop-queue conveyor: a leaked signable now surfaces as a develop recommendation
+with named resolving facts and a pre-registered exit condition, not as a per-call alarm.
+**Hypothesis:** spec and package agreeing in writing beats an unexplained gap that every
+future QC pass re-flags.
+**Expected effect:** no functional change; QC finding 1.1 closed.
+**Review:** at v2 activation decision (the product layer owns the aggregate alert then).

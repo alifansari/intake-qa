@@ -182,9 +182,9 @@ EXPECTED PIPELINE VERDICT (harness-only — never shown to the LLM)
   "attorney_review_required": false,
   "mist_flag": false,
   "develop_payload": {
-    "resolving_facts": ["MRI result (damages)", "CHP report + witness statement (liability corroboration)", "Mercury limits letter (coverage)"],
+    "resolving_facts": ["imaging result / treatment records (damages)"],
     "info_cost_class": "cheap_records",
-    "exit_condition_note": "pre-registered: if the MRI shows a tear and the report corroborates, expected disposition sign_now on the Wednesday call; if the MRI is clean and PD is minimal, expected disposition decline_with_grace"
+    "exit_condition_template": "Developing to learn: imaging result / treatment records (damages). If the facts resolve favorably, expected disposition: sign_now. If they resolve adversely, expected disposition: decline_with_grace or refer_out. Pre-registered at entry; restate this question at review and grade only new information (invested hours are deliberately not displayed). The firm dockets its own review date — this engine never computes dates."
   }
 }
 

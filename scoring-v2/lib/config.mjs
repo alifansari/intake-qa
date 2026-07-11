@@ -60,15 +60,30 @@ function coerce(v) {
   return t;
 }
 
+// Thin thresholds are clamped to >= 1: a threshold of 0 would make EVERY
+// profile "borderline" (0 thin reads >= 0), so a selective firm would decline
+// all-strong files — config poisoning, not a posture.
+function clampThreshold(v) {
+  return Math.max(1, v);
+}
+
+function clampThresholdMap(map = {}) {
+  const out = {};
+  for (const [k, v] of Object.entries(map)) {
+    if (Number.isInteger(v)) out[k] = clampThreshold(v);
+  }
+  return out;
+}
+
 // Defaults + normalization so downstream code never branches on undefined.
 export function normalizeConfig(raw = {}) {
   return {
     posture_default: raw.posture_default === "volume" ? "volume" : "selective",
     posture_by_case_type: raw.posture_by_case_type || {},
     develop_thin_threshold: Number.isInteger(raw.develop_thin_threshold)
-      ? raw.develop_thin_threshold
+      ? clampThreshold(raw.develop_thin_threshold)
       : 2,
-    thin_threshold_by_case_type: raw.thin_threshold_by_case_type || {},
+    thin_threshold_by_case_type: clampThresholdMap(raw.thin_threshold_by_case_type),
     trial_capital: raw.trial_capital === true,
     capital_budget_tier: ["minimal", "moderate", "deep"].includes(
       raw.capital_budget_tier
@@ -87,5 +102,6 @@ export function postureFor(config, caseType) {
 
 export function thinThresholdFor(config, caseType) {
   const t = config.thin_threshold_by_case_type[caseType];
-  return Number.isInteger(t) ? t : config.develop_thin_threshold;
+  // Belt-and-braces clamp for callers that bypass normalizeConfig.
+  return clampThreshold(Number.isInteger(t) ? t : config.develop_thin_threshold);
 }

@@ -57,7 +57,10 @@ capital_budget_tier: moderate
 
 # MIST handling (minor-impact soft-tissue profiles): what the decision table
 # does with a MIST-flagged borderline file.
-#   develop | decline | sign
+#   develop — route to the develop queue (default)
+#   decline — decline_with_grace
+#   sign    — map to sign_now (volume shops that sign MIST files and settle
+#             them fast; the MIST flag still rides on the verdict)
 mist_handling: develop
 ```
 <!-- PART B: END -->

@@ -98,10 +98,13 @@ FACT CATALOG (fixed IDs — emit all of them, in this order):
     insured at the time? Only observed_on_call when the caller states it.
     GATE-TRIGGER fact (Prop 213 profile). Note the §3333.4 shape for the
     analysis: an uninsured owner/operator loses NON-economic damages only;
-    economic damages survive; passengers and non-owners are excepted;
-    §3333.4(c) restores non-economic damages to an uninsured owner injured
-    by a DUI-convicted driver. You extract the status; code decides nothing
-    here and neither do you.
+    economic damages survive; passengers are excepted; a non-owner OPERATOR
+    is excepted only if the vehicle they drove was insured (§3333.4(a)(3)) —
+    an uninsured driver of an UNINSURED vehicle is inside the bar, a
+    permissive user of an INSURED vehicle is not; §3333.4(c) restores
+    non-economic damages to an uninsured owner injured by a DUI-convicted
+    driver. You extract the status; code decides nothing here and neither
+    do you.
 10. liability_admission_span — a FACTUAL admission of the caller's own fault
     ("I was looking at my phone", "I backed out without looking"). A bare
     apology or deferential hedge ("I'm so sorry, maybe it was my fault") is
@@ -170,7 +173,16 @@ exact keys; use them verbatim for the facts listed):
   perishable_evidence_signal.value / trial_posture_signal.value:
     { "present": true|false, "description": "..." | null }
 - caller_insured_status.value: "insured" | "uninsured_owner_operator" |
-    "uninsured_nonowner_or_passenger" | "not_applicable" | null
+    "uninsured_driver_of_uninsured_vehicle" (non-owner operator, and the
+      vehicle they drove was ALSO uninsured — barred profile,
+      §3333.4(a)(3)) |
+    "uninsured_driver_of_insured_vehicle" (permissive user of an insured
+      vehicle — excepted) |
+    "uninsured_nonowner_or_passenger" (passenger, or non-owner whose
+      operator/vehicle status was not developed — excepted; prefer the two
+      operator-specific values above whenever the call establishes who owned
+      and insured the vehicle) |
+    "not_applicable" | null
 - defendant_fault_indicators.value:
     { "description": "..." | null, "dui_indicator": true|false }
   (dui_indicator true only on stated defendant-DUI facts — arrest, DUI

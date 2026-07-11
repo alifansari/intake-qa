@@ -60,7 +60,9 @@ test("R3: any unknown load-bearing read → develop with a full payload", () => 
   assert.match(p.exit_condition_template, /Developing to learn/);
   assert.match(p.exit_condition_template, /expected disposition/);
   assert.match(p.exit_condition_template, /never computes dates/);
-  assert.deepEqual(p.urgency_flags, []);
+  // NIT 3.5: the always-empty urgency_flags payload field was deleted —
+  // urgency flags live only at the top level of the recommendation.
+  assert.ok(!("urgency_flags" in p), "no dead urgency_flags field in the payload");
 });
 
 // ---------- THE POSTURE DIVERGENCE (borderline profile, same reads) -----------
@@ -127,6 +129,43 @@ test("MIST overlay never acts on an INFERRED minimal-impact trigger", () => {
   const reads = dims(borderline);
   assert.equal(isMistProfile(inferredMist, reads), false);
   assert.equal(isMistProfile(inferredMist, reads, { includeInferred: true }), true);
+});
+
+test("MIST overlay: mist_handling=sign maps a borderline MIST file to sign_now (not a silent no-op)", () => {
+  const mistFacts = baseFacts({
+    property_damage_stated: observed({ described: "bumper scuff", minimal_impact_signal: true }),
+  });
+  const borderline = { damages_credibility: "thin", coverage_path: "thin" };
+  // Selective posture would have R4-declined; sign mapping must override it.
+  const signCfg = normalizeConfig({ posture_default: "selective", mist_handling: "sign" });
+  const { rec } = run({ facts: mistFacts, reads: borderline, config: signCfg });
+  assert.equal(rec.mist_flag, true);
+  assert.equal(rec.recommended_disposition, "sign_now");
+  assert.ok(rec.disposition_basis.some((b) => b.includes("mist_handling=sign")));
+});
+
+test("config poisoning: thin thresholds clamp to >= 1 — all-strong reads never decline", () => {
+  const poisoned = normalizeConfig({
+    posture_default: "selective",
+    develop_thin_threshold: 0,
+    thin_threshold_by_case_type: { dog_bite: 0 },
+  });
+  assert.equal(poisoned.develop_thin_threshold, 1);
+  assert.equal(poisoned.thin_threshold_by_case_type.dog_bite, 1);
+  const allStrong = {
+    liability_comparative_fault: "strong",
+    damages_credibility: "strong",
+    coverage_path: "strong",
+    collectability_deep_pocket: "strong",
+  };
+  const { rec } = run({ reads: allStrong, config: poisoned });
+  assert.equal(rec.recommended_disposition, "sign_now");
+  const dog = run({
+    facts: baseFacts({ case_type_primary: observed("dog_bite") }),
+    reads: allStrong,
+    config: poisoned,
+  });
+  assert.equal(dog.rec.recommended_disposition, "sign_now");
 });
 
 test("R7: heavy capital against a minimal budget flips sign_now to refer_out", () => {
