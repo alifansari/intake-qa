@@ -1,6 +1,6 @@
 -- Intake QA beta — first-party product event log + alert state (SQLite dialect).
 --
--- Postgres twin: web/supabase/migrations/0035_event_log.sql (the tracks diverge
+-- Postgres twin: web/supabase/migrations/0036_event_log.sql (the tracks diverge
 -- above 0019 by design — same logical migration, different number; see
 -- web/README.md "Migrations (two tracks)").
 --
