@@ -3,20 +3,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 
-// One persistent nav for every founder surface (/studio/* and /admin/*), so the
-// operator side works like one product instead of URLs you have to remember.
-// Labels are plain and descriptive on purpose — the invented names ("The
-// Mirror", "The Ledger") live on as subtitles on their own pages.
+// ONE nav for the whole operator side, four plain words. This is a deliberate
+// cut from ten items to four, on evidence: NN/g menu design ("no made-up words,
+// no internal jargon") + Hick's Law (fewer choices decide faster) + progressive
+// disclosure (everything rarer than daily lives one hop inside Home, not up
+// here). The invented names — "The Mirror", "The Ledger", "Mystery shops",
+// "Rescues" — are gone from navigation; they survive only as section labels on
+// the pages that own them.
+//
+//   Home    — the command center: the money, what needs you, the daily action
+//   Firms   — every firm and everything under it (shops, recordings, scorecards)
+//   Guide   — plain-English "what do I do, and where's the value" (start here)
+//   System  — the back office (status, audits, billing, feature switches)
+//
+// "Firm view" and "Sign out" sit quietly on the right, not in the main run.
 const LINKS = [
-  { href: "/studio", label: "Today", exact: true },
+  { href: "/studio", label: "Home", exact: true },
   { href: "/studio/firms", label: "Firms" },
-  { href: "/studio/beta", label: "Beta health" },
-  { href: "/studio/shops", label: "Mystery shops" },
-  { href: "/studio/leads", label: "Leads" },
-  { href: "/studio/rescue", label: "Rescues" },
-  { href: "/studio/escalations", label: "Urgent leads" },
-  { href: "/studio/ledger", label: "Monthly results" },
-  { href: "/studio/tuning", label: "Tuning" },
+  { href: "/studio/guide", label: "Guide" },
   { href: "/admin", label: "System" },
 ];
 
@@ -35,9 +39,9 @@ export function StudioNav() {
     <header className="no-print border-b border-hairline bg-surface">
       <div className="mx-auto flex h-14 max-w-[1120px] flex-wrap items-center justify-between gap-x-4 px-5">
         <Link href="/studio" className="font-display text-sm font-semibold text-ink">
-          Intake QA · studio
+          Intake QA
         </Link>
-        <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label="Studio">
+        <nav className="flex flex-wrap gap-x-5 gap-y-1 text-sm" aria-label="Studio">
           {LINKS.map((l) => {
             const active = l.exact ? pathname === l.href : pathname.startsWith(l.href);
             return (
@@ -56,7 +60,7 @@ export function StudioNav() {
         </nav>
         <div className="flex items-center gap-4">
           <Link href="/desk/queue" className="text-sm text-ink-muted hover:text-ink">
-            Firm desk
+            Firm view
           </Link>
           <form action="/auth/signout" method="post">
             <button type="submit" className="text-sm text-ink-muted hover:text-ink">

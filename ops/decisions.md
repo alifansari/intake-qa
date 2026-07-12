@@ -1164,3 +1164,39 @@ published rate yet) — a §IV/§V copy change; (2) Yang methodology nod. Then o
 (build already green). Compliant interim = shadow mode (v2 live dark, v1 firm-visible, zero §IV
 exposure) — Ali declined shadow; flip is staged and ready.
 **Review:** Ali's call on the two unblockers.
+
+---
+
+## 2026-07-12 — Founder command-center rebuild (operator IA collapse)
+
+**Change (shipped to working tree, NOT pushed — Ali's deploy call):** Rebuilt the operator
+side around one screen and four nav words, on Ali's "everything is scattered, make it dead
+simple, show me exactly what to do and where the value is" brief.
+
+- **Nav: 10 → 4.** `StudioNav.tsx` now = Home · Firms · Guide · System (+ quiet "Firm view"
+  and "Sign out"). Invented names ("The Mirror"/Mystery shops, "The Ledger"/Monthly results,
+  Rescues, Urgent leads, Beta health, Tuning) removed from navigation; they live one hop
+  inside Home under a collapsed "Everything else" disclosure.
+- **`/studio` home = command center.** Three zones, F-pattern: (1) THE MONEY — dominant
+  "Signable fees surfaced so far" figure (new `lib/studio/value.ts` sums `summary.totalFeeAtRisk`
+  across real Leak Audits, an estimate backed by transcript evidence, never a guarantee) + a
+  primary "Show a firm the value →" button opening `/audit/sample`; empty-state pitches the
+  sample report so a zero-data founder can still demo in ~60s. (2) NEEDS YOU NOW — the
+  attention inbox, non-zero tiles ring accent (ambient signaling), "You're all clear" at zero.
+  (3) CREATE VALUE — the existing Leak Audit uploader, reframed as the core loop.
+- **New `/studio/guide` ("Start here").** Plain-English: what this is, where the value is,
+  the 60-second demo script, the 5-minute daily routine, the four-step loop, and where every
+  old menu item now lives. Answers "what do I do / how do I use it" directly.
+
+**Hypothesis:** the prior simplicity passes relabeled but never cut structure; collapsing 17
+operator destinations to 4 + one money-first home is what actually removes founder confusion
+and makes value demoable on first contact.
+
+**Compliance:** every dollar labeled an estimate tied to transcript evidence (§IV); no
+outcome-tied/percentage framing (§I); "a human approves every text" stated in the Guide (§VII).
+Nothing sends. Build GREEN (compiled 11.8s, all routes incl. /studio/guide), 540/540 tests
+pass, sample-report demo path driven in preview (200, $27k headline renders, no console
+errors). Studio home + guide are founder-auth-gated; verified they compile + gate-redirect,
+not visually driven (no founder session fabricated on live Supabase).
+
+**Review:** Ali to click through Home + Guide signed in, then decide on deploy.
