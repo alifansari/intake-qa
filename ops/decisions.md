@@ -555,3 +555,48 @@ session owns it); per-firm CallRail secret UI (Session 1); errors-table run-log 
 operator alert email — if daily "digest run" rows prove noisy, split into a digest_runs
 table post-beta.
 **Review:** 2026-07-18 (end of beta week 1).
+
+## 2026-07-11 — Session 3: mission control — instrumentation + alerting (branch beta/s3-mission-control)  ·  agent: product-dev · lane: product
+**Change:** Fixed the "you cannot run a beta blind" gap — zero product analytics, activation
+measured nowhere. All founder-only, all first-party (no PostHog/pixel on confidential legal
+data). (1) First-party event log: migration 0027 (SQLite) / 0035 (Postgres) adds `events`
+(append-only, ids/counts only — never PII/transcripts), `alert_state` (watermark k/v so each
+alert fires once per window), and firms.stage (founder-set pilot/paid funnel state); Postgres
+table RLS-enabled with no policy (service-role only, matching errors). event-types.mjs is the
+single allowlist both dialects + the TS boundary import from. web/src/lib/events.ts is the
+best-effort boundary (a lost event never breaks the user action). (2) Wired 7 call sites:
+sign_in (login page → /api/events for password flow + auth/callback for magic link),
+desk_view (desk/queue), digest_sent (digest/run, only mode=live), digest_link_clicked +
+callback_marked (digest/confirm and desk/flag-status, callback-shaped statuses only),
+audit_started (api/audit/session), audit_completed (audit/[token] page). apply_submitted and
+upload_started/completed are DEFINED in the schema/allowlist but NOT wired — sibling sessions
+own apply-form.tsx and /desk/upload; they wire at integration. (3) /studio/beta founder board:
+per-firm calls received/scored/failed (24h/7d), last call, last seen, last digest outcome
+(from the digest.run ledger Session 0 added), callbacks 7d, a live 48h activation clock (first
+callback within 48h of first digest/miss), unopened-digest streak (call-the-firm at 3), and
+the audit→pilot / pilot→paid funnels with a founder-set Stage control. (4) Founder alerting:
+messaging/founder-alerts.mjs + hourly /api/alerts/sweep cron batches every trigger into ONE
+email to FOUNDER_EMAIL — failed scoring, 3+ CallRail signature failures/hour/firm, digest
+skip/fail, new applications — plus a daily 8am America/Los_Angeles per-firm pulse; delivery
+uses the same EMAIL_ENABLED + KILL_SWITCH gate as digest.mjs (off/no-key → render to output/,
+transmit nothing); watermarks in alert_state make every trigger fire exactly once. (5) Digest
+open tracking: messaging/digest-open.mjs signs a 1x1 HMAC pixel (firm id + day, purpose-tagged
+"open", no PII, fail-closed) embedded in the missed-cases digest; /api/digest/open records
+digest_opened and always returns the gif.
+**Hypothesis:** a beta you can't see is a beta you lose in week 1 — the activation event
+(BETA_ONBOARDING.md's "first callback within 48h of first digest") and the two conversions
+(insights B1/B2) must be visible from firm #1, and failures must reach the founder in hours
+not "whenever he opens /admin/status."
+**Expected effect:** Ali watches every firm's pipeline health, activation clock, and funnel
+on one screen; scoring/signature/digest failures and new applications page him automatically
+(once EMAIL_ENABLED + CRON_SECRET are set); three unopened digests trigger a phone call.
+**Status:** shipped to branch (not pushed).
+**Verified:** smoke 0 failures; 460/460 unit tests (new: activation clock, unopened streak,
+digest.run parser, funnel math, alert classifiers/batching/pulse-timing/gated-delivery,
+open-pixel HMAC, event allowlist); e2e-synthetic all 9 stages PASS; production build green
+with /studio/beta, /api/alerts/sweep, /api/digest/open, /api/events all present.
+**Deferred:** apply_submitted call site (api/beta/apply + apply-form.tsx) and
+upload_started/completed call sites (/desk/upload) — schema is settled, sibling sessions wire
+them at integration; opens undercount by nature (image-blocking clients), so a streak is a
+"pick up the phone" signal, never proof of silence — labeled as such on the board.
+**Review:** 2026-07-18 (end of beta week 1).
