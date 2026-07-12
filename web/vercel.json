@@ -3,6 +3,10 @@
     {
       "path": "/api/digest/run",
       "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/alerts/sweep",
+      "schedule": "0 * * * *"
     }
   ]
 }
