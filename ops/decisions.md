@@ -40,6 +40,41 @@
 
 ---
 
+## 2026-07-12 — GOVERNANCE: agents may now deploy to production (§VII amended, "broad")  ·  agent: main session · lane: governance (§VII)
+- **Change:** Ali's explicit, informed decision (chose "broad" over the recommended "scoped"
+  option after the Rule 7.1/7.2 exposure was flagged twice): agents MAY now deploy the site/app
+  to production autonomously — including changes carrying new product claims, pricing display,
+  and comparative claims — provided the build is green and the full pre-ship checklist passes.
+  Amended compliance-invariants §III + §VII + pre-ship item 7; updated CLAUDE.md protocol step 3
+  and the agents footer. Also renamed the §I / CLAUDE.md positioning label recovery->intake desk.
+- **What did NOT change (still human-gated):** sending outreach / social / prospect email
+  (TCPA / CAN-SPAM / Rule 7.3), DNS / secrets / billing config, data deletion beyond the cascade,
+  and anything novel in a regulated area (fee STRUCTURE, consent design, solicitation) -> Yang.
+  Content bright-lines §I/§II/§IV/§V/§VI still bind every deploy: loosening WHO deploys did not
+  loosen WHAT may be said; a green build is necessary but not sufficient.
+- **Flagged risk (honest, per §VIII):** removing the human eye on public product claims raises
+  real Rule 7.1/7.2 marketing-truthfulness exposure on a bar-regulated, law-firm-facing site.
+  The pre-ship checklist is now the load-bearing control; if it is under-run, unvetted claims can
+  reach prod. Routed to Yang for review (warm contact, not a hard block on this internal change).
+- **Status:** adopted by Ali; live in the docs; Yang review pending.
+- **Review date:** 2026-08-15
+
+## 2026-07-12 — Ali clears deploy blockers: letter re-signed + pricing approved  ·  agent: main session · lane: pricing/website (§VII)
+- **Change:** Ali (principal) explicitly (a) re-signed Letter v1.4, clearing the
+  "awaits Ali re-sign before deploy" gate on commit 55b4d04, and (b) approved the pricing table,
+  resolving the 2026-07-10 three-way split (see that entry: Core $2,500 / Pro $5,000 / Charter
+  $1,500-intro). STANDING DIRECTIVE from Ali: the beta is the primary public focus right now, not
+  the pricing; Table C dollar figures stay internal and are not surfaced on public pages during
+  the beta window. Verified 2026-07-12: no PRICING_TIERS/CHARTER dollar figures render on any
+  public page (the only $2,500/$5,000 on-site are §632/§637.2 statutory-fine citations on
+  /compliance); /pricing remains "free during the beta."
+- **Deploy state:** local main is 51 commits ahead of origin/main and unpushed; both substantive
+  blockers are now cleared by Ali. The production publish (git push origin main -> Vercel ->
+  plaintiffops.com) remains a §VII human-executed action; the agent staged and verified, Ali
+  presses publish.
+- **Status:** approvals logged; push pending Ali (human-gated per §VII).
+- **Review date:** 2026-08-15
+
 ## 2026-07-12 — Copy Power Pass (2-round research + 3 adversarial red-teams)  ·  agent: main session · lane: website
 - **Change:** Staged `ops/drafts/copy-power-pass-2026-07-12.md`. Two research rounds (6 deep-research
   streams + 3 red-teams: CA-ethics, skeptical-partner, gap-strategist). Net recommendations, all
@@ -259,7 +294,15 @@ SQLite `0029_flag_status_attempts.sql`, Postgres `0037_flag_status_attempts.sql`
   decisions entry the same day. Related: the staged Intake Closer pivot's per-signed-case
   pricing mode (Yang-gated) contradicts any "never outcome-tied, ever" sales promise — kill
   one or the other.
-- **Status:** BLOCKED ON ALI.
+- **Status:** RESOLVED by Ali 2026-07-12. Approved table (operative numbers now in
+  compliance-invariants §I and web/src/lib/site-constants.ts): Core $2,500/mo, Pro $5,000/mo,
+  Charter (Founding 5) $1,500/mo for a 90-day intro then Core. The two conflicting tables are
+  superseded: (2) Founding $1,000 / Core $1,500 / Pro $3,000 and (3) $1,500/$2,500/$5,000 are
+  DEAD, do not reuse. STANDING DIRECTIVE (Ali 2026-07-12): the beta is the primary public focus;
+  these dollar figures stay INTERNAL and non-public during the beta window (public /pricing keeps
+  saying "free during the beta"; numbers return to public copy only when the beta ends). The
+  Intake Closer per-signed-case pricing mode remains Yang-gated and must not contradict the flat
+  fee before it is resolved.
 - **Review date:** before any pricing conversation with any prospect.
 
 ## 2026-07-10 — Engine-v2 Wave 8: adversarial QC passes applied  ·  agent: main session · lane: research/QC
@@ -1098,3 +1141,26 @@ self-test, boards-clean, retention=90 gates; rollback via Vercel Promote / `git 
 **Ali-only blockers:** /letter published-error-rate copy decision; NDA template attorney review;
 provider (AssemblyAI/Anthropic) data-terms decision; launch pricing numbers.
 **Review:** 2026-07-18 (end of beta week 1).
+
+## 2026-07-12 — Engine v2 firm-visible CUTOVER built + revalidated; HELD at deploy by §IV
+**Change:** built the full firm-visible cutover per Ali's explicit "full cutover" decision, on
+branch `feature/v2-cutover` (commit d62b48b, off main): studio pipeline repointed from v1
+score-call to scoring-v2's scoreV2; `web/src/lib/studio/v2-adapter.mjs` maps the v2 triage
+verdict into the product's ScoredCall contract WITHOUT synthesizing a dollar (compliant);
+scoring-v2 vendored into web/.engine for Vercel. v1 scoring/ untouched.
+**Revalidation:** Phase-1 PASS — next build GREEN (compiled, 81/81 pages), adapter 9/9,
+scoring-v2 145/145, canary drift 7/7. Phase-2 (attorney-labeled QWK / false-alarm rate) NOT
+run — no labeled corpus exists.
+**COMPLIANCE STOP (supreme, outranks the "go live" instruction):** the live product publishes a
+v1-derived false-alarm rate + "frozen, calibrated PI rubric" claims (site-constants.ts tagged
+§IV; /calibration page). v2 has no measured false-alarm rate, so a firm-visible flip would
+falsify those published-accuracy claims → §IV ("publish the false-alarm rate; no citation no
+claim") + §V (no false/misleading). Pre-ship checklist items 4/5 = "no" → §VII bars auto-deploy
+(green build necessary, not sufficient). Also a novel scoring methodology → Yang (§VII).
+**Path to live (both need a human/attorney input I cannot fabricate):** (1) measure v2's
+false-alarm rate on attorney-labeled calls and re-point /calibration to it, OR reword the
+published-accuracy copy to truthfully describe v2 (recommendations + tiered confidence, no
+published rate yet) — a §IV/§V copy change; (2) Yang methodology nod. Then one merge+push
+(build already green). Compliant interim = shadow mode (v2 live dark, v1 firm-visible, zero §IV
+exposure) — Ali declined shadow; flip is staged and ready.
+**Review:** Ali's call on the two unblockers.

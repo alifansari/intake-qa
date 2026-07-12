@@ -174,7 +174,7 @@ status (warm contact, not retained). Follow it.
 
 ## Mission
 
-Intake QA is the **independent recovery desk** for California personal-injury firms:
+Intake QA is the **independent intake desk** for California personal-injury firms:
 we score intake calls and surface lost-case / lost-revenue leaks that firms can't see
 themselves. Positioning is the independent scorer — the Moody's / Michelin / J.D. Power of PI
 intake — not a vendor and not a fee participant.
@@ -214,7 +214,10 @@ The agents share a brain in `ops/`. This is what makes week N+1 build on week N:
 **Protocol every agent follows:**
 1. Read `compliance-invariants`, then `ops/metrics.md`, `ops/insights.md`, `ops/decisions.md`.
 2. Pull the highest-leverage item in your lane from `ops/backlog.md` (or propose one, ICE-scored).
-3. Do the work as a **proposal / draft / PR** — never publish, send, post, or push to prod.
+3. Ship the work. Per compliance-invariants §VII (amended 2026-07-12), agents MAY deploy the
+   site/app to production when the build is green and the pre-ship checklist passes; still never
+   auto-send outreach/social/prospect email, change DNS/secrets/billing, or make novel regulated
+   changes — those stage and stop for Ali (Yang for novel regulated).
 4. Append a dated entry to `ops/decisions.md`: change, hypothesis, expected effect, review date.
 5. If your work generates a new insight or hypothesis, append it to the right ledger.
 6. Return a clean summary (final message = the deliverable), not a chatty log.
@@ -229,8 +232,10 @@ The agents share a brain in `ops/`. This is what makes week N+1 build on week N:
 | `outreach` | Dream 25 mailer, LinkedIn, newsletter, benchmark GTM | opus | drafts, decisions, backlog |
 
 Run one directly by describing its lane's work, or run the whole weekly loop with
-`/rocketship`. The three builders never send/publish/post/push — they stage and stop at the
-human-approval gate (compliance-invariants §VII).
+`/rocketship`. The builders MAY deploy the site/app to production (green build + pre-ship
+checklist), per compliance-invariants §VII as amended 2026-07-12; they still never auto-send
+outreach/social/prospect email or make novel regulated changes — those stage and stop for Ali
+(Yang for novel regulated).
 
 ## Standing instructions (Ali)
 
