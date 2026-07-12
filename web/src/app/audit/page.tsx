@@ -58,7 +58,7 @@ export default function AuditUploaderPage() {
         problems.push(
           `${f.name} is ${Math.round(f.size / 1048576)}MB and the limit here is ${Math.floor(
             maxBytes / 1048576,
-          )}MB — try re-exporting it as an MP3, or email it to ${FOUNDER_EMAIL}.`,
+          )}MB. Try re-exporting it as an MP3, or email it to ${FOUNDER_EMAIL}.`,
         );
         return false;
       }
@@ -118,7 +118,7 @@ export default function AuditUploaderPage() {
           // not "no leaks found."
           if ((s.done ?? 0) === 0) {
             setErr(
-              "We hit a snag processing your recordings on our side — this is our problem, not yours, and nothing was lost. Email the files to ali@plaintiffops.com and a human will run your audit by hand today, free as promised.",
+              "We hit a snag processing your recordings on our side. This is our problem, not yours, and nothing was lost. Email the files to ali@plaintiffops.com and a human will run your audit by hand today, free as promised.",
             );
             setPhase("error");
             return;
@@ -317,8 +317,7 @@ export default function AuditUploaderPage() {
               to them) straight to{" "}
               <a href={`mailto:${FOUNDER_EMAIL}?subject=Leak%20Audit%20calls`} className="font-semibold text-navy underline">
                 {FOUNDER_EMAIL}
-              </a>{" "}
-              &mdash; or forward this page to whoever can export them. Same audit, zero clicks
+              </a>, or forward this page to whoever can export them. Same audit, zero clicks
               for you.
             </p>
             <p className="mt-2 text-xs text-faint">
@@ -410,7 +409,7 @@ const STAGE_INFO: Record<string, { label: string; weight: number }> = {
   transcribing: { label: "Listening to the call, word by word…", weight: 0.45 },
   scoring: { label: "Scoring the handling against the PI rubric…", weight: 0.8 },
   done: { label: "Scored ✓", weight: 1 },
-  error: { label: "Hit a snag — a human will review this one", weight: 1 },
+  error: { label: "Hit a snag: a human will review this one", weight: 1 },
 };
 const SECONDS_PER_CALL = 95; // observed: ~60-75s transcribe + ~25s score
 
@@ -491,7 +490,7 @@ function ProcessingPanel({
 
       <p className="mt-5 text-xs text-faint">
         Each call is transcribed in full, then scored against the same calibrated rubric every
-        firm gets — that&apos;s the minute or two per call. Keep this tab open; your report opens
+        firm gets. That&apos;s the minute or two per call. Keep this tab open; your report opens
         by itself the moment the last call is scored.
       </p>
     </div>

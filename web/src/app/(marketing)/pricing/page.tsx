@@ -34,7 +34,7 @@ export default function PricingPage() {
       </h1>
       {/* The direct answer, first — no scrolling, no "call for pricing". */}
       <div className="mt-5 max-w-[72ch] space-y-1.5 text-lg text-ink">
-        <p>Free during the beta — all five founding firms run the full desk at no charge.</p>
+        <p>Free during the beta: all five founding firms run the full desk at no charge.</p>
         <p>At launch: one flat monthly fee, set with the founding cohort before anyone pays.</p>
         <p>Never a percentage, never a share of recoveries.</p>
       </div>

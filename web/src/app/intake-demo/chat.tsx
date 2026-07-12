@@ -51,10 +51,10 @@ function prettyMatter(matter: string): string {
 }
 
 const BUCKET_LABEL: Record<string, { label: string; tone: string }> = {
-  book: { label: "BOOK — consultation gets scheduled", tone: "text-accent border-accent/40 bg-accent-tint" },
-  escalate: { label: "ESCALATE — immediate attorney attention", tone: "text-red border-red/40 bg-red-tint" },
-  human_handoff: { label: "HUMAN HANDOFF — a person reviews", tone: "text-amber border-amber/40 bg-amber-tint" },
-  decline: { label: "DECLINE (BY DESIGN) — polite close, captured", tone: "text-muted border-line-strong bg-paper" },
+  book: { label: "BOOK: consultation gets scheduled", tone: "text-accent border-accent/40 bg-accent-tint" },
+  escalate: { label: "ESCALATE: immediate attorney attention", tone: "text-red border-red/40 bg-red-tint" },
+  human_handoff: { label: "HUMAN HANDOFF: a person reviews", tone: "text-amber border-amber/40 bg-amber-tint" },
+  decline: { label: "DECLINE (BY DESIGN): polite close, captured", tone: "text-muted border-line-strong bg-paper" },
 };
 
 export function IntakeChat() {
@@ -326,7 +326,7 @@ export function IntakeChat() {
               </div>
             ) : null}
             <p className="text-[11px] text-faint">
-              Demo only: the record above was captured and stored for demonstration — nothing was
+              Demo only: the record above was captured and stored for demonstration. Nothing was
               booked, no one was alerted, and no message was sent.
             </p>
           </div>
@@ -338,7 +338,7 @@ export function IntakeChat() {
       {!done && messages.length > 1 ? (
         <div className="border-t border-line bg-canvas px-3 py-2">
           <div className="mb-1 text-[10px] font-medium uppercase tracking-wide text-faint">
-            Try going off-script — the agent never evaluates, quotes, or advises
+            Try going off-script: the agent never evaluates, quotes, or advises
           </div>
           <div className="flex flex-wrap gap-1.5">
             {OFF_SCRIPT.map((o) => (

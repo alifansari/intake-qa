@@ -49,7 +49,7 @@ const STATS = [
 const THREE_STEPS = [
   {
     title: "Send us 10 recorded intake calls",
-    body: "Free. Any channel — your team, your answering service, your AI receptionist. Five minutes to upload.",
+    body: "Free. Any channel: your team, your answering service, your AI receptionist. Five minutes to upload.",
   },
   {
     title: "We show you what walked, in dollars",
@@ -57,7 +57,7 @@ const THREE_STEPS = [
   },
   {
     title: "Want it every month? Join the beta",
-    body: "Five founding firms run the full desk free during the beta — every call scored, misses flagged the same day, one monthly statement. Flat fee at launch, never a share.",
+    body: "Five founding firms run the full desk free during the beta: every call scored, misses flagged the same day, one monthly statement. Flat fee at launch, never a share.",
   },
 ];
 
@@ -332,7 +332,7 @@ export default function HomePage() {
             Built to survive your ethics counsel.
           </h2>
           <ul className="mt-5 flex flex-col gap-2 text-lg text-ink-muted">
-            <li>· A flat fee for a service &mdash; never a share of a fee, never per case.</li>
+            <li>· A flat fee for a service, never a share of a fee, never per case.</li>
             <li>· We only help you answer people who already called your firm.</li>
             <li>· The desk drafts; a human at your firm reviews and sends. Always.</li>
           </ul>
@@ -358,7 +358,7 @@ export default function HomePage() {
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">
             A signed report you keep, a say in what the desk becomes, and no obligation to continue.
-            {" "}<em>&ldquo;{STAKE_LINE}&rdquo; &mdash; Ali</em>{" "}
+            {" "}<em>&ldquo;{STAKE_LINE}&rdquo;, Ali</em>{" "}
             <span className="tnum font-medium text-ink">{SEAT_LINE}</span>
           </p>
           <CTA />

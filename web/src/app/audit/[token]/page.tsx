@@ -118,7 +118,7 @@ export default async function AuditReportPage({
           We hit a snag on our side
         </h1>
         <p className="mx-auto mt-3 max-w-prose text-muted">
-          Your recordings reached us but didn&apos;t make it through processing — that&apos;s our
+          Your recordings reached us but didn&apos;t make it through processing. That&apos;s our
           problem, not yours, and nothing was lost. Email the files to{" "}
           <a href="mailto:ali@plaintiffops.com?subject=Leak%20Audit%20snag" className="font-semibold text-navy underline">
             ali@plaintiffops.com
@@ -172,7 +172,7 @@ export default async function AuditReportPage({
         </p>
         {walkedCalls.length > 0 ? (
           <p className="mt-3 max-w-prose text-sm font-medium text-ink">
-            You already paid to make these calls ring &mdash; the marketing worked; the intake
+            You already paid to make these calls ring. The marketing worked; the intake
             didn&apos;t. And every day an unsigned caller waits is a day the insurance adjuster
             is negotiating with them alone.
           </p>
@@ -217,7 +217,7 @@ export default async function AuditReportPage({
                   <span className="tabular-nums text-red">
                     {money(restWalked.reduce((sum, c) => sum + (c.feeAtRisk ?? 0), 0))}
                   </span>{" "}
-                  at risk — open to see each
+                  at risk, open to see each
                 </summary>
                 <div className="mt-2 space-y-2">
                   {restWalked.map((c) => (
@@ -240,12 +240,12 @@ export default async function AuditReportPage({
       {walkedCalls.length === 0 && (
         <section className="mt-8 rounded-sm border border-line bg-paper p-4">
           <p className="text-sm font-semibold text-ink">
-            No signable case walked in this sample &mdash; that&apos;s genuinely good news.
+            No signable case walked in this sample. That&apos;s genuinely good news.
           </p>
           <p className="mt-2 max-w-prose text-sm text-muted">
             It means these {callCount === 1 ? "wasn&apos;t a call" : "weren&apos;t calls"} where a
             qualified, unrepresented caller slipped through. The handling score below still shows
-            how the calls were worked &mdash; and a sample this small can&apos;t clear a whole
+            how the calls were worked, and a sample this small can&apos;t clear a whole
             intake operation. The honest way to know is a full month of calls.
           </p>
         </section>
@@ -287,7 +287,7 @@ export default async function AuditReportPage({
         ) : (
           <div className="mt-3 rounded-sm border border-line bg-paper p-4 text-sm text-muted">
             Industry context: in Clio&apos;s Legal Trends secret-shopper study of 500 firms, only{" "}
-            <b className="text-ink">40%</b> answered their intake calls at all &mdash; and most
+            <b className="text-ink">40%</b> answered their intake calls at all, and most
             callers hire the first firm that treats them well. A named peer benchmark for your
             score unlocks as the audit network grows.
           </div>
@@ -321,7 +321,7 @@ export default async function AuditReportPage({
         </h2>
         <p className="mt-1 text-sm text-muted">
           Book a 20-minute walkthrough and we&apos;ll show you how your own team wins these cases
-          back, compliantly — we find them, your staff make the calls.
+          back, compliantly. We find them, your staff make the calls.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {/* The headline action never disappears: no calendar configured →
@@ -343,7 +343,7 @@ export default async function AuditReportPage({
           unrepresented, and inside the filing window, based only on what was said on the call.
           Fee at risk = a conservative case-type settlement range &times; a standard contingency
           share, rounded down. Estimates, never guarantees. Misses are scored as process gaps,
-          not people problems &mdash; no staff names appear on this page.
+          not people problems. No staff names appear on this page.
         </p>
         <p className="mt-1">
           <b className="text-muted">How callers are protected:</b> caller identities are redacted

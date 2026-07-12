@@ -197,7 +197,7 @@ export default function LoginPage() {
         <LoginForm />
       </Suspense>
       <p className="mt-4 max-w-[56ch] text-xs text-faint">
-        Your account is set up for you when you join the beta &mdash; check your welcome email
+        Your account is set up for you when you join the beta. Check your welcome email
         for the sign-in details, or use &ldquo;email me a sign-in link&rdquo; above. No account
         yet?{" "}
         <a href="/apply" className="underline hover:text-ink">Apply for the beta</a> &middot;

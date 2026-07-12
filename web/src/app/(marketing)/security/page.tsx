@@ -91,7 +91,7 @@ export default function SecurityPage() {
         <Row q="The engines we use">
           <p>
             We analyze and transcribe your calls on specialist engines under our data-processing
-            agreement — every subprocessor is named in the DPA — over encrypted connections. Your
+            agreement, every subprocessor is named in the DPA, over encrypted connections. Your
             calls, transcripts, and results are never used to train AI models, and we do not sell
             or share your data. Intake QA does not claim to be SOC 2 certified or HIPAA compliant as a
             company. We make plain-English commitments and put them in writing.

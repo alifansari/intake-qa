@@ -81,7 +81,7 @@ export function ApplyForm() {
         throw new Error(
           Array.isArray(data.details)
             ? "Please check the highlighted fields and try again."
-            : (data.error ?? "Something went wrong — email ali@plaintiffops.com and we'll sort it."),
+            : (data.error ?? "Something went wrong. Email ali@plaintiffops.com and we'll sort it."),
         );
       }
       setNdaSent(Boolean(data.ndaSent));
@@ -110,7 +110,7 @@ export function ApplyForm() {
                   "We email your mutual NDA. Nothing connects until it's signed.",
                 ],
             ["After you sign", "Your sign-in and desk arrive the same day, with a 15-minute setup call to connect your calls. Your team changes nothing about how they answer the phone."],
-            ["Within days of calls flowing", "Missed cases start appearing on your desk — likely signable callers who walked — ready for your team to call back."],
+            ["Within days of calls flowing", "Missed cases start appearing on your desk, likely signable callers who walked, ready for your team to call back."],
           ].map(([when, what]) => (
             <li key={when} className="flex gap-3 text-sm">
               <span className="w-40 flex-none font-semibold text-ink">{when}</span>
@@ -125,7 +125,7 @@ export function ApplyForm() {
           </>
         ) : null}
         <p className="mt-2 text-sm text-faint">
-          While you wait: run the free Leak Audit on 10 of your calls —{" "}
+          While you wait: run the free Leak Audit on 10 of your calls,{" "}
           <Link href="/audit" className="font-medium text-accent hover:text-accent-hover">
             start it here
           </Link>

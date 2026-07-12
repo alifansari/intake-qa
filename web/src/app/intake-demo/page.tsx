@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { IntakeChat } from "./chat";
 
 export const metadata: Metadata = {
-  title: "Intake Agent Demo — Plaintiff Ops",
+  title: "Intake Agent Demo, Plaintiff Ops",
   description:
     "A demonstration of a compliant, consent-first intake chat agent for personal-injury firms.",
   robots: { index: false }, // internal demo — not for search engines
@@ -21,7 +21,7 @@ export default function IntakeDemoPage() {
         <div>
           <div className="eyebrow">Plaintiff Ops · Demonstration</div>
           <h1 className="font-display text-2xl font-bold text-ink">
-            Compliant intake agent — live demo
+            Compliant intake agent, live demo
           </h1>
         </div>
       </div>
@@ -29,7 +29,7 @@ export default function IntakeDemoPage() {
         This is a demonstration, not a law firm intake. It shows the pattern: disclosure and
         consent before anything else, one question at a time, contact captured early, and a
         structured record with a routing decision at the end. The agent gathers and schedules
-        only — it never evaluates a claim or gives advice.
+        only. It never evaluates a claim or gives advice.
       </p>
       <IntakeChat />
       <p className="mt-8 text-xs text-faint">

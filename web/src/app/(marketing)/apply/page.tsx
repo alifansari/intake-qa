@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ApplyForm } from "./apply-form";
 
 export const metadata: Metadata = {
-  title: "Apply for the beta — Intake QA",
+  title: "Apply for the beta, Intake QA",
   description:
     "Five founding California PI firms run the full desk free during the beta. Apply in under a minute.",
   alternates: { canonical: "/apply" },
@@ -21,14 +21,14 @@ export default function ApplyPage() {
       </h1>
       <p className="mt-5 text-lg text-ink-muted">
         Five California personal-injury firms run the full desk on their own calls, free during
-        the beta. Takes under a minute. What happens next: you get a mutual NDA by email —
-        nothing connects until it&apos;s signed — then we set you up personally.
+        the beta. Takes under a minute. What happens next: you get a mutual NDA by email,
+        nothing connects until it&apos;s signed, then we set you up personally.
       </p>
       <div className="mt-8">
         <ApplyForm />
       </div>
       <p className="mt-6 text-sm text-faint">
-        Not in California, or not personal injury? Apply anyway — you&apos;ll join the waitlist
+        Not in California, or not personal injury? Apply anyway. You&apos;ll join the waitlist
         for your practice area and hear from us when it opens. Prefer email?{" "}
         <a href="mailto:ali@plaintiffops.com" className="font-medium text-accent hover:text-accent-hover">
           ali@plaintiffops.com

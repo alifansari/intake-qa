@@ -31,7 +31,7 @@ export default async function WelcomePage({
           You&apos;re in.
         </h1>
         <p className="mt-5 max-w-[60ch] text-lg text-ink-muted">
-          Your Intake QA subscription is active. Check your email for your login link — one click
+          Your Intake QA subscription is active. Check your email for your login link. One click
           signs you in to your desk, no password needed.
         </p>
 
