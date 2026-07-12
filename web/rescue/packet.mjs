@@ -89,9 +89,11 @@ export async function buildDailyPacket({ db, firmId, date, now = new Date() }) {
   const valued = candidates.map((c) => ({
     ...c,
     est_value_cents: c.est_value_cents ?? avgFeeCents,
-    // TODO(analysis): wire analysis/sol.mjs deterministic deadline math to set
-    // days_to_sol per candidate; NULL means "no urgency signal", never a guess.
-    days_to_sol: c.days_to_sol ?? null,
+    // CRM-imported candidates carry a deterministic SOL estimate from their
+    // triage read (analysis/sol.mjs via rescue/triage.mjs, joined in
+    // listRescueCandidates). NULL means "no urgency signal", never a guess.
+    // TODO(analysis): run the same SOL pass for call-flow flags.
+    days_to_sol: c.days_to_sol ?? c.sol_days_remaining ?? null,
   }));
 
   const ranked = rankRescueCandidates(valued);

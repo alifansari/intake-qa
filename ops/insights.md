@@ -212,4 +212,19 @@ heartbeat; demo caller names/phones; beta-aware Settings/Billing; zero-call Call
 nudge toward 6 touches, 4–6pm callback-window hint, statute clock, coordinator
 "your wins" tally, engine v2 triage rubric (gated on attorney review).
 
+**CRM integration reality (2026-07-11, for the rescue layer):** Lead Docket is uniquely
+open — every firm can self-generate an API key (per-instance Swagger console at
+`{firm}.leaddocket.com/api/`), the API supports lead-status writes/notes/reassignment, and
+admin-configurable Webhook Rules fire on status changes (no partner program needed; this is
+how Smith.ai/Hona integrate). Statuses are firm-configurable; the "dead" pool = Chase
+sequence exhausted + Lost/Rejected/Referred. Litify = plain Salesforce objects (fully
+writable via a firm Connected App); Lawmatics + Law Ruler + Clio Grow have self-serve APIs.
+CloudLex has NO public API (closed integration list; Excel export only) — never promise
+write-back there. Lead Docket is NOT reachable via Filevine's API (separate key, separate
+API; the two sync natively). Comparable "dead-lead revival" vendors are cruder than us:
+CSV out → SMS blast → email replies; the integration bar to clear is low. v1 ladder
+shipped 2026-07-11: CSV in / tagged CSV out for every CRM; Lead Docket direct API is the
+first real write-back to propose for per-integration sign-off. (Full ladder + source URLs:
+`ops/drafts/rescue-crm-integration-ladder.md`.)
+
 <!-- New research insights go above this line, newest on top. -->

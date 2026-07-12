@@ -333,15 +333,23 @@ export async function setReviewItemState(
 // joined with their flag + call so the packet builder has prospect details.
 // This query is the ONLY road into a rescue packet, so invariant (d) (no flag
 // surfaces without human sign-off) holds by construction.
+//
+// The crm_leads LEFT JOIN carries the deterministic triage read (SOL days,
+// recoverability, value tier, gap) for flags that came in via a CRM dead-lead
+// import; call-flow flags get NULLs there and keep their existing defaults.
 export async function listRescueCandidates(db, firmId) {
   return all(
     db,
     `SELECT r.flag_id, r.confidence_tier, r.firm_id,
             f.qualification_score, f.reason, f.case_type,
-            c.caller_name, c.caller_phone, c.received_at, c.id AS call_id
+            c.caller_name, c.caller_phone, c.received_at, c.id AS call_id,
+            cl.sol_deadline, cl.sol_days_remaining, cl.recoverability,
+            cl.value_tier, cl.value_tier_basis, cl.gap_kind, cl.crm AS import_crm,
+            cl.external_lead_id
        FROM review_queue_items r
        JOIN flags f ON f.id = r.flag_id
        JOIN calls c ON c.id = f.call_id
+       LEFT JOIN crm_leads cl ON cl.flag_id = r.flag_id
       WHERE r.firm_id = ?
         AND r.state = 'confirmed'
         AND NOT EXISTS (SELECT 1 FROM rescue_packet_items pi WHERE pi.flag_id = r.flag_id)
@@ -470,6 +478,133 @@ export async function updateLedgerEntry(db, id, fields) {
       id,
     ]
   );
+}
+
+// Review queue rows joined with their flag + call + (when imported) crm_leads
+// provenance — what the analyst console renders. Same joins as
+// listRescueCandidates but for ANY state and without the packet exclusion.
+export async function listReviewQueueDetailed(db, firmId, state = "pending") {
+  return all(
+    db,
+    `SELECT r.id AS review_item_id, r.state, r.reviewer, r.reviewed_at, r.confidence_tier,
+            r.flag_id, f.reason, f.case_type,
+            c.caller_name, c.caller_phone, c.received_at,
+            cl.crm AS import_crm, cl.external_lead_id, cl.crm_status, cl.crm_substatus,
+            cl.gap_kind, cl.value_tier, cl.value_tier_basis,
+            cl.sol_deadline, cl.sol_days_remaining, cl.sol_urgency, cl.language
+       FROM review_queue_items r
+       JOIN flags f ON f.id = r.flag_id
+       JOIN calls c ON c.id = f.call_id
+       LEFT JOIN crm_leads cl ON cl.flag_id = r.flag_id
+      WHERE r.firm_id = ? AND r.state = ?
+      ORDER BY r.created_at`,
+    [firmId, state]
+  );
+}
+
+// --- 9. CRM dead-lead import (migration 0027 / supabase 0035) --------------------------
+
+export async function createImportBatch(db, b) {
+  return insert(
+    db,
+    `INSERT INTO crm_import_batches (firm_id, crm, filename, imported_by, rubric_version)
+     VALUES (?, ?, ?, ?, ?)`,
+    [b.firm_id, b.crm, b.filename ?? null, b.imported_by, b.rubric_version ?? null]
+  );
+}
+
+export async function finalizeImportBatch(db, batchId, counts) {
+  await run(
+    db,
+    `UPDATE crm_import_batches
+        SET row_count = ?, surfaced_count = ?, needs_info_count = ?,
+            screened_out_count = ?, skipped_count = ?
+      WHERE id = ?`,
+    [
+      counts.row_count ?? 0,
+      counts.surfaced_count ?? 0,
+      counts.needs_info_count ?? 0,
+      counts.screened_out_count ?? 0,
+      counts.skipped_count ?? 0,
+      batchId,
+    ]
+  );
+}
+
+export async function listImportBatches(db, firmId) {
+  return all(db, "SELECT * FROM crm_import_batches WHERE firm_id = ? ORDER BY created_at DESC", [firmId]);
+}
+
+export async function insertCrmLead(db, l) {
+  return insert(
+    db,
+    `INSERT INTO crm_leads
+       (batch_id, firm_id, crm, external_lead_id, prospect_name, prospect_phone,
+        prospect_email, case_type, incident_date, lead_created_at, last_contact_at,
+        crm_status, crm_substatus, attempts, language, notes, verdict, screen_reason,
+        gap_kind, gap_basis, value_tier, value_tier_basis, sol_deadline,
+        sol_days_remaining, sol_urgency, recoverability, rubric_version,
+        call_id, flag_id, raw)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      l.batch_id,
+      l.firm_id,
+      l.crm,
+      l.external_lead_id ?? null,
+      l.prospect_name ?? null,
+      l.prospect_phone ?? null,
+      l.prospect_email ?? null,
+      l.case_type ?? null,
+      l.incident_date ?? null,
+      l.lead_created_at ?? null,
+      l.last_contact_at ?? null,
+      l.crm_status ?? null,
+      l.crm_substatus ?? null,
+      l.attempts ?? null,
+      l.language ?? null,
+      l.notes ?? null,
+      l.verdict,
+      l.screen_reason ?? null,
+      l.gap_kind ?? null,
+      l.gap_basis ?? null,
+      l.value_tier ?? null,
+      l.value_tier_basis ?? null,
+      l.sol_deadline ?? null,
+      l.sol_days_remaining ?? null,
+      l.sol_urgency ?? null,
+      l.recoverability ?? null,
+      l.rubric_version,
+      l.call_id ?? null,
+      l.flag_id ?? null,
+      asJson(l.raw),
+    ]
+  );
+}
+
+export async function getCrmLeadByExternalId(db, firmId, crm, externalLeadId) {
+  return get(
+    db,
+    "SELECT * FROM crm_leads WHERE firm_id = ? AND crm = ? AND external_lead_id = ?",
+    [firmId, crm, externalLeadId]
+  );
+}
+
+export async function getCrmLeadByFlag(db, flagId) {
+  return get(db, "SELECT * FROM crm_leads WHERE flag_id = ?", [flagId]);
+}
+
+export async function listCrmLeads(db, firmId, { batchId = null, verdict = null } = {}) {
+  const where = ["firm_id = ?"];
+  const params = [firmId];
+  if (batchId != null) {
+    where.push("batch_id = ?");
+    params.push(batchId);
+  }
+  if (verdict != null) {
+    where.push("verdict = ?");
+    params.push(verdict);
+  }
+  return all(db, `SELECT * FROM crm_leads WHERE ${where.join(" AND ")} ORDER BY created_at`, params);
 }
 
 // --- 8. Callback audit + compliance config -------------------------------------------

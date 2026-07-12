@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/studio/firms", label: "Firms" },
   { href: "/studio/shops", label: "Mystery shops" },
   { href: "/studio/leads", label: "Leads" },
+  { href: "/studio/rescue", label: "Rescues" },
   { href: "/studio/escalations", label: "Urgent leads" },
   { href: "/studio/ledger", label: "Monthly results" },
   { href: "/studio/tuning", label: "Tuning" },

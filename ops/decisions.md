@@ -535,3 +535,46 @@ $5,000/§637.2 figures; /audit/sample CTA unified to CTA_PRIMARY.
 edits staged at `ops/drafts/letter-v1.4-proposed-edits.md`; nothing pushed/published.
 **Hypothesis:** closing the promise/click-through gap removes the top credibility break
 before the next LACBA wave. **Review:** at letter v1.4 decision.
+
+## 2026-07-11 — Rescue desk v2: the layer ABOVE the CRM cadence (dead-lead import shipped)
+**Change:** Built the CRM dead-lead rescue layer end-to-end and wired the previously
+dormant rescue conveyor (`web/rescue/`) into the app for the first time. New:
+`rescue/import.mjs` (CSV parse + alias header mapping for Lead Docket/CloudLex/Litify/
+Lawmatics/Law Ruler/Clio Grow exports), `rescue/triage.mjs` (deterministic merit triage —
+no LLM: screen-outs ONLY on legally-determinable facts per engine-v2 P0-2; value as a
+cited TIER never dollars; language = coverage gap never a merit input; honest nulls),
+`rescue/crm-export.mjs` (tagged "Rescued — Review" CSV back to the CRM), migrations
+0027/0035 (`crm_import_batches` + `crm_leads` sidecars; calls/flags untouched),
+`/studio/rescue` console + `/api/rescue/run` (founder-gated). Imported candidates enter
+the EXISTING conveyor: named human review → top-3 daily packet with callback scripts
+(now SOL-aware via the triage read) → RSQ ledger. Screened-out rows are kept with their
+reasons — the honest denominator behind "of your 40 dead leads, these 3 were live."
+**Positioning hypothesis:** don't compete with the cadence — sit upstream and aim it.
+The output lands back INSIDE their CRM (CSV now, Lead Docket API later), which makes
+Lead Docket more valuable instead of triggering a rip-and-replace fight; and the answer
+"did we lose a signable case, and why?" is one a CRM vendor structurally can't give
+(it indicts the workflow they sell). Same independence moat, pointed at the CRM.
+**Compliance posture:** no sends, no live CRM writes (mock connector + CSV only —
+live Lead Docket API is a per-integration §VII gate, see ROADMAP); statute dates carry
+the attorney-must-verify disclaimer; named humans required to import, confirm, and log
+callbacks; dollar figures appear nowhere (tier + basis only).
+**Expected effect:** the Leak Audit wedge gains a second entry point that needs NO call
+recordings or CallRail hookup — any firm can export a CSV in 5 minutes, which shortens
+time-to-first-value for beta firms and gives LACBA conversations a concrete artifact.
+**Review:** after the first real firm export runs through it (beta week of 7/14).
+
+## 2026-07-11 — Copy audit SHIPPED to origin/main (9f379fc)
+**Change:** both copy-audit commits pushed to production: ed70721 (P0/P1: error-rate
+promise corrected sitewide, $284/lead stat replaces broken $468, sample projection
+replaced with the refusal, 400% stat quarantined, retention/attestation/§632/CTA
+consistency) and 9f379fc (letter v1.4 with Ali's approval: all five error-rate
+references now bind to a corpus-gated published rate, letter.txt mirror synced,
+changelog + version bumped; P2 pass: prospects→callers sitewide, "Setup is on us"
+concierge H1, stake line out of the cohort banner, OG headline unblamed, stat-bar
+reading key, ROI tones "If you win back 1 in 5 / 2 in 5" with labeled assumptions,
+lead win-back wording, named phone systems on how-it-works). Zero em dashes in all
+new copy per Ali. Verified: clean isolated build + 15/15 and 14/15→15/15 render checks.
+**Note:** local tree carries another session's in-progress rescue-desk work (untracked
+web/src/app/api/rescue/ has a type error at route.ts:118) — NOT shipped, needs fixing
+before that session ships.
+**Review:** watch the Vercel deploy of 9f379fc.
