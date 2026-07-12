@@ -25,6 +25,7 @@ export type Leak = {
   feeRange: string | null;
   citationCount: number;
   reason: string | null;
+  quote: string | null; // one transcript-validated verbatim line ("no citation, no claim")
   phone: string | null;
   saveStatus: string | null; // canonical key from flag_status
 };
@@ -124,6 +125,19 @@ export function LeakCard({ leak, firmName }: { leak: Leak; firmName?: string }) 
       </div>
 
       {leak.reason ? <p className="mt-2 text-sm text-ink-muted">{leak.reason}</p> : null}
+
+      {/* One transcript-validated verbatim line. Turns an arguable tier into
+          self-evident evidence: a coordinator argues with "Strong flag" but not
+          with the words on the call. Only VALIDATED snippets reach here (the query
+          returns status='passed' only), so this never claims what wasn't said.
+          Framed "From the call" — the schema doesn't store the speaker, so we don't
+          assert it was the caller. */}
+      {leak.quote ? (
+        <p className="mt-2 border-l-2 border-hairline pl-3 text-sm italic text-ink">
+          <span className="mr-1 text-xs font-semibold not-italic text-ink-muted">From the call:</span>
+          &ldquo;{leak.quote.length > 200 ? `${leak.quote.slice(0, 200).trimEnd()}…` : leak.quote}&rdquo;
+        </p>
+      ) : null}
 
       <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
         {leak.feeRange ? (

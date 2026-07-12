@@ -93,6 +93,18 @@ test("zero-miss day still produces a digest with the all-clear subject", () => {
   assert.match(digestSubject(d), /14 calls read, all handled/);
 });
 
+test("empty-FIRST-digest (0 calls scored yet) says connected/listening, never a false all-clear", () => {
+  const d = buildMissedDigest({ firm: FIRM, flags: [], callsReceived: 0 });
+  assert.equal(d.missCount, 0);
+  assert.equal(d.callsReceived, 0);
+  // Subject must not claim "0 calls read, all handled" — that reads as broken.
+  assert.doesNotMatch(digestSubject(d), /read, all handled/);
+  assert.match(digestSubject(d), /connected|listening/i);
+  const html = renderMissedDigest(d, { appUrl: "https://x.test", env: ENV });
+  assert.match(html, /listening/i);
+  assert.doesNotMatch(html, /accounted for/); // the established-firm all-clear copy
+});
+
 test("render includes tel: link and signed confirm link; no PII in the URL", () => {
   const d = buildMissedDigest({ firm: FIRM, flags: FLAGS });
   const html = renderMissedDigest(d, { appUrl: "https://x.test", env: ENV });

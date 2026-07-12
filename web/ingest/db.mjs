@@ -1294,7 +1294,14 @@ export function listLeakedFlags(db, firmId) {
       `SELECT f.id, f.call_id, f.qualification_score, f.reason, f.case_type,
               c.caller_name, c.caller_phone, c.received_at,
               fc.confidence_tier, fs.status AS save_status,
-              (SELECT COUNT(*) FROM transcript_citations tc WHERE tc.flag_id = f.id) AS citation_count
+              (SELECT COUNT(*) FROM transcript_citations tc WHERE tc.flag_id = f.id) AS citation_count,
+              -- One VALIDATED verbatim line for the queue card (no citation, no claim §IV):
+              -- only status='passed' snippets are confirmed against the transcript; prefer the
+              -- qualifying fact, then the earliest moment. NULL when nothing passed the guard.
+              (SELECT tc.verbatim_snippet FROM transcript_citations tc
+                 WHERE tc.flag_id = f.id AND tc.status = 'passed'
+                 ORDER BY (tc.fact_kind = 'qualifying_fact') DESC, tc.start_ms
+                 LIMIT 1) AS evidence_quote
          FROM flags f
          JOIN calls c ON c.id = f.call_id
          LEFT JOIN flag_confidence fc ON fc.flag_id = f.id

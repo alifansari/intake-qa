@@ -35,7 +35,7 @@ export function ReadoutDoc({ d }: { d: DocData }) {
           across {channels.join(" / ")}. {d.reconciliation.processed} calls were analyzed; the remainder are
           accounted for in the reconciliation table on the last page.
         </Text>
-        <Text style={S.metaLine}>Prepared by Intake QA · Independent Recovery Desk</Text>
+        <Text style={S.metaLine}>Prepared by Intake QA · Independent Intake Desk</Text>
         <Text style={S.metaLine}>Readout No. {id}</Text>
 
         {/* Findings, most severe first */}

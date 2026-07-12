@@ -18,18 +18,19 @@ import {
   STAT_ANSWER_RATE,
   STAT_LA_HISPANIC,
   STAT_WEBRIS_DISTRUST,
+  FOUR_FAILURE_MODES,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "Intake QA: the independent recovery desk for PI firms",
+  title: "Intake QA: the independent intake desk for PI firms",
   description:
-    "We read your firm's intake calls, find the signable cases that walked, and show you what they cost — for a flat fee, never a share. Start with a free Leak Audit of 10 calls.",
+    "We read your firm's intake calls, find the signable cases that walked, and show you what they cost, for a flat fee, never a share. Start with a free Leak Audit of 10 calls.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Find the signable cases that walked out of your intake.",
+    title: "See the signable cases that walked out of your intake.",
     description:
       "The independent desk that checks every intake call against what actually got signed. Free Leak Audit of 10 calls; you keep the report.",
-    images: ["/og?title=The+independent+recovery+desk"],
+    images: ["/og?title=The+independent+intake+desk"],
   },
 };
 
@@ -97,15 +98,16 @@ export default function HomePage() {
     <>
       {/* HERO: what it is, what it costs you not to know, what to do next. */}
       <Section className="pt-16 pb-12 sm:pt-24">
-        <p className="eyebrow">The independent recovery desk for personal injury firms</p>
+        <p className="eyebrow">The independent intake desk for personal injury firms</p>
         <h1 className="mt-3 max-w-[22ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
-          Find the signable cases that walked out of your intake &mdash; and what they cost you.
+          See the signable cases that walked out of your intake, and what they cost you.
         </h1>
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
-          We read your firm&apos;s recorded intake calls, flag the qualified callers who never
-          signed, and put a dollar figure on the misses &mdash; independently, for a flat fee,
-          never a share of anything. Start with a free audit of 10 calls.{" "}
-          <em>&ldquo;{STAKE_LINE}&rdquo; &mdash; Ali, founder</em>
+          We read your firm&apos;s recorded intake calls, flag the callers our analysis marks as
+          signable who never signed, and put an estimated dollar figure on the misses.
+          Independently, for a flat fee, never a share of anything. Start with a free audit of 10
+          calls.{" "}
+          <em>&ldquo;{STAKE_LINE}&rdquo; Ali, founder</em>
         </p>
         <div className="mt-8">
           <CTA />
@@ -135,7 +137,7 @@ export default function HomePage() {
           <SampleStatement />
         </div>
         <p className="mt-3 text-xs text-faint">
-          Page one of a sample Missed-Revenue Statement — the monthly document the desk produces.
+          Page one of a sample Missed-Revenue Statement, the monthly document the desk produces.
           Figures are illustrative and names are redacted; yours is built from your calls.
         </p>
       </Section>
@@ -181,9 +183,45 @@ export default function HomePage() {
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
             {INDEPENDENCE_LINE} We have no stake in the answer. We&apos;re paid the same flat fee no
-            matter what we find. That independence is the whole point: a QA function that grades the
-            people it reports on isn&apos;t a QA function.
+            matter what we find, whether that is nothing or a fortune. That independence is the
+            whole point: a QA function that grades the people it reports on isn&apos;t a QA function.
           </p>
+        </div>
+
+        {/* Independence comparison table — the show-me object for a math buyer. */}
+        <div className="mt-10 overflow-x-auto">
+          <table className="w-full min-w-[36rem] border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-line-strong text-left">
+                <th className="py-3 pr-4 font-normal text-ink-muted"></th>
+                <th className="px-3 py-3 text-center font-medium text-ink-muted">AI receptionist</th>
+                <th className="px-3 py-3 text-center font-medium text-ink-muted">Your agency</th>
+                <th className="px-3 py-3 text-center font-medium text-ink-muted">Your staff</th>
+                <th className="px-3 py-3 text-center font-semibold text-ink">Intake QA</th>
+              </tr>
+            </thead>
+            <tbody className="text-ink">
+              {[
+                ["Grades its own work?", true, true, true, false],
+                ["Scores calls it didn't answer?", false, false, false, true],
+                ["Reconciles against who actually signed?", false, false, false, true],
+                ["Paid the same no matter what it finds?", false, false, false, true],
+              ].map(([label, a, b, c, iq]) => (
+                <tr key={label as string} className="border-b border-hairline">
+                  <td className="py-3 pr-4 text-ink-muted">{label}</td>
+                  {[a, b, c].map((v, i) => (
+                    <td key={i} className="px-3 py-3 text-center text-faint">
+                      {v ? "Yes" : "No"}
+                    </td>
+                  ))}
+                  <td className="bg-surface px-3 py-3 text-center font-semibold text-ink">
+                    {iq ? "Yes" : "No"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="mt-3 max-w-[70ch] text-sm text-ink-muted">{FOUR_FAILURE_MODES}</p>
         </div>
       </Section>
 

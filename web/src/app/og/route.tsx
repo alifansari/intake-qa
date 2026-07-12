@@ -30,7 +30,7 @@ export async function GET(req: Request) {
           {title}
         </div>
         <div style={{ fontSize: 28, color: "#5B6270" }}>
-          The independent recovery desk for personal injury firms
+          The independent intake desk for personal injury firms
         </div>
       </div>
     ),

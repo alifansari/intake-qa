@@ -102,6 +102,7 @@ export default async function QueuePage() {
         feeRange: fee ? fmtMoneyRange(fee.lowCents, fee.highCents) : null,
         citationCount: Number(f.citation_count ?? 0),
         reason: f.reason ?? null,
+        quote: f.evidence_quote ?? null,
         phone: f.caller_phone ?? null,
         saveStatus: f.save_status ?? null,
       });

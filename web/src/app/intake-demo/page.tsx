@@ -33,7 +33,7 @@ export default function IntakeDemoPage() {
       </p>
       <IntakeChat />
       <p className="mt-8 text-xs text-faint">
-        Part of Intake QA, the independent recovery desk.{" "}
+        Part of Intake QA, the independent intake desk.{" "}
         <a href="/demo" className="underline hover:text-ink">See a call get scored</a> ·{" "}
         <a href="/audit" className="underline hover:text-ink">Get your free Leak Audit</a> ·{" "}
         <a href="/" className="underline hover:text-ink">Home</a>

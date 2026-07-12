@@ -19,8 +19,17 @@
 
 - **Flat monthly pricing, never outcome-tied** (Rule 5.4 / B&P §§6151–6152 / SB 37). Core ~$2,500,
   Pro ~$5,000. A per-case pricing defect was found live and corrected — it must never return.
-- **Positioning: independent recovery desk / independent scorer**, Ali as "Analyst of Record,"
-  not a fee participant.
+- **Positioning: independent intake desk / independent scorer**, Ali as "Analyst of Record,"
+  not a fee participant. (Renamed from "independent recovery desk" 2026-07-12 to drop the §I
+  fee-participation optics of "recovery"; the compliance negations "never a share of any
+  recovery" are load-bearing and unchanged.)
+- **Scorer -> Closer is a SEQUENCE, not a switch** (2026-07-12): the independent scorer is the
+  wedge (free audit, low regulatory downside, best trust-fit); the bilingual voice "closer" is
+  a later, supervised, human-approved EXPANSION act sold only to already-trusting firms on their
+  own proven leak, never the hero, never "empathetic AI," and its per-signed-case pricing must
+  clear Yang against §I first. Falsifiable resequencing trigger: if beta firms take the free
+  audit and audit->paid stalls at the "great, now what?" gap, the scorer is under-delivering on
+  the emotion it manufactures and the closer moves up.
 - **Wedge: free Leak Audit** leads every outreach.
 - **Owned newsletter + LinkedIn are the primary distribution rails**; Dream 25 dimensional mailer
   replaced the 150-firm generic blast.
@@ -30,6 +39,35 @@
   attestation block.
 
 ---
+
+## 2026-07-12 — Copy Power Pass (2-round research + 3 adversarial red-teams)  ·  agent: main session · lane: website
+- **Change:** Staged `ops/drafts/copy-power-pass-2026-07-12.md`. Two research rounds (6 deep-research
+  streams + 3 red-teams: CA-ethics, skeptical-partner, gap-strategist). Net recommendations, all
+  staged for Ali: (1) positioning is a **scorer -> closer SEQUENCE** (scorer = wedge; closer =
+  sequenced supervised expansion, Yang must clear §I pricing first), not a switch to voice; (2) real
+  funnel leverage is **/audit uploader confidentiality copy + the kept report + the letter's open**,
+  not the homepage hero; (3) **kill the "thirty years / these calls" adversary hero** (false
+  antecedent + uncited + surveillance optics — both red-teams converged) → compliant rewrite
+  "The insurance side has scored injury claims with software for decades…"; (4) ship de-dashed Hero A;
+  (5) build the independence comparison table + four-failure-mode reason-why; (6) fix "why month six
+  exists" (standing instrument, not recurring bad news); (7) compliance fixes: reconcile $284 vs
+  $131.63 CPL, kill "gone for good," M&M sanction = internal-only, lock "responds *helpfully*,"
+  "that lead" → cases; (8) recommend renaming away from "recovery" → "independent intake desk";
+  (9) route the "I charge nothing until…" sub-quote to Yang for fee-optics.
+- **Hypothesis:** Sharper on-identity frames + fixing the highest-abandonment step (upload) + a
+  forwardable proof artifact lift audit-start and audit→paid more than hero polish does.
+- **Expected effect:** Leak Audits started + audit→beta conversion; no numeric target pre-cohort.
+- **Status:** BUILT in working tree, pending Ali deploy (crosses §VII). Ali-approved on 2026-07-12:
+  scorer->closer sequence + trigger adopted; de-dashed Hero A shipped; "recovery"->"intake desk"
+  rename applied sitewide (public labels + PDFs + SEO/OG); /audit uploader confidentiality+
+  independence block, homepage independence comparison table, and four-failure-mode reason-why
+  built; MONTH_6 reframed to the standing-instrument framing; hero subhead made §IV-safe
+  ("estimated", "callers our analysis marks as signable"). NOT deployed by agent. Still open:
+  the adversary hero rewrite (Yang, not in this batch), the `/letter` still says "recovery desk"
+  and defends the word (needs a version-bump edit + sign-off), the full-site em-dash sweep beyond
+  the homepage hero, and confirming the exact Clio source before adding the 40%/79% StatBar pair.
+- **Review date:** 2026-08-15
+- **Result:** (pending)
 
 ## 2026-07-10 — Engine-v2 Wave 10: LACBA piece QC-cleared ×2 + channel verdict  ·  agent: main session · lane: outreach
 - **Change:** QC pass #2 on the five-questions piece (verdict → fixes applied → **CLEARED FOR
@@ -578,3 +616,108 @@ new copy per Ali. Verified: clean isolated build + 15/15 and 14/15→15/15 rende
 web/src/app/api/rescue/ has a type error at route.ts:118) — NOT shipped, needs fixing
 before that session ships.
 **Review:** watch the Vercel deploy of 9f379fc.
+
+## 2026-07-12 — Engine v2 triage research Rounds 1–2 (STAGED, engine frozen)
+**Change:** two-round deep-research pass (~47 subagents, web-grounded + adversarially
+verified) upgrading the frozen `scoring-v2/` triage engine. Seven new drafts staged in
+`ops/drafts/`: engine-v2-R1R2-INDEX (start here), -delta-and-open-questions,
+-legal-currency-audit, -casetype-signal-library, -base-rate-priors, -dimension-anchors-v2,
+-r2-corrections-and-additions. **Engine left FROZEN** (CLAUDE.md contract) — all proposals,
+no code touched; `scoring/` and `scoring-v2/` unchanged.
+**Hypothesis:** the v2 architecture is right; the gap was (1) statutory currency, (2) missing
+extraction facts competitors capture, (3) a net-recovery lien model, (4) case-type coverage,
+(5) a DEVELOP action conveyor — all additive within the compliance rails.
+**Key verified corrections (primary-source, 7 CONFIRMED / 3 fixed / 0 fabricated):** auto
+minimums now 30/60/15 (SB 1107); MICRA $470k/$650k 2026 year-of-resolution, economic uncapped,
+3-cap stacking (AB 35); limited-civil $35k via **SB 71 not AB 2347**; rideshare passenger
+UM/UIM cut to $60k/$300k for 2026 crashes (SB 371); survival p&s SUNSET for 2026 filings
+(CCP 377.34 — LIVE now, elder-abuse excepted); freight-broker negligent-selection settled
+nationwide (Montgomery v. Caribe Transport II, SCOTUS 5/14/2026); Audish future-medical
+discount (published, review denied); elder-abuse survival cap = $470k not $250k.
+**Expected effect:** a shippable v2.1 config/schema delta list; corrects value math that would
+mis-tier every affected case. Biggest structural edge = re-spec G1 Underwater on projected NET
+after statutory lien reduction (nobody else models it).
+**Research ceiling reached:** remaining gains (strong/adequate/thin cut-points, value-tier
+dollar bands, hours-per-case, per-field on-call observability, ASR/language parity) require
+real transcripts + attorney labels + the firm flywheel — EXECUTION, not more research.
+Recommended path unchanged: merge branch inactive + shadow mode; route open questions to Yang.
+**Review:** when Ali makes the freeze-lift/shadow-mode decision and a PI attorney reviews the
+open-questions lists (delta §4 + r2 §3).
+
+## 2026-07-12 — Intake-simplicity research + P0 fixes (SHIPPED backend / STAGED public)
+**Change:** two deep-research rounds (39 subagents, ~1.75M tokens) + 3 codebase-grounding
+agents on "make intake ops/UI/usage as simple + effective as attorneys want." Decision brief
+staged at `ops/drafts/intake-simplicity-research-brief-2026-07-12.md` (with a §6 stat-hygiene
+kill-ledger). Then acted on the P0s:
+- **SHIPPED (backend, internal):** empty-FIRST-digest fix in `web/messaging/missed-digest.mjs`
+  — when `callsReceived === 0` (new firm, webhook just connected, nothing scored yet) the digest
+  now says "you're connected; we're listening" instead of the false "0 calls read, all handled".
+  New test added; **12/12 missed-digest tests pass, `tsc --noEmit` clean.**
+- **SHIPPED (compliance guards):** added KILL-LIST guard constants to `web/src/lib/site-constants.ts`
+  (Spanish-lift %s, 79%/391% first-lawyer, LPL-carrier AI %s) — never-render landmines matching the
+  existing REFUTED pattern, so the voice/bilingual pivot copy can't reintroduce them.
+- **STAGED for Ali (public copy, §VII):** removed the false "a BAA is available" promise from
+  `BETA_CONDITIONS` in site-constants (no BAA doc exists; PI firms generally aren't HIPAA covered
+  entities). Same fix still pending in `ops/drafts/lacba-beta-post.md`. **Do not deploy until Ali
+  reviews.**
+- **STAGED for Ali + Yang:** `ops/drafts/closer-book-human-default-decision-2026-07-12.md` — re-scope
+  the pivot to a book-human-DEFAULT instrumented qualifier; keep voice behind existing off-gates;
+  route privilege/consent/UPL questions to Yang before any go-live.
+**Verified-already-done (no change needed, reported honestly):** digest link GET/POST split +
+no-PII tokens + firm-scoping (P0-1/P0-5) already correct in `digest-links.mjs`/`digest/confirm`;
+score already suppressed on the queue with action-labeled tiers (`LeakCard.tsx`); a plain-English
+trust page already lives at `/security` (P0-4). P0-6 "one verbatim caller-quote line on the queue"
+is a real P1 (needs a citation string plumbed from the server) — not yet done.
+**Hypothesis:** the attorney daily surface is already near-best; the leverage is onboarding + trust
++ digest/queue plumbing, and positioning around always-answers/never-quits/their-language rather
+than "answered in seconds" (commoditized).
+**Expected effect:** removes a false all-clear that would read as broken on day 1 (activation +
+month-1-SLG-retention risk); closes a false compliance claim; prevents bad stats entering pivot copy.
+**Review:** Ali to approve the BAA copy removal + the closer decision; then audit `/security` against
+the 4 trust questions and decide the P0-6 evidence-line P1.
+
+## 2026-07-12 — Engine v2.2 triage deltas BUILT (branch, additive, nothing activated)
+**Change:** implemented the R1/R2 research deltas into the v2 code layer on branch
+`feature/scoring-v2.1-triage-deltas` (off feature/scoring-v2), commit a42df38. v1 `scoring/`
+BYTE-IDENTICAL (untouched); nothing activated in the live pipeline. 6 new pure modules
+(statutes, liens, casetypes, develop-actions, observability, priors) + integration into
+gates/decision-table/validate/score-v2 + additive prompt STEP 1B (12 optional facts + Spanish
+lexicon/false-friend guard) + PART B config knobs. 145/145 unit tests pass.
+**Hypothesis:** the five additive areas (statutory currency; competitor-parity extraction facts;
+projected-net lien model; case-type coverage; DEVELOP action conveyor) + gaps (base-rate prior,
+on-call observability, Spanish capture) raise triage accuracy without touching the architecture
+or the rails. New facts OPTIONAL → absent = unknown = develop; a new fact can never wrongly decline.
+**Verified 2026 law baked into statutes.mjs:** auto 30/60/15 (SB 1107); MICRA $470k/$650k
+year-of-resolution (AB 35); limited-civil $35k via SB 71 (not AB 2347); rideshare $60k/$300k
+passenger UM/UIM for 2026 crashes (SB 371); survival economic-only for 2026 filings (CCP 377.34);
+FMCSA floors. Amounts drive TIER reasoning only, never emitted at intake.
+**ACTIVATION GATE (unchanged, Ali-only):** prompt gained STEP 1B = calibration change → full gold
+regeneration + v1-vs-v2 rerun + QWK/recall validation REQUIRED before activation. Merge-inactive +
+shadow mode still the recommended path. Review: `git checkout feature/scoring-v2.1-triage-deltas
+&& node --test scoring-v2/test/*.test.mjs`; read scoring-v2/CHANGELOG-v2.2.md.
+**Review:** Ali freeze-lift decision + PI-attorney/Yang review of the open-questions lists.
+
+## 2026-07-12 — ALI DECISIONS LOCKED: pricing / per-signed-case / Spanish / provider terms  ·  agent: session (Ali sign-off) · lane: pricing + product (§VII)
+Resolves the four open Ali-only gates ahead of the 2026-07-14 beta. Recorded by Ali directly.
+
+- **3a — PRICING: Table C, LOCKED.** List price Core **$2,500/mo**, Pro **$5,000/mo**; **Founding
+  Cohort $1,500/mo (Core scope)**, first 10 paying firms only, locked 12 months from first invoice,
+  always stated as a time-limited founding discount FROM the $2,500 list price, never as "the price."
+  Flat monthly only; never per-case, per-signed-case, per-settlement, or any recovery-tied variable.
+  This closes the three-way split (see 2026-07-10 BLOCKED-ON-ALI entry above). The exact §I first-bullet
+  replacement text is staged in `ops/drafts/pricing-decision-brief.md` §5; the *number* is decided here,
+  the fee-structure *wording* still takes Yang's warm pass (Yang packet Item 1) before it ships public.
+  Beta itself ships pricing-removed, so this is not a Monday-launch blocker — it unblocks CR-B
+  measurement + the Charter offer + every founding quote.
+- **3b — Intake-Closer per-signed-case mode: KILLED for the beta.** The staged pivot's per-signed-case
+  pricing contradicts the §I "never outcome-tied, ever" promise; we cannot hold both. Flat-subscription
+  default stands. Per-signed-case mode is off.
+- **3c — Spanish: ENGLISH-ONLY framing shipped.** The frozen scorer is English-calibrated with no
+  Spanish four-fifths validation. We make NO public claim of validated Spanish scoring (already true in
+  copy). The non-English → founder-review language gate is deferred to post-beta. No Spanish-heavy firm
+  onboards until that gate is built.
+- **4a — Provider data terms: standard-terms beta, recorded not defaulted.** Beta runs on Anthropic
+  (7-day retention, NO ZDR) and AssemblyAI standard terms until signed no-training/ZDR versions land.
+  Public copy claims no ZDR (already enforced). Signed provider terms to follow post-launch.
+**Review:** Yang warm pass on the §I fee-structure wording (Item 1) before any public price; provider
+signed terms to replace the standard-terms line when they land.

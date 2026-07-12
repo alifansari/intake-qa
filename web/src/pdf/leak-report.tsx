@@ -134,7 +134,7 @@ export function LeakReportDoc({ model }: { model: Model }) {
         <Text style={S.h1}>Intake Leak Report</Text>
         <Text style={{ ...S.serif, fontSize: 13, marginTop: 2 }}>{m.meta.firmName}</Text>
         <Text style={S.metaLine}>{m.meta.periodLabel} · Report No. {m.meta.reportId}</Text>
-        <Text style={S.metaLine}>Prepared by Intake QA · Independent Recovery Desk · Analyst of record: {m.meta.analystName}</Text>
+        <Text style={S.metaLine}>Prepared by Intake QA · Independent Intake Desk · Analyst of record: {m.meta.analystName}</Text>
 
         {/* Page-one BLUF: three numbers */}
         <View style={S.section}>

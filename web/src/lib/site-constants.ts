@@ -11,12 +11,20 @@
 //
 // ROUND 4 (v3 report): the Leak Audit is FREE again (no $500/credit); the
 // guarantee is a $25k find-it-free / first-month-free structure; positioning is
-// "the independent recovery desk" (service with software inside, Ali as analyst
+// "the independent intake desk" (service with software inside, Ali as analyst
 // of record); the "Case Acquisition Intelligence" category is staged DOWN to a
 // supporting phrase, not a hero-level claim.
+//
+// RENAME (2026-07-12, Ali-approved, copy-power-pass): the category label moved
+// from "the independent recovery desk" to "the independent intake desk". Reason:
+// to a CA plaintiff lawyer "recovery" primarily means the CLIENT's recovery, so
+// the old label carried avoidable §I fee-participation optics and forced the
+// letter to burn a paragraph defusing it. The compliance NEGATIONS that use the
+// word "recovery" to mean the client's settlement ("never a share of any
+// recovery") are LOAD-BEARING and deliberately left unchanged.
 
-// ─── Positioning: the independent recovery desk ──────────────────────────────
-export const DESK_NAME = "the independent recovery desk";
+// ─── Positioning: the independent intake desk ────────────────────────────────
+export const DESK_NAME = "the independent intake desk";
 // Certified forwardable Independence Statement (Round 7 Gold iii). Use verbatim.
 export const INDEPENDENCE_STATEMENT =
   "Intake QA is an independent quality-control service that scores a PI firm's own intake calls, flags signable cases that slipped, and hands the firm a compliant way to follow up, for a flat monthly fee that never varies with any recovery. We take no referral fees and no contingent compensation.";
@@ -80,6 +88,12 @@ export const WHO_DOES_THE_WORK =
 export const WHAT_WE_DO =
   "We measure what happens to a signable case after the phone rings: which qualified callers didn't sign, across every channel, and what that walked-away fee revenue is worth.";
 
+// The named "reason why" (copy-power-pass 2026-07-12): the four transcript-
+// observable failure modes. Actuarial, not vibes; blames the process, not a
+// person (matches CHAMPION_LINE). Directional, carries no stat.
+export const FOUR_FAILURE_MODES =
+  "A signable case walks for one of four reasons: the caller reached voicemail, the injury question never got asked, the callback came a day late, or a Spanish-speaking caller hit an English wall. We tell you which one, per case.";
+
 // ─── The Leak Audit offer (FREE) ─────────────────────────────────────────────
 // ONE public wedge name sitewide: the "Leak Audit". (The internal "10-Call
 // Autopsy" is the same thing — public copy always says "Leak Audit".)
@@ -138,8 +152,15 @@ export const BETA_FREE_LINE = "Free during the beta. Founding testers lock in pr
 export const BETA_WHO_LINE =
   "Intake QA is in a working beta with a small founding cohort of California personal-injury firms. Testers run it on their own recorded intake calls and pay nothing.";
 // The three conditions, spelled out (what the beta asks of a tester).
+// NOTE (2026-07-12, staged for Ali): the BAA-availability clause was removed —
+// no BAA document exists in the repo yet, so promising one is a false claim
+// (compliance-invariants §V). A plaintiff PI firm representing injured people is
+// generally NOT a HIPAA covered entity, so a BAA is likely the wrong LEAD artifact
+// anyway (the NDA + DPA carry the real confidentiality weight, under Rule 1.6/1.18).
+// Restore a BAA line ONLY once the executed template exists, and offer it on request
+// rather than advertising it. Same fix pending in ops/drafts/lacba-beta-post.md.
 export const BETA_CONDITIONS: string[] = [
-  "Sign a mutual NDA. Your calls and our beta stay confidential in both directions; a BAA is available for firms that want one.",
+  "Sign a mutual NDA. Your calls and our beta stay confidential in both directions.",
   "Connect your phone system or upload a sample of your recorded intake calls. That's the material we analyze; setup is measured in hours, not weeks.",
   "Give structured feedback on user experience and utility after each report you receive: were the flagged cases genuinely signable, was the diagnosis right, would you pay for this.",
 ];
@@ -244,6 +265,32 @@ export const STAT_LA_HISPANIC = {
   source: "U.S. Census Bureau, 2020 Census redistricting data",
 };
 
+// ─── KILL-LIST guards (deep-research verification, 2026-07-12) ────────────────
+// These figures FAILED adversarial verification (circular vendor-laundered or
+// mis-attributed) and must NEVER render, especially as the voice/bilingual pivot
+// copy gets written. Kept as named landmines so nobody re-adds them from memory.
+// Full ledger + the SAFE substitutes: ops/drafts/intake-simplicity-research-brief-2026-07-12.md §6.
+export const STAT_SPANISH_LIFT_UNVERIFIED_DO_NOT_RENDER = {
+  values: ["40% more likely to retain", "15-25% vs 10-18% conversion", "<12% of firms bilingual", "95% capture"],
+  label: "Spanish-intake lift figures — all trace to intake-vendor blogs cross-citing each other; no primary source",
+  useInstead:
+    "ACS: ~16-18M limited-English Spanish speakers in the US; CSA Research 'Can't Read, Won't Buy' — the demand is real; the specific % lift is not measured yet (make it the beta's instrumented metric).",
+  source: "REFUTED in verification, never cite",
+};
+export const STAT_FIRST_LAWYER_MISATTRIBUTED_DO_NOT_RENDER = {
+  values: ["79% (general)", "391% (Velocify)"],
+  label: "'first to respond wins' multipliers — mis-attributed / non-legal lineage",
+  useInstead: "FindLaw's ~78% hire the first lawyer they actually speak with (legal-specific) is the defensible version.",
+  source: "REFUTED in verification, never cite the 79%/391%",
+};
+export const STAT_LPL_CARRIER_AI_UNVERIFIED_DO_NOT_RENDER = {
+  values: ["60%+ of LPL carriers ask about AI", "CNA's five AI questions"],
+  label: "malpractice-carrier AI-diligence stats — circular ecosystem, no primary CNA document locatable",
+  useInstead:
+    "Frame the Vendor Due-Diligence File as governance-ready without claiming carriers demonstrably demand it. The verified hook is Rule 1.18 confidentiality of prospective-client info (Cal. Formal Op. 2021-205).",
+  source: "UNVERIFIED, do not put the % on any customer-facing page",
+};
+
 // ─── Calibration / test corpus ───
 // Ali's call (July 2026): keep precision/recall HIDDEN until we can publish them
 // with a named, documented corpus (N, composition, date). Never a bare percentage.
@@ -271,7 +318,7 @@ export const CONFIDENCE_TIERS_NOTE =
 // ─── What months 2–12 look like (retention story; STATUS-FLAGGED) ────────────
 // Presentation-only vs new-build must be labeled. Never market vaporware.
 export const MONTH_6_INTRO =
-  "The first audit finds the biggest leaks. After that, the desk becomes your standing intake QA function: every month your statement shows whether the leak is shrinking, your intake team gets credit for the improvement, and new leaks get caught as your marketing and staffing change.";
+  "The first audit finds the biggest leaks. After that, the desk becomes the one number on your intake that isn't self-graded: an independent monthly scorecard your intake manager is measured against, the way you'd never drop your malpractice carrier. Every statement shows whether the leak is shrinking, your team gets credit for the improvement, and new leaks get caught as your marketing and staffing change.";
 export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = [
   {
     title: "A statement that trends over time",

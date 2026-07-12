@@ -155,7 +155,7 @@ export default function AuditUploaderPage() {
       <MarketingNav />
       <main className="mx-auto max-w-3xl px-6 py-12">
       <div className="mb-8">
-        <p className="eyebrow">The independent recovery desk · Leak Audit</p>
+        <p className="eyebrow">The independent intake desk · Leak Audit</p>
         <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance">
           Your free Leak Audit
         </h1>
@@ -258,15 +258,24 @@ export default function AuditUploaderPage() {
             </ul>
           </details>
 
-          {/* De-risk block: the deal, in plain terms */}
+          {/* De-risk block: the deal, in plain terms. The confidentiality +
+              independence pairing is welded here because this is the highest-
+              friction moment in the funnel (a lawyer handing over confidential
+              client audio). copy-power-pass 2026-07-12. */}
           <div className="rounded-card border border-hairline bg-surface p-5">
             <p className="text-sm font-semibold text-ink">Here&apos;s the deal, in plain terms</p>
+            <p className="mt-2 text-sm font-medium text-ink">
+              An outside read on your intake, from a desk paid the same flat fee whether it finds you
+              nothing or a fortune. Your recordings never train anyone&apos;s AI. An NDA, and a BAA if
+              you want one, are available before you send a single file.
+            </p>
             <p className="mt-2 text-sm text-ink-muted">
               You send up to 10 recorded intake calls. We score them and show you, in dollars, how
-              much signable fee revenue didn&apos;t convert, with the evidence behind every flag. Your
-              recordings and transcripts are purged within {DELETION_HOURS} hours of your readout, and
-              immediately if you ask in writing. Nothing is ever texted to anyone. One person is
-              accountable for your data and your audit: {FOUNDER_NAME}, founder of Intake QA,{" "}
+              much signable fee revenue didn&apos;t convert, with the evidence behind every flag. Audio
+              is deleted the moment it&apos;s transcribed; the transcript and report are purged within{" "}
+              {DELETION_HOURS} hours of your readout, and immediately if you ask in writing. Nothing is
+              ever texted to anyone. One person is accountable for your data and your audit:{" "}
+              {FOUNDER_NAME}, founder of Intake QA,{" "}
               <a href={`mailto:${FOUNDER_EMAIL}`} className="font-semibold text-navy underline">
                 {FOUNDER_EMAIL}
               </a>

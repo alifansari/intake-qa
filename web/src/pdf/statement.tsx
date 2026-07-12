@@ -39,7 +39,7 @@ export function StatementDoc({ d, falseAlarm }: { d: DocData; falseAlarm?: { rat
         <Text style={S.metaLine}>
           Period: {d.periodLabel}  (calls received {fmtDate(d.periodStart)}{" to "}{fmtDate(d.periodEnd)})
         </Text>
-        <Text style={S.metaLine}>Prepared by Intake QA · Independent Recovery Desk</Text>
+        <Text style={S.metaLine}>Prepared by Intake QA · Independent Intake Desk</Text>
         <Text style={S.metaLine}>Statement No. {id}</Text>
 
         {/* Executive summary — EXACTLY three numbers */}

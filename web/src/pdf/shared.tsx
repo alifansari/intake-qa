@@ -109,7 +109,7 @@ export function DocPage({ docId, children }: { docId: string; children: React.Re
     <Page size="LETTER" style={S.page}>
       {children}
       <View style={S.footer} fixed>
-        <Text>Intake QA · Independent Recovery Desk</Text>
+        <Text>Intake QA · Independent Intake Desk</Text>
         <Text>{docId}</Text>
         <Text render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
       </View>

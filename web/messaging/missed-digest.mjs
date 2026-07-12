@@ -61,6 +61,14 @@ export function buildMissedDigest({ firm, flags, callsReceived = 0, now = new Da
 
 export function digestSubject(data) {
   if (data.missCount === 0) {
+    // Empty-FIRST-digest guard: a brand-new firm whose webhook just connected has
+    // scored nothing yet. "0 calls read, all handled" reads as broken/pointless and
+    // gives no first value — the documented activation killer. Say the honest thing:
+    // you're connected, we're listening. (An established firm with real volume still
+    // gets the reassuring "N read, all handled".)
+    if (data.callsReceived === 0) {
+      return "Intake QA — you're connected; we're listening for calls";
+    }
     return `Intake QA — ${data.callsReceived} call${data.callsReceived === 1 ? "" : "s"} read, all handled`;
   }
   return `Intake QA — ${data.missCount} missed case${data.missCount === 1 ? "" : "s"} need${data.missCount === 1 ? "s" : ""} a callback`;
@@ -97,7 +105,9 @@ export function renderMissedDigest(data, { appUrl, env = process.env } = {}) {
 
   const hero =
     data.missCount === 0
-      ? `${data.callsReceived} call${data.callsReceived === 1 ? "" : "s"} read. Every qualified caller is signed, in progress, or accounted for. Nothing needs you today.`
+      ? data.callsReceived === 0
+        ? `You're connected and we're listening. No intake calls have come through to us yet. The moment they do, this digest shows any that need a callback. Nothing is broken; there's just nothing to do yet.`
+        : `${data.callsReceived} call${data.callsReceived === 1 ? "" : "s"} read. Every qualified caller is signed, in progress, or accounted for. Nothing needs you today.`
       : `${data.missCount} likely-signable caller${data.missCount === 1 ? "" : "s"} walked without signing. The whole job: call them back, then tap the button.`;
 
   return `<!doctype html>
