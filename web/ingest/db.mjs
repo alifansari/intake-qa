@@ -1475,3 +1475,147 @@ export function purgeExpiredCalls(db, beforeIso) {
     messages: Number(messages.changes ?? 0),
   };
 }
+
+// --- First-party product event log + alert state (migration 0027) ------------
+//
+// Confidential legal data means NO third-party analytics: product events land
+// here, hold ids/counts only (never transcripts, never caller PII), and are
+// read only by the founder-gated /studio/beta board and the alert sweep.
+// Writes are best-effort at every call site (a failed event write must never
+// break the user action that produced it) — callers .catch(() => {}).
+
+import { isEventType } from "./event-types.mjs";
+
+// Insert one product event. Throws on an unknown event name (the schema CHECK
+// would refuse it anyway) so a typo'd name fails tests instead of silently
+// logging garbage. Returns the new row id.
+export function recordEvent(db, { event, firm_id = null, actor = null, context = null }) {
+  if (!isEventType(event)) throw new Error(`unknown product event: ${event}`);
+  const info = db
+    .prepare(
+      `INSERT INTO events (event, firm_id, actor, context)
+       VALUES (?, ?, ?, ?)`
+    )
+    .run(
+      event,
+      firm_id,
+      actor == null ? null : String(actor),
+      context == null ? null : typeof context === "string" ? context : JSON.stringify(context)
+    );
+  return Number(info.lastInsertRowid);
+}
+
+// Generic reader for the board + streak logic. Filters are all optional;
+// newest first, capped by `limit`.
+export function listEvents(db, { event = null, firm_id = null, sinceIso = null, limit = 200 } = {}) {
+  const where = [];
+  const params = [];
+  if (event != null) { where.push("event = ?"); params.push(event); }
+  if (firm_id != null) { where.push("firm_id = ?"); params.push(firm_id); }
+  if (sinceIso != null) { where.push("created_at >= ?"); params.push(sinceIso); }
+  const sql = `SELECT * FROM events${where.length ? ` WHERE ${where.join(" AND ")}` : ""}
+               ORDER BY id DESC LIMIT ?`;
+  params.push(Math.max(1, Math.floor(limit)));
+  return db.prepare(sql).all(...params);
+}
+
+export function countEvents(db, { event, firm_id = null, sinceIso = null } = {}) {
+  const where = ["event = ?"];
+  const params = [event];
+  if (firm_id != null) { where.push("firm_id = ?"); params.push(firm_id); }
+  if (sinceIso != null) { where.push("created_at >= ?"); params.push(sinceIso); }
+  const row = db
+    .prepare(`SELECT COUNT(*) AS n FROM events WHERE ${where.join(" AND ")}`)
+    .get(...params);
+  return Number(row?.n ?? 0);
+}
+
+// Earliest occurrence of an event (optionally per firm) — the activation
+// clock's anchor ("first digest", "first callback marked"). Null when never.
+export function firstEventAt(db, { event, firm_id = null } = {}) {
+  const where = ["event = ?"];
+  const params = [event];
+  if (firm_id != null) { where.push("firm_id = ?"); params.push(firm_id); }
+  const row = db
+    .prepare(`SELECT MIN(created_at) AS t FROM events WHERE ${where.join(" AND ")}`)
+    .get(...params);
+  return row?.t ?? null;
+}
+
+// Latest occurrence — "last activity" on the board. Null when never.
+export function lastEventAt(db, { event = null, firm_id = null } = {}) {
+  const where = [];
+  const params = [];
+  if (event != null) { where.push("event = ?"); params.push(event); }
+  if (firm_id != null) { where.push("firm_id = ?"); params.push(firm_id); }
+  const row = db
+    .prepare(
+      `SELECT MAX(created_at) AS t FROM events${where.length ? ` WHERE ${where.join(" AND ")}` : ""}`
+    )
+    .get(...params);
+  return row?.t ?? null;
+}
+
+// --- Alert-state watermarks (migration 0027) ----------------------------------
+// Tiny key/value store so each founder-alert trigger fires exactly once per
+// window (last error id alerted, last application seen, last pulse date).
+
+export function getAlertState(db, key) {
+  const row = db.prepare(`SELECT value FROM alert_state WHERE key = ?`).get(key);
+  return row ? row.value : null;
+}
+
+export function setAlertState(db, key, value) {
+  db.prepare(
+    `INSERT INTO alert_state (key, value, updated_at)
+     VALUES (?, ?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`
+  ).run(key, value == null ? null : String(value));
+}
+
+// Errors newer than a watermark id — the alert sweep's cursor. Uses the id, not
+// `alerted` (that flag belongs to the older sendErrorAlert path; sharing it
+// would make each path swallow the other's rows).
+export function getErrorsAfterId(db, afterId = 0, limit = 500) {
+  return db
+    .prepare(`SELECT * FROM errors WHERE id > ? ORDER BY id LIMIT ?`)
+    .all(Number(afterId) || 0, Math.max(1, Math.floor(limit)));
+}
+
+// --- Founder-set funnel stage (migration 0027) --------------------------------
+
+export function setFirmStage(db, firmId, stage) {
+  const s = stage === "pilot" || stage === "paid" ? stage : null;
+  db.prepare(
+    `UPDATE firms SET stage = ?, stage_updated_at = strftime('%Y-%m-%dT%H:%M:%SZ', 'now')
+      WHERE id = ?`
+  ).run(s, firmId);
+}
+
+// --- Windowed per-firm call counts for the beta board --------------------------
+// received = every call that arrived since `sinceIso`; scored = reached
+// 'analyzed'; failed = any 'failed_*' status. Pending/excluded are the
+// remainder — the board shows the three that matter.
+export function callCountsSince(db, firmId, sinceIso) {
+  const row = db
+    .prepare(
+      `SELECT COUNT(*) AS received,
+              SUM(CASE WHEN status = 'analyzed' THEN 1 ELSE 0 END) AS scored,
+              SUM(CASE WHEN status LIKE 'failed%' THEN 1 ELSE 0 END) AS failed
+         FROM calls WHERE firm_id = ? AND created_at >= ?`
+    )
+    .get(firmId, sinceIso);
+  return {
+    received: Number(row?.received ?? 0),
+    scored: Number(row?.scored ?? 0),
+    failed: Number(row?.failed ?? 0),
+  };
+}
+
+// Latest call arrival for a firm (the board's "last activity" heartbeat).
+export function lastCallAt(db, firmId) {
+  const row = db
+    .prepare(`SELECT MAX(created_at) AS t FROM calls WHERE firm_id = ?`)
+    .get(firmId);
+  return row?.t ?? null;
+}
