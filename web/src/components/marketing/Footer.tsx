@@ -12,7 +12,6 @@ const LINKS = [
   { href: "/honesty", label: "Calibration & honesty" },
   { href: "/founder", label: "Founder" },
   { href: "/security", label: "Security" },
-  { href: "/demo", label: "See a call scored" },
   { href: "/for-callers", label: "For callers" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },

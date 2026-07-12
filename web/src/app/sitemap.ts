@@ -16,7 +16,6 @@ const ROUTES = [
   "/founder",
   "/letter",
   "/audit",
-  "/demo",
   "/terms",
   "/privacy",
 ];
