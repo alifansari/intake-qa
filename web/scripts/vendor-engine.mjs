@@ -21,7 +21,9 @@ const REPO_ROOT = join(WEB_ROOT, "..");               // repo root
 const ENGINE = join(WEB_ROOT, ".engine");
 
 // Everything the demo + analysis passes read at runtime, by directory.
-const DIRS = ["lib", "scoring", "config", "analysis"];
+// scoring-v2 = the ENGINE V2 triage package (system-prompt, golds, firm config,
+// lib/) the studio pipeline now runs (see lib/studio/pipeline.mjs cutover).
+const DIRS = ["lib", "scoring", "scoring-v2", "config", "analysis"];
 
 const missing = DIRS.filter((d) => !existsSync(join(REPO_ROOT, d)));
 if (missing.length > 0) {
