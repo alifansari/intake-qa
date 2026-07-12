@@ -6,6 +6,7 @@
 import { LeakCard, type Leak } from "@/components/desk/LeakCard";
 import { HowCallsArrive } from "@/components/desk/HowCallsArrive";
 import { resolveDeskFirm } from "@/lib/desk/firm";
+import { recordEventOn } from "@/lib/events";
 import { fmtMoneyRange } from "@/pdf/doc-helpers.mjs";
 import { feeRangeFromRow } from "../../../../analysis/fee-value.mjs";
 
@@ -51,6 +52,10 @@ export default async function QueuePage() {
     // The signed-in user's own firm (firm_members); pilot fallback otherwise.
     const firm = await resolveDeskFirm(db, store.listFirms);
     if (!firm) return <FirstRun detail="no firm on this workspace yet" />;
+
+    // First-party event log: the desk's home screen was viewed (best-effort,
+    // ids only — the /studio/beta board reads this as "last activity").
+    await recordEventOn(db, { event: "desk_view", firmId: firm.id, context: { page: "queue" } });
 
     const flags = await store.listLeakedFlags(db, firm.id);
     // Distinguish "no misses" from "no calls at all" for the empty state, and

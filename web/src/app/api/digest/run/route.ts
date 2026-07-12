@@ -27,6 +27,7 @@ const sendMissedDigest = sendMissedDigestUntyped as unknown as (opts: {
   recipients: string[];
 }) => Promise<{ mode: string; [k: string]: unknown }>;
 import { killSwitchEngaged } from "../../../../../messaging/compliance.mjs";
+import { recordEventOn } from "@/lib/events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -105,6 +106,17 @@ async function run(req: Request) {
         const recipients = await memberEmails(db, firm.id);
         const res = await sendMissedDigest({ store, db, firm, recipients });
         results.push({ firm: firm.id, ...res });
+        // First-party event log: a digest actually EMAILED (mode live) counts
+        // as digest_sent — file renders don't, or the unopened-streak math on
+        // /studio/beta would accuse firms of ignoring email that never left.
+        if (res.mode === "live") {
+          await recordEventOn(db, {
+            event: "digest_sent",
+            firmId: firm.id,
+            actor: "system",
+            context: { missCount: Number(res.missCount ?? 0), recipients: recipients.length },
+          });
+        }
       } catch (e) {
         // One broken firm never blocks the rest of the pass.
         results.push({ firm: firm.id, mode: "error", error: String(e) });
