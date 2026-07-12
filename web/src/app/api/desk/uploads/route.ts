@@ -31,6 +31,7 @@ import {
   deriveUploadStatus,
   uploadFilenameFrom,
 } from "../../../../../ingest/uploads.mjs";
+import { recordEventOn } from "@/lib/events";
 
 export const runtime = "nodejs";
 
@@ -66,6 +67,16 @@ export async function POST(req: Request) {
   try {
     const gate = await requireDeskFirm(db, store.listFirms);
     if (gate.response) return gate.response;
+
+    // First-party event: a firm reaching for the upload path (counts toward
+    // day-0 activation on /studio/beta). Extension + mode only, never the
+    // filename or any caller content.
+    await recordEventOn(db, {
+      event: "upload_started",
+      firmId: gate.firm.id,
+      actor: "firm",
+      context: { mode: storageMode ? "storage" : "direct", ext: fileExtension(body.filename) },
+    });
 
     if (!storageMode) {
       return Response.json({ mode: "direct", max_bytes: maxBytes }, { status: 200 });

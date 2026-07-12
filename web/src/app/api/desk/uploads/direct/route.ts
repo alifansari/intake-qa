@@ -17,6 +17,7 @@ import {
   registerUploadedCall,
 } from "../../../../../../ingest/uploads.mjs";
 import { inngest } from "../../../../../../inngest/client.mjs";
+import { recordEventOn } from "@/lib/events";
 
 export const runtime = "nodejs";
 
@@ -59,6 +60,15 @@ export async function POST(req: Request) {
       firmId: gate.firm.id,
       recordingUrl: audioPath,
       filename: upload.name,
+    });
+
+    // First-party event: a call actually landed and will be scored (day-0
+    // activation signal on /studio/beta). Call id only, never the filename.
+    await recordEventOn(db, {
+      event: "upload_completed",
+      firmId: gate.firm.id,
+      actor: "firm",
+      context: { callId: String(callId), mode: "direct" },
     });
 
     try {

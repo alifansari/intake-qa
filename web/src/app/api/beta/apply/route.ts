@@ -13,6 +13,7 @@ import { sendNdaRequest } from "../../../../../beta/nda.mjs";
 import { defaultNdaClient } from "../../../../../beta/dropbox-sign-nda.mjs";
 import { openPipelineDb, closePipelineDb, logError } from "../../../../../ingest/store.mjs";
 import { rateLimited } from "@/lib/intake/rate-limit";
+import { recordEventOn } from "@/lib/events";
 
 export const runtime = "nodejs";
 
@@ -79,6 +80,14 @@ export async function POST(req: Request) {
     if ("errors" in result && result.errors) {
       return NextResponse.json({ error: "invalid application", details: result.errors }, { status: 400 });
     }
+
+    // First-party funnel event: top of the audit→pilot→paid funnel on
+    // /studio/beta. Qualification status only — never the applicant's PII.
+    await recordEventOn(db, {
+      event: "apply_submitted",
+      actor: "applicant",
+      context: { status: String(result.status) },
+    });
 
     let nda: { signatureRequestId?: string; simulated?: boolean } | null = null;
     if (result.status === "nda_pending") {
