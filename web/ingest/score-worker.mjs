@@ -37,6 +37,32 @@ function importEngine(fileName) {
   return import(/* webpackIgnore: true */ /* turbopackIgnore: true */ href);
 }
 
+// SHADOW: import the Engine V2 harness from the vendored engine root.
+function importV2() {
+  const href = pathToFileURL(join(engineRoot(), "scoring-v2", "score-v2.js")).href;
+  return import(/* webpackIgnore: true */ /* turbopackIgnore: true */ href);
+}
+
+// Run Engine V2 dark on the same transcript and return the adapted verdict
+// (no dollars; full v2 verdict under `.v2`). Failure-isolated — never throws
+// into the firm-visible v1 scoring path.
+async function runV2Shadow({ transcript, callId }) {
+  try {
+    const [{ scoreV2 }, { v2VerdictToScoredCall }] = await Promise.all([
+      importV2(),
+      import("../src/lib/studio/v2-adapter.mjs"),
+    ]);
+    const verdict = await scoreV2({
+      transcript,
+      callId: String(callId),
+      pkgRoot: join(engineRoot(), "scoring-v2"),
+    });
+    return v2VerdictToScoredCall(verdict);
+  } catch (err) {
+    return { shadow_error: String((err && err.message) || err), engine: "scoring-v2" };
+  }
+}
+
 // Firm config used to assemble the scoring prompt (config/test-firm.md, resolved
 // from the same engine root as the engine .js files).
 const DEFAULT_FIRM_CONFIG = join(engineRoot(), "config", "test-firm.md");
@@ -50,13 +76,17 @@ const CONSENT_BASIS = "inbound_call_inquiry_EBR";
 async function defaultScorer({ transcript, callId, firmConfigPath }) {
   const outDir = mkdtempSync(join(tmpdir(), "intakeqa-score-"));
   const { scoreCall } = await importEngine("score-call.js");
-  return scoreCall({
+  const scoring = await scoreCall({
     transcript,
     callId,
     firmConfigPath,
     outPath: join(outDir, `${callId}.score.json`),
     rawOutPath: join(outDir, `${callId}.raw.txt`),
   });
+  // SHADOW: Engine V2 rides along under an internal key (never rendered,
+  // failure-isolated). Accrues the v1-vs-v2 corpus on real ingested calls.
+  scoring._v2_shadow = await runV2Shadow({ transcript, callId });
+  return scoring;
 }
 
 // Score every un-scored call for a firm (or all firms) and create a flag row
