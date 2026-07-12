@@ -17,13 +17,13 @@
 // mix-up impossible, this sender SKIPS ENTIRELY unless DIGEST_TO is set.
 
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { getDraftedMessages, getFirm } from "../ingest/store.mjs";
 import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
 import { draftSla } from "./sla.mjs";
+import { defaultOutDir } from "./out-dir.mjs";
 
-const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
+const DEFAULT_OUT_DIR = defaultOutDir();
 
 function esc(v) {
   if (v == null) return "";

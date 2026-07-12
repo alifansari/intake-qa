@@ -12,12 +12,12 @@
 // lazy-imported so the pilot needs no dependency.
 
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { reconcileWeek } from "./reconcile.mjs";
 import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
+import { defaultOutDir } from "./out-dir.mjs";
 
-const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
+const DEFAULT_OUT_DIR = defaultOutDir();
 
 function esc(v) {
   if (v == null) return "";

@@ -24,11 +24,11 @@
 // belongs to the older sendErrorAlert path.
 
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
+import { defaultOutDir } from "./out-dir.mjs";
 
-const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
+const DEFAULT_OUT_DIR = defaultOutDir();
 
 export const SIGNATURE_FAILURE_THRESHOLD = 3;
 export const SIGNATURE_FAILURE_WINDOW_MS = 60 * 60 * 1000;

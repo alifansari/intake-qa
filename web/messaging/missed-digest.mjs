@@ -14,13 +14,13 @@
 //     the digest degrades to informational, it never degrades to insecure.
 
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { signDigestToken, digestLinkSecret } from "./digest-links.mjs";
 import { openPixelTag } from "./digest-open.mjs";
 import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
+import { defaultOutDir } from "./out-dir.mjs";
 
-const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
+const DEFAULT_OUT_DIR = defaultOutDir();
 
 // A case leaves the digest only once it reaches a TERMINAL outcome (signed,
 // passed, or bad number) — matching the desk queue's active/Handled split

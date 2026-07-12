@@ -15,12 +15,12 @@
 // the record).
 
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { getUnalertedErrors, markErrorsAlerted } from "../ingest/store.mjs";
 import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
+import { defaultOutDir } from "./out-dir.mjs";
 
-const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
+const DEFAULT_OUT_DIR = defaultOutDir();
 
 // Default lookback: alert on errors from the trailing 24h that we haven't yet
 // reported. Callers can widen/narrow via `sinceIso`.
