@@ -28,7 +28,7 @@ export const SECURITY_POSTURE = Object.freeze({
     { name: "Supabase", purpose: "database, auth, file storage" },
     { name: "Vercel", purpose: "application hosting" },
     { name: "AssemblyAI", purpose: "speech-to-text transcription" },
-    { name: "Anthropic", purpose: "call analysis (zero-retention API tier; never trains on inputs)" },
+    { name: "Anthropic", purpose: "call analysis (inference-only, never trains on inputs; zero-data-retention tier pending written confirmation — GO_LIVE gate A7)" },
     { name: "Twilio", purpose: "SMS delivery" },
     { name: "Dropbox Sign", purpose: "e-signature (NDA, agreements)" },
     { name: "Resend", purpose: "transactional email" },
@@ -36,7 +36,7 @@ export const SECURITY_POSTURE = Object.freeze({
   ],
 
   data_minimization: {
-    retention: "transcripts + messages purged after DATA_RETENTION_DAYS (default 30); recordings within 30 days",
+    retention: "transcripts + messages purged after DATA_RETENTION_DAYS (code default 90 — deployed value MUST match the public /security 90-day promise); uploaded audio deleted at transcription, recordings within 30 days at the latest",
     training: "NEVER train models on client call content (invariant e) — API calls are inference-only",
     deletion: "firm offboarding triggers the deletion cascade including derived data",
   },
@@ -55,7 +55,7 @@ export const SECURITY_POSTURE = Object.freeze({
       target: "Type I engagement letter by Q4 2026; Type II to follow",
     },
     baa: {
-      status: "template drafted",
+      status: "draft template staged (ops/drafts/external/beta-baa.md) — pending attorney review, not yet in force",
       note: "BAA covering privilege/PHI-adjacent call content offered to every beta firm; co-exists with the beta NDA",
       // TODO(Ali/Yang): execute-ready BAA is contract language — route for
       // review before first signature (compliance §VII).

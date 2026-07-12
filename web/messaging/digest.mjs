@@ -5,15 +5,22 @@
 // This is the labor-fix companion to the queue UI: instead of the reviewer
 // remembering to check, the digest comes to them. It NEVER sends SMS and never
 // approves anything — it only reports queue state. Email delivery follows the
-// same TEST_MODE gate + injectable-mailer pattern as weekly-report.mjs: while
-// TEST_MODE is on (or no Resend key), it renders to an HTML file and transmits
-// nothing (CLAUDE.md guardrail f).
+// same EMAIL_ENABLED gate + injectable-mailer pattern as weekly-report.mjs:
+// while EMAIL_ENABLED is off (the default) or the Resend key is missing, it
+// renders to an HTML file and transmits nothing. TEST_MODE stays out of the
+// email decision on purpose — it arms SMS, not email.
+//
+// RECIPIENT GUARD: this digest is an INTERNAL operator email. DIGEST_TO must be
+// an internal address (the founder/operator), never a firm contact — the
+// firm-facing daily email is missed-digest.mjs, sent to the firm's sign-in
+// emails via /api/digest/run. Both crons fire at 0 15 * * *; to make a
+// mix-up impossible, this sender SKIPS ENTIRELY unless DIGEST_TO is set.
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getDraftedMessages, getFirm } from "../ingest/store.mjs";
-import { isTestMode } from "./compliance.mjs";
+import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
 import { draftSla } from "./sla.mjs";
 
 const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
@@ -129,7 +136,7 @@ export function renderDigest(data) {
 }
 
 // Default (production) mailer: Resend. Lazy-imported so pilot/tests need no
-// `resend` dependency — only reached with TEST_MODE off AND a key present.
+// `resend` dependency — only reached with EMAIL_ENABLED on AND a key present.
 async function defaultMailer({ to, from, subject, html, env = process.env }) {
   const apiKey = env.RESEND_API_KEY;
   if (!apiKey) throw new Error("RESEND_API_KEY is not set");
@@ -142,8 +149,11 @@ async function defaultMailer({ to, from, subject, html, env = process.env }) {
 }
 
 // Produce (and, gated, deliver) the daily digest for one firm.
-//   * TEST_MODE (or no RESEND_API_KEY): render to an HTML file, transmit NOTHING.
-//   * otherwise: email via the injectable mailer (default Resend).
+//   * No DIGEST_TO: SKIP ENTIRELY — this internal operator digest must never
+//     fall back to any other recipient (see the recipient guard above).
+//   * KILL_SWITCH, EMAIL_ENABLED off (default), or no RESEND_API_KEY: render
+//     to an HTML file, transmit NOTHING.
+//   * otherwise: email DIGEST_TO via the injectable mailer (default Resend).
 export async function sendDailyDigest({
   db,
   firmId,
@@ -152,6 +162,12 @@ export async function sendDailyDigest({
   outDir = DEFAULT_OUT_DIR,
   now = new Date(),
 }) {
+  // Recipient guard first: without an explicit internal DIGEST_TO there is
+  // nothing safe to do — don't render, don't send, just say why.
+  if (!env.DIGEST_TO || !String(env.DIGEST_TO).trim()) {
+    return { mode: "skipped", reason: "DIGEST_TO not set (internal-only digest; must be an operator address, never a firm contact)" };
+  }
+
   const [firm, drafted] = await Promise.all([
     getFirm(db, firmId),
     getDraftedMessages(db, firmId),
@@ -162,12 +178,12 @@ export async function sendDailyDigest({
     ? `Intake QA — ${data.pendingCount} text(s) awaiting approval${data.staleCount ? ` (${data.staleCount} overdue)` : ""}`
     : "Intake QA — approval queue clear";
 
-  if (isTestMode(env) || !env.RESEND_API_KEY) {
+  if (killSwitchEngaged(env) || !isEmailEnabled(env) || !env.RESEND_API_KEY) {
     mkdirSync(outDir, { recursive: true });
     const dayStamp = data.generatedAt.slice(0, 10);
     const file = join(outDir, `digest-${firmId}-${dayStamp}.html`);
     writeFileSync(file, html);
-    console.log(`[TEST_MODE] daily digest rendered to ${file} (not emailed)`);
+    console.log(`[email off] daily digest rendered to ${file} (not emailed)`);
     return { mode: "test", file, data };
   }
 

@@ -6,6 +6,8 @@
 import { LeakCard, type Leak } from "@/components/desk/LeakCard";
 import { HowCallsArrive } from "@/components/desk/HowCallsArrive";
 import { resolveDeskFirm } from "@/lib/desk/firm";
+import { partitionLeaks, callUrgency } from "@/lib/desk/queue-view.mjs";
+import { recordEventOn } from "@/lib/events";
 import { fmtMoneyRange } from "@/pdf/doc-helpers.mjs";
 import { feeRangeFromRow } from "../../../../analysis/fee-value.mjs";
 
@@ -52,6 +54,10 @@ export default async function QueuePage() {
     const firm = await resolveDeskFirm(db, store.listFirms);
     if (!firm) return <FirstRun detail="no firm on this workspace yet" />;
 
+    // First-party event log: the desk's home screen was viewed (best-effort,
+    // ids only — the /studio/beta board reads this as "last activity").
+    await recordEventOn(db, { event: "desk_view", firmId: firm.id, context: { page: "queue" } });
+
     const flags = await store.listLeakedFlags(db, firm.id);
     // Distinguish "no misses" from "no calls at all" for the empty state, and
     // surface the HEARTBEAT: "last call received X ago" proves the whole
@@ -60,9 +66,27 @@ export default async function QueuePage() {
     // green dot that can lie.
     let callsReceived = 0;
     let lastCallAt: string | null = null;
+    // Calls the pipeline hasn't finished with yet: received, not analyzed, not
+    // excluded, and NOT terminally failed. A permanently-failed call
+    // (unreadable audio, Spanish/single-speaker transcript throw) is terminal
+    // once the retry guard stops re-queuing it — calling it "processing …
+    // usually within a few minutes" would be untruthful. It gets its OWN honest
+    // panel below (and the founder is alerted). While EITHER genuinely-in-flight
+    // OR failed calls exist, the all-clear panel must not render: "all clear"
+    // and "we're still on these calls" cannot both be true.
+    let callsProcessing = 0;
+    let callsFailed = 0;
     try {
       const recon = await store.getCallReconciliation(db, firm.id);
       callsReceived = Number(recon?.received ?? 0);
+      callsFailed = Number(recon?.failed ?? 0);
+      callsProcessing = Math.max(
+        0,
+        callsReceived
+          - Number(recon?.processed ?? 0)
+          - Number(recon?.excluded ?? 0)
+          - callsFailed,
+      );
       if (typeof db.query === "function") {
         const r = await db.query(
           `select max(received_at) as last from calls where firm_id = $1`,
@@ -72,6 +96,8 @@ export default async function QueuePage() {
       }
     } catch {
       callsReceived = 0;
+      callsProcessing = 0;
+      callsFailed = 0;
     }
 
     // The coordinator's "wins this week" — credit framing (the tool makes her
@@ -105,6 +131,10 @@ export default async function QueuePage() {
         quote: f.evidence_quote ?? null,
         phone: f.caller_phone ?? null,
         saveStatus: f.save_status ?? null,
+        attempts: Number(f.attempts ?? 0),
+        // B-013 — urgency is computed HERE, on the server's clock, so the
+        // client card never risks hydration drift. Elapsed time only.
+        urgency: callUrgency(f.received_at),
       });
     }
 
@@ -132,12 +162,26 @@ export default async function QueuePage() {
             </p>
           ) : null}
           {wins.worked > 0 ? (
+            // B-012 — the coordinator's wins, credit-framed: this strip is her
+            // recognition ammunition (per-case bonuses are ethically barred;
+            // recognition is the only upside the tool can offer). Her tally
+            // only — no leaderboard, no comparison, nothing here is a score.
             <div className="mt-3 inline-flex flex-wrap items-center gap-x-4 gap-y-1 rounded-card border border-hairline bg-accent-tint/40 px-4 py-2 text-sm text-ink">
-              <span className="font-semibold">Your week</span>
+              <span className="font-semibold">Your wins this week</span>
               <span className="tnum">{wins.worked} callback{wins.worked === 1 ? "" : "s"} worked</span>
               <span className="tnum">{wins.reached} reached</span>
               {wins.signed > 0 ? (
                 <span className="tnum font-semibold text-accent">{wins.signed} signed 🎉</span>
+              ) : null}
+              {wins.signed > 0 ? (
+                <span className="w-full text-xs text-ink-muted">
+                  {wins.signed === 1 ? "That signed case" : `Those ${wins.signed} signed cases`} started
+                  with your callbacks — worth saying out loud in Friday&apos;s meeting.
+                </span>
+              ) : wins.reached > 0 ? (
+                <span className="w-full text-xs text-ink-muted">
+                  Every conversation this week started with your callback — signatures usually follow.
+                </span>
               ) : null}
             </div>
           ) : null}
@@ -163,6 +207,37 @@ export default async function QueuePage() {
                 <HowCallsArrive />
               </div>
             </div>
+          ) : callsProcessing > 0 ? (
+            // Calls are in but not read yet (or stuck): the honest state is
+            // "still working", never a premature green light.
+            <div className="rounded-card border border-hairline bg-surface p-8">
+              <h2 className="font-display text-xl font-semibold text-ink">
+                {callsProcessing} call{callsProcessing === 1 ? "" : "s"} processing.
+              </h2>
+              <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+                We&apos;re still reading {callsProcessing === 1 ? "this call" : "these calls"}.
+                Anything that needs a callback will appear right here as soon as we&apos;re done
+                &mdash; usually within a few minutes. Nothing needs you yet.
+              </p>
+            </div>
+          ) : callsFailed > 0 ? (
+            // Terminal failures: audio we couldn't read automatically (a
+            // corrupted file, or a call our transcription can't process). We do
+            // NOT pretend these are "processing" — that would age into a lie.
+            // The founder is alerted automatically and will follow up; the firm
+            // just needs the honest status, not an action.
+            <div className="rounded-card border border-hairline bg-surface p-8">
+              <h2 className="font-display text-xl font-semibold text-ink">
+                {callsFailed} call{callsFailed === 1 ? "" : "s"} we couldn&apos;t read automatically.
+              </h2>
+              <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+                {callsFailed === 1 ? "This recording" : "These recordings"} couldn&apos;t be
+                transcribed automatically (for example a corrupted or unusual audio file).
+                We&apos;ve been notified and will look into{" "}
+                {callsFailed === 1 ? "it" : "them"} &mdash; nothing is required from you.
+                Everything we could read is up to date.
+              </p>
+            </div>
           ) : (
             <div className="rounded-card border border-hairline bg-surface p-8">
               <h2 className="font-display text-xl font-semibold text-ink">
@@ -179,9 +254,11 @@ export default async function QueuePage() {
           )
         ) : (
           (() => {
-            const TERMINAL = new Set(["signed", "didnt_sign", "bad_number"]);
-            const active = leaks.filter((l) => !TERMINAL.has(l.saveStatus ?? ""));
-            const done = leaks.filter((l) => TERMINAL.has(l.saveStatus ?? ""));
+            // B-010 — queue hygiene, shared pure logic (unit-tested): terminal
+            // cards collapse into the compact done pile; the active queue runs
+            // oldest-actionable first, so the caller who has waited longest is
+            // the top card. "Today's list", never a graveyard.
+            const { active, done } = partitionLeaks(leaks);
             return (
               <div className="flex flex-col gap-3">
                 {active.length === 0 ? (
@@ -201,9 +278,9 @@ export default async function QueuePage() {
                     <summary className="cursor-pointer text-sm font-semibold text-ink-muted hover:text-ink">
                       Handled ({done.length}) — signed, passed, or bad number
                     </summary>
-                    <div className="mt-3 flex flex-col gap-3">
+                    <div className="mt-3 flex flex-col gap-2">
                       {done.map((l) => (
-                        <LeakCard key={String(l.id)} leak={l} firmName={firm.name} />
+                        <LeakCard key={String(l.id)} leak={l} firmName={firm.name} compact />
                       ))}
                     </div>
                   </details>
@@ -213,11 +290,16 @@ export default async function QueuePage() {
           })()
         )}
 
+        {/* B-013 — the old footnote promised "statute clocks" that didn't exist
+            (vaporware). The honest version: the waiting time on each card is
+            elapsed time since the call, full stop. We never compute or display
+            a statute-of-limitations deadline — that judgment stays with the
+            firm's attorneys. */}
         <p className="mt-6 text-xs text-faint">
           <sup>1</sup> Estimated fee value is a range under the methodology on the honesty page — an
-          estimate of what walked, not a guarantee of recovery. Statute clocks appear once intake dates
-          are captured on the call.
-          {/* TODO(Ali): wire statute clock from the call's incident date + SOL rules (sol.mjs). */}
+          estimate of what walked, not a guarantee of recovery. The waiting time on each card counts
+          from the caller&apos;s original call — it&apos;s a callback reminder, not a legal deadline.
+          Statute-of-limitations tracking stays with your attorneys.
         </p>
       </div>
     );

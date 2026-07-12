@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { PageShell, PageHeader } from "@/components/page";
 import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
 import { OnboardFirmForm } from "./form";
+import { CallRailSecretForm } from "./callrail-secret-form";
 
 export const dynamic = "force-dynamic";
 
@@ -112,6 +113,11 @@ export default async function OnboardFirmPage({
         initialFirmName={params.firm ?? ""}
         initialEmail={params.email ?? ""}
       />
+      {/* Standalone version for firms onboarded earlier (or a rotated CallRail
+          signing key) — same founder-only API, firm id pasted by hand. */}
+      <div className="mt-6">
+        <CallRailSecretForm />
+      </div>
     </PageShell>
   );
 }

@@ -49,3 +49,31 @@ export function decryptSecret(blob, passphrase) {
 export function encryptionAvailable(env = process.env) {
   return Boolean(env.INTEGRATIONS_ENC_KEY);
 }
+
+// --- At-rest encoding for the per-firm CallRail webhook signing key -----------
+//
+// The signing key is a shared secret that lets a caller forge valid webhook
+// signatures, so it must never sit in `firms.callrail_webhook_secret` as
+// plaintext. When a key is configured (hosted deployments — INTEGRATIONS_ENC_KEY
+// is in the Vercel env list) the value is AES-256-GCM encrypted and tagged with
+// a version prefix. On the local SQLite pilot (no key, dev-only) it is stored
+// as-is; decode transparently handles both, so legacy plaintext rows and the
+// local pilot keep working. Prefix lets decode tell the two apart.
+const CALLRAIL_ENC_PREFIX = "enc:v1:";
+
+export function encodeCallRailSecret(plaintext, env = process.env) {
+  if (plaintext == null) return null;
+  if (encryptionAvailable(env)) {
+    return CALLRAIL_ENC_PREFIX + encryptSecret(String(plaintext), env.INTEGRATIONS_ENC_KEY);
+  }
+  return String(plaintext); // local pilot, no key — dev-only plaintext
+}
+
+export function decodeCallRailSecret(stored, env = process.env) {
+  if (stored == null) return null;
+  const s = String(stored);
+  if (s.startsWith(CALLRAIL_ENC_PREFIX)) {
+    return decryptSecret(s.slice(CALLRAIL_ENC_PREFIX.length), env.INTEGRATIONS_ENC_KEY);
+  }
+  return s; // legacy plaintext / local pilot
+}

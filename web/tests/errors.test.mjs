@@ -86,12 +86,13 @@ test("buildAlert buckets counts per source", () => {
   assert.match(renderAlert(data), /3 new error/);
 });
 
-test("sendErrorAlert (TEST_MODE) renders a file and marks rows alerted once", async (t) => {
+test("sendErrorAlert (EMAIL_ENABLED off) renders a file and marks rows alerted once", async (t) => {
   const { db, dir } = makeCtx(t);
   logError(db, { source: "pipeline.score", message: "boom", context: "stack..." });
   logError(db, { source: "api.onboard", message: "persist failed" });
 
-  const env = { TEST_MODE: "true" };
+  // EMAIL_ENABLED unset (the default) → file mode, regardless of TEST_MODE.
+  const env = { TEST_MODE: "false", RESEND_API_KEY: "k" };
   let mailerCalled = false;
   const mailer = async () => {
     mailerCalled = true;
@@ -101,7 +102,7 @@ test("sendErrorAlert (TEST_MODE) renders a file and marks rows alerted once", as
   const res = await sendErrorAlert({ db, env, mailer, outDir: dir });
   assert.equal(res.mode, "test");
   assert.equal(res.count, 2);
-  assert.equal(mailerCalled, false, "TEST_MODE must never call the mailer");
+  assert.equal(mailerCalled, false, "EMAIL_ENABLED off must never call the mailer");
   assert.ok(existsSync(res.file));
   const html = readFileSync(res.file, "utf8");
   assert.match(html, /2 new errors/);

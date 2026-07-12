@@ -21,6 +21,21 @@ const FIRM_ID = process.env.CALLRAIL_FIRM_ID ?? "1";
 export async function POST(req: Request) {
   const secret = process.env.CALLRAIL_WEBHOOK_SECRET;
   if (!secret) {
+    // FAILURE LOUDNESS: with no secret this legacy env-pinned route can never
+    // verify a webhook, so the pilot firm's calls silently never ingest.
+    // Persist an errors-table row (mirrors the bad_signature branch below) so
+    // /admin/status and the founder sweep surface it instead of a dead 500.
+    const db = await openPipelineDb();
+    try {
+      await logError(db, {
+        source: "webhooks.callrail.no_secret",
+        message: `CALLRAIL_WEBHOOK_SECRET is not configured (legacy env-pinned route, firm ${FIRM_ID}) — calls will NOT ingest until it is set`,
+        context: { firm_slug: String(FIRM_ID) },
+        firm_id: null,
+      }).catch(() => {});
+    } finally {
+      await closePipelineDb(db);
+    }
     return Response.json(
       { error: "CALLRAIL_WEBHOOK_SECRET not configured" },
       { status: 500 }
@@ -28,9 +43,11 @@ export async function POST(req: Request) {
   }
 
   const rawBody = await req.text();
+  // CallRail's documented header is literally `Signature` (Node lowercases it);
+  // keep `x-callrail-signature` as a fallback for renaming proxies.
   const signature =
-    req.headers.get("x-callrail-signature") ??
     req.headers.get("signature") ??
+    req.headers.get("x-callrail-signature") ??
     "";
 
   const db = await openPipelineDb();
@@ -70,9 +87,30 @@ export async function POST(req: Request) {
     );
   } catch (err: unknown) {
     if (err instanceof Error && (err as { code?: string }).code === "BAD_SIGNATURE") {
+      // Failure loudness: persist the 401 with which formats were tried, so a
+      // misconfigured secret is visible in /admin/status instead of silent.
+      const e = err as { formatsTried?: string[]; hadSignatureHeader?: boolean };
+      await logError(db, {
+        source: "webhooks.callrail.bad_signature",
+        message: `CallRail signature verification failed (legacy env-pinned route, firm ${FIRM_ID})`,
+        context: {
+          firm_slug: String(FIRM_ID),
+          reason: e.hadSignatureHeader === false ? "missing Signature header" : "no format matched",
+          formats_tried: e.formatsTried ?? [],
+          secret_source: "env",
+          body_bytes: rawBody.length,
+        },
+        firm_id: null,
+      }).catch(() => {});
       return Response.json({ error: "invalid signature" }, { status: 401 });
     }
     if (err instanceof Error && (err as { code?: string }).code === "BAD_PAYLOAD") {
+      await logError(db, {
+        source: "webhooks.callrail.bad_payload",
+        message: `CallRail payload rejected (legacy route): ${err.message}`,
+        context: { firm_slug: String(FIRM_ID), body_bytes: rawBody.length },
+        firm_id: null,
+      }).catch(() => {});
       return Response.json({ error: "invalid payload" }, { status: 400 });
     }
     // P1(c): don't echo raw internal error text to the caller. Log details

@@ -5,8 +5,11 @@
 // silence is never ambiguous with "broken" (BETA_ONBOARDING).
 //
 // Delivery posture (same chokepoint discipline as every sender here):
-//   * KILL_SWITCH halts everything (checked by the caller, /api/digest/run).
-//   * TEST_MODE (or no Resend key): render to an HTML file, transmit NOTHING.
+//   * KILL_SWITCH halts everything (checked by the caller, /api/digest/run,
+//     AND belt-and-braces here — the kill switch halts ALL sends, email too).
+//   * EMAIL_ENABLED off (default) or no Resend key: render to an HTML file,
+//     transmit NOTHING. Email is gated by EMAIL_ENABLED, NOT by TEST_MODE —
+//     TEST_MODE arms SMS and stays out of the email decision on purpose.
 //   * Action links are omitted entirely when DIGEST_LINK_SECRET is unset —
 //     the digest degrades to informational, it never degrades to insecure.
 
@@ -14,7 +17,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { signDigestToken, digestLinkSecret } from "./digest-links.mjs";
-import { isTestMode } from "./compliance.mjs";
+import { openPixelTag } from "./digest-open.mjs";
+import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
 
 const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
 
@@ -155,6 +159,13 @@ export function renderMissedDigest(data, { appUrl, env = process.env } = {}) {
       ? ""
       : `<table><tbody>${rows}</tbody></table>`
   }
+  ${
+    // Open-tracking pixel (1x1, HMAC-signed, no PII — firm id + day only). Renders
+    // only when DIGEST_LINK_SECRET is configured; measurement never degrades to
+    // an unsigned URL. Reason: BETA_ONBOARDING — "three consecutive unopened
+    // digests = call the firm" must be measurable on /studio/beta.
+    canLink ? openPixelTag({ base, firmId: data.firmId, day: data.generatedAt.slice(0, 10) }, env) : ""
+  }
   <footer>
     Intake QA — the independent recovery desk. This digest goes to your sign-in email;
     the same list always lives at <a href="${base}/desk/queue">your desk</a>.
@@ -166,7 +177,7 @@ export function renderMissedDigest(data, { appUrl, env = process.env } = {}) {
 }
 
 // Default (production) mailer: Resend. Lazy-imported; only reached with
-// TEST_MODE off AND a key present.
+// EMAIL_ENABLED on AND a key present AND the kill switch off.
 async function defaultMailer({ to, from, subject, html, env = process.env }) {
   const apiKey = env.RESEND_API_KEY;
   if (!apiKey) throw new Error("RESEND_API_KEY is not set");
@@ -179,7 +190,8 @@ async function defaultMailer({ to, from, subject, html, env = process.env }) {
 }
 
 // Build + (gated) deliver one firm's digest.
-//   * TEST_MODE or no RESEND_API_KEY → render to output/, transmit NOTHING.
+//   * KILL_SWITCH, EMAIL_ENABLED off (default), or no RESEND_API_KEY →
+//     render to output/, transmit NOTHING.
 //   * otherwise → email `recipients` via the injectable mailer.
 export async function sendMissedDigest({
   store,
@@ -204,12 +216,17 @@ export async function sendMissedDigest({
   const html = renderMissedDigest(data, { appUrl, env });
   const subject = digestSubject(data);
 
-  if (isTestMode(env) || !env.RESEND_API_KEY) {
+  if (killSwitchEngaged(env) || !isEmailEnabled(env) || !env.RESEND_API_KEY) {
+    const reason = killSwitchEngaged(env)
+      ? "KILL_SWITCH engaged"
+      : !isEmailEnabled(env)
+        ? "EMAIL_ENABLED is not true"
+        : "RESEND_API_KEY not set";
     mkdirSync(outDir, { recursive: true });
     const dayStamp = data.generatedAt.slice(0, 10);
     const file = join(outDir, `missed-digest-${firm.id}-${dayStamp}.html`);
     writeFileSync(file, html);
-    return { mode: "test", file, missCount: data.missCount, subject };
+    return { mode: "test", reason, file, missCount: data.missCount, subject };
   }
 
   if (recipients.length === 0) return { mode: "skipped", reason: "no recipients" };

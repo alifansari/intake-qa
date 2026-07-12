@@ -51,6 +51,15 @@ export function canTransition(from, to) {
   return (ALLOWED_TRANSITIONS[from] ?? []).includes(to);
 }
 
+// Tri-state recording answer: true / false / null (unknown). Accepts booleans
+// (existing callers/tests) and the apply form's plain-English values
+// ("yes" | "no" | "not_sure").
+export function normalizeRecordsCalls(value) {
+  if (value === true || value === "yes") return true;
+  if (value === false || value === "no") return false;
+  return null;
+}
+
 // Pure qualification gate. Returns { qualified, reasons, waitlist_tag }.
 // Hard gates: California + plaintiff-side personal injury + records (or will
 // record) intake calls. Soft signals land in reasons but do not disqualify.
@@ -71,11 +80,15 @@ export function qualify(application) {
     if (vol < ICP.monthlyCallVolume.min) reasons.push("volume_below_band");
     if (vol > ICP.monthlyCallVolume.max) reasons.push("volume_above_band");
   }
-  if (!application.records_calls) {
-    // Not disqualifying: the onboarding recording-readiness checklist exists
-    // exactly for firms that don't record yet. Flag it for setup friction.
-    reasons.push("not_recording_yet");
-  }
+  // Recording readiness — a soft signal, never a gate (the onboarding
+  // recording-readiness checklist exists exactly for firms that don't record
+  // yet). Truthfulness rule: "not_recording_yet" is claimed ONLY when the firm
+  // actually said no. Unanswered / "not sure" is recorded as unknown — the old
+  // behavior stamped every silent application "not_recording_yet", which was
+  // noise, not a finding.
+  const rec = normalizeRecordsCalls(application.records_calls);
+  if (rec === false) reasons.push("not_recording_yet");
+  else if (rec == null) reasons.push("recording_status_unknown");
 
   const hardFails = reasons.filter(
     (r) => r.startsWith("outside_california") || r.startsWith("non_pi_practice_area")
@@ -110,6 +123,12 @@ export function validateApplication(body) {
   ) {
     errors.push("invalid:spanish_call_pct");
   }
+  if (
+    body?.records_calls != null &&
+    ![true, false, "yes", "no", "not_sure"].includes(body.records_calls)
+  ) {
+    errors.push("invalid:records_calls");
+  }
   return { ok: errors.length === 0, errors };
 }
 
@@ -130,6 +149,10 @@ export async function applyToBeta({ db, application }) {
       application.monthly_call_volume != null ? Number(application.monthly_call_volume) : null,
     spanish_call_pct:
       application.spanish_call_pct != null ? Number(application.spanish_call_pct) : null,
+    // Normalize before persistence: the form's "no"/"not_sure" strings must
+    // never coerce truthy into the boolean column. Unknown lands as false at
+    // rest; qualification.reasons keeps the true tri-state.
+    records_calls: normalizeRecordsCalls(application.records_calls) === true,
     status,
     qualification,
   });

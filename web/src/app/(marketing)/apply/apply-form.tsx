@@ -3,8 +3,9 @@ import * as React from "react";
 import Link from "next/link";
 
 // The beta application form. Posts to the existing /api/beta/apply (ICP
-// qualification + NDA flow + waitlist). Kept deliberately small: five fields,
-// plain words, one button.
+// qualification + NDA flow + waitlist). Kept deliberately small: a handful of
+// fields, plain words, one button. The two setup-truth questions (recording,
+// Spanish share) exist so qualification notes are honest, not guessed.
 const inputClass =
   "w-full rounded-base border border-hairline bg-canvas p-3 text-sm text-ink placeholder:text-faint focus:border-accent focus:outline-none";
 
@@ -18,6 +19,24 @@ const PRACTICE_AREAS = [
 
 const STATES = ["CA", "AZ", "NV", "OR", "WA", "TX", "FL", "NY", "Other"];
 
+// "Do you record intake calls?" — tri-state so the qualification notes stay
+// truthful (an unanswered question is "unknown", never "not recording").
+const RECORDS_CALLS = [
+  { value: "yes", label: "Yes, calls are recorded" },
+  { value: "no", label: "Not yet" },
+  { value: "not_sure", label: "Not sure" },
+];
+
+// Rough bands, not a percentage quiz — the value is the band's midpoint.
+const SPANISH_BANDS = [
+  { value: "", label: "Skip this one" },
+  { value: "0", label: "Almost none" },
+  { value: "10", label: "Around 1 in 10" },
+  { value: "25", label: "About a quarter" },
+  { value: "50", label: "About half" },
+  { value: "75", label: "More than half" },
+];
+
 export function ApplyForm() {
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
@@ -25,6 +44,8 @@ export function ApplyForm() {
   const [practice, setPractice] = React.useState("personal_injury");
   const [state, setState] = React.useState("CA");
   const [volume, setVolume] = React.useState("");
+  const [recordsCalls, setRecordsCalls] = React.useState("");
+  const [spanishBand, setSpanishBand] = React.useState("");
   const [pending, setPending] = React.useState(false);
   const [done, setDone] = React.useState<string | null>(null);
   // True only when the API confirms the NDA actually went out by email.
@@ -51,6 +72,8 @@ export function ApplyForm() {
           practice_area: practice,
           state,
           ...(volume.trim() !== "" ? { monthly_call_volume: Number(volume) } : {}),
+          ...(recordsCalls !== "" ? { records_calls: recordsCalls } : {}),
+          ...(spanishBand !== "" ? { spanish_call_pct: Number(spanishBand) } : {}),
         }),
       });
       const data = await r.json();
@@ -148,6 +171,27 @@ export function ApplyForm() {
         <label className="flex flex-col gap-1.5 text-sm font-medium text-ink sm:col-span-1">
           Calls per month <span className="font-normal text-faint">(optional)</span>
           <input type="number" min={0} value={volume} onChange={(e) => setVolume(e.target.value)} className={inputClass} placeholder="150" />
+        </label>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
+          Do you record intake calls?
+          <select required value={recordsCalls} onChange={(e) => setRecordsCalls(e.target.value)} className={inputClass}>
+            <option value="" disabled>
+              Choose one
+            </option>
+            {RECORDS_CALLS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
+          Calls in Spanish? <span className="font-normal text-faint">(rough guess is fine)</span>
+          <select value={spanishBand} onChange={(e) => setSpanishBand(e.target.value)} className={inputClass}>
+            {SPANISH_BANDS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
         </label>
       </div>
       {error ? <p className="text-sm text-red">{error}</p> : null}

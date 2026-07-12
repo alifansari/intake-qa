@@ -64,3 +64,31 @@ export async function resolveDeskFirm(
   const firm = firms.find((f) => (f.name ?? "").includes("DEMO")) ?? firms[0];
   return firm ? { id: firm.id, name: String(firm.name ?? "Firm"), source: "fallback" } : null;
 }
+
+// ---------------------------------------------------------------------------
+// Route-handler guard: the desk API pattern from /api/desk/flag-status, in one
+// place. When Supabase auth is configured the caller MUST be signed in; the
+// firm is then resolved with the same rules as every desk page. Returns either
+// { response } (send it back verbatim) or { user, firm }.
+// ---------------------------------------------------------------------------
+
+export async function requireDeskFirm(
+  db: PipelineDb,
+  listFirms: (db: unknown) => Promise<Array<{ id: string | number; name?: string }>>,
+): Promise<
+  | { response: Response; user?: undefined; firm?: undefined }
+  | { response?: undefined; user: { id?: string; email?: string | null } | null; firm: DeskFirm }
+> {
+  let user: { id?: string; email?: string | null } | null = null;
+  if (isSupabaseConfigured()) {
+    user = await getCurrentUser();
+    if (!user) {
+      return { response: Response.json({ error: "unauthorized" }, { status: 401 }) };
+    }
+  }
+  const firm = await resolveDeskFirm(db, listFirms);
+  if (!firm) {
+    return { response: Response.json({ error: "no firm on this account" }, { status: 403 }) };
+  }
+  return { user, firm };
+}

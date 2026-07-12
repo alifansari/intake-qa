@@ -37,13 +37,15 @@ Everything else in `.env.example` is optional locally and documented inline ther
 
 ## Migrations (two tracks)
 
-- `npm run db:migrate` — local SQLite, migrations `0001`–`0022` (`db/migrations/`). This is
+- `npm run db:migrate` — local SQLite, migrations `0001`–`0026` (`db/migrations/`). This is
   what the pilot surfaces and the test suite run against.
 - `npm run db:migrate:postgres -- 0001 0002 ...` — hosted Supabase Postgres, migrations
-  `0001`–`0030` (`supabase/migrations/`). Pass the numeric prefixes you want applied (it
+  `0001`–`0034` (`supabase/migrations/`). Pass the numeric prefixes you want applied (it
   never blindly re-runs history); reads `DATABASE_URL` from the env or `web/.env.local`.
-- Migrations `0023`–`0030` (the intake system) exist **only** on the Postgres track — that
-  divergence is intentional, and `npm run smoke` knows about it.
+- The tracks diverge above `0019` by design: RLS, the Spot Check Studio, and the intake
+  system exist **only** on the Postgres track, so the same logical migration can carry a
+  different number on each track (e.g. SQLite `0026_firm_callrail_secret` = Postgres
+  `0034_firm_callrail_secret`). `npm run smoke` knows about the divergence.
 
 ## Seeding demo data
 

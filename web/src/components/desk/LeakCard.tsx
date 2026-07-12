@@ -10,9 +10,20 @@
 // what really happens on the phone (spoke to them / left a message / bad number /
 // signed / passed), a two-sentence warm opener, an undo for misclicks, and NO
 // grading language — scores live in the attorney's documents, not on the queue.
+//
+// This card also carries the queue's honesty features (view logic shared with
+// the server page via lib/desk/queue-view.mjs):
+//   * B-013 — an elapsed-time urgency line ("Waiting 5 days — still very
+//     winnable"). Time since the call ONLY; never a statute deadline date.
+//   * B-011 — after each logged attempt, one line of encouragement grounded in
+//     the callback science (93% of conversions happen by call 6; most firms
+//     stop at 2). Encouragement, never surveillance; silent once terminal.
+//   * B-010 — a `compact` mode for the done pile: terminal cards render as one
+//     slim row (with Reopen); a reopened card expands back in place.
 
 import { useState } from "react";
 import { fmtDate } from "@/pdf/doc-helpers.mjs";
+import { attemptNudge } from "@/lib/desk/queue-view.mjs";
 
 export type Leak = {
   id: number | string;
@@ -28,6 +39,11 @@ export type Leak = {
   quote: string | null; // one transcript-validated verbatim line ("no citation, no claim")
   phone: string | null;
   saveStatus: string | null; // canonical key from flag_status
+  attempts: number; // logged touches from flag_status.attempts (B-011)
+  // B-013 — computed on the SERVER (one clock, no hydration drift) by
+  // callUrgency() in lib/desk/queue-view.mjs. Elapsed time only, never a
+  // statute deadline.
+  urgency: { days: number; tone: "fresh" | "aging" | "urgent"; label: string } | null;
 };
 
 const CONFIDENCE_TEXT: Record<string, string> = {
@@ -49,6 +65,8 @@ const STATUS_LABEL: Record<string, string> = {
 
 // One-tap outcomes per state — mirrors the phone call, not a form. Every
 // terminal state can be reopened; every active state can be undone.
+// "Left another message" (reached_out → reached_out) exists so the second,
+// third… voicemail is loggable — that's what makes the attempt count real.
 const NEXT: Record<string, { label: string; to: string }[]> = {
   needs_callback: [
     { label: "Spoke to them", to: "back_in_touch" },
@@ -57,6 +75,7 @@ const NEXT: Record<string, { label: string; to: string }[]> = {
   ],
   reached_out: [
     { label: "Spoke to them", to: "back_in_touch" },
+    { label: "Left another message", to: "reached_out" },
     { label: "They signed", to: "signed" },
     { label: "They passed", to: "didnt_sign" },
   ],
@@ -70,17 +89,40 @@ const NEXT: Record<string, { label: string; to: string }[]> = {
 };
 
 const TERMINAL = new Set(["signed", "didnt_sign", "bad_number"]);
+const ATTEMPT = new Set(["reached_out", "back_in_touch"]);
 
-export function LeakCard({ leak, firmName }: { leak: Leak; firmName?: string }) {
+// Escalating visual weight for the elapsed-time line (B-013). Never red: the
+// path to green — the call button — is on the same card, and amber is as far
+// as honest urgency needs to go.
+const URGENCY_CLASS: Record<string, string> = {
+  fresh: "text-faint",
+  aging: "font-medium text-amber",
+  urgent: "inline-block rounded-pill bg-amber-tint px-2 py-0.5 font-semibold text-amber",
+};
+
+export function LeakCard({
+  leak,
+  firmName,
+  compact = false,
+}: {
+  leak: Leak;
+  firmName?: string;
+  compact?: boolean;
+}) {
   const [status, setStatus] = useState(leak.saveStatus ?? "needs_callback");
+  const [attempts, setAttempts] = useState(Number(leak.attempts) || 0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const terminal = TERMINAL.has(status);
   const badge = leak.tier ? (leak.tier === "strong" ? "Strong flag" : "Moderate flag") : "Unrated";
+  const urgency = leak.urgency;
+  const nudge = attemptNudge(attempts, status);
 
   async function save(to: string) {
     const prev = status;
+    const prevAttempts = attempts;
     setStatus(to); // optimistic — the click must feel instant
+    if (ATTEMPT.has(to)) setAttempts(prevAttempts + 1); // optimistic tally too
     setSaving(true);
     setError(null);
     try {
@@ -90,12 +132,45 @@ export function LeakCard({ leak, firmName }: { leak: Leak; firmName?: string }) 
         body: JSON.stringify({ flag_id: leak.id, status: to }),
       });
       if (!r.ok) throw new Error("save failed");
+      // Reconcile the tally with the server's authoritative count.
+      const data = await r.json().catch(() => null);
+      if (data && typeof data.attempts === "number") setAttempts(data.attempts);
     } catch {
       setStatus(prev); // revert — never silently lie about persistence
+      setAttempts(prevAttempts);
       setError("Couldn't save — try again.");
     } finally {
       setSaving(false);
     }
+  }
+
+  // B-010 — the done pile renders slim: one line, status, Reopen. A reopened
+  // card (status back to needs_callback) falls out of `terminal` and expands
+  // back into the full card in place.
+  if (compact && terminal) {
+    return (
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-card border border-hairline bg-canvas px-4 py-2.5">
+        <span className="text-sm font-semibold text-ink-muted">
+          {leak.initials} · {leak.displayId}
+        </span>
+        <span className="text-xs text-faint">
+          {leak.caseType ?? "Signable case"} · called {fmtDate(leak.callDate)}
+        </span>
+        <span className="rounded-pill bg-surface px-2 py-0.5 text-xs font-semibold text-ink-muted">
+          {STATUS_LABEL[status] ?? status}
+        </span>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => save("needs_callback")}
+          className="text-xs font-medium text-faint underline hover:text-ink disabled:opacity-60"
+          title="Put it back in the callback queue."
+        >
+          Reopen
+        </button>
+        {error ? <span className="text-xs text-red">{error}</span> : null}
+      </div>
+    );
   }
 
   // The warm opener: service framing, references their own call. Two sentences.
@@ -113,6 +188,14 @@ export function LeakCard({ leak, firmName }: { leak: Leak; firmName?: string }) 
           <p className="mt-0.5 text-sm text-ink-muted">
             {leak.caseType ?? "Signable case"} · called {fmtDate(leak.callDate)}
           </p>
+          {/* B-013 — honest urgency: elapsed time since THEIR call, escalating
+              weight, and the fix is one tap away. Never a statute deadline —
+              the firm's lawyer owns deadlines, this line never computes one. */}
+          {!terminal && urgency ? (
+            <p className="mt-1 text-xs">
+              <span className={URGENCY_CLASS[urgency.tone] ?? "text-faint"}>{urgency.label}</span>
+            </p>
+          ) : null}
         </div>
         <span
           title={leak.tier ? CONFIDENCE_TEXT[leak.tier] : undefined}
@@ -180,7 +263,7 @@ export function LeakCard({ leak, firmName }: { leak: Leak; firmName?: string }) 
         </span>
         {(NEXT[status] ?? []).map((n) => (
           <button
-            key={n.to}
+            key={`${n.to}:${n.label}`}
             type="button"
             disabled={saving}
             onClick={() => save(n.to)}
@@ -214,6 +297,11 @@ export function LeakCard({ leak, firmName }: { leak: Leak; firmName?: string }) 
         ) : null}
         {error ? <span className="text-xs text-red">{error}</span> : null}
       </div>
+
+      {/* B-011 — encouragement after a logged try, grounded in the callback
+          science. Reads as "keep going", never "you've only called twice";
+          disappears the moment the case is decided. */}
+      {nudge ? <p className="mt-2 text-xs font-medium text-accent">{nudge}</p> : null}
     </div>
   );
 }

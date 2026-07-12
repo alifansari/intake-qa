@@ -1,97 +1,127 @@
-# GO LIVE — checklist before any real lead is texted
+# GO LIVE — the Monday beta runbook (digest-first)
 
-**Read this top to bottom. Do not skip a box.** Right now the system is in a safe
-state: `TEST_MODE=true` means every "send" is simulated and logged — **no real phone
-number is ever contacted**, and no real retainer is ever sent. That safety only comes
-off when you deliberately complete the steps below.
+**Rewritten 2026-07-11 for the digest-first beta.** The old version of this file was
+written for an SMS-first launch. That launch is **parked**: the beta that starts Monday
+is the **desk + daily email digest**. No SMS goes out. `TEST_MODE` stays `true`.
 
-This is the checklist a non-coder must finish **before** flipping `TEST_MODE` to
-`false`. These are legal and safety requirements, not nice-to-haves. If you are unsure
-about any item, **stop and ask** — do not guess.
+Two lists below. **Part A** is what must be true Monday morning. **Part B** is the old
+SMS gate list — it stays parked and none of it blocks Monday, but do not delete it: it
+comes back the day texting is turned on.
 
-> Prove the whole pipeline still works end-to-end at any time (safely, nothing sent):
-> from `web/` run **`npm run e2e-synthetic`**. Every stage should print `PASS`. That
-> command uses fake data with `TEST_MODE=true` and never contacts anyone.
->
-> For a fast readiness check (no pipeline run, no network), run **`npm run smoke`** from
-> `web/`: it confirms the two migration tracks match, the schema builds, and your
-> compliance flags are set correctly. You can also open **`/admin/status`** in the app for
-> a live, read-only board of the guardrails, per-firm kill switches, pending approvals, and
-> recent errors.
+> Prove the pipeline end-to-end at any time, safely: from `web/` run
+> **`npm run e2e-synthetic`** (fake data, nothing sent — every stage should print PASS).
+> Fast readiness check: **`npm run smoke`**. Live guardrail board: **`/admin/status`**.
 
 ---
 
-## The ten gates (all must be checked)
+## Part A — Monday gates (all must be checked before firm #1's calls flow)
 
-### [ ] 1. A2P 10DLC brand + campaign APPROVED
-Your business ("brand") and your texting use-case ("campaign") must be **registered and
-APPROVED** with the carriers through Twilio before you can legally send business SMS in
-the US. Confirm the status reads **APPROVED** (not "pending" / "in review") in the Twilio
-console. Texting real numbers without this is a compliance violation and gets your
-numbers blocked.
+### [ ] A1. Hosted database is at the migration floor: **0034**
+Apply **every** file in `web/supabase/migrations/` to the hosted Supabase database, in
+order, through **`0034_firm_callrail_secret.sql`**. (The old checklist said 0006/0007 —
+that is years of drift; the floor is 0034.) `npm run smoke` confirms the migration tracks
+match in the repo; you still run the SQL on the hosted DB and confirm 0034 is applied.
 
-### [ ] 2. Anthropic BAA + Zero-Data-Retention (ZDR) active
-Call recordings and transcripts are confidential client information. Before real client
-data touches the scoring model, a **Business Associate Agreement (BAA)** and **Zero Data
-Retention** must be in place and **active** on your Anthropic account. Get written
-confirmation on file.
+### [ ] A2. Vercel environment variables present
+Check each of these exists in the Vercel project (values live only there — never in code):
 
-### [ ] 3. AssemblyAI BAA signed
-Same reason: transcription processes confidential call audio. A **signed BAA with
-AssemblyAI** must be on file before any real call is transcribed.
+- `SUPABASE_URL` / keys, `ANTHROPIC_API_KEY`, `ASSEMBLYAI_API_KEY` — the pipeline.
+- `FOUNDER_EMAIL` — gates the studio and the manual digest button.
+- `CRON_SECRET` — authorizes the daily digest cron (`vercel.json` fires
+  `/api/digest/run` at 15:00 UTC = 8:00am PT). **If this is unset the cron cannot run.**
+- `DIGEST_LINK_SECRET` — signs the links inside digest emails.
+- `RESEND_API_KEY` + `RESEND_FROM` — live email delivery (verified sender).
+- `EMAIL_ENABLED` — **the email switch.** *Dependency note: this flag is being added in
+  the Session 0 ship-blockers branch (it decouples digest email from `TEST_MODE`). Until
+  that lands and deploys, digest email is still gated by `TEST_MODE`, which stays `true`
+  — meaning digests render to files and nothing emails. Do not flip `TEST_MODE` to get
+  email; wait for `EMAIL_ENABLED`.*
+- `KILL_SWITCH=false` — the digest route halts everything while this is `true`. Flipping
+  it back to `true` is still the one-move emergency stop.
+- `TEST_MODE=true` — **stays true.** This is what keeps SMS simulated (Part B).
+- `DIGEST_TO` — only if you want the internal approval-queue digest; it must be an
+  **internal** address, never a firm's (Session 0 adds a guard for this).
 
-### [ ] 4. Flip `TEST_MODE` to `false` — ONLY after 1–3
-Do **not** change `TEST_MODE` until gates 1, 2, and 3 above are all complete. Once they
-are, set `TEST_MODE=false` in your live environment variables (`.env.local` / host env).
-Until this moment, the system only simulates sends. **This is the single switch that
-starts real texting — treat it with care.**
+### [ ] A3. Digest dry-run, then live send to yourself
+1. With `EMAIL_ENABLED` off (or before Session 0 lands): trigger `/api/digest/run` (the
+   founder "Send today's digests" button, or a GET with `Authorization: Bearer
+   $CRON_SECRET`). Confirm it returns per-firm results and renders the digest file.
+   Read the rendered digest — is it something you'd want a firm to receive?
+2. With `EMAIL_ENABLED=true` and Resend keys set: run it again for a test firm whose only
+   member email is **yours**. Confirm the email arrives, the links work (signed by
+   `DIGEST_LINK_SECRET`), and nothing went to anyone else.
 
-### [ ] 5. PILOT MODE stays ON (human approval required)
-PILOT MODE is **not** something you turn off. Every single outbound text must still be
-**reviewed and approved by a human** in the approval queue before it can send. There is
-no autonomous/bulk sending. Confirm your team knows the Approve / Edit / Reject workflow.
+### [ ] A4. Synthetic call through the PRODUCTION pipeline
+`npm run e2e-synthetic` locally proves the code path; before Monday also push one
+synthetic call through the deployed prod pipeline (upload path or signed webhook) and
+watch it land on the desk: received → transcribed → scored → flagged → visible at
+`/desk`. If it sticks at "received," stop and fix before any firm connects.
 
-### [ ] 6. Kill switch tested
-Confirm the master **`KILL_SWITCH`** halts ALL sending instantly, and that the per-firm
-kill switch works too. Test it: throw the switch, attempt a send, and verify it is
-**blocked**. You must know how to stop everything in one move before you go live.
+### [ ] A5. CallRail webhook self-test for firm #1
+Run **`web/scripts/callrail-selftest.mjs`** against the deployed webhook URL with the
+firm's signing secret (per-firm secret lives in `firms.callrail_webhook_secret`,
+migration 0034). *Dependency note: this script and the verified signature format are
+Session 1's deliverable; until it lands, do NOT promise CallRail at a setup call — lead
+with "send us your recordings" (upload path), which needs no webhook.* Green here means:
+synthetic signed payload → 200 → call row created.
 
-### [ ] 7. Quiet hours + opt-out verified in staging with YOUR OWN phone
-Using **your own phone number** (never a client's) in a staging setup:
-- **Quiet hours:** confirm no message sends between **8:00pm and 8:00am** in the
-  recipient's local time.
-- **Opt-out:** text back **STOP** (also test UNSUBSCRIBE / CANCEL / QUIT / END / REVOKE /
-  OPT OUT) and confirm that number is **immediately** marked opted-out, logged, and
-  **never texted again**.
+### [ ] A6. NDA logistics ready (the one-business-day promise)
+The apply flow promises the mutual NDA "within one business day." Dropbox Sign is
+sandboxed, so **you send it manually** — have the NDA ready to email the same day an
+application lands, and check `/studio` for `nda_pending` applicants every morning.
+**Open item routed to Ali/Yang:** the NDA template itself
+(`ops/drafts/external/beta-mutual-nda.md`) has not had attorney review — see
+`ops/drafts/nda-promise-options.md` for the decision (get Yang's read vs. soften the
+copy). Do not send unreviewed contract paper without deciding that on purpose.
 
-### [ ] 8. Firm's retainer template loaded in Dropbox Sign
-The firm's actual **retainer agreement** must be loaded as the template in Dropbox Sign.
-Keep signature requests in **test/sandbox mode** until you have deliberately verified the
-correct document, signer fields, and firm details.
+### [ ] A7. Provider data-terms check (moved EARLIER by the pivot, not later)
+The old checklist put "Anthropic BAA/zero-retention" and "AssemblyAI BAA" behind the
+texting gate. That was wrong placement: those agreements are about **real client call
+audio touching the pipeline**, which starts **Monday**, texting or not. Before firm #1's
+real calls flow, either (a) have written confirmation of the data-processing/no-training
+terms with AssemblyAI and Anthropic on file, or (b) Ali explicitly accepts, in writing in
+`ops/decisions.md`, that the beta runs on the providers' standard terms until the signed
+versions land. Do not let this be decided by default.
 
-### [ ] 9. Ethics-counsel sign-off on file
-Get **written sign-off from ethics counsel** on the flat-SaaS fee arrangement **and** the
-inbound-lead **TCPA** posture (consent basis: the caller's own inbound inquiry / existing
-business relationship). This must be **on file** before real leads are contacted.
+### [ ] A8. Guardrail board green
+Open `/admin/status`: kill switches, pending approvals, recent errors. `npm run smoke`
+passes. The error log is empty of unexplained entries.
 
 ---
 
-### [ ] 10. Hosted database migrations applied
-Apply **every** file in `web/supabase/migrations/` to your hosted Supabase database (in
-order). Local SQLite migrates itself; the hosted Postgres does not. In particular confirm
-`0006_template_versions.sql` and `0007_errors.sql` are applied, or onboarding will save a
-firm but not its template pack, and the error log will be missing. `npm run smoke` checks
-that the two tracks are aligned in the repo; you must still run the SQL on the hosted DB.
+## Part B — PARKED: the SMS gates (none of these block Monday)
+
+**Everything here stays exactly as it was — parked.** `twilio` is not even installed in
+`web/package.json`; all send paths are simulated while `TEST_MODE=true`. These gates
+come back the day Ali decides to turn texting on, and **all** must pass before
+`TEST_MODE` is ever flipped to `false`:
+
+1. **A2P 10DLC brand + campaign APPROVED** in the Twilio console (not "pending").
+2. **Twilio actually installed and wired** through the single send chokepoint
+   (`web/messaging/send.mjs`) — no code path may send around it.
+3. **Quiet hours + opt-out verified with YOUR OWN phone** in staging: no sends
+   8:00pm–8:00am recipient-local; STOP/UNSUBSCRIBE/CANCEL/QUIT/END/REVOKE/OPT OUT all
+   mark the number opted-out immediately, logged, never texted again.
+4. **PILOT MODE confirmed on**: a human approves every outbound text in the queue —
+   this is never turned off.
+5. **Kill switch tested against SMS**: throw it, attempt a send, verify blocked.
+6. **Firm's retainer template loaded in Dropbox Sign** and verified (out of sandbox
+   deliberately, not by accident).
+7. **Ethics-counsel sign-off on file** for the flat-fee arrangement and the inbound-lead
+   TCPA posture.
+8. **Only then: `TEST_MODE=false`.** The single switch that starts real texting.
 
 ---
 
-## After go-live — keep these true
+## After go-live — keep these true (unchanged)
 
-- **PILOT MODE stays on.** A human approves every message, always.
-- **Quiet hours and opt-outs are honored automatically** — do not disable them.
-- **Kill switch is one move away** if anything looks wrong.
-- **Data retention:** transcripts and messages are purged after `DATA_RETENTION_DAYS`.
-- **Secrets** live only in environment variables — never in code, never shared, never
-  committed.
+- **KILL_SWITCH is one move away.** `KILL_SWITCH=true` halts digests and (later) sends.
+- **PILOT MODE stays on** whenever texting exists: a human approves every message.
+- **Data retention:** transcripts purge on the rolling `DATA_RETENTION_DAYS` sweep.
+  The code default is 90 days and the public /security page promises a 90-day window —
+  **make sure the deployed env value says 90**, because `.env.example` still says 30
+  (an inconsistency flagged 2026-07-11; whichever number is deployed must match the
+  public promise).
+- **Secrets** live only in environment variables — never in code, never committed.
 
 **If in doubt at any point: set `KILL_SWITCH=true`, stop, and ask.**

@@ -5,6 +5,7 @@
 // prefetchers can never mark a case by scanning the inbox.
 import { redirect } from "next/navigation";
 import { verifyDigestToken } from "../../../../messaging/digest-links.mjs";
+import { recordEventOn } from "@/lib/events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,6 +48,24 @@ async function confirmAction(formData: FormData) {
     });
     if (res && res.alreadyResolved) outcome = "already";
     else if (!res || res.forbidden || res.ok === false) outcome = "failed";
+    // First-party event log (ids only, best-effort): the human pressed the
+    // digest button (a GET prefetch never lands here), and — when the write
+    // stuck — a callback-shaped status was recorded, which is what the 48h
+    // activation clock on /studio/beta counts.
+    await recordEventOn(db, {
+      event: "digest_link_clicked",
+      firmId: check.firmId,
+      actor: "email-digest-link",
+      context: { flagId: String(check.flagId), status: check.status, result: outcome },
+    });
+    if (outcome === "done") {
+      await recordEventOn(db, {
+        event: "callback_marked",
+        firmId: check.firmId,
+        actor: "email-digest-link",
+        context: { flagId: String(check.flagId), status: check.status, via: "digest_link" },
+      });
+    }
   } finally {
     await store.closePipelineDb(db);
   }

@@ -1,7 +1,8 @@
 # The Intake System — operator's guide (plain English)
 
 Built 2026-07-09/10 across seven phases. Everything below is live in the app and the
-hosted database (migrations 0024–0029 applied). **Nothing sends anything, ever**:
+hosted database (hosted migrations 0023–0033 applied; 0034_firm_callrail_secret is
+still pending on hosted as of 2026-07-11 — see ops/decisions.md). **Nothing sends anything, ever**:
 alerts and CRM writes go through mock chokepoints gated by `KILL_SWITCH`/`TEST_MODE`
 (both default ON), and real senders/CRMs/telephony are deferred in [ROADMAP.md](ROADMAP.md)
 until you sign off per integration.

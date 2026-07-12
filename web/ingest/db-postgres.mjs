@@ -13,6 +13,8 @@
 // connection, so it operates outside browser RLS by design; the queue UI still
 // reads through the user-scoped, RLS-protected Supabase client.
 
+import { encodeCallRailSecret } from "../integrations/crypto.mjs";
+
 // Insert a call, or update the existing one when the same firm re-sends the same
 // external_call_id. Returns { id, created }.
 export async function upsertCall(db, call) {
@@ -63,9 +65,19 @@ export async function setTranscript(db, callId, transcript) {
 }
 
 export async function getUnscoredCalls(db, firmId = null) {
+  // A call is "unscored" only if it has no flag row AND is not in a terminal
+  // status. `failed_*` and `excluded_*` are terminal: without this guard a
+  // permanently-failed call (bad audio, Spanish/single-speaker transcript throw)
+  // is re-selected by EVERY sweep, burning a transcribe+score attempt per cycle
+  // forever and re-alerting the founder each pass. A failed call already
+  // surfaces once (visible status_reason on the desk + one founder alert); it
+  // must not be retried blindly. To retry after fixing the cause, clear the
+  // call's status back to NULL. (Retry-cap decision, Session 9 red-team.)
   const base = `
     SELECT c.* FROM calls c
-    WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)`;
+    WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)
+      AND (c.status IS NULL
+           OR (c.status NOT LIKE 'failed%' AND c.status NOT LIKE 'excluded%'))`;
   if (firmId != null) {
     const r = await db.query(`${base} AND c.firm_id = $1 ORDER BY c.created_at, c.id`, [firmId]);
     return r.rows;
@@ -238,6 +250,19 @@ export async function addInboundMessage(db, { conversation_id, body }) {
     [conversation_id, body]
   );
   return info.rows[0].id;
+}
+
+// Per-firm CallRail signing secret (supabase migration 0034). Pass null to
+// clear (falls back to the shared env secret). Returns true when a row updated.
+export async function setFirmCallRailSecret(db, firmId, secret) {
+  // Encrypt at rest — the signing key can forge valid webhook signatures, so it
+  // must never be stored as plaintext where a DB dump would expose it.
+  const stored = encodeCallRailSecret(secret);
+  const r = await db.query(
+    "UPDATE firms SET callrail_webhook_secret = $1 WHERE id = $2",
+    [stored, firmId],
+  );
+  return (r.rowCount ?? 0) > 0;
 }
 
 export async function setFirmKillSwitch(db, firmId, on) {
@@ -1183,6 +1208,7 @@ export async function listLeakedFlags(db, firmId) {
     `SELECT f.id, f.call_id, f.qualification_score, f.reason, f.case_type,
             c.caller_name, c.caller_phone, c.received_at,
             fc.confidence_tier, fs.status AS save_status,
+            COALESCE(fs.attempts, 0) AS attempts, fs.last_attempt_at,
             (SELECT COUNT(*) FROM transcript_citations tc WHERE tc.flag_id = f.id) AS citation_count,
             -- One VALIDATED verbatim line for the queue card (no citation, no claim §IV):
             -- only status='passed' snippets are confirmed against the transcript; prefer the
@@ -1243,14 +1269,22 @@ export async function setFlagStatus(db, { flag_id, status, updated_by, firm_id =
       return { ok: false, alreadyResolved: true, current };
     }
   }
-  await db.query(
-    `INSERT INTO flag_status (flag_id, status, updated_by, updated_at)
-     VALUES ($1, $2, $3, now())
+  // Attempt counter (B-011): "left a message" / "spoke to them" each log one
+  // real touch on the phone, so those writes increment attempts. Terminal
+  // outcomes and undo don't count — the counter only grows, and only from
+  // logged touches. It powers encouragement copy, never a score.
+  const attemptInc = status === "reached_out" || status === "back_in_touch" ? 1 : 0;
+  const upsert = await db.query(
+    `INSERT INTO flag_status (flag_id, status, updated_by, updated_at, attempts, last_attempt_at)
+     VALUES ($1, $2, $3, now(), $4, CASE WHEN $4 = 1 THEN now() END)
      ON CONFLICT (flag_id) DO UPDATE
-       SET status = excluded.status, updated_by = excluded.updated_by, updated_at = now()`,
-    [flag_id, status, updated_by ?? null]
+       SET status = excluded.status, updated_by = excluded.updated_by, updated_at = now(),
+           attempts = flag_status.attempts + $4,
+           last_attempt_at = COALESCE(excluded.last_attempt_at, flag_status.last_attempt_at)
+     RETURNING attempts`,
+    [flag_id, status, updated_by ?? null, attemptInc]
   );
-  return { ok: true, firm_id: owner.rows[0].firm_id };
+  return { ok: true, firm_id: owner.rows[0].firm_id, attempts: Number(upsert.rows[0]?.attempts ?? 0) };
 }
 
 export async function listNonAnalyzedCalls(db, firmId) {
@@ -1367,4 +1401,152 @@ export async function purgeExpiredCalls(db, beforeIso) {
     calls: calls.rowCount ?? 0,
     messages: messages.rowCount ?? 0,
   };
+}
+
+// --- First-party product event log + alert state (migration 0035) ------------
+// Twins of ingest/db.mjs (SQLite migration 0027). Same contract, $n params.
+
+import { isEventType } from "./event-types.mjs";
+
+export async function recordEvent(db, { event, firm_id = null, actor = null, context = null }) {
+  if (!isEventType(event)) throw new Error(`unknown product event: ${event}`);
+  const r = await db.query(
+    `INSERT INTO events (event, firm_id, actor, context)
+     VALUES ($1, $2, $3, $4) RETURNING id`,
+    [
+      event,
+      firm_id,
+      actor == null ? null : String(actor),
+      context == null ? null : typeof context === "string" ? context : JSON.stringify(context),
+    ]
+  );
+  return r.rows[0].id;
+}
+
+export async function listEvents(db, { event = null, firm_id = null, sinceIso = null, limit = 200 } = {}) {
+  const where = [];
+  const params = [];
+  if (event != null) { params.push(event); where.push(`event = $${params.length}`); }
+  if (firm_id != null) { params.push(firm_id); where.push(`firm_id = $${params.length}`); }
+  if (sinceIso != null) { params.push(sinceIso); where.push(`created_at >= $${params.length}`); }
+  params.push(Math.max(1, Math.floor(limit)));
+  const r = await db.query(
+    `SELECT * FROM events${where.length ? ` WHERE ${where.join(" AND ")}` : ""}
+      ORDER BY id DESC LIMIT $${params.length}`,
+    params
+  );
+  return r.rows;
+}
+
+export async function countEvents(db, { event, firm_id = null, sinceIso = null } = {}) {
+  const where = ["event = $1"];
+  const params = [event];
+  if (firm_id != null) { params.push(firm_id); where.push(`firm_id = $${params.length}`); }
+  if (sinceIso != null) { params.push(sinceIso); where.push(`created_at >= $${params.length}`); }
+  const r = await db.query(
+    `SELECT COUNT(*)::int AS n FROM events WHERE ${where.join(" AND ")}`,
+    params
+  );
+  return Number(r.rows[0]?.n ?? 0);
+}
+
+export async function firstEventAt(db, { event, firm_id = null } = {}) {
+  const where = ["event = $1"];
+  const params = [event];
+  if (firm_id != null) { params.push(firm_id); where.push(`firm_id = $${params.length}`); }
+  const r = await db.query(
+    `SELECT MIN(created_at) AS t FROM events WHERE ${where.join(" AND ")}`,
+    params
+  );
+  const t = r.rows[0]?.t ?? null;
+  return t == null ? null : new Date(t).toISOString();
+}
+
+export async function lastEventAt(db, { event = null, firm_id = null } = {}) {
+  const where = [];
+  const params = [];
+  if (event != null) { params.push(event); where.push(`event = $${params.length}`); }
+  if (firm_id != null) { params.push(firm_id); where.push(`firm_id = $${params.length}`); }
+  const r = await db.query(
+    `SELECT MAX(created_at) AS t FROM events${where.length ? ` WHERE ${where.join(" AND ")}` : ""}`,
+    params
+  );
+  const t = r.rows[0]?.t ?? null;
+  return t == null ? null : new Date(t).toISOString();
+}
+
+export async function getAlertState(db, key) {
+  const r = await db.query(`SELECT value FROM alert_state WHERE key = $1`, [key]);
+  return r.rows[0] ? r.rows[0].value : null;
+}
+
+export async function setAlertState(db, key, value) {
+  await db.query(
+    `INSERT INTO alert_state (key, value, updated_at) VALUES ($1, $2, now())
+     ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+    [key, value == null ? null : String(value)]
+  );
+}
+
+export async function getErrorsAfterId(db, afterId = 0, limit = 500) {
+  const r = await db.query(
+    `SELECT * FROM errors WHERE id > $1 ORDER BY id LIMIT $2`,
+    [Number(afterId) || 0, Math.max(1, Math.floor(limit))]
+  );
+  return r.rows;
+}
+
+export async function setFirmStage(db, firmId, stage) {
+  const s = stage === "pilot" || stage === "paid" ? stage : null;
+  await db.query(
+    `UPDATE firms SET stage = $1, stage_updated_at = now() WHERE id = $2`,
+    [s, firmId]
+  );
+}
+
+export async function callCountsSince(db, firmId, sinceIso) {
+  const r = await db.query(
+    `SELECT COUNT(*)::int AS received,
+            COALESCE(SUM(CASE WHEN status = 'analyzed' THEN 1 ELSE 0 END), 0)::int AS scored,
+            COALESCE(SUM(CASE WHEN status LIKE 'failed%' THEN 1 ELSE 0 END), 0)::int AS failed
+       FROM calls WHERE firm_id = $1 AND created_at >= $2`,
+    [firmId, sinceIso]
+  );
+  const row = r.rows[0];
+  return {
+    received: Number(row?.received ?? 0),
+    scored: Number(row?.scored ?? 0),
+    failed: Number(row?.failed ?? 0),
+  };
+}
+
+export async function lastCallAt(db, firmId) {
+  const r = await db.query(
+    `SELECT MAX(created_at) AS t FROM calls WHERE firm_id = $1`,
+    [firmId]
+  );
+  const t = r.rows[0]?.t ?? null;
+  return t == null ? null : new Date(t).toISOString();
+}
+
+// Received-but-never-scored watchdog (twin of db.mjs). Per-firm counts of calls
+// with no flag row, not terminal, received before `cutoffIso`. See db.mjs for
+// the why (Inngest-outage safety net feeding the founder stuckUnscored alert).
+export async function stuckUnscoredCalls(db, cutoffIso) {
+  const r = await db.query(
+    `SELECT c.firm_id AS firm_id, COUNT(*)::int AS count, MIN(c.received_at) AS oldest
+       FROM calls c
+      WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)
+        AND (c.status IS NULL
+             OR (c.status NOT LIKE 'failed%' AND c.status NOT LIKE 'excluded%'))
+        AND c.received_at < $1
+      GROUP BY c.firm_id
+      ORDER BY oldest`,
+    [cutoffIso]
+  );
+  return r.rows.map((row) => ({
+    firm_id: row.firm_id,
+    count: Number(row.count ?? 0),
+    oldest: row.oldest == null ? null : new Date(row.oldest).toISOString(),
+  }));
 }

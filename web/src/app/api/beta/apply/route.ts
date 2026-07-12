@@ -7,13 +7,37 @@
 // data access begins only after the NDA is signed (invariant f).
 
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { applyToBeta } from "../../../../../beta/applicants.mjs";
 import { sendNdaRequest } from "../../../../../beta/nda.mjs";
 import { defaultNdaClient } from "../../../../../beta/dropbox-sign-nda.mjs";
 import { openPipelineDb, closePipelineDb, logError } from "../../../../../ingest/store.mjs";
 import { rateLimited } from "@/lib/intake/rate-limit";
+import { recordEventOn } from "@/lib/events";
 
 export const runtime = "nodejs";
+
+// Zod at the boundary (repo rule): shape/type/range checks live here; the
+// business qualification rules stay in beta/applicants.mjs (validateApplication
+// + qualify). Unknown keys are stripped so nothing untyped rides into storage.
+// records_calls and spanish_call_pct are the two truth-inputs the apply form
+// now collects — without them, qualify() could only guess at recording status.
+const ApplyBody = z.object({
+  name: z.string().trim().min(1).max(200),
+  email: z.string().trim().email().max(200),
+  firm_name: z.string().trim().min(1).max(200),
+  practice_area: z.string().trim().min(1).max(100),
+  state: z.string().trim().min(1).max(40),
+  role: z.string().trim().max(120).optional(),
+  bar_number: z.string().trim().max(60).optional(),
+  phone_system: z.string().trim().max(120).optional(),
+  crm_system: z.string().trim().max(120).optional(),
+  monthly_call_volume: z.coerce.number().int().min(0).max(1_000_000).optional(),
+  // "Do you record intake calls?" — tri-state, plain-English values.
+  records_calls: z.enum(["yes", "no", "not_sure"]).optional(),
+  // Rough band midpoint from the form (0/10/25/50/75), any 0–100 accepted.
+  spanish_call_pct: z.coerce.number().int().min(0).max(100).optional(),
+});
 
 // Founder ping on a new application. This is an INTERNAL ops notification to
 // Ali, not a message to a firm or a lead, so it is deliberately not behind
@@ -34,12 +58,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "too many requests" }, { status: 429 });
   }
 
-  let body: Record<string, unknown>;
+  let raw: unknown;
   try {
-    body = await req.json();
+    raw = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
   }
+  const parsed = ApplyBody.safeParse(raw);
+  if (!parsed.success) {
+    // Same shape the form already handles: { error, details: [...] }.
+    const details = parsed.error.issues.map(
+      (i) => `invalid:${i.path.join(".") || "body"}`,
+    );
+    return NextResponse.json({ error: "invalid application", details }, { status: 400 });
+  }
+  const body = parsed.data;
 
   const db = await openPipelineDb();
   try {
@@ -47,6 +80,14 @@ export async function POST(req: Request) {
     if ("errors" in result && result.errors) {
       return NextResponse.json({ error: "invalid application", details: result.errors }, { status: 400 });
     }
+
+    // First-party funnel event: top of the audit→pilot→paid funnel on
+    // /studio/beta. Qualification status only — never the applicant's PII.
+    await recordEventOn(db, {
+      event: "apply_submitted",
+      actor: "applicant",
+      context: { status: String(result.status) },
+    });
 
     let nda: { signatureRequestId?: string; simulated?: boolean } | null = null;
     if (result.status === "nda_pending") {

@@ -7,16 +7,18 @@
 // failure is surfaced exactly once.
 //
 // It is NOT an SMS path and never touches a caller — it emails an operator. It
-// follows the SAME TEST_MODE gate + injectable-mailer pattern as digest.mjs /
-// weekly-report.mjs: while TEST_MODE is on (or no Resend key) it renders to an
-// HTML file and transmits nothing. Errors are STILL marked alerted in test mode
-// so re-runs don't re-report the same rows (the file is the record).
+// follows the SAME EMAIL_ENABLED gate + injectable-mailer pattern as digest.mjs /
+// weekly-report.mjs: while EMAIL_ENABLED is off (the default) or no Resend key
+// is set, it renders to an HTML file and transmits nothing. TEST_MODE stays out
+// of the email decision — it arms SMS, not email. Errors are STILL marked
+// alerted in file mode so re-runs don't re-report the same rows (the file is
+// the record).
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getUnalertedErrors, markErrorsAlerted } from "../ingest/store.mjs";
-import { isTestMode } from "./compliance.mjs";
+import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
 
 const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
 
@@ -119,7 +121,7 @@ export function renderAlert(data) {
 }
 
 // Default (production) mailer: Resend. Lazy-imported so pilot/tests need no
-// `resend` dependency — only reached with TEST_MODE off AND a key present.
+// `resend` dependency — only reached with EMAIL_ENABLED on AND a key present.
 async function defaultMailer({ to, from, subject, html, env = process.env }) {
   const apiKey = env.RESEND_API_KEY;
   if (!apiKey) throw new Error("RESEND_API_KEY is not set");
@@ -134,7 +136,8 @@ async function defaultMailer({ to, from, subject, html, env = process.env }) {
 
 // Gather un-alerted errors in the window and (gated) email the operator.
 //   * No new errors: return { mode:"none", count:0 } — nothing sent or written.
-//   * TEST_MODE (or no RESEND_API_KEY): render to an HTML file, transmit NOTHING.
+//   * KILL_SWITCH, EMAIL_ENABLED off (default), or no RESEND_API_KEY: render
+//     to an HTML file, transmit NOTHING.
 //   * otherwise: email via the injectable mailer (default Resend).
 // Either way the reported rows are marked alerted so they fire only once.
 export async function sendErrorAlert({
@@ -155,13 +158,13 @@ export async function sendErrorAlert({
   const subject = `Intake QA — ${data.count} new pipeline error${data.count === 1 ? "" : "s"}`;
   const ids = data.items.map((i) => i.id);
 
-  if (isTestMode(env) || !env.RESEND_API_KEY) {
+  if (killSwitchEngaged(env) || !isEmailEnabled(env) || !env.RESEND_API_KEY) {
     mkdirSync(outDir, { recursive: true });
     const stamp = data.generatedAt.replace(/[:.]/g, "-");
     const file = join(outDir, `alert-${stamp}.html`);
     writeFileSync(file, html);
     await markErrorsAlerted(db, ids);
-    console.log(`[TEST_MODE] operator error alert rendered to ${file} (not emailed)`);
+    console.log(`[email off] operator error alert rendered to ${file} (not emailed)`);
     return { mode: "test", file, count: data.count, data };
   }
 

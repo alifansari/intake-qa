@@ -5,6 +5,8 @@
 // SQL — so the storage seam stays in one place (Postgres later needs only
 // query-syntax tweaks here, no caller changes).
 
+import { encodeCallRailSecret } from "../integrations/crypto.mjs";
+
 // Insert a call, or update the existing one when the same firm re-sends the
 // same external_call_id (CallRail `call_modified`). Manual rows have a null
 // external_call_id and always insert.
@@ -81,9 +83,19 @@ export function setTranscript(db, callId, transcript) {
 // A call is "un-scored" when no flags row references it yet — the scoring
 // worker creates the flag, so its existence marks the call as scored.
 export function getUnscoredCalls(db, firmId = null) {
+  // A call is "unscored" only if it has no flag row AND is not in a terminal
+  // status. `failed_*` and `excluded_*` are terminal: without this guard a
+  // permanently-failed call (bad audio, Spanish/single-speaker transcript throw)
+  // is re-selected by EVERY sweep, burning a transcribe+score attempt per cycle
+  // forever and re-alerting the founder each pass. A failed call already
+  // surfaces once (visible status_reason on the desk + one founder alert); it
+  // must not be retried blindly. To retry after fixing the cause, clear the
+  // call's status back to NULL. (Retry-cap decision, Session 9 red-team.)
   const base = `
     SELECT c.* FROM calls c
-    WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)`;
+    WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)
+      AND (c.status IS NULL
+           OR (c.status NOT LIKE 'failed%' AND c.status NOT LIKE 'excluded%'))`;
   if (firmId != null) {
     return db
       .prepare(`${base} AND c.firm_id = ? ORDER BY c.id`)
@@ -276,6 +288,19 @@ export function addInboundMessage(db, { conversation_id, body }) {
     )
     .run(conversation_id, body);
   return Number(info.lastInsertRowid);
+}
+
+// Per-firm CallRail signing secret (migration 0026 local / 0034 supabase).
+// Pass null to clear it (the per-firm webhook route then falls back to the
+// shared env secret). Returns true when a firm row was updated.
+export function setFirmCallRailSecret(db, firmId, secret) {
+  // Encrypt at rest — the signing key can forge valid webhook signatures, so it
+  // must never be stored as plaintext where a DB dump would expose it.
+  const stored = encodeCallRailSecret(secret);
+  const info = db
+    .prepare("UPDATE firms SET callrail_webhook_secret = ? WHERE id = ?")
+    .run(stored, firmId);
+  return Number(info.changes) > 0;
 }
 
 // Flip the per-firm kill switch (operator halt). firmId=null flips ALL firms.
@@ -1294,6 +1319,7 @@ export function listLeakedFlags(db, firmId) {
       `SELECT f.id, f.call_id, f.qualification_score, f.reason, f.case_type,
               c.caller_name, c.caller_phone, c.received_at,
               fc.confidence_tier, fs.status AS save_status,
+              COALESCE(fs.attempts, 0) AS attempts, fs.last_attempt_at,
               (SELECT COUNT(*) FROM transcript_citations tc WHERE tc.flag_id = f.id) AS citation_count,
               -- One VALIDATED verbatim line for the queue card (no citation, no claim §IV):
               -- only status='passed' snippets are confirmed against the transcript; prefer the
@@ -1349,14 +1375,23 @@ export function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null,
       return { ok: false, alreadyResolved: true, current: cur.status };
     }
   }
+  // Attempt counter (B-011): "left a message" / "spoke to them" each log one
+  // real touch on the phone, so those writes increment attempts. Terminal
+  // outcomes and undo don't count — the counter only grows, and only from
+  // logged touches. It powers encouragement copy, never a score.
+  const attemptInc = status === "reached_out" || status === "back_in_touch" ? 1 : 0;
   db.prepare(
-    `INSERT INTO flag_status (flag_id, status, updated_by, updated_at)
-     VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+    `INSERT INTO flag_status (flag_id, status, updated_by, updated_at, attempts, last_attempt_at)
+     VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ','now'), ?,
+             CASE WHEN ? = 1 THEN strftime('%Y-%m-%dT%H:%M:%SZ','now') END)
      ON CONFLICT (flag_id) DO UPDATE
        SET status = excluded.status, updated_by = excluded.updated_by,
-           updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')`
-  ).run(flag_id, status, updated_by ?? null);
-  return { ok: true, firm_id: owner.firm_id };
+           updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now'),
+           attempts = flag_status.attempts + ?,
+           last_attempt_at = COALESCE(excluded.last_attempt_at, flag_status.last_attempt_at)`
+  ).run(flag_id, status, updated_by ?? null, attemptInc, attemptInc, attemptInc);
+  const after = db.prepare("SELECT attempts FROM flag_status WHERE flag_id = ?").get(flag_id);
+  return { ok: true, firm_id: owner.firm_id, attempts: Number(after?.attempts ?? 0) };
 }
 
 export function listNonAnalyzedCalls(db, firmId) {
@@ -1481,4 +1516,176 @@ export function purgeExpiredCalls(db, beforeIso) {
     calls: Number(calls.changes ?? 0),
     messages: Number(messages.changes ?? 0),
   };
+}
+
+// --- First-party product event log + alert state (migration 0027) ------------
+//
+// Confidential legal data means NO third-party analytics: product events land
+// here, hold ids/counts only (never transcripts, never caller PII), and are
+// read only by the founder-gated /studio/beta board and the alert sweep.
+// Writes are best-effort at every call site (a failed event write must never
+// break the user action that produced it) — callers .catch(() => {}).
+
+import { isEventType } from "./event-types.mjs";
+
+// Insert one product event. Throws on an unknown event name (the schema CHECK
+// would refuse it anyway) so a typo'd name fails tests instead of silently
+// logging garbage. Returns the new row id.
+export function recordEvent(db, { event, firm_id = null, actor = null, context = null }) {
+  if (!isEventType(event)) throw new Error(`unknown product event: ${event}`);
+  const info = db
+    .prepare(
+      `INSERT INTO events (event, firm_id, actor, context)
+       VALUES (?, ?, ?, ?)`
+    )
+    .run(
+      event,
+      firm_id,
+      actor == null ? null : String(actor),
+      context == null ? null : typeof context === "string" ? context : JSON.stringify(context)
+    );
+  return Number(info.lastInsertRowid);
+}
+
+// Generic reader for the board + streak logic. Filters are all optional;
+// newest first, capped by `limit`.
+export function listEvents(db, { event = null, firm_id = null, sinceIso = null, limit = 200 } = {}) {
+  const where = [];
+  const params = [];
+  if (event != null) { where.push("event = ?"); params.push(event); }
+  if (firm_id != null) { where.push("firm_id = ?"); params.push(firm_id); }
+  if (sinceIso != null) { where.push("created_at >= ?"); params.push(sinceIso); }
+  const sql = `SELECT * FROM events${where.length ? ` WHERE ${where.join(" AND ")}` : ""}
+               ORDER BY id DESC LIMIT ?`;
+  params.push(Math.max(1, Math.floor(limit)));
+  return db.prepare(sql).all(...params);
+}
+
+export function countEvents(db, { event, firm_id = null, sinceIso = null } = {}) {
+  const where = ["event = ?"];
+  const params = [event];
+  if (firm_id != null) { where.push("firm_id = ?"); params.push(firm_id); }
+  if (sinceIso != null) { where.push("created_at >= ?"); params.push(sinceIso); }
+  const row = db
+    .prepare(`SELECT COUNT(*) AS n FROM events WHERE ${where.join(" AND ")}`)
+    .get(...params);
+  return Number(row?.n ?? 0);
+}
+
+// Earliest occurrence of an event (optionally per firm) — the activation
+// clock's anchor ("first digest", "first callback marked"). Null when never.
+export function firstEventAt(db, { event, firm_id = null } = {}) {
+  const where = ["event = ?"];
+  const params = [event];
+  if (firm_id != null) { where.push("firm_id = ?"); params.push(firm_id); }
+  const row = db
+    .prepare(`SELECT MIN(created_at) AS t FROM events WHERE ${where.join(" AND ")}`)
+    .get(...params);
+  return row?.t ?? null;
+}
+
+// Latest occurrence — "last activity" on the board. Null when never.
+export function lastEventAt(db, { event = null, firm_id = null } = {}) {
+  const where = [];
+  const params = [];
+  if (event != null) { where.push("event = ?"); params.push(event); }
+  if (firm_id != null) { where.push("firm_id = ?"); params.push(firm_id); }
+  const row = db
+    .prepare(
+      `SELECT MAX(created_at) AS t FROM events${where.length ? ` WHERE ${where.join(" AND ")}` : ""}`
+    )
+    .get(...params);
+  return row?.t ?? null;
+}
+
+// --- Alert-state watermarks (migration 0027) ----------------------------------
+// Tiny key/value store so each founder-alert trigger fires exactly once per
+// window (last error id alerted, last application seen, last pulse date).
+
+export function getAlertState(db, key) {
+  const row = db.prepare(`SELECT value FROM alert_state WHERE key = ?`).get(key);
+  return row ? row.value : null;
+}
+
+export function setAlertState(db, key, value) {
+  db.prepare(
+    `INSERT INTO alert_state (key, value, updated_at)
+     VALUES (?, ?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`
+  ).run(key, value == null ? null : String(value));
+}
+
+// Errors newer than a watermark id — the alert sweep's cursor. Uses the id, not
+// `alerted` (that flag belongs to the older sendErrorAlert path; sharing it
+// would make each path swallow the other's rows).
+export function getErrorsAfterId(db, afterId = 0, limit = 500) {
+  return db
+    .prepare(`SELECT * FROM errors WHERE id > ? ORDER BY id LIMIT ?`)
+    .all(Number(afterId) || 0, Math.max(1, Math.floor(limit)));
+}
+
+// --- Founder-set funnel stage (migration 0027) --------------------------------
+
+export function setFirmStage(db, firmId, stage) {
+  const s = stage === "pilot" || stage === "paid" ? stage : null;
+  db.prepare(
+    `UPDATE firms SET stage = ?, stage_updated_at = strftime('%Y-%m-%dT%H:%M:%SZ', 'now')
+      WHERE id = ?`
+  ).run(s, firmId);
+}
+
+// --- Windowed per-firm call counts for the beta board --------------------------
+// received = every call that arrived since `sinceIso`; scored = reached
+// 'analyzed'; failed = any 'failed_*' status. Pending/excluded are the
+// remainder — the board shows the three that matter.
+export function callCountsSince(db, firmId, sinceIso) {
+  const row = db
+    .prepare(
+      `SELECT COUNT(*) AS received,
+              SUM(CASE WHEN status = 'analyzed' THEN 1 ELSE 0 END) AS scored,
+              SUM(CASE WHEN status LIKE 'failed%' THEN 1 ELSE 0 END) AS failed
+         FROM calls WHERE firm_id = ? AND created_at >= ?`
+    )
+    .get(firmId, sinceIso);
+  return {
+    received: Number(row?.received ?? 0),
+    scored: Number(row?.scored ?? 0),
+    failed: Number(row?.failed ?? 0),
+  };
+}
+
+// Latest call arrival for a firm (the board's "last activity" heartbeat).
+export function lastCallAt(db, firmId) {
+  const row = db
+    .prepare(`SELECT MAX(created_at) AS t FROM calls WHERE firm_id = ?`)
+    .get(firmId);
+  return row?.t ?? null;
+}
+
+// --- Received-but-never-scored watchdog (Inngest-outage safety net) -------------
+// Calls that arrived but still have NO flag row (the "unscored" signal — see
+// getUnscoredCalls) AND are not in a terminal (failed_*/excluded_*) status,
+// whose received_at is older than `cutoffIso`. Grouped per firm with the count
+// and the oldest arrival. Scoring runs entirely through Inngest (the webhook
+// event AND the 15-min "fallback" sweep are both Inngest crons), so an Inngest
+// outage has no fallback and strands calls unscored forever — this is what the
+// founder-alert stuckUnscored trigger reads to catch that.
+export function stuckUnscoredCalls(db, cutoffIso) {
+  const rows = db
+    .prepare(
+      `SELECT c.firm_id AS firm_id, COUNT(*) AS count, MIN(c.received_at) AS oldest
+         FROM calls c
+        WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)
+          AND (c.status IS NULL
+               OR (c.status NOT LIKE 'failed%' AND c.status NOT LIKE 'excluded%'))
+          AND c.received_at < ?
+        GROUP BY c.firm_id
+        ORDER BY oldest`
+    )
+    .all(cutoffIso);
+  return rows.map((r) => ({
+    firm_id: r.firm_id,
+    count: Number(r.count ?? 0),
+    oldest: r.oldest ?? null,
+  }));
 }

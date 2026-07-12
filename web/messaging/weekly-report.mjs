@@ -4,16 +4,18 @@
 // signed cases, a "recovered case of the week" brag, and a month-to-date total.
 // The recovered $ is SIGNED-ONLY (see reconcile.mjs) — the honesty layer.
 //
-// TEST_MODE gate (CLAUDE.md guardrail f): while TEST_MODE is on (or no Resend key
-// is configured), we render to an HTML FILE instead of emailing — nothing is
-// transmitted. The email provider (Resend) is injectable so tests never touch the
-// network, and the real client is lazy-imported so the pilot needs no dependency.
+// EMAIL_ENABLED gate: while EMAIL_ENABLED is off (the default) or no Resend key
+// is configured, we render to an HTML FILE instead of emailing — nothing is
+// transmitted. TEST_MODE stays out of this decision on purpose: it arms SMS
+// through the send chokepoint, never email. The email provider (Resend) is
+// injectable so tests never touch the network, and the real client is
+// lazy-imported so the pilot needs no dependency.
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { reconcileWeek } from "./reconcile.mjs";
-import { isTestMode } from "./compliance.mjs";
+import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
 
 const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
 
@@ -167,7 +169,7 @@ export function renderWeeklyReport(data) {
 }
 
 // Default (production) mailer: Resend. Lazy-imported so the pilot/tests need no
-// `resend` dependency — only reached with TEST_MODE off AND a key present. Run
+// `resend` dependency — only reached with EMAIL_ENABLED on AND a key present. Run
 // `npm i resend` before going live.
 async function defaultMailer({ to, from, subject, html, env = process.env }) {
   const apiKey = env.RESEND_API_KEY;
@@ -181,7 +183,8 @@ async function defaultMailer({ to, from, subject, html, env = process.env }) {
 }
 
 // Produce (and, gated, deliver) the weekly report for one firm.
-//   * TEST_MODE (or no RESEND_API_KEY): render to an HTML file, transmit NOTHING.
+//   * KILL_SWITCH, EMAIL_ENABLED off (default), or no RESEND_API_KEY: render
+//     to an HTML file, transmit NOTHING.
 //   * otherwise: email via the injectable mailer (default Resend).
 export async function sendWeeklyReport({
   db,
@@ -196,12 +199,12 @@ export async function sendWeeklyReport({
   const html = renderWeeklyReport(data);
   const subject = `Intake QA — ${money(data.recoveredFees)} recovered this week (${data.weekOf})`;
 
-  // TEST_MODE / unconfigured: write an HTML file instead of emailing.
-  if (isTestMode(env) || !env.RESEND_API_KEY) {
+  // Email off / unconfigured: write an HTML file instead of emailing.
+  if (killSwitchEngaged(env) || !isEmailEnabled(env) || !env.RESEND_API_KEY) {
     mkdirSync(outDir, { recursive: true });
     const file = join(outDir, `weekly-${firmId}-${data.weekOf}.html`);
     writeFileSync(file, html);
-    console.log(`[TEST_MODE] weekly report rendered to ${file} (not emailed)`);
+    console.log(`[email off] weekly report rendered to ${file} (not emailed)`);
     return { mode: "test", file, data };
   }
 

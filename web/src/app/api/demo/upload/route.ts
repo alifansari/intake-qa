@@ -1,7 +1,7 @@
 // POST /api/demo/upload — public, no-auth Demo Mode upload.
 //
-// Accepts one audio file (mp3/m4a/wav, <=25MB), rate-limits by IP (3/hour, 1
-// concurrent), creates an isolated demo_calls row, writes the bytes to a temp
+// Accepts one audio file (mp3/m4a/wav, size-capped below), rate-limits by IP
+// (3/hour, 1 concurrent), creates an isolated demo_calls row, writes the bytes to a temp
 // file, and kicks off the demo pipeline (transcribe -> frozen scoring -> flag).
 // The audio is deleted the moment it is transcribed. Returns { id } immediately;
 // the client polls /api/demo/status. NOTHING here can send — the demo pipeline
@@ -21,12 +21,17 @@ import {
 } from "../../../../../ingest/store.mjs";
 import { runDemoPipeline, checkDemoRateLimit, purgeDemo } from "../../../../../ingest/demo.mjs";
 import { resolveSession, MAX_CALLS_PER_SESSION } from "../../../../../ingest/audit.mjs";
+import { directUploadMaxBytes, toMb } from "../../../../../ingest/uploads.mjs";
 import type { ResolveResult } from "@/lib/audit-types";
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // allow long transcription/scoring where supported
 
-const MAX_BYTES = 25 * 1024 * 1024;
+// This is the DIRECT (through-the-body) path — on Vercel the platform kills
+// bodies over ~4.5MB before this handler even runs, so the honest cap there is
+// 4MB; a long-lived local/pilot server takes 25MB. Storage-mode uploads never
+// hit this route.
+const MAX_BYTES = directUploadMaxBytes();
 const ALLOWED_EXT = new Set(["mp3", "m4a", "wav"]);
 
 function clientIp(req: Request): string {
@@ -55,7 +60,12 @@ export async function POST(req: Request) {
     );
   }
   if (upload.size > MAX_BYTES) {
-    return Response.json({ error: "file too large (25MB max)" }, { status: 413 });
+    return Response.json(
+      {
+        error: `That file is ${toMb(upload.size)}MB and the limit here is ${toMb(MAX_BYTES)}MB — try re-exporting it as an MP3, or email it to ali@plaintiffops.com and we'll run it by hand.`,
+      },
+      { status: 413 },
+    );
   }
 
   const sessionToken = typeof form.get("session") === "string" ? String(form.get("session")) : null;

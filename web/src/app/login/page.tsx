@@ -45,7 +45,19 @@ function LoginForm() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setPending(false);
     if (error) setError(error.message);
-    else window.location.assign(next); // full nav so the server sees the session cookie
+    else {
+      // First-party sign-in event (password flow never touches our server, so
+      // report it here). keepalive + no await: never delays or blocks the login.
+      try {
+        void fetch("/api/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ event: "sign_in", method: "password" }),
+          keepalive: true,
+        });
+      } catch { /* best-effort */ }
+      window.location.assign(next); // full nav so the server sees the session cookie
+    }
   }
 
   // Magic link fallback (no password): emails a one-time sign-in link.

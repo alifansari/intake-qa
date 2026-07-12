@@ -188,7 +188,9 @@ async function main() {
     const [firmId] = args;
     requireId(firmId, "digest <firmId>");
     const res = await sendDailyDigest({ db, firmId });
-    if (res.mode === "test") {
+    if (res.mode === "skipped") {
+      console.log(`Daily digest for firm #${firmId} skipped: ${res.reason}`);
+    } else if (res.mode === "test") {
       console.log(
         `Daily digest for firm #${firmId}: ${res.data.pendingCount} pending (${res.data.staleCount} overdue). Rendered to ${res.file}`
       );

@@ -9,6 +9,7 @@ import { money } from "@/lib/format";
 import { AuditEmailCapture } from "@/components/audit-email-capture";
 import { ReportActions } from "@/components/audit/ReportActions";
 import type { AuditReport } from "@/lib/audit-types";
+import { recordProductEvent } from "@/lib/events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -89,6 +90,18 @@ export default async function AuditReportPage({
         </div>
       </div>
     );
+  }
+
+  // First-party event log: a finished report was viewed (every call read, at
+  // least one reviewed). Public flow — no firm; token PREFIX only, so the
+  // /studio/beta funnel can count distinct audits without exposing the link.
+  // Repeat views repeat the row; readers dedupe by the token prefix.
+  if (!report.pending && (report.summary.callsReviewed ?? 0) > 0) {
+    await recordProductEvent({
+      event: "audit_completed",
+      actor: "public",
+      context: { token: token.slice(0, 8), callsReviewed: report.summary.callsReviewed ?? 0 },
+    });
   }
 
   const s = report.summary;

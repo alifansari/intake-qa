@@ -68,6 +68,166 @@
   the homepage hero, and confirming the exact Clio source before adding the 40%/79% StatBar pair.
 - **Review date:** 2026-08-15
 - **Result:** (pending)
+## 2026-07-11 — Beta Session 7: Conversion machinery (B-010/011/012/013)  ·  agent: product-dev session · lane: product
+The four highest-ICE desk items that make the queue survive week 3, on branch
+`beta/s7-conversion` (off `beta/integration`), NOT pushed. All view logic lives in
+`web/src/lib/desk/queue-view.mjs` (pure, unit-tested); UI in `web/src/app/desk/queue/page.tsx`
++ `web/src/components/desk/LeakCard.tsx`. Migrations renumbered to avoid sibling collision:
+SQLite `0029_flag_status_attempts.sql`, Postgres `0037_flag_status_attempts.sql`.
+
+- **B-010 — Queue hygiene (ICE 512).**
+  - **Change:** `partitionLeaks()` splits the queue into an active list sorted oldest-actionable
+    first (longest-waiting caller is the top card) and a collapsed `<details>` "Handled" pile for
+    terminal cards (signed / passed / bad number), each rendered as one slim `compact` row with a
+    Reopen. Replaced the ad-hoc inline TERMINAL filter on the page.
+  - **Hypothesis:** the desk stays a "today's list," not a graveyard, so daily use survives week 3
+    (2026-07-10 field guide: one screen / one queue / one next action).
+  - **Expected effect:** desk daily-active retention through week 3 of a pilot.
+  - **Status:** shipped (branch, unpushed). **Review date:** 2026-08-01.
+
+- **B-013 — Honest elapsed-time urgency (ICE 216).**
+  - **Change:** `callUrgency()` renders escalating visual weight from time-since-call only
+    (fresh <2d → aging 2–6d → amber "urgent" 7d+), computed on the SERVER clock (no hydration
+    drift). Deleted the vaporware footnote that promised "statute clocks" and the `TODO(Ali)` to
+    wire `sol.mjs`; the footnote now says the waiting time is a callback reminder and
+    "statute-of-limitations tracking stays with your attorneys."
+  - **COMPLIANCE RAIL:** never computes or displays a statute-of-limitations deadline date —
+    urgency flags and elapsed days only; the firm's lawyer owns deadlines. Pinned by unit tests
+    that assert no date / no "statute|deadline|expires" ever appears in a label.
+  - **Hypothesis:** partner urgency + trust rise from honest time pressure without us practicing
+    law; the footnote's promise becomes true instead of vaporware.
+  - **Status:** shipped (branch, unpushed). **Review date:** 2026-08-01.
+
+- **B-011 — Attempt-count nudge toward 6 touches (ICE 336).**
+  - **Change:** added `attempts` + `last_attempt_at` columns on `flag_status`; each logged touch
+    ("Left a message" / "Left another message" / "Spoke to them") increments the counter in the
+    single `setFlagStatus` chokepoint (terminal outcomes and undo never count; the guarded digest
+    write can't double-count a replayed stale link). `attemptNudge()` shows encouragement grounded
+    in the callback science (Velocify 3.5M leads: 93% of conversions by call 6, most firms stop at
+    2): calls 1–2 legitimize the next try, 3–5 credit the range, 6+ credits a full effort and hands
+    judgment back. Silent before the first attempt and on any terminal outcome.
+  - **Tone rail:** encouragement, never surveillance — no red number, no "only N calls," no quota,
+    no comparison; pinned by a test that forbids only/must/required/behind/failed in any nudge.
+  - **Hypothesis:** legitimizing persistence as process lifts rescue→sign rate.
+  - **Status:** shipped (branch, unpushed). **Review date:** 2026-08-01.
+
+- **B-012 — Coordinator "your wins" tally (ICE 280).**
+  - **Change:** extended the existing wins strip from "Your week" to "Your wins this week" and added
+    a personal, credit-framed line — signed cases → "started with your callbacks, worth saying out
+    loud in Friday's meeting"; reached-but-not-yet-signed → "every conversation started with your
+    callback, signatures usually follow." Her own tally only.
+  - **Rail:** no leaderboard, no staff-vs-staff comparison, nothing here is a score (per-case
+    bonuses are ethically barred; recognition is the only upside the tool can offer her).
+  - **Hypothesis:** the desk becomes her recognition ammunition, holding daily engagement.
+  - **Status:** shipped (branch, unpushed). **Review date:** 2026-08-01.
+
+- **Verification:** `npm run smoke && npm test && npm run e2e-synthetic && npm run build` all green;
+  470 tests pass (19 new). One build fix: the hand-written declaration had to be `queue-view.d.mts`
+  (not `.d.ts`) so the explicit `.mjs` import picks up the precise `tone` union under
+  `moduleResolution: bundler` instead of falling back to widened JS inference.
+
+## 2026-07-11 — Beta Session 1: CallRail webhook bulletproofing  ·  agent: product-dev session · lane: product
+- **Change (branch `beta/s1-callrail`, NOT pushed):** (1) Researched CallRail's REAL
+  webhook signature spec against their docs (apidocs.callrail.com → Security →
+  Validating Payloads): header `Signature`, **HMAC-SHA1 of the raw body, Base64** —
+  NOT the sha256-hex our code assumed; their published test vector (key
+  `072e77e426f92738a72fe23c4d1953b4` → `UZAHbUdfm3GqL7qzilGozGzWV64=`) is now a
+  bundled fixture and reproduces exactly. `verifyCallRailSignature` accepts the
+  documented format first, then sha256-base64 / sha256-hex (back-compat) / sha1-hex,
+  and logs which format matched on each firm's first verified webhook. (2)
+  `scripts/callrail-verify.mjs` — setup-call diagnostic: feed it a captured webhook +
+  secret, it names the matching format or prints every computed digest
+  (`--self-check` runs the docs vector). (3) Founder-only per-firm secret entry:
+  `/api/studio/callrail-secret` (Zod, store-seam `setFirmCallRailSecret`) + a
+  CallRail-signing-key card on `/studio/onboard-firm` (incl. the onboarding success
+  panel) — no more manual DB edits, firms #2+ stop 401ing. (4)
+  `scripts/callrail-selftest.mjs` — POSTs a synthetic correctly-signed payload at
+  `/webhooks/callrail/<firm>`: asserts 200+call row, replay dedupe, and 401 on bad
+  signature — every setup call ends on a green check. (5) Failure loudness: webhook
+  401/400 now writes `error_log` (`webhooks.callrail*.bad_signature/.bad_payload`)
+  with firm slug, reason, formats tried. (6) `ops/drafts/callrail-setup-runbook.md` —
+  the 10-minute setup-call script.
+- **Hypothesis:** the #1 predicted week-1 killer is a silent signature 401 → firm sees
+  "0 calls" forever; verifying the *documented* format + per-firm secrets + a
+  self-test converts that failure mode into a 2-minute visible fix.
+- **Expected effect:** firm #1 setup call ends verified-green Monday 7/14; zero
+  silent-ingest incidents in week 1.
+- **Depends on:** migration 0034 applied to hosted Supabase before any per-firm key
+  is saved (the save button reports this plainly if missing).
+- **Status:** staged on branch (442 tests pass incl. 18 new signature tests, build green);
+  merge before Monday deploy
+- **Review date:** 2026-07-18 (end of beta week 1)
+
+---
+## 2026-07-11 — Beta S2: firm self-serve MP3 upload (/desk/upload) + upload-cap honesty  ·  agent: product-dev session · lane: product
+
+- **Change (branch `beta/s2-upload`, NOT pushed):** (1) `/desk/upload` — firm-scoped
+  recording upload (MP3/M4A/WAV): signed-URL storage mode reusing the studio 200MB
+  pattern (`desk/<firmId>/<uuid>` in the private studio-audio bucket, object deleted the
+  moment it's transcribed) with a direct-body fallback when storage isn't configured;
+  required CIPA consent attestation (Zod `literal(true)` + per-call
+  `consent_status='consented'`); each upload becomes a normal `calls` row (source
+  `manual`, filename carried in `external_call_id` as `upload:<uuid>:<name>` — no
+  migration needed) and fires the SAME `intakeqa/call.received` → scorePipeline path as
+  the webhook, 15-min sweep as the net. (2) Per-file firm-visible status
+  (waiting → scoring → done | failed) polled from GET `/api/desk/uploads`, derived from
+  the pipeline's own rows — **failed_scoring is now visible to the firm**, not DB-only.
+  (3) Upload-cap honesty: demo/audit caps now derive from mode (signed-URL = 200MB,
+  direct = 25MB local / 4MB Vercel); `/audit` + `/demo` fetch the real cap from a new
+  GET `/api/demo/upload-url` probe instead of promising a hard-coded 25MB; friendly
+  plain-English size/type errors everywhere ("That file is a video — export the audio as
+  an MP3…"). (4) "Upload calls" added to desk nav + upload path made first-class in
+  HowCallsArrive with a `/desk/upload` CTA.
+- **Hypothesis:** a firm without working CallRail currently emails files to Ali for
+  hand-CLI ingestion — invisible to the firm and unscalable past 1–2 firms; self-serve
+  upload with honest per-file status removes the founder bottleneck before Monday's beta
+  and makes silent scoring failures impossible to miss.
+- **Expected effect:** every beta firm can get calls scored on day 0 without CallRail;
+  zero "did you get my files?" emails; upload-page copy always equals server reality.
+- **Verification:** smoke PASS, 430/430 tests (6 new in `tests/desk-upload.test.mjs`),
+  e2e-synthetic all stages PASS, production build PASS, lint at pre-existing baseline.
+  Live TEST_MODE run on local SQLite: real spoken WAV → `/api/desk/uploads/direct` →
+  AssemblyAI transcription → Claude scoring → flag row → status `done`; forced failure
+  (deleted recording) → `failed_scoring` → firm-visible `failed` + founder error log.
+  Consent-missing and video-file uploads refused with plain-English errors.
+- **Deferred:** storage objects for never-transcribed (permanently failing) uploads are
+  not garbage-collected; failed calls are retried by every 15-min sweep (pre-existing
+  behavior, costs a transcribe+score attempt per cycle — worth a retry cap); Inngest
+  event key absent locally means sweep-only scoring (hosted has the key).
+- **Status:** built on branch, awaiting Ali review/merge (nothing pushed).
+- **Review date:** 2026-07-18 (first beta week — count uploads + failure surfacing).
+## 2026-07-11 — Session 4: onboarding autopilot + beta comms kit  ·  agent: main session · lane: product-dev
+- **Change:** Closed the onboarding→sign-in gap for Monday's beta. (1) `/api/studio/onboard-firm`
+  now composes the complete, firm-personalized welcome email server-side (new pure module
+  `web/messaging/welcome-email.mjs`): sign-in link + temp password (or magic-link line for
+  linked accounts), the firm's private CallRail webhook URL with "forward to whoever runs your
+  phones," the `/desk/upload` fallback, a first-48-hours plan incl. digest timing, and a support
+  line built from `FOUNDER_NAME`/`FOUNDER_EMAIL` (site-constants) + `FOUNDER_PHONE` (env) —
+  never hardcoded. The REDACTED copy (temp password masked) persists to a new `welcome_emails`
+  table (Postgres migration **0036**, SQLite twin **0028** — renumbered up one from 0035/0027 to
+  dodge a sibling session's collision; RLS on, no policy, founder-surface only). The studio
+  onboarding success card surfaces the email with a copy button plus a two-click-confirm **Send**
+  button that hits new founder-gated route `/api/studio/send-welcome`. (2) Beta cadence templates
+  staged in `ops/drafts/beta-comms-kit.md` (Day-0/1/3/7, incident note, 15-min setup-call agenda;
+  counts-only, no dollars, credit framing; defers CallRail mechanics to the Session-1 runbook).
+  (3) `DEMO_SCRIPT.md` rewritten to the persona field guides: their-calls-first, coordinator-sees-
+  her-own-calls-first, ranges-only ROI, the refuted $468/400% stats explicitly benched per the
+  copy audit. (4) Apply form now collects `records_calls` (yes/no/not-sure) + `spanish_call_pct`
+  (rough bands), Zod-validated at the API boundary and threaded into `qualify()` so the
+  `not_recording_yet` note fires ONLY on a truthful "no" (silence/"not sure" → `recording_status_unknown`).
+- **Hypothesis:** A one-email, no-forgotten-field onboarding + a consistent cadence reduces
+  beta-firm setup friction (the #1 activation risk) and keeps every firm-facing word compliant;
+  honest qualification signals stop polluting the applicant review.
+- **Expected effect:** Faster firm activation (sign-in → first calls flowing) across the founding
+  cohort onboarded starting 2026-07-14; fewer stranded-at-sign-in support pings; cleaner applicant
+  triage. No public metric until firms onboard.
+- **Status:** staged-for-approval — everything firm-facing is founder-gated. The Send button
+  transmits ONLY on the founder's confirming click AND `EMAIL_ENABLED=true` AND a Resend key
+  (KILL_SWITCH halts all); default posture transmits nothing and says so. Comms kit + demo script
+  are drafts Ali sends/uses by hand. Code paths (onboard-firm compose, apply-form fields, qualify)
+  are backend/internal and ship on merge.
+- **Review date:** 2026-07-21
+- **Result:** (filled at review)
 
 ## 2026-07-10 — Engine-v2 Wave 10: LACBA piece QC-cleared ×2 + channel verdict  ·  agent: main session · lane: outreach
 - **Change:** QC pass #2 on the five-questions piece (verdict → fixes applied → **CLEARED FOR
@@ -556,6 +716,98 @@ deadline flags, over-conversion retention, refer-out monetization, the 3 fairnes
 **Review:** when Ali decides whether to lift the freeze; not before a PI-attorney +
 Yang review.
 
+## 2026-07-11 — Session 0: beta ship-blockers & truth fixes (branch beta/s0-blockers)
+
+**Change:** (1) Merged letter/norcal-factcheck-fix — the false "Sacks built conversation
+analysis at UC Berkeley" claim on /letter is now the accurate Berkeley-trained/UCLA-LASPC
+account; kept main's newer beta-program copy in the two conflicted paragraphs (wage range
+and SB 690 removal were already fixed on main). Added the letter's /audit CTA. (2)
+site/presidential-polish-1 recorded as merged with `-s ours`: its single commit is
+byte-identical (same patch-id) to bbd68f3 already on main since 07-07 — merging content
+would have REGRESSED six later commits on /audit and the homepage. (3) Email decoupled
+from TEST_MODE: new EMAIL_ENABLED env flag (default false = no email) gates only the four
+Resend paths (missed-digest, digest, weekly-report, alerts); TEST_MODE now arms SMS only;
+KILL_SWITCH additionally halts email inside every sender; GO_LIVE.md, BETA_ONBOARDING.md,
+web/.env.example updated to match. (4) Internal approval-queue digest skips entirely
+unless DIGEST_TO is set and is documented internal-operator-only (both crons fire 0 15 * * *;
+a firm can never receive it by fallback). (5) /api/digest/run: missing CRON_SECRET on a
+hosted deploy now 500s and writes an errors row naming the var (was: silent 401 forever);
+every run logs per-firm outcomes (emailed/rendered/skipped+reason/failed) to the errors
+table (source "digest.run") — deliberately reusing the operator log rather than adding a
+migration Ali would have to hand-apply before Monday. (6) Desk queue shows "N calls
+processing" while any call is received-but-unread or failed_scoring — the green all-clear
+can no longer vouch for a stuck pipeline. (7) /api/inngest gets maxDuration=300 (scoring
+~95s/call). (8) Doc truth: README migration ranges (0026 SQLite / 0034 Postgres),
+INTAKE_SYSTEM.md hosted state (0023–0033 applied, 0034 pending), CLAUDE.md send-chokepoint
+path corrected to web/messaging/send.mjs.
+**Hypothesis:** the beta's first-week trust hinges on (a) no false public claims while
+LACBA outreach is live, (b) digest email working WITHOUT arming SMS, and (c) no dashboard
+state that lies (false all-clear, silently dead cron).
+**Expected effect:** Ali can set EMAIL_ENABLED=true + KILL_SWITCH=false Monday with
+TEST_MODE untouched; a missing CRON_SECRET surfaces in hours not weeks; coordinators see
+honest pipeline states.
+**Verified:** smoke 0 failures; 427/427 unit tests; e2e-synthetic all 9 stages PASS
+(weekly report correctly rendered-to-file under the new gate); production build green.
+**Deferred:** engine untouched (frozen); HowCallsArrive.tsx untouched (concurrent /desk/upload
+session owns it); per-firm CallRail secret UI (Session 1); errors-table run-log rides the
+operator alert email — if daily "digest run" rows prove noisy, split into a digest_runs
+table post-beta.
+**Review:** 2026-07-18 (end of beta week 1).
+## 2026-07-11 — Session 5 (beta weekend): trust arsenal staged — BAA draft, security one-pager, GO_LIVE truth rewrite, NDA-promise memo
+
+**Change (all staged, nothing published/sent, branch beta/s5-trust-docs):**
+(1) `ops/drafts/external/beta-baa.md` — plain-English BAA template grounded in the real
+stack (named subprocessors incl. Twilio-parked; TLS/AES-256; RLS isolation; redaction
+defaults; audio-deleted-at-transcription; 72h audit purge; 90-day rolling firm retention;
+72h breach notice; no-training flow-down). DRAFT — PENDING ATTORNEY REVIEW banner;
+reviewer notes route the THRESHOLD QUESTION to Yang un-decided: is a BAA the right
+instrument for non-PHI PI intake, vs. the DPA carrying it with a BAA rider only for
+medical-adjacent firms (or renaming the instrument).
+(2) `ops/drafts/external/security-onepager.md` — one-page firm-facing security sheet
+built strictly from /security + web/SECURITY.md + security-posture.mjs; explicitly
+disclaims SOC 2/HIPAA; no AB 931-type compliance claims; PDF-ready; send gated on Ali
+(and the BAA line gated on Yang).
+(3) `GO_LIVE.md` rewritten as the true Monday runbook: digest-first Part A gates (hosted
+migration floor 0034; Vercel env presence incl. CRON_SECRET/DIGEST_LINK_SECRET/Resend;
+EMAIL_ENABLED with an explicit dependency note on the Session 0 branch; digest dry-run
+then live-send-to-self; synthetic call through the PROD pipeline; CallRail self-test via
+web/scripts/callrail-selftest.mjs with a Session 1 dependency note; NDA logistics;
+provider data-terms check) vs. Part B parked SMS gates (A2P 10DLC, twilio not in
+package.json, TEST_MODE stays true, quiet-hours/opt-out/kill-switch live tests, retainer
+template, ethics sign-off).
+(4) `ops/drafts/nda-promise-options.md` — decision memo for Ali: (a) keep "one business
+day" + Yang NDA read before Monday with a named Sunday-night fallback, or (b) soften the
+copy — exact diff for apply-form.tsx + api/beta/apply/route.ts staged IN THE MEMO, not
+applied; welcome/page.tsx flagged as a kickoff (not NDA) promise needing no change.
+
+**Hypothesis:** a diligent firm's ops person asks for security/legal paper in week 1;
+having honest, posture-true artifacts ready (instead of improvising or overclaiming)
+converts trust into signed NDAs without violating §IV/§V/§VII.
+
+**Factual inconsistencies found while cross-checking (flagged, not smoothed over):**
+- `web/beta/security-posture.mjs` claimed `baa.status: "template drafted"` while NO BAA
+  existed anywhere in the repo (now true only as of this session's draft).
+- Retention drift: code default 90 days (`web/inngest/functions.mjs:83`) and public
+  /security page promise 90; but `web/.env.example:122` sets 30 and
+  `security-posture.mjs` says "default 30." Deployed env value must match the public
+  promise — added to GO_LIVE after-care list.
+- `security-posture.mjs` states Anthropic "zero-retention API tier" as present-tense
+  fact while the old GO_LIVE treated Anthropic ZDR/BAA as an unmet gate — no written
+  confirmation on file. Provider data-terms check moved into Monday's Part A (the
+  digest pivot moved it EARLIER: real call audio flows Monday, texting or not).
+- `web/SECURITY.md` retention section reads the 72-hour purge as general; it is true
+  only for the free-audit pipeline (site-constants reconciled it 2026-07-10) — doc
+  should be aligned when next touched.
+- NDA reviewer note 4 said "a separate BAA/DPA covers HIPAA" — asserted a BAA that
+  didn't exist.
+
+**Gated on whom:** Yang — BAA threshold question + full BAA read; NDA template read
+(option a). Ali — NDA-promise option (a)/(b); security one-pager first send; provider
+data-terms acceptance-or-confirmation (GO_LIVE A7); deployed DATA_RETENTION_DAYS value.
+Sessions 0/1 — EMAIL_ENABLED flag and callrail-selftest.mjs (referenced as dependencies,
+not assumed shipped).
+
+**Review:** Monday 2026-07-14 go/no-go.
 ## 2026-07-11 — Marketing-copy audit staged + P0/P1 fixes applied to working tree
 **Change:** `ops/drafts/copy-audit-2026-07-11.md` — word-by-word audit of every
 customer-visible surface, graded against a 106-agent adversarially-verified research pass
@@ -721,3 +973,128 @@ Resolves the four open Ali-only gates ahead of the 2026-07-14 beta. Recorded by 
   Public copy claims no ZDR (already enforced). Signed provider terms to follow post-launch.
 **Review:** Yang warm pass on the §I fee-structure wording (Item 1) before any public price; provider
 signed terms to replace the standard-terms line when they land.
+## 2026-07-11 — Session 3: mission control — instrumentation + alerting (branch beta/s3-mission-control)  ·  agent: product-dev · lane: product
+**Change:** Fixed the "you cannot run a beta blind" gap — zero product analytics, activation
+measured nowhere. All founder-only, all first-party (no PostHog/pixel on confidential legal
+data). (1) First-party event log: migration 0027 (SQLite) / 0035 (Postgres) adds `events`
+(append-only, ids/counts only — never PII/transcripts), `alert_state` (watermark k/v so each
+alert fires once per window), and firms.stage (founder-set pilot/paid funnel state); Postgres
+table RLS-enabled with no policy (service-role only, matching errors). event-types.mjs is the
+single allowlist both dialects + the TS boundary import from. web/src/lib/events.ts is the
+best-effort boundary (a lost event never breaks the user action). (2) Wired 7 call sites:
+sign_in (login page → /api/events for password flow + auth/callback for magic link),
+desk_view (desk/queue), digest_sent (digest/run, only mode=live), digest_link_clicked +
+callback_marked (digest/confirm and desk/flag-status, callback-shaped statuses only),
+audit_started (api/audit/session), audit_completed (audit/[token] page). apply_submitted and
+upload_started/completed are DEFINED in the schema/allowlist but NOT wired — sibling sessions
+own apply-form.tsx and /desk/upload; they wire at integration. (3) /studio/beta founder board:
+per-firm calls received/scored/failed (24h/7d), last call, last seen, last digest outcome
+(from the digest.run ledger Session 0 added), callbacks 7d, a live 48h activation clock (first
+callback within 48h of first digest/miss), unopened-digest streak (call-the-firm at 3), and
+the audit→pilot / pilot→paid funnels with a founder-set Stage control. (4) Founder alerting:
+messaging/founder-alerts.mjs + hourly /api/alerts/sweep cron batches every trigger into ONE
+email to FOUNDER_EMAIL — failed scoring, 3+ CallRail signature failures/hour/firm, digest
+skip/fail, new applications — plus a daily 8am America/Los_Angeles per-firm pulse; delivery
+uses the same EMAIL_ENABLED + KILL_SWITCH gate as digest.mjs (off/no-key → render to output/,
+transmit nothing); watermarks in alert_state make every trigger fire exactly once. (5) Digest
+open tracking: messaging/digest-open.mjs signs a 1x1 HMAC pixel (firm id + day, purpose-tagged
+"open", no PII, fail-closed) embedded in the missed-cases digest; /api/digest/open records
+digest_opened and always returns the gif.
+**Hypothesis:** a beta you can't see is a beta you lose in week 1 — the activation event
+(BETA_ONBOARDING.md's "first callback within 48h of first digest") and the two conversions
+(insights B1/B2) must be visible from firm #1, and failures must reach the founder in hours
+not "whenever he opens /admin/status."
+**Expected effect:** Ali watches every firm's pipeline health, activation clock, and funnel
+on one screen; scoring/signature/digest failures and new applications page him automatically
+(once EMAIL_ENABLED + CRON_SECRET are set); three unopened digests trigger a phone call.
+**Status:** shipped to branch (not pushed).
+**Verified:** smoke 0 failures; 460/460 unit tests (new: activation clock, unopened streak,
+digest.run parser, funnel math, alert classifiers/batching/pulse-timing/gated-delivery,
+open-pixel HMAC, event allowlist); e2e-synthetic all 9 stages PASS; production build green
+with /studio/beta, /api/alerts/sweep, /api/digest/open, /api/events all present.
+**Deferred:** apply_submitted call site (api/beta/apply + apply-form.tsx) and
+upload_started/completed call sites (/desk/upload) — schema is settled, sibling sessions wire
+them at integration; opens undercount by nature (image-blocking clients), so a streak is a
+"pick up the phone" signal, never proof of silence — labeled as such on the board.
+**Review:** 2026-07-18 (end of beta week 1).
+
+---
+
+## 2026-07-11 — Session 9: Red-team dress rehearsal (final gate before Monday 7/14 beta)
+
+**Change:** Adversarial stress-test of the whole `beta/integration` surface (Sessions 0–7 +
+copy-audit + trust-drift). Ran a security review and a high-effort code review over the
+cumulative diff (`origin/main...beta/integration`), drove every hostile week-1 input to a
+terminal state, ran a hostile-ethics copy pass over the public pages, and produced the Monday
+runbook. Fixes committed to branch `beta/s9-redteam` (off `beta/integration`); nothing pushed,
+nothing sent.
+
+**Fixes shipped (branch only):**
+1. **Retry cap / terminal-failed state (P0).** `getUnscoredCalls` (ingest/db.mjs +
+   db-postgres.mjs) selected any call lacking a flag row, ignoring status — so a
+   permanently-failed call (bad audio / Spanish / single-speaker / short) was re-selected by
+   every 15-min score sweep, burning a transcribe+score attempt and re-alerting the founder
+   forever. Now excludes terminal `failed%`/`excluded%` statuses. A failed call surfaces once
+   (visible desk status + one founder alert) then rests; clear its status to NULL to retry.
+2. **Pipeline never marked success 'analyzed' (P0, latent).** Nothing in the real pipeline
+   ever set `calls.status='analyzed'` — only `failed_scoring` — so the reconciliation view's
+   `processed` bucket was always 0, and a firm whose calls scored clean (flag rows, zero
+   leaks) read as "N calls processing" forever, the all-clear panel could never render, and
+   monthly scored counts were always 0. score-worker.mjs now sets `analyzed` on success.
+3. **Desk "N calls processing" counted terminally-failed calls (P0).** desk/queue/page.tsx
+   folded `failed` into the processing count with copy "usually within a few minutes, nothing
+   needs you yet" — untruthful for a stuck call. Now failed calls get their own honest panel
+   ("N calls we couldn't read automatically … we've been notified"); processing = genuinely
+   in-flight only; all-clear stays suppressed while either processing or failed > 0.
+4. **Per-firm CallRail signing secret stored plaintext (security, Medium).** The secret can
+   forge valid webhook signatures. Now AES-256-GCM encrypted at rest via the existing
+   integrations/crypto seam (new encode/decodeCallRailSecret, keyed by INTEGRATIONS_ENC_KEY,
+   `enc:v1:` prefix); encrypt in setFirmCallRailSecret (both DB layers), decrypt in the
+   webhook read. Legacy plaintext / local-pilot rows decode transparently.
+5. **CRON_SECRET bearer compared non-constant-time (security, Low).** digest/run + alerts/sweep
+   used `===`; now a shared timing-safe `bearerMatches` (src/lib/http/bearer.ts), matching the
+   webhook path's `timingSafeEqual` discipline.
+
+**Hostile inputs → outcome (zero silent deaths confirmed):** corrupted/truncated MP3, .m4a
+(accepted; whitelist mp3/m4a/wav), 30-sec hangup, single-speaker voicemail → engine throws
+"No diarized utterances…" → caught → `failed_scoring` (now terminal) → visible desk failed
+panel + founder alert. 100MB file → under the 200MB cap, accepted; >200MB → visible rejection.
+Wrong CallRail signature → 401 + logged, 3+/hr → founder alert. Digest cron without CRON_SECRET
+(hosted) → 500 naming the missing var + founder alert; with it → runs. Firm with zero member
+emails → mode "skipped" → digest.run ledger → founder alert (caveat: while EMAIL_ENABLED is
+off it renders-to-file and only alerts once email is enabled — verify member emails first).
+Upload without consent → 400 (server-enforced `z.literal(true)`). **Spanish call → engine does
+NOT throw; it gets an English-calibrated score with no honest label — accepted risk, English-
+only beta framing, no public claim of validated Spanish scoring.**
+
+**Copy pass — violations fixed (branch):** removed validated-Spanish-scoring claim ("built the
+scoring against real calls in both languages") on /faq and /how-it-works → honest
+English-calibrated + personal-review framing; removed live-guarantee refund reference on /terms
+§9 (guarantee is suspended); softened /audit "our error rate" → future/conditional to match
+/honesty. **Staged for Ali (copy decision, NOT edited):** the /letter signed essay + attestation
+assert a *currently published* error rate (5 spots in letter/content.ts, 1 in letter/page.tsx)
+which contradicts /honesty's deliberate withholding — resolve by publishing a real number or
+rewording; this is a hard §IV/§VIII item and a Monday blocker.
+
+**Accepted risks (documented in MONDAY_GO_NO_GO.md):** English-calibrated scoring of Spanish
+calls (no validation, no label); duplicate-scoring race (flags.call_id indexed not UNIQUE —
+bounded by TEST_MODE + PILOT MODE human approval; add UNIQUE post-beta); advisory-only
+client-side upload size cap; failed call's storage audio object not deleted until retention
+sweep.
+
+**Hypothesis:** the beta survives contact with real firm data only if every failure ends in a
+state a human can see — the firm on the desk or the founder in his inbox — and no public claim
+outruns what the frozen engine can defend.
+**Expected effect:** no runaway API spend or alert spam on poison calls; clean-call firms see
+"all clear" not "processing forever"; firm signing secrets safe in a DB dump; public copy makes
+no unvalidated Spanish or published-error-rate claim.
+**Status:** shipped to branch `beta/s9-redteam` (NOT pushed, nothing sent). Frozen scoring
+engine untouched.
+**Verified:** `npm run smoke` 0 failures; `npm test` 516/516; `npm run e2e-synthetic` all 9
+stages PASS; `npm run build` compiled successfully — all green after every fix.
+**Deliverable:** MONDAY_GO_NO_GO.md at repo root (merge beta/integration→main then deploy; full
+Vercel env list; 0037 migration floor; synthetic-call, digest dry-run, alert-sweep, CallRail
+self-test, boards-clean, retention=90 gates; rollback via Vercel Promote / `git revert -m 1`).
+**Ali-only blockers:** /letter published-error-rate copy decision; NDA template attorney review;
+provider (AssemblyAI/Anthropic) data-terms decision; launch pricing numbers.
+**Review:** 2026-07-18 (end of beta week 1).

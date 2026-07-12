@@ -2,6 +2,7 @@
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { CallRailSecretForm } from "./callrail-secret-form";
 
 interface Result {
   firm_id: string;
@@ -11,37 +12,28 @@ interface Result {
   existing_account: boolean;
   signin_url: string;
   webhook_url: string;
+  // Composed server-side (messaging/welcome-email.mjs) — the complete,
+  // firm-personalized welcome email. A redacted copy is persisted server-side.
+  welcome_email?: { subject: string; body: string; persisted: boolean };
 }
 
-function welcomeEmail(r: Result): string {
-  const credentials = r.existing_account
-    ? `Sign in with your existing account at ${r.signin_url}`
-    : `Sign in at ${r.signin_url}
-Email: ${r.email}
-Temporary password: ${r.password}
-(Prefer no password? On the sign-in page choose "email me a sign-in link" —
-it always works. You can set your own password anytime under Settings.)`;
-  return `Subject: Your Intake QA desk is ready
-
-Hi — your desk is live. Two minutes to get oriented:
-
-1. ${credentials}
-
-2. You'll land on "Missed cases" — the only screen that needs your team's
-   attention. When a signable caller slips through, they appear there the
-   same day, and your team just calls them back.
-
-3. On our 15-minute setup call we'll connect your calls (nothing about how
-   your team answers the phone changes). If you use CallRail, this is your
-   firm's webhook address — we'll paste it in together:
-   ${r.webhook_url}
-
-That's the whole product: we read every intake call so your team doesn't
-have to, and the ones that walked show up ready to win back.
-
-Ali
-ali@plaintiffops.com`;
+// Fallback only (server responses always carry welcome_email; this covers a
+// stale deployment mid-rollout so the founder is never left with nothing).
+function fallbackEmail(r: Result): { subject: string; body: string } {
+  return {
+    subject: "Your Intake QA desk is ready",
+    body: `Sign in at ${r.signin_url}
+Email: ${r.email}${r.password ? `\nTemporary password: ${r.password}` : ""}
+CallRail webhook address: ${r.webhook_url}`,
+  };
 }
+
+type SendState =
+  | { s: "idle" }
+  | { s: "confirm" }
+  | { s: "sending" }
+  | { s: "sent" }
+  | { s: "blocked"; reason: string };
 
 export function OnboardFirmForm({
   initialFirmName = "",
@@ -57,6 +49,7 @@ export function OnboardFirmForm({
   const [error, setError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<Result | null>(null);
   const [copied, setCopied] = React.useState(false);
+  const [send, setSend] = React.useState<SendState>({ s: "idle" });
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -75,6 +68,7 @@ export function OnboardFirmForm({
       const data = await r.json();
       if (!r.ok) throw new Error(data.error ?? "onboarding failed");
       setResult(data as Result);
+      setSend({ s: "idle" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "onboarding failed");
     } finally {
@@ -82,8 +76,35 @@ export function OnboardFirmForm({
     }
   }
 
+  // The one send path — runs ONLY on the founder's second (confirming) click.
+  async function sendNow(r: Result, subject: string, body: string) {
+    setSend({ s: "sending" });
+    try {
+      const res = await fetch("/api/studio/send-welcome", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ firm_id: r.firm_id, to: r.email, subject, text: body }),
+      });
+      const data = await res.json();
+      if (res.ok && data.sent) {
+        setSend({ s: "sent" });
+      } else {
+        setSend({
+          s: "blocked",
+          reason:
+            typeof data.reason === "string"
+              ? data.reason
+              : (data.error ?? "The email did not go out — copy it and send it yourself."),
+        });
+      }
+    } catch {
+      setSend({ s: "blocked", reason: "Network error — nothing was sent. Copy the email instead." });
+    }
+  }
+
   if (result) {
-    const emailText = welcomeEmail(result);
+    const we = result.welcome_email ?? fallbackEmail(result);
+    const emailText = `Subject: ${we.subject}\n\n${we.body}`;
     return (
       <Card>
         <CardContent className="py-6">
@@ -98,7 +119,7 @@ export function OnboardFirmForm({
           <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-card border border-line bg-canvas p-4 text-xs leading-relaxed text-ink">
             {emailText}
           </pre>
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <Button
               variant="primary"
               onClick={async () => {
@@ -109,13 +130,52 @@ export function OnboardFirmForm({
             >
               {copied ? "Copied ✓" : "Copy welcome email"}
             </Button>
-            <Button variant="outline" onClick={() => { setResult(null); setFirmName(""); setEmail(""); setFee(""); }}>
+            {send.s === "sent" ? (
+              <span className="text-sm font-semibold text-ink">
+                Sent to {result.email} ✓
+              </span>
+            ) : send.s === "confirm" ? (
+              <>
+                <Button variant="primary" onClick={() => sendNow(result, we.subject, we.body)}>
+                  Yes, send to {result.email}
+                </Button>
+                <Button variant="outline" onClick={() => setSend({ s: "idle" })}>
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="outline"
+                disabled={send.s === "sending"}
+                onClick={() => setSend({ s: "confirm" })}
+              >
+                {send.s === "sending" ? "Sending…" : "Send it by email"}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={() => {
+                setResult(null);
+                setFirmName("");
+                setEmail("");
+                setFee("");
+                setSend({ s: "idle" });
+              }}
+            >
               Onboard another
             </Button>
           </div>
+          {send.s === "blocked" ? (
+            <p className="mt-2 text-sm text-red">Not sent: {send.reason}</p>
+          ) : null}
           <p className="mt-3 text-xs text-faint">
-            Sending the email is yours to do — nothing was sent automatically.
+            Nothing sends on its own — the email goes out only if you press Send (and
+            email sending is switched on), or when you paste the copy into your own email.
           </p>
+          {/* If this firm uses CallRail, store their account's signing key now —
+              their webhooks 401 until it's saved (each CallRail account has its
+              own key; the shared env secret only covers firm #1). */}
+          <CallRailSecretForm initialFirmId={result.firm_id} compact />
         </CardContent>
       </Card>
     );

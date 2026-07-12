@@ -8,6 +8,7 @@
 // call. The legacy env-pinned route stays for the original pilot firm.
 import { ingestCallRail } from "../../../../../ingest/callrail.mjs";
 import { openPipelineDb, closePipelineDb, logError, getFirm } from "../../../../../ingest/store.mjs";
+import { decodeCallRailSecret } from "../../../../../integrations/crypto.mjs";
 import { inngest } from "../../../../../inngest/client.mjs";
 
 export const runtime = "nodejs";
@@ -23,22 +24,55 @@ export async function POST(
   }
 
   const rawBody = await req.text();
+  // CallRail's documented header is literally `Signature`
+  // (https://apidocs.callrail.com/ → Security → Validating Payloads); Node
+  // normalizes header names to lowercase. Keep `x-callrail-signature` as a
+  // fallback for proxies/relays that rename it.
   const signature =
-    req.headers.get("x-callrail-signature") ?? req.headers.get("signature") ?? "";
+    req.headers.get("signature") ?? req.headers.get("x-callrail-signature") ?? "";
 
   const db = await openPipelineDb();
+  let firmDbId: string | number | null = null;
+  let secretSource = "env";
   try {
     // Prefer this firm's OWN CallRail account signing secret; fall back to the
     // shared env secret (the original single-pilot firm). CallRail issues one
     // token per account, so five firms each need their own.
     let secret = process.env.CALLRAIL_WEBHOOK_SECRET ?? null;
+    let secretDecodeError: string | null = null;
     try {
       const firmRow = await getFirm(db, firm);
-      if (firmRow?.callrail_webhook_secret) secret = firmRow.callrail_webhook_secret;
-    } catch {
-      /* fall back to env secret */
+      if (firmRow?.id != null) firmDbId = firmRow.id;
+      if (firmRow?.callrail_webhook_secret) {
+        // Stored encrypted at rest (crypto.encodeCallRailSecret) — decode back to
+        // the raw signing key before HMAC verification. Handles legacy plaintext
+        // and the local pilot transparently.
+        secret = decodeCallRailSecret(firmRow.callrail_webhook_secret);
+        secretSource = "firm";
+      }
+    } catch (decErr: unknown) {
+      // Don't swallow a decode failure silently: a stored-but-undecodable secret
+      // (rotated/missing CALLRAIL_SECRET_KEY) would otherwise fall through to the
+      // env fallback and, if that's also unset, die as a bare 500. Remember the
+      // reason so the no-secret branch below can log it.
+      secretDecodeError = decErr instanceof Error ? decErr.message : "secret decode failed";
     }
     if (!secret) {
+      // FAILURE LOUDNESS: no per-firm secret AND no env fallback means this
+      // firm's CallRail webhooks can never verify — its calls silently never
+      // ingest. Persist an errors-table row (mirrors the bad_signature branch)
+      // so /admin/status and the founder sweep surface it instead of a dead 500.
+      await logError(db, {
+        source: "webhooks.callrail_firm.no_secret",
+        message: `No usable CallRail signing secret for firm ${firm} — its calls will NOT ingest until a secret is configured${secretDecodeError ? ` (stored secret failed to decode: ${secretDecodeError})` : ""}`,
+        context: {
+          firm_id: firmDbId,
+          firm_slug: firm,
+          decode_error: secretDecodeError,
+          env_fallback_set: Boolean(process.env.CALLRAIL_WEBHOOK_SECRET),
+        },
+        firm_id: firmDbId,
+      }).catch(() => {});
       return Response.json(
         { error: "no CallRail secret configured for this firm" },
         { status: 500 },
@@ -74,16 +108,40 @@ export async function POST(
     );
   } catch (err: unknown) {
     if (err instanceof Error && (err as { code?: string }).code === "BAD_SIGNATURE") {
+      // FAILURE LOUDNESS: a silent 401 here is the #1 "firm sees 0 calls forever"
+      // failure mode. Persist an error_log row with the firm slug, the reason,
+      // and exactly which signature formats were tried, so /admin/status (and the
+      // Session-3 alerting on top of it) can surface repeated signature failures.
+      const e = err as { formatsTried?: string[]; hadSignatureHeader?: boolean };
+      await logError(db, {
+        source: "webhooks.callrail_firm.bad_signature",
+        message: `CallRail signature verification failed for firm ${firm}`,
+        context: {
+          firm_slug: firm,
+          reason: e.hadSignatureHeader === false ? "missing Signature header" : "no format matched",
+          formats_tried: e.formatsTried ?? [],
+          secret_source: secretSource,
+          body_bytes: rawBody.length,
+        },
+        firm_id: firmDbId,
+      }).catch(() => {});
       return Response.json({ error: "invalid signature" }, { status: 401 });
     }
     if (err instanceof Error && (err as { code?: string }).code === "BAD_PAYLOAD") {
+      await logError(db, {
+        source: "webhooks.callrail_firm.bad_payload",
+        message: `CallRail payload rejected for firm ${firm}: ${err.message}`,
+        context: { firm_slug: firm, body_bytes: rawBody.length },
+        firm_id: firmDbId,
+      }).catch(() => {});
       return Response.json({ error: "invalid payload" }, { status: 400 });
     }
     // Never echo raw internals; log server-side, answer generically.
     await logError(db, {
       source: "webhooks.callrail_firm",
       message: err instanceof Error ? err.message : "ingest failed",
-      firm_id: null,
+      context: { firm_slug: firm },
+      firm_id: firmDbId,
     }).catch(() => {});
     return Response.json({ error: "ingest failed" }, { status: 400 });
   } finally {
