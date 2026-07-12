@@ -22,6 +22,7 @@ export async function GET(req: Request) {
     resendKeyLength: key.length,
     resendFrom: from || null,
     founderEmailPresent: Boolean(to),
+    founderEmail: to || null,
     emailEnabled: process.env.EMAIL_ENABLED ?? null,
     killSwitch: process.env.KILL_SWITCH ?? null,
     vercelEnv: process.env.VERCEL_ENV ?? null,
