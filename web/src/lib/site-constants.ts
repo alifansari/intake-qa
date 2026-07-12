@@ -218,12 +218,17 @@ export const A2P_LINE =
 
 // ─── PI-intake benchmarks (each carries its named ORIGIN source) ─────────────
 
-// Phone-answer rate — reconciled to ONE figure (Clio 2024 Legal Trends Report).
-// TODO(Ali): confirm this is the figure/edition you want; do not also show the
-// other Clio figure elsewhere.
+// Phone-answer rate (Clio 2024 Legal Trends Report). Ali-confirmed 2026-07-12 to
+// carry the decline trend alongside the 48% unreachable figure. All three numbers
+// (48% unreachable, 40% answer, 56% in 2019) are from the SAME Lux secret-shop and
+// coexist by definition (40% answered live + ~12% called back = 52% reachable;
+// 48% did neither). Verification: CONFIRMED across Clio's own PR + blog + independent
+// write-ups; direct clio.com PDF fetch was 403-blocked, so page-number rigor pending
+// a human opening the 2024 report PDF. Keep to this ONE stat; do not also cite a
+// different Clio figure elsewhere.
 export const STAT_ANSWER_RATE = {
   value: "48%",
-  label: "of firms were essentially unreachable by phone: they never answered a call and never called back",
+  label: "of firms are essentially unreachable by phone: they never answer a call and never call back. Only 40% answer at all, down from 56% in 2019.",
   source: "Clio 2024 Legal Trends Report (Lux secret-shopper study of 500 US firms)",
 };
 
