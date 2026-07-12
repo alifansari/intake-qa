@@ -101,10 +101,19 @@ function pool(): Pool {
   return _pool;
 }
 
+// Module-scoped so the production minifier can't drop it. A function-local
+// const referenced inside a `.map` arrow was being inlined away by the SWC
+// minifier, leaving a bare `alphabet` reference → "alphabet is not defined"
+// at runtime on Vercel (dev is unminified, so it only ever failed in prod).
+const PASSWORD_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+
 function generatePassword(): string {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
   const bytes = crypto.getRandomValues(new Uint8Array(20));
-  return [...bytes].map((b) => alphabet[b % alphabet.length]).join("");
+  let out = "";
+  for (let i = 0; i < bytes.length; i++) {
+    out += PASSWORD_ALPHABET[bytes[i] % PASSWORD_ALPHABET.length];
+  }
+  return out;
 }
 
 export async function POST(req: Request) {
