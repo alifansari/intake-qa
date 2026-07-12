@@ -180,6 +180,20 @@ export const upsertFirmIntegration = wrap("upsertFirmIntegration");
 export const getFirmIntegration = wrap("getFirmIntegration");
 export const listFirmIntegrations = wrap("listFirmIntegrations");
 
+// First-party product event log + alert sweep state (SQLite 0027 / Postgres
+// 0035). No third-party analytics — confidential legal data stays in our DB.
+export const recordEvent = wrap("recordEvent");
+export const listEvents = wrap("listEvents");
+export const countEvents = wrap("countEvents");
+export const firstEventAt = wrap("firstEventAt");
+export const lastEventAt = wrap("lastEventAt");
+export const getAlertState = wrap("getAlertState");
+export const setAlertState = wrap("setAlertState");
+export const getErrorsAfterId = wrap("getErrorsAfterId");
+export const setFirmStage = wrap("setFirmStage");
+export const callCountsSince = wrap("callCountsSince");
+export const lastCallAt = wrap("lastCallAt");
+
 // --- Connection selection for the hosted pipeline ----------------------------
 
 // True when a Postgres connection is configured (hosted product).

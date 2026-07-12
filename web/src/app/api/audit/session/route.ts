@@ -8,6 +8,7 @@ import { createHash } from "node:crypto";
 import { openPipelineDb, closePipelineDb } from "../../../../../ingest/store.mjs";
 import { startAuditSession } from "../../../../../ingest/audit.mjs";
 import type { StartSessionResult } from "@/lib/audit-types";
+import { recordEventOn } from "@/lib/events";
 
 export const runtime = "nodejs";
 
@@ -51,6 +52,13 @@ export async function POST(req: Request) {
         { status: 429 },
       );
     }
+    // First-party event log: an audit began (public flow — no firm yet, token
+    // prefix only so sessions can be distinguished without exposing the link).
+    await recordEventOn(db, {
+      event: "audit_started",
+      actor: "public",
+      context: { token: String(res.token).slice(0, 8) },
+    });
     return Response.json({ token: res.token }, { status: 200 });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "could not start audit";

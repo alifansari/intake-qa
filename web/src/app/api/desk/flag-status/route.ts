@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { resolveDeskFirm } from "@/lib/desk/firm";
+import { recordEventOn } from "@/lib/events";
 
 export const runtime = "nodejs";
 
@@ -45,6 +46,17 @@ export async function POST(req: Request) {
     });
     if (!result) return Response.json({ error: "not found" }, { status: 404 });
     if (result.forbidden) return Response.json({ error: "forbidden" }, { status: 403 });
+    // First-party event log: a callback-shaped status (worked the case) is what
+    // the 48h activation clock on /studio/beta counts. needs_callback/bad_number
+    // are bookkeeping, not callback work — they don't count.
+    if (["reached_out", "back_in_touch", "signed", "didnt_sign"].includes(body.status)) {
+      await recordEventOn(db, {
+        event: "callback_marked",
+        firmId: firm.id,
+        actor: user?.email ?? "pilot",
+        context: { flagId: String(body.flag_id), status: body.status, via: "desk" },
+      });
+    }
     // attempts rides back so the card's encouragement line (B-011) can update
     // without a reload. It is the coordinator's own tally, never a score.
     return Response.json({ ok: true, status: body.status, attempts: result.attempts ?? 0 });

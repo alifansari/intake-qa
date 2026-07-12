@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { recordProductEvent } from "@/lib/events";
 
 export const runtime = "nodejs";
 
@@ -26,10 +27,17 @@ export async function GET(request: Request) {
 
   const supabase = await getSupabaseServer();
   if (supabase && code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { error, data } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
       return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error.message)}`, url.origin));
     }
+    // First-party event log (best-effort, never blocks the redirect). Magic-link
+    // sign-ins land here; password sign-ins report via POST /api/events.
+    await recordProductEvent({
+      event: "sign_in",
+      actor: data?.user?.email ?? null,
+      context: { method: "magic_link" },
+    });
   }
   return NextResponse.redirect(new URL(next, url.origin));
 }

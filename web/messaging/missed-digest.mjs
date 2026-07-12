@@ -17,6 +17,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { signDigestToken, digestLinkSecret } from "./digest-links.mjs";
+import { openPixelTag } from "./digest-open.mjs";
 import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
 
 const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output");
@@ -147,6 +148,13 @@ export function renderMissedDigest(data, { appUrl, env = process.env } = {}) {
     data.missCount === 0
       ? ""
       : `<table><tbody>${rows}</tbody></table>`
+  }
+  ${
+    // Open-tracking pixel (1x1, HMAC-signed, no PII — firm id + day only). Renders
+    // only when DIGEST_LINK_SECRET is configured; measurement never degrades to
+    // an unsigned URL. Reason: BETA_ONBOARDING — "three consecutive unopened
+    // digests = call the firm" must be measurable on /studio/beta.
+    canLink ? openPixelTag({ base, firmId: data.firmId, day: data.generatedAt.slice(0, 10) }, env) : ""
   }
   <footer>
     Intake QA — the independent recovery desk. This digest goes to your sign-in email;

@@ -1380,3 +1380,129 @@ export async function purgeExpiredCalls(db, beforeIso) {
     messages: messages.rowCount ?? 0,
   };
 }
+
+// --- First-party product event log + alert state (migration 0035) ------------
+// Twins of ingest/db.mjs (SQLite migration 0027). Same contract, $n params.
+
+import { isEventType } from "./event-types.mjs";
+
+export async function recordEvent(db, { event, firm_id = null, actor = null, context = null }) {
+  if (!isEventType(event)) throw new Error(`unknown product event: ${event}`);
+  const r = await db.query(
+    `INSERT INTO events (event, firm_id, actor, context)
+     VALUES ($1, $2, $3, $4) RETURNING id`,
+    [
+      event,
+      firm_id,
+      actor == null ? null : String(actor),
+      context == null ? null : typeof context === "string" ? context : JSON.stringify(context),
+    ]
+  );
+  return r.rows[0].id;
+}
+
+export async function listEvents(db, { event = null, firm_id = null, sinceIso = null, limit = 200 } = {}) {
+  const where = [];
+  const params = [];
+  if (event != null) { params.push(event); where.push(`event = $${params.length}`); }
+  if (firm_id != null) { params.push(firm_id); where.push(`firm_id = $${params.length}`); }
+  if (sinceIso != null) { params.push(sinceIso); where.push(`created_at >= $${params.length}`); }
+  params.push(Math.max(1, Math.floor(limit)));
+  const r = await db.query(
+    `SELECT * FROM events${where.length ? ` WHERE ${where.join(" AND ")}` : ""}
+      ORDER BY id DESC LIMIT $${params.length}`,
+    params
+  );
+  return r.rows;
+}
+
+export async function countEvents(db, { event, firm_id = null, sinceIso = null } = {}) {
+  const where = ["event = $1"];
+  const params = [event];
+  if (firm_id != null) { params.push(firm_id); where.push(`firm_id = $${params.length}`); }
+  if (sinceIso != null) { params.push(sinceIso); where.push(`created_at >= $${params.length}`); }
+  const r = await db.query(
+    `SELECT COUNT(*)::int AS n FROM events WHERE ${where.join(" AND ")}`,
+    params
+  );
+  return Number(r.rows[0]?.n ?? 0);
+}
+
+export async function firstEventAt(db, { event, firm_id = null } = {}) {
+  const where = ["event = $1"];
+  const params = [event];
+  if (firm_id != null) { params.push(firm_id); where.push(`firm_id = $${params.length}`); }
+  const r = await db.query(
+    `SELECT MIN(created_at) AS t FROM events WHERE ${where.join(" AND ")}`,
+    params
+  );
+  const t = r.rows[0]?.t ?? null;
+  return t == null ? null : new Date(t).toISOString();
+}
+
+export async function lastEventAt(db, { event = null, firm_id = null } = {}) {
+  const where = [];
+  const params = [];
+  if (event != null) { params.push(event); where.push(`event = $${params.length}`); }
+  if (firm_id != null) { params.push(firm_id); where.push(`firm_id = $${params.length}`); }
+  const r = await db.query(
+    `SELECT MAX(created_at) AS t FROM events${where.length ? ` WHERE ${where.join(" AND ")}` : ""}`,
+    params
+  );
+  const t = r.rows[0]?.t ?? null;
+  return t == null ? null : new Date(t).toISOString();
+}
+
+export async function getAlertState(db, key) {
+  const r = await db.query(`SELECT value FROM alert_state WHERE key = $1`, [key]);
+  return r.rows[0] ? r.rows[0].value : null;
+}
+
+export async function setAlertState(db, key, value) {
+  await db.query(
+    `INSERT INTO alert_state (key, value, updated_at) VALUES ($1, $2, now())
+     ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+    [key, value == null ? null : String(value)]
+  );
+}
+
+export async function getErrorsAfterId(db, afterId = 0, limit = 500) {
+  const r = await db.query(
+    `SELECT * FROM errors WHERE id > $1 ORDER BY id LIMIT $2`,
+    [Number(afterId) || 0, Math.max(1, Math.floor(limit))]
+  );
+  return r.rows;
+}
+
+export async function setFirmStage(db, firmId, stage) {
+  const s = stage === "pilot" || stage === "paid" ? stage : null;
+  await db.query(
+    `UPDATE firms SET stage = $1, stage_updated_at = now() WHERE id = $2`,
+    [s, firmId]
+  );
+}
+
+export async function callCountsSince(db, firmId, sinceIso) {
+  const r = await db.query(
+    `SELECT COUNT(*)::int AS received,
+            COALESCE(SUM(CASE WHEN status = 'analyzed' THEN 1 ELSE 0 END), 0)::int AS scored,
+            COALESCE(SUM(CASE WHEN status LIKE 'failed%' THEN 1 ELSE 0 END), 0)::int AS failed
+       FROM calls WHERE firm_id = $1 AND created_at >= $2`,
+    [firmId, sinceIso]
+  );
+  const row = r.rows[0];
+  return {
+    received: Number(row?.received ?? 0),
+    scored: Number(row?.scored ?? 0),
+    failed: Number(row?.failed ?? 0),
+  };
+}
+
+export async function lastCallAt(db, firmId) {
+  const r = await db.query(
+    `SELECT MAX(created_at) AS t FROM calls WHERE firm_id = $1`,
+    [firmId]
+  );
+  const t = r.rows[0]?.t ?? null;
+  return t == null ? null : new Date(t).toISOString();
+}
