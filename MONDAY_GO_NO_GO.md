@@ -53,7 +53,7 @@ npm run smoke
 | `DIGEST_LINK_SECRET` | signs the "We called them" links + open pixel | digest degrades to no-action links (safe, but no one-click) |
 | `EMAIL_ENABLED` | the email on/off switch (decoupled from TEST_MODE) | leave **off** until gate 5 dry-run passes |
 | `RESEND_API_KEY` + `RESEND_FROM` | live email delivery (verified sender) | digests/alerts render to file, never send |
-| `INNGEST_EVENT_KEY` + `INNGEST_SIGNING_KEY` | durable scoring pipeline (rotate to fresh keys) | event-driven scoring falls back to the cron sweep only |
+| `INNGEST_EVENT_KEY` + `INNGEST_SIGNING_KEY` | durable scoring pipeline (rotate to fresh keys) | scoring stops with **no fallback** — the 15-min "fallback" sweep is ITSELF an Inngest cron (`web/inngest/functions.mjs` `scheduledScoreSweep`), so an Inngest outage strands calls unscored. The new stuck-unscored founder alert (any call unscored past `STUCK_SCORING_HOURS`, default 2) is the safety net that surfaces it |
 | `INTEGRATIONS_ENC_KEY` | at-rest encryption for the per-firm CallRail signing secret (**now required** — the secret is stored encrypted) | CallRail per-firm secret stored as plaintext on write (local pilot only); set it before onboarding firms |
 | `CALLRAIL_WEBHOOK_SECRET` | shared/legacy CallRail secret (pilot firm) | per-firm secrets still work; only the legacy env route needs it |
 | `FOUNDER_EMAIL` | gates studio + is the ONLY recipient of founder alerts/digests-to-self | studio locked; founder alerts skip |
@@ -66,16 +66,17 @@ npm run smoke
 
 ---
 
-## 2. Supabase migrations at the floor — **0037**
+## 2. Supabase migrations at the floor — **0038**
 
 ```bash
 # apply every file in web/supabase/migrations in order, through:
-#   0037_flag_status_attempts.sql
+#   0038_flag_status_attempts.sql
 ```
 
-- [ ] Hosted Postgres confirmed applied through **0037** (the weekend added 0035 event
-      log, 0036 welcome emails, 0037 flag-status attempts). `npm run smoke` confirms the
-      repo tracks match; you still run the SQL on the hosted DB.
+- [ ] Hosted Postgres confirmed applied through **0038** (the weekend added 0036 event
+      log, 0037 welcome emails, 0038 flag-status attempts; note there is no 0035 — a
+      harmless numbering gap). `npm run smoke` confirms the repo tracks match; you still
+      run the SQL on the hosted DB.
 - If unsure which migrations are applied, the safe move is to run the pending ones in
       order — every migration is idempotent (`if not exists` / additive).
 

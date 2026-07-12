@@ -193,6 +193,7 @@ export const getErrorsAfterId = wrap("getErrorsAfterId");
 export const setFirmStage = wrap("setFirmStage");
 export const callCountsSince = wrap("callCountsSince");
 export const lastCallAt = wrap("lastCallAt");
+export const stuckUnscoredCalls = wrap("stuckUnscoredCalls");
 
 // --- Connection selection for the hosted pipeline ----------------------------
 

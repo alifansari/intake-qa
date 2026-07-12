@@ -39,6 +39,7 @@ export async function POST(
     // shared env secret (the original single-pilot firm). CallRail issues one
     // token per account, so five firms each need their own.
     let secret = process.env.CALLRAIL_WEBHOOK_SECRET ?? null;
+    let secretDecodeError: string | null = null;
     try {
       const firmRow = await getFirm(db, firm);
       if (firmRow?.id != null) firmDbId = firmRow.id;
@@ -49,10 +50,29 @@ export async function POST(
         secret = decodeCallRailSecret(firmRow.callrail_webhook_secret);
         secretSource = "firm";
       }
-    } catch {
-      /* fall back to env secret */
+    } catch (decErr: unknown) {
+      // Don't swallow a decode failure silently: a stored-but-undecodable secret
+      // (rotated/missing CALLRAIL_SECRET_KEY) would otherwise fall through to the
+      // env fallback and, if that's also unset, die as a bare 500. Remember the
+      // reason so the no-secret branch below can log it.
+      secretDecodeError = decErr instanceof Error ? decErr.message : "secret decode failed";
     }
     if (!secret) {
+      // FAILURE LOUDNESS: no per-firm secret AND no env fallback means this
+      // firm's CallRail webhooks can never verify — its calls silently never
+      // ingest. Persist an errors-table row (mirrors the bad_signature branch)
+      // so /admin/status and the founder sweep surface it instead of a dead 500.
+      await logError(db, {
+        source: "webhooks.callrail_firm.no_secret",
+        message: `No usable CallRail signing secret for firm ${firm} — its calls will NOT ingest until a secret is configured${secretDecodeError ? ` (stored secret failed to decode: ${secretDecodeError})` : ""}`,
+        context: {
+          firm_id: firmDbId,
+          firm_slug: firm,
+          decode_error: secretDecodeError,
+          env_fallback_set: Boolean(process.env.CALLRAIL_WEBHOOK_SECRET),
+        },
+        firm_id: firmDbId,
+      }).catch(() => {});
       return Response.json(
         { error: "no CallRail secret configured for this firm" },
         { status: 500 },

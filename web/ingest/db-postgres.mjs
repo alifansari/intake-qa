@@ -1521,3 +1521,25 @@ export async function lastCallAt(db, firmId) {
   const t = r.rows[0]?.t ?? null;
   return t == null ? null : new Date(t).toISOString();
 }
+
+// Received-but-never-scored watchdog (twin of db.mjs). Per-firm counts of calls
+// with no flag row, not terminal, received before `cutoffIso`. See db.mjs for
+// the why (Inngest-outage safety net feeding the founder stuckUnscored alert).
+export async function stuckUnscoredCalls(db, cutoffIso) {
+  const r = await db.query(
+    `SELECT c.firm_id AS firm_id, COUNT(*)::int AS count, MIN(c.received_at) AS oldest
+       FROM calls c
+      WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)
+        AND (c.status IS NULL
+             OR (c.status NOT LIKE 'failed%' AND c.status NOT LIKE 'excluded%'))
+        AND c.received_at < $1
+      GROUP BY c.firm_id
+      ORDER BY oldest`,
+    [cutoffIso]
+  );
+  return r.rows.map((row) => ({
+    firm_id: row.firm_id,
+    count: Number(row.count ?? 0),
+    oldest: row.oldest == null ? null : new Date(row.oldest).toISOString(),
+  }));
+}

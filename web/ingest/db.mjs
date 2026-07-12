@@ -1654,3 +1654,31 @@ export function lastCallAt(db, firmId) {
     .get(firmId);
   return row?.t ?? null;
 }
+
+// --- Received-but-never-scored watchdog (Inngest-outage safety net) -------------
+// Calls that arrived but still have NO flag row (the "unscored" signal — see
+// getUnscoredCalls) AND are not in a terminal (failed_*/excluded_*) status,
+// whose received_at is older than `cutoffIso`. Grouped per firm with the count
+// and the oldest arrival. Scoring runs entirely through Inngest (the webhook
+// event AND the 15-min "fallback" sweep are both Inngest crons), so an Inngest
+// outage has no fallback and strands calls unscored forever — this is what the
+// founder-alert stuckUnscored trigger reads to catch that.
+export function stuckUnscoredCalls(db, cutoffIso) {
+  const rows = db
+    .prepare(
+      `SELECT c.firm_id AS firm_id, COUNT(*) AS count, MIN(c.received_at) AS oldest
+         FROM calls c
+        WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)
+          AND (c.status IS NULL
+               OR (c.status NOT LIKE 'failed%' AND c.status NOT LIKE 'excluded%'))
+          AND c.received_at < ?
+        GROUP BY c.firm_id
+        ORDER BY oldest`
+    )
+    .all(cutoffIso);
+  return rows.map((r) => ({
+    firm_id: r.firm_id,
+    count: Number(r.count ?? 0),
+    oldest: r.oldest ?? null,
+  }));
+}

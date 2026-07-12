@@ -274,6 +274,54 @@ test("runAlertSweep: batches one email, advances watermarks, second sweep is sil
   assert.equal(readdirSync(dir).filter((f) => f.startsWith("founder-alert")).length, 1);
 });
 
+// --- stuck-unscored watchdog (Inngest-outage safety net) -------------------------------
+
+test("buildFounderAlert surfaces stuck-unscored firms with count and oldest age", () => {
+  const alert = buildFounderAlert({
+    stuckUnscoredFirms: [
+      { firm_id: 3, count: 5, oldest: new Date(NOW.getTime() - 3 * 3600_000).toISOString() },
+    ],
+    now: NOW,
+  });
+  assert.ok(alert);
+  assert.equal(alert.sections.length, 1);
+  assert.match(alert.subject, /never scored/);
+  assert.match(alert.html, /firm 3: 5 call\(s\) stuck unscored/);
+  assert.match(alert.html, /oldest 3h old/);
+  assert.match(alert.html, /check Inngest/);
+});
+
+test("runAlertSweep: a call unscored past the threshold trips the alert; a fresh one does not", async (t) => {
+  const { db, dir, firmId } = makeCtx(t);
+  // Stale: received 3h ago, never scored (no flag, status NULL) — past the 2h default.
+  upsertCall(db, {
+    firm_id: firmId,
+    source: "manual",
+    received_at: new Date(NOW.getTime() - 3 * 3600_000).toISOString(),
+  });
+  const env = { FOUNDER_EMAIL: "ali@example.com" }; // default 2h threshold, email off → file
+  const first = await runAlertSweep({ store, db, env, now: NOW, outDir: dir, listApplicants: async () => [] });
+  assert.ok(first.alert, "a stale unscored call must trip the sweep");
+  const files = readdirSync(dir).filter((f) => f.startsWith("founder-alert"));
+  assert.equal(files.length, 1);
+  const html = readFileSync(join(dir, files[0]), "utf8");
+  assert.match(html, /never scored/);
+  assert.match(html, /stuck unscored/);
+});
+
+test("runAlertSweep: a fresh unscored call stays within the grace window (no alert)", async (t) => {
+  const { db, dir, firmId } = makeCtx(t);
+  // Received 30 min ago — well inside the 2h default threshold.
+  upsertCall(db, {
+    firm_id: firmId,
+    source: "manual",
+    received_at: new Date(NOW.getTime() - 30 * 60_000).toISOString(),
+  });
+  const env = { FOUNDER_EMAIL: "ali@example.com" };
+  const res = await runAlertSweep({ store, db, env, now: NOW, outDir: dir, listApplicants: async () => [] });
+  assert.equal(res.alert, null, "a 30-min-old unscored call is within the grace window");
+});
+
 test("runAlertSweep: 8am LA pulse renders per-firm received/scored/acted and dedupes by day", async (t) => {
   const { db, dir, firmId } = makeCtx(t);
   const eightAmLA = new Date("2026-07-11T15:00:00Z"); // 08:00 PDT

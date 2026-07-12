@@ -8,6 +8,8 @@
 //   (c) a digest run that skipped or failed any firm
 //   (d) a new beta application
 //   (e) a once-daily 8am America/Los_Angeles one-line beta pulse
+//   (f) calls received but never scored past STUCK_SCORING_HOURS (Inngest-outage
+//       safety net — scoring has no non-Inngest fallback)
 //
 // Delivery follows the SAME EMAIL_ENABLED gate + injectable-mailer pattern as
 // digest.mjs / alerts.mjs: KILL_SWITCH engaged, EMAIL_ENABLED off (default), or
@@ -31,6 +33,15 @@ const DEFAULT_OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../output
 export const SIGNATURE_FAILURE_THRESHOLD = 3;
 export const SIGNATURE_FAILURE_WINDOW_MS = 60 * 60 * 1000;
 
+// Received-but-never-scored watchdog. Scoring is 100% Inngest-dependent: the
+// webhook emits intakeqa/call.received AND the "fallback" 15-min score sweep is
+// ITSELF an Inngest cron (inngest/functions.mjs scheduledScoreSweep) — so an
+// Inngest outage has NO fallback and strands calls at "processing" forever with
+// nothing surfacing it. This trigger is that safety net: any call unscored
+// longer than STUCK_SCORING_HOURS trips the batched founder alert. Env-
+// overridable so the threshold can be tuned without a deploy.
+export const STUCK_SCORING_HOURS = Number(process.env.STUCK_SCORING_HOURS) || 2;
+
 const WM_ERRORS = "alerts.error_watermark";
 const WM_APPS = "alerts.apps_watermark";
 const WM_PULSE = "alerts.pulse_date";
@@ -42,6 +53,17 @@ function esc(v) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+// Coarse human age ("3h", "2d", "45m") of an ISO timestamp relative to `now`.
+// Used only for the stuck-unscored alert line — precision beyond this is noise.
+function ageFromIso(iso, now = new Date()) {
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return "unknown age";
+  const hours = (new Date(now).getTime() - t) / (60 * 60 * 1000);
+  if (hours >= 24) return `${Math.floor(hours / 24)}d`;
+  if (hours >= 1) return `${Math.floor(hours)}h`;
+  return `${Math.max(1, Math.floor(hours * 60))}m`;
 }
 
 // --- Pure classifiers (unit-tested, no I/O) -----------------------------------
@@ -119,9 +141,19 @@ export function buildFounderAlert({
   signatureFirms = [],
   digestProblems = [],
   newApplications = [],
+  stuckUnscoredFirms = [],
   now = new Date(),
 } = {}) {
   const sections = [];
+  if (stuckUnscoredFirms.length) {
+    sections.push({
+      title: "Calls received but never scored",
+      lines: stuckUnscoredFirms.map(
+        (s) =>
+          `firm ${s.firm_id}: ${s.count} call(s) stuck unscored — oldest ${ageFromIso(s.oldest, now)} old (scoring pipeline may be down — check Inngest)`,
+      ),
+    });
+  }
   if (scoringFailures.length) {
     sections.push({
       title: `Scoring failed on ${scoringFailures.length} call(s)`,
@@ -379,12 +411,28 @@ export async function runAlertSweep({
     newApplications = []; // beta tables absent (old DB) — never break the sweep
   }
 
+  // ---- Received-but-never-scored watchdog (trigger f) ----
+  // Scoring runs entirely through Inngest (the webhook event AND the 15-min
+  // "fallback" sweep are both Inngest crons), so an Inngest outage has NO
+  // fallback. Surface any call stranded unscored past the threshold so it never
+  // dies silently at "processing". Re-fires each window while the stall
+  // persists — an ongoing outage is worth an ongoing alert.
+  let stuckUnscoredFirms = [];
+  try {
+    const stuckHours = Number(env.STUCK_SCORING_HOURS) || STUCK_SCORING_HOURS;
+    const cutoffIso = new Date(new Date(now).getTime() - stuckHours * 60 * 60 * 1000).toISOString();
+    stuckUnscoredFirms = (await store.stuckUnscoredCalls(db, cutoffIso).catch(() => [])) ?? [];
+  } catch {
+    stuckUnscoredFirms = []; // never break the sweep on an older DB shape
+  }
+
   // ---- Send the batched alert (one email max) ----
   const alert = buildFounderAlert({
     scoringFailures,
     signatureFirms,
     digestProblems,
     newApplications,
+    stuckUnscoredFirms,
     now,
   });
   if (alert) {

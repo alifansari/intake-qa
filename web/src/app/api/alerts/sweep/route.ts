@@ -6,8 +6,10 @@
 // Each pass batches every trigger since the last watermark into AT MOST one
 // alert email — (a) failed scoring, (b) 3+ CallRail signature failures in an
 // hour for a firm, (c) digest runs that skipped/failed, (d) new beta
-// applications — plus, once per day in the 8am America/Los_Angeles hour, the
-// one-line beta pulse. Never a spam stream: one email per trigger window.
+// applications, (e) calls received but never scored past the staleness
+// threshold (the Inngest-outage safety net) — plus, once per day in the 8am
+// America/Los_Angeles hour, the one-line beta pulse. Never a spam stream: one
+// email per trigger window.
 //
 // Delivery is fully gated inside sendFounderEmail: KILL_SWITCH engaged,
 // EMAIL_ENABLED off (the default), or no Resend key → render to an HTML file
@@ -39,11 +41,39 @@ async function authorized(req: Request): Promise<boolean> {
   return Boolean(founder && user?.email?.trim().toLowerCase() === founder);
 }
 
+// Best-effort errors-table write for the fail-loud branch (a logging failure
+// must never mask the response). Mirrors digest/run's logRun.
+async function logSweep(store: Store, message: string, context: unknown): Promise<void> {
+  try {
+    if (!store.pipelineDbConfigured()) return;
+    const db = await store.openPipelineDb();
+    try {
+      await store.logError(db, { source: "alerts.sweep", message, context });
+    } finally {
+      await store.closePipelineDb(db);
+    }
+  } catch {
+    /* best-effort */
+  }
+}
+
 async function run(req: Request) {
+  const store = (await import("../../../../../ingest/store.mjs")) as Store;
+
   if (!(await authorized(req))) {
+    // Same silent-death mode digest/run guards: a hosted (Supabase-configured)
+    // deploy with no CRON_SECRET means the Vercel sweep cron can never
+    // authenticate, so NO founder alert ever fires — the beta runs blind. Fail
+    // loud with an errors-table row naming the missing var, exactly as
+    // digest/run does; keep the local-pilot bypass + wrong-secret 401 intact.
+    if (!process.env.CRON_SECRET && isSupabaseConfigured()) {
+      const message =
+        "CRON_SECRET is not set — the Vercel alerts-sweep cron cannot authenticate and founder alerts will NEVER fire until it is added to the environment.";
+      await logSweep(store, message, { fix: "Set CRON_SECRET in Vercel env (any long random string) and redeploy." });
+      return Response.json({ error: message }, { status: 500 });
+    }
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
-  const store = (await import("../../../../../ingest/store.mjs")) as Store;
   if (!store.pipelineDbConfigured() && process.env.NODE_ENV === "production") {
     return Response.json({ error: "no database" }, { status: 503 });
   }

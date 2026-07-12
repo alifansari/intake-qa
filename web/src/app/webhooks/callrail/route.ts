@@ -21,6 +21,21 @@ const FIRM_ID = process.env.CALLRAIL_FIRM_ID ?? "1";
 export async function POST(req: Request) {
   const secret = process.env.CALLRAIL_WEBHOOK_SECRET;
   if (!secret) {
+    // FAILURE LOUDNESS: with no secret this legacy env-pinned route can never
+    // verify a webhook, so the pilot firm's calls silently never ingest.
+    // Persist an errors-table row (mirrors the bad_signature branch below) so
+    // /admin/status and the founder sweep surface it instead of a dead 500.
+    const db = await openPipelineDb();
+    try {
+      await logError(db, {
+        source: "webhooks.callrail.no_secret",
+        message: `CALLRAIL_WEBHOOK_SECRET is not configured (legacy env-pinned route, firm ${FIRM_ID}) — calls will NOT ingest until it is set`,
+        context: { firm_slug: String(FIRM_ID) },
+        firm_id: null,
+      }).catch(() => {});
+    } finally {
+      await closePipelineDb(db);
+    }
     return Response.json(
       { error: "CALLRAIL_WEBHOOK_SECRET not configured" },
       { status: 500 }
