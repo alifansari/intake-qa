@@ -589,3 +589,38 @@ with named resolving facts and a pre-registered exit condition, not as a per-cal
 future QC pass re-flags.
 **Expected effect:** no functional change; QC finding 1.1 closed.
 **Review:** at v2 activation decision (the product layer owns the aggregate alert then).
+
+## 2026-07-11 — scoring-v2: question-capture stabilized (schema 2.1), canary set + baseline pinned, reliability study run
+
+**Change (staged on feature/scoring-v2, engine still frozen):**
+(1) **Schema 2.1 — three-state question capture.** Post-QC live runs flipped the
+fixture's confidence tier medium↔high because `questions_asked` read 1 vs 4 across
+runs — the noisiest extraction sat exactly on the old raw-count downgrade cliff
+(< 4 of 10). Each checklist entry now declares `asked | not_asked | not_applicable`;
+confidence steps down on the N/A-aware ratio asked/(asked+not_asked) < 40% AND ≥ 3
+applicable questions unasked (hysteresis: on N/A-heavy calls a ±1 extraction wobble
+cannot conjure three unasked applicable questions). Validator requires all ten
+entries three-state. Known behavior change, by design: gold-5 (med-mal referral)
+confidence medium→high — six MVA-shaped checklist questions are structurally N/A on
+a birth-injury intake and no longer count against the rep.
+(2) **Canary set live.** `scoring-v2/canaries/` — 7 synthetic transcripts (over-
+conversion, Prop-213 no-DUI, Prop-213 + observed defendant-DUI §3333.4(c) review
+path, borderline develop/sign, MIST observed, government-defendant unknowns → R8
+refer-not-decline, capture boundary) + `canary-run.js` comparing CODE-LAYER outputs
+against `canaries/expected.json`, exit 1 on drift. Baseline pinned from live runs
+AFTER hand-tracing each intended outcome; two transcripts were fixed when first
+runs landed defensible-but-unintended reads (c1 minimal-impact misread on a $1.5k
+scrape; c6 R1 case-type-fit preempting R8 under Meridian's declined list — c6 now
+carries a sidecar config accepting government-entity work so R8 is the only refer
+path). Re-pinning the baseline is a calibration change requiring an entry here.
+(3) **Reliability study + gold regeneration** recorded in
+`scoring-v2/CALIBRATION-NOTES.md`; authored gold dimension levels were NOT
+rewritten — live-vs-authored divergences are listed there for attorney
+adjudication.
+**Hypothesis:** confidence tiers should move on case observability, not on
+extraction noise in the weakest read; canaries make silent model drift loud.
+**Expected effect:** the medium↔high fixture flip is structurally impossible from
+±1 question-capture wobble unless the call genuinely sits at the 40% boundary with
+≥3 unasked; weekly canary runs catch provider-side behavior shifts.
+**Review:** at v2 activation (attorney adjudication of gold divergences listed in
+CALIBRATION-NOTES.md is a precondition for phase-2 validation).

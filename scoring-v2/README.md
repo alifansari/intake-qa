@@ -93,10 +93,11 @@ aggregate/privileged analytics, deferred.
 ## How to run
 
 ```
-npm run test:v2          # 57 unit + gold-integration tests, zero network
+npm run test:v2          # 68 unit + gold-integration tests, zero network
 npm run smoke:v2         # fixture transcript → live API → verdict JSON
 node scoring-v2/score-v2.js <transcript.txt | x.transcript.json | audio | --fixture> [--config <firm-v2.md>]
 node scoring-v2/compare-v1-v2.js <transcript | --fixture>   # v1 vs v2 side-by-side
+node scoring-v2/canary-run.js    # live-score the 7 canaries vs the pinned baseline (exit 1 on drift)
 ```
 
 - Needs `ANTHROPIC_API_KEY` in root `.env` (harness/compare only; tests don't).
@@ -107,10 +108,28 @@ node scoring-v2/compare-v1-v2.js <transcript | --fixture>   # v1 vs v2 side-by-s
 
 ## Calibration state (pinned — changing any of these = full revalidation)
 
-1. `system-prompt.md` (verbatim), 2. the six golds **in ORDER.md order**
-(contrastive pair adjacent, never ends on a decline), 3. model id
-`claude-sonnet-4-6`, 4. temperature 0. Any change → rerun the gold set +
-v1-vs-v2 comparisons + canaries; block on QWK regression > 0.05.
+1. `system-prompt.md` (verbatim — **schema 2.1**: the question-capture
+checklist is three-state `asked | not_asked | not_applicable`; confidence
+steps down on the N/A-aware asked-ratio < 40% with ≥ 3 applicable questions
+unasked, never on a raw count — see `lib/confidence.mjs`), 2. the six golds
+**in ORDER.md order** (contrastive pair adjacent, never ends on a decline),
+3. model id `claude-sonnet-4-6`, 4. temperature 0, 5. the canary baseline
+`canaries/expected.json` (pinned 2026-07-11 from hand-verified live runs).
+Any change → rerun the gold set + v1-vs-v2 comparisons + `canary-run.js`;
+block on QWK regression > 0.05; re-pinning the canary baseline is itself a
+calibration change (decisions-log entry).
+
+**Canary protocol (live):** 7 synthetic transcripts in `canaries/`, one per
+named failure mode — over-conversion, Prop-213 uninsured owner, Prop-213 +
+observed defendant-DUI (§3333.4(c) review path), borderline develop/sign,
+MIST minimal-impact, government-defendant unknowns (R8 refer-not-decline),
+question-capture boundary. `canary-run.js` compares CODE-LAYER outputs only
+(gates, disposition, value/confidence tiers, abstention, review + MIST
+flags, urgency flags) and exits nonzero on drift. Run after any calibration
+change and weekly even without one. Reliability snapshot 2026-07-11
+(12-call study, 4x on c4/c7/fixture): code-layer outcomes flipped on 0/12
+runs; the ratio+hysteresis rule held the confidence tier stable across
+question-capture extraction wobble — details in `CALIBRATION-NOTES.md`.
 
 ## Activation gate (this package does NOT go live by merge)
 
@@ -143,9 +162,10 @@ becomes a regression gold.
 
 ```
 scoring-v2/
-├── system-prompt.md          # LLM contract: extraction + anchored reads ONLY
+├── system-prompt.md          # LLM contract: extraction + anchored reads ONLY (schema 2.1)
 ├── firm-config-template.md   # PART A (prompt facts) / PART B (code YAML)
 ├── golds/                    # 6 golds + ORDER.md (pinned calibration state)
+├── canaries/                 # 7 drift canaries + expected.json baseline + protocol README
 ├── lib/
 │   ├── gates.mjs             # G1–G4, pure, observed-only triggers
 │   ├── decision-table.mjs    # R1–R9 + overlays, posture lives HERE
@@ -156,7 +176,10 @@ scoring-v2/
 │   └── parse.mjs             # <analysis>/JSON splitting, balanced-brace parse
 ├── score-v2.js               # harness (LLM call + code pipeline → verdict)
 ├── compare-v1-v2.js          # A/B against frozen v1 (reused by import)
-└── test/                     # 57 tests: gates, every table row, confidence,
+├── canary-run.js             # live canary scorer vs pinned baseline (drift = exit 1)
+├── CALIBRATION-NOTES.md      # 2026-07-11 reliability study + gold-regeneration record
+└── test/                     # 68 tests: gates, every table row, confidence,
+                              #   capture ratio/hysteresis, validator,
                               #   six-gold end-to-end reproduction
 ```
 
