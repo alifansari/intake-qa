@@ -104,10 +104,15 @@ export function LeakCard({
   leak,
   firmName,
   compact = false,
+  demo = false,
 }: {
   leak: Leak;
   firmName?: string;
   compact?: boolean;
+  // Sample/demo cards update local state only — never POST to the real
+  // flag-status API (the ids aren't real). The tap-to-dial button still works,
+  // so a live demo stays fully interactive without erroring.
+  demo?: boolean;
 }) {
   const [status, setStatus] = useState(leak.saveStatus ?? "needs_callback");
   const [attempts, setAttempts] = useState(Number(leak.attempts) || 0);
@@ -123,6 +128,9 @@ export function LeakCard({
     const prevAttempts = attempts;
     setStatus(to); // optimistic — the click must feel instant
     if (ATTEMPT.has(to)) setAttempts(prevAttempts + 1); // optimistic tally too
+    // Demo cards persist nowhere — the click just moves the card so the flow is
+    // demonstrable, but no real record is written and no error can surface.
+    if (demo) return;
     setSaving(true);
     setError(null);
     try {
