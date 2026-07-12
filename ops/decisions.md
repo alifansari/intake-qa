@@ -31,6 +31,64 @@
 
 ---
 
+## 2026-07-11 — Beta Session 7: Conversion machinery (B-010/011/012/013)  ·  agent: product-dev session · lane: product
+The four highest-ICE desk items that make the queue survive week 3, on branch
+`beta/s7-conversion` (off `beta/integration`), NOT pushed. All view logic lives in
+`web/src/lib/desk/queue-view.mjs` (pure, unit-tested); UI in `web/src/app/desk/queue/page.tsx`
++ `web/src/components/desk/LeakCard.tsx`. Migrations renumbered to avoid sibling collision:
+SQLite `0029_flag_status_attempts.sql`, Postgres `0037_flag_status_attempts.sql`.
+
+- **B-010 — Queue hygiene (ICE 512).**
+  - **Change:** `partitionLeaks()` splits the queue into an active list sorted oldest-actionable
+    first (longest-waiting caller is the top card) and a collapsed `<details>` "Handled" pile for
+    terminal cards (signed / passed / bad number), each rendered as one slim `compact` row with a
+    Reopen. Replaced the ad-hoc inline TERMINAL filter on the page.
+  - **Hypothesis:** the desk stays a "today's list," not a graveyard, so daily use survives week 3
+    (2026-07-10 field guide: one screen / one queue / one next action).
+  - **Expected effect:** desk daily-active retention through week 3 of a pilot.
+  - **Status:** shipped (branch, unpushed). **Review date:** 2026-08-01.
+
+- **B-013 — Honest elapsed-time urgency (ICE 216).**
+  - **Change:** `callUrgency()` renders escalating visual weight from time-since-call only
+    (fresh <2d → aging 2–6d → amber "urgent" 7d+), computed on the SERVER clock (no hydration
+    drift). Deleted the vaporware footnote that promised "statute clocks" and the `TODO(Ali)` to
+    wire `sol.mjs`; the footnote now says the waiting time is a callback reminder and
+    "statute-of-limitations tracking stays with your attorneys."
+  - **COMPLIANCE RAIL:** never computes or displays a statute-of-limitations deadline date —
+    urgency flags and elapsed days only; the firm's lawyer owns deadlines. Pinned by unit tests
+    that assert no date / no "statute|deadline|expires" ever appears in a label.
+  - **Hypothesis:** partner urgency + trust rise from honest time pressure without us practicing
+    law; the footnote's promise becomes true instead of vaporware.
+  - **Status:** shipped (branch, unpushed). **Review date:** 2026-08-01.
+
+- **B-011 — Attempt-count nudge toward 6 touches (ICE 336).**
+  - **Change:** added `attempts` + `last_attempt_at` columns on `flag_status`; each logged touch
+    ("Left a message" / "Left another message" / "Spoke to them") increments the counter in the
+    single `setFlagStatus` chokepoint (terminal outcomes and undo never count; the guarded digest
+    write can't double-count a replayed stale link). `attemptNudge()` shows encouragement grounded
+    in the callback science (Velocify 3.5M leads: 93% of conversions by call 6, most firms stop at
+    2): calls 1–2 legitimize the next try, 3–5 credit the range, 6+ credits a full effort and hands
+    judgment back. Silent before the first attempt and on any terminal outcome.
+  - **Tone rail:** encouragement, never surveillance — no red number, no "only N calls," no quota,
+    no comparison; pinned by a test that forbids only/must/required/behind/failed in any nudge.
+  - **Hypothesis:** legitimizing persistence as process lifts rescue→sign rate.
+  - **Status:** shipped (branch, unpushed). **Review date:** 2026-08-01.
+
+- **B-012 — Coordinator "your wins" tally (ICE 280).**
+  - **Change:** extended the existing wins strip from "Your week" to "Your wins this week" and added
+    a personal, credit-framed line — signed cases → "started with your callbacks, worth saying out
+    loud in Friday's meeting"; reached-but-not-yet-signed → "every conversation started with your
+    callback, signatures usually follow." Her own tally only.
+  - **Rail:** no leaderboard, no staff-vs-staff comparison, nothing here is a score (per-case
+    bonuses are ethically barred; recognition is the only upside the tool can offer her).
+  - **Hypothesis:** the desk becomes her recognition ammunition, holding daily engagement.
+  - **Status:** shipped (branch, unpushed). **Review date:** 2026-08-01.
+
+- **Verification:** `npm run smoke && npm test && npm run e2e-synthetic && npm run build` all green;
+  470 tests pass (19 new). One build fix: the hand-written declaration had to be `queue-view.d.mts`
+  (not `.d.ts`) so the explicit `.mjs` import picks up the precise `tone` union under
+  `moduleResolution: bundler` instead of falling back to widened JS inference.
+
 ## 2026-07-11 — Beta Session 1: CallRail webhook bulletproofing  ·  agent: product-dev session · lane: product
 - **Change (branch `beta/s1-callrail`, NOT pushed):** (1) Researched CallRail's REAL
   webhook signature spec against their docs (apidocs.callrail.com → Security →
