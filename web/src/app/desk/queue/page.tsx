@@ -6,6 +6,7 @@
 import { LeakCard, type Leak } from "@/components/desk/LeakCard";
 import { HowCallsArrive } from "@/components/desk/HowCallsArrive";
 import { resolveDeskFirm } from "@/lib/desk/firm";
+import { partitionLeaks, callUrgency } from "@/lib/desk/queue-view.mjs";
 import { fmtMoneyRange } from "@/pdf/doc-helpers.mjs";
 import { feeRangeFromRow } from "../../../../analysis/fee-value.mjs";
 
@@ -115,6 +116,10 @@ export default async function QueuePage() {
         reason: f.reason ?? null,
         phone: f.caller_phone ?? null,
         saveStatus: f.save_status ?? null,
+        attempts: Number(f.attempts ?? 0),
+        // B-013 — urgency is computed HERE, on the server's clock, so the
+        // client card never risks hydration drift. Elapsed time only.
+        urgency: callUrgency(f.received_at),
       });
     }
 
@@ -142,12 +147,26 @@ export default async function QueuePage() {
             </p>
           ) : null}
           {wins.worked > 0 ? (
+            // B-012 — the coordinator's wins, credit-framed: this strip is her
+            // recognition ammunition (per-case bonuses are ethically barred;
+            // recognition is the only upside the tool can offer). Her tally
+            // only — no leaderboard, no comparison, nothing here is a score.
             <div className="mt-3 inline-flex flex-wrap items-center gap-x-4 gap-y-1 rounded-card border border-hairline bg-accent-tint/40 px-4 py-2 text-sm text-ink">
-              <span className="font-semibold">Your week</span>
+              <span className="font-semibold">Your wins this week</span>
               <span className="tnum">{wins.worked} callback{wins.worked === 1 ? "" : "s"} worked</span>
               <span className="tnum">{wins.reached} reached</span>
               {wins.signed > 0 ? (
                 <span className="tnum font-semibold text-accent">{wins.signed} signed 🎉</span>
+              ) : null}
+              {wins.signed > 0 ? (
+                <span className="w-full text-xs text-ink-muted">
+                  {wins.signed === 1 ? "That signed case" : `Those ${wins.signed} signed cases`} started
+                  with your callbacks — worth saying out loud in Friday&apos;s meeting.
+                </span>
+              ) : wins.reached > 0 ? (
+                <span className="w-full text-xs text-ink-muted">
+                  Every conversation this week started with your callback — signatures usually follow.
+                </span>
               ) : null}
             </div>
           ) : null}
@@ -202,9 +221,11 @@ export default async function QueuePage() {
           )
         ) : (
           (() => {
-            const TERMINAL = new Set(["signed", "didnt_sign", "bad_number"]);
-            const active = leaks.filter((l) => !TERMINAL.has(l.saveStatus ?? ""));
-            const done = leaks.filter((l) => TERMINAL.has(l.saveStatus ?? ""));
+            // B-010 — queue hygiene, shared pure logic (unit-tested): terminal
+            // cards collapse into the compact done pile; the active queue runs
+            // oldest-actionable first, so the caller who has waited longest is
+            // the top card. "Today's list", never a graveyard.
+            const { active, done } = partitionLeaks(leaks);
             return (
               <div className="flex flex-col gap-3">
                 {active.length === 0 ? (
@@ -224,9 +245,9 @@ export default async function QueuePage() {
                     <summary className="cursor-pointer text-sm font-semibold text-ink-muted hover:text-ink">
                       Handled ({done.length}) — signed, passed, or bad number
                     </summary>
-                    <div className="mt-3 flex flex-col gap-3">
+                    <div className="mt-3 flex flex-col gap-2">
                       {done.map((l) => (
-                        <LeakCard key={String(l.id)} leak={l} firmName={firm.name} />
+                        <LeakCard key={String(l.id)} leak={l} firmName={firm.name} compact />
                       ))}
                     </div>
                   </details>
@@ -236,11 +257,16 @@ export default async function QueuePage() {
           })()
         )}
 
+        {/* B-013 — the old footnote promised "statute clocks" that didn't exist
+            (vaporware). The honest version: the waiting time on each card is
+            elapsed time since the call, full stop. We never compute or display
+            a statute-of-limitations deadline — that judgment stays with the
+            firm's attorneys. */}
         <p className="mt-6 text-xs text-faint">
           <sup>1</sup> Estimated fee value is a range under the methodology on the honesty page — an
-          estimate of what walked, not a guarantee of recovery. Statute clocks appear once intake dates
-          are captured on the call.
-          {/* TODO(Ali): wire statute clock from the call's incident date + SOL rules (sol.mjs). */}
+          estimate of what walked, not a guarantee of recovery. The waiting time on each card counts
+          from the caller&apos;s original call — it&apos;s a callback reminder, not a legal deadline.
+          Statute-of-limitations tracking stays with your attorneys.
         </p>
       </div>
     );
