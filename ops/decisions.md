@@ -31,6 +31,39 @@
 
 ---
 
+## 2026-07-11 — Session 4: onboarding autopilot + beta comms kit  ·  agent: main session · lane: product-dev
+- **Change:** Closed the onboarding→sign-in gap for Monday's beta. (1) `/api/studio/onboard-firm`
+  now composes the complete, firm-personalized welcome email server-side (new pure module
+  `web/messaging/welcome-email.mjs`): sign-in link + temp password (or magic-link line for
+  linked accounts), the firm's private CallRail webhook URL with "forward to whoever runs your
+  phones," the `/desk/upload` fallback, a first-48-hours plan incl. digest timing, and a support
+  line built from `FOUNDER_NAME`/`FOUNDER_EMAIL` (site-constants) + `FOUNDER_PHONE` (env) —
+  never hardcoded. The REDACTED copy (temp password masked) persists to a new `welcome_emails`
+  table (Postgres migration **0036**, SQLite twin **0028** — renumbered up one from 0035/0027 to
+  dodge a sibling session's collision; RLS on, no policy, founder-surface only). The studio
+  onboarding success card surfaces the email with a copy button plus a two-click-confirm **Send**
+  button that hits new founder-gated route `/api/studio/send-welcome`. (2) Beta cadence templates
+  staged in `ops/drafts/beta-comms-kit.md` (Day-0/1/3/7, incident note, 15-min setup-call agenda;
+  counts-only, no dollars, credit framing; defers CallRail mechanics to the Session-1 runbook).
+  (3) `DEMO_SCRIPT.md` rewritten to the persona field guides: their-calls-first, coordinator-sees-
+  her-own-calls-first, ranges-only ROI, the refuted $468/400% stats explicitly benched per the
+  copy audit. (4) Apply form now collects `records_calls` (yes/no/not-sure) + `spanish_call_pct`
+  (rough bands), Zod-validated at the API boundary and threaded into `qualify()` so the
+  `not_recording_yet` note fires ONLY on a truthful "no" (silence/"not sure" → `recording_status_unknown`).
+- **Hypothesis:** A one-email, no-forgotten-field onboarding + a consistent cadence reduces
+  beta-firm setup friction (the #1 activation risk) and keeps every firm-facing word compliant;
+  honest qualification signals stop polluting the applicant review.
+- **Expected effect:** Faster firm activation (sign-in → first calls flowing) across the founding
+  cohort onboarded starting 2026-07-14; fewer stranded-at-sign-in support pings; cleaner applicant
+  triage. No public metric until firms onboard.
+- **Status:** staged-for-approval — everything firm-facing is founder-gated. The Send button
+  transmits ONLY on the founder's confirming click AND `EMAIL_ENABLED=true` AND a Resend key
+  (KILL_SWITCH halts all); default posture transmits nothing and says so. Comms kit + demo script
+  are drafts Ali sends/uses by hand. Code paths (onboard-firm compose, apply-form fields, qualify)
+  are backend/internal and ship on merge.
+- **Review date:** 2026-07-21
+- **Result:** (filled at review)
+
 ## 2026-07-10 — Engine-v2 Wave 10: LACBA piece QC-cleared ×2 + channel verdict  ·  agent: main session · lane: outreach
 - **Change:** QC pass #2 on the five-questions piece (verdict → fixes applied → **CLEARED FOR
   YANG READ**): §3333.4(c) DUI exception narrowed to its true owner-only scope (the one
