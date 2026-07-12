@@ -14,3 +14,11 @@ output/
 # Claude Code local settings
 .claude/settings.local.json
 web/.next.bak*
+
+# Deploy env / secret values — never commit (public repo)
+ops/drafts/MONDAY-vercel-env-values.md
+.env.local
+.env*.local
+
+# Stray local engine build artifacts
+web/.engine/
