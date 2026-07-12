@@ -81,6 +81,66 @@ test("qualify: volume outside the band and not-recording are soft signals, not g
   assert.ok(q.reasons.includes("not_recording_yet"));
 });
 
+// Truthfulness of the recording signal: the apply form asks yes / no / not
+// sure. Only an actual "no" may be recorded as not_recording_yet; silence or
+// "not sure" is recorded as unknown — never claimed as a finding.
+test("qualify: recording answer 'yes' (form) or true adds no recording reason", () => {
+  for (const v of [true, "yes"]) {
+    const q = qualify({ ...CA_PI_APPLICATION, records_calls: v });
+    assert.equal(q.qualified, true);
+    assert.ok(!q.reasons.includes("not_recording_yet"), `value ${v}`);
+    assert.ok(!q.reasons.includes("recording_status_unknown"), `value ${v}`);
+  }
+});
+
+test("qualify: recording answer 'no' (form) or false is not_recording_yet", () => {
+  for (const v of [false, "no"]) {
+    const q = qualify({ ...CA_PI_APPLICATION, records_calls: v });
+    assert.equal(q.qualified, true); // soft signal, never a gate
+    assert.ok(q.reasons.includes("not_recording_yet"), `value ${v}`);
+  }
+});
+
+test("qualify: unanswered or 'not sure' recording is unknown, NOT not_recording_yet", () => {
+  const unanswered = { ...CA_PI_APPLICATION };
+  delete unanswered.records_calls;
+  for (const app of [unanswered, { ...CA_PI_APPLICATION, records_calls: "not_sure" }]) {
+    const q = qualify(app);
+    assert.equal(q.qualified, true);
+    assert.ok(!q.reasons.includes("not_recording_yet"));
+    assert.ok(q.reasons.includes("recording_status_unknown"));
+  }
+});
+
+test("validateApplication rejects a malformed records_calls value", () => {
+  assert.equal(
+    validateApplication({ ...CA_PI_APPLICATION, records_calls: "maybe" }).ok,
+    false,
+  );
+  assert.equal(
+    validateApplication({ ...CA_PI_APPLICATION, records_calls: "not_sure" }).ok,
+    true,
+  );
+});
+
+test("applyToBeta: form strings persist as an honest boolean at rest", async (t) => {
+  const db = makeDb(t);
+  // "no" must never coerce truthy into the boolean column…
+  const no = await applyToBeta({
+    db,
+    application: { ...CA_PI_APPLICATION, email: "no@x.com", records_calls: "no" },
+  });
+  const noRow = await getBetaApplicant(db, no.applicantId);
+  assert.equal(Boolean(noRow.records_calls), false);
+  // …and "yes" persists true.
+  const yes = await applyToBeta({
+    db,
+    application: { ...CA_PI_APPLICATION, email: "yes@x.com", records_calls: "yes" },
+  });
+  const yesRow = await getBetaApplicant(db, yes.applicantId);
+  assert.equal(Boolean(yesRow.records_calls), true);
+});
+
 test("validateApplication rejects missing/invalid fields", () => {
   assert.equal(validateApplication({}).ok, false);
   assert.equal(validateApplication({ ...CA_PI_APPLICATION, email: "nope" }).ok, false);
