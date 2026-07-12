@@ -125,6 +125,8 @@ export default async function DeskHome({ searchParams }: { searchParams: SearchP
         score: f.qualification_score ?? null,
         tier: (f.confidence_tier as "strong" | "moderate" | null) ?? null,
         feeRange: fee ? fmtMoneyRange(fee.lowCents, fee.highCents) : null,
+        feeLowCents: fee ? fee.lowCents : null,
+        feeHighCents: fee ? fee.highCents : null,
         citationCount: Number(f.citation_count ?? 0),
         reason: f.reason ?? null,
         quote: f.evidence_quote ?? null,

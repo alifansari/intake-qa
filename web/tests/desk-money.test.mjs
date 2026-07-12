@@ -6,7 +6,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { summarizeMoney, fmtBigRange, ON_THE_TABLE_STATUSES } from "../src/lib/desk/money.mjs";
+import {
+  summarizeMoney,
+  fmtBigRange,
+  fmtK,
+  fmtKRange,
+  ON_THE_TABLE_STATUSES,
+} from "../src/lib/desk/money.mjs";
 
 const leak = (status, feeLowCents, feeHighCents) => ({ status, feeLowCents, feeHighCents });
 
@@ -61,6 +67,19 @@ test("fmtBigRange is whole-dollar, range-only, en-dash joined", () => {
   assert.equal(fmtBigRange(34_000_00, 81_000_00), "$34,000–$81,000");
   assert.equal(fmtBigRange(0, 0), "$0");
   assert.equal(fmtBigRange(5_000_00, 5_000_00), "$5,000"); // equal low/high collapses
+});
+
+test("fmtK is compact k-notation; exact under $1,000", () => {
+  assert.equal(fmtK(25_000_00), "$25k");
+  assert.equal(fmtK(120_000_00), "$120k");
+  assert.equal(fmtK(1_200_00), "$1.2k");
+  assert.equal(fmtK(800_00), "$800");
+  assert.equal(fmtK(0), "$0");
+});
+
+test("fmtKRange collapses equal low/high", () => {
+  assert.equal(fmtKRange(25_000_00, 60_000_00), "$25k–$60k");
+  assert.equal(fmtKRange(25_000_00, 25_000_00), "$25k");
 });
 
 test("status set is the winnable trio", () => {

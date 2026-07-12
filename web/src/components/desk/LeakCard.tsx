@@ -24,6 +24,7 @@
 import { useState } from "react";
 import { fmtDate } from "@/pdf/doc-helpers.mjs";
 import { attemptNudge } from "@/lib/desk/queue-view.mjs";
+import { fmtKRange } from "@/lib/desk/money.mjs";
 
 export type Leak = {
   id: number | string;
@@ -34,6 +35,10 @@ export type Leak = {
   score: number | null; // still flows from the server; deliberately not rendered here
   tier: "strong" | "moderate" | null;
   feeRange: string | null;
+  // Numeric fee band (cents) for the compact header money chip. Optional so
+  // callers that only have the formatted string still type-check.
+  feeLowCents?: number | null;
+  feeHighCents?: number | null;
   citationCount: number;
   reason: string | null;
   quote: string | null; // one transcript-validated verbatim line ("no citation, no claim")
@@ -120,6 +125,12 @@ export function LeakCard({
   const [error, setError] = useState<string | null>(null);
   const terminal = TERMINAL.has(status);
   const badge = leak.tier ? (leak.tier === "strong" ? "Strong flag" : "Moderate flag") : "Unrated";
+  // The money this callback is worth — the reason to pick up the phone. A compact
+  // emerald chip in the header so the queue scans as dollars. Estimate only (¹).
+  const feeChip =
+    leak.feeLowCents != null && (leak.feeLowCents > 0 || (leak.feeHighCents ?? 0) > 0)
+      ? fmtKRange(leak.feeLowCents, leak.feeHighCents ?? leak.feeLowCents)
+      : null;
   const urgency = leak.urgency;
   const nudge = attemptNudge(attempts, status);
 
@@ -205,14 +216,25 @@ export function LeakCard({
             </p>
           ) : null}
         </div>
-        <span
-          title={leak.tier ? CONFIDENCE_TEXT[leak.tier] : undefined}
-          className={`rounded-pill px-2.5 py-1 text-xs font-semibold ${
-            leak.tier === "strong" ? "bg-accent-tint text-accent" : "bg-canvas text-ink-muted"
-          }`}
-        >
-          {badge}
-        </span>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          {feeChip ? (
+            <span
+              title="Estimated fee if this case signs — a range under the methodology on the honesty page, not a guarantee."
+              className="rounded-pill bg-accent-tint px-3 py-1 font-display text-base font-semibold text-accent tnum"
+            >
+              {feeChip}
+              <sup className="text-[0.55em]">1</sup>
+            </span>
+          ) : null}
+          <span
+            title={leak.tier ? CONFIDENCE_TEXT[leak.tier] : undefined}
+            className={`rounded-pill px-2.5 py-1 text-xs font-semibold ${
+              leak.tier === "strong" ? "bg-surface text-accent" : "bg-canvas text-ink-muted"
+            }`}
+          >
+            {badge}
+          </span>
+        </div>
       </div>
 
       {leak.reason ? <p className="mt-2 text-sm text-ink-muted">{leak.reason}</p> : null}
@@ -229,15 +251,6 @@ export function LeakCard({
           &ldquo;{leak.quote.length > 200 ? `${leak.quote.slice(0, 200).trimEnd()}…` : leak.quote}&rdquo;
         </p>
       ) : null}
-
-      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
-        {leak.feeRange ? (
-          <span>
-            Est. fee value: <span className="font-semibold text-ink">{leak.feeRange}</span>
-            <sup>1</sup>
-          </span>
-        ) : null}
-      </div>
 
       {/* The words for the awkward part — a warm two-sentence opener that turns
           the callback into a service call. Openers get used; scripts get ignored. */}

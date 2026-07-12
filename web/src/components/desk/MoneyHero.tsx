@@ -45,12 +45,12 @@ export function MoneyHero({
         <>
           <p className="eyebrow text-alert">On the table right now</p>
           {leakHasDollars ? (
-            <p className="mt-1 font-display text-5xl font-semibold leading-none text-alert tnum sm:text-6xl">
+            <p className="mt-1 font-display text-[2rem] font-semibold leading-[1.05] text-alert tnum sm:text-5xl md:text-6xl">
               {fmtBigRange(onTheTable.lowCents, onTheTable.highCents)}
-              <sup className="align-super text-2xl">1</sup>
+              <sup className="align-super text-lg sm:text-2xl">1</sup>
             </p>
           ) : (
-            <p className="mt-1 font-display text-4xl font-semibold leading-none text-alert tnum sm:text-5xl">
+            <p className="mt-1 font-display text-3xl font-semibold leading-[1.05] text-alert tnum sm:text-5xl">
               {onTheTable.count} signable {onTheTable.count === 1 ? "caller" : "callers"}
             </p>
           )}

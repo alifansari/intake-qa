@@ -81,3 +81,21 @@ function dollars(cents) {
   const n = Math.round(Number(cents) / 100);
   return Number.isFinite(n) ? Math.max(0, n) : 0;
 }
+
+// Compact money for tight spots (a card chip): "$25k", "$120k", "$1.2k".
+// Whole dollars under $1,000 stay exact ("$800"). Never a point estimate on its
+// own — callers pass a low/high pair to fmtKRange.
+export function fmtK(cents) {
+  const d = dollars(cents);
+  if (d < 1000) return `$${d.toLocaleString("en-US")}`;
+  const k = d / 1000;
+  const shown = k >= 100 || Number.isInteger(k) ? Math.round(k) : Math.round(k * 10) / 10;
+  return `$${shown}k`;
+}
+
+// A compact fee RANGE for a card chip: "$25k–$60k" (collapses when equal).
+export function fmtKRange(lowCents, highCents) {
+  const lo = fmtK(lowCents);
+  const hi = fmtK(highCents);
+  return lo === hi ? lo : `${lo}–${hi}`;
+}
