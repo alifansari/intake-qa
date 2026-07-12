@@ -1193,6 +1193,7 @@ export async function listLeakedFlags(db, firmId) {
     `SELECT f.id, f.call_id, f.qualification_score, f.reason, f.case_type,
             c.caller_name, c.caller_phone, c.received_at,
             fc.confidence_tier, fs.status AS save_status,
+            COALESCE(fs.attempts, 0) AS attempts, fs.last_attempt_at,
             (SELECT COUNT(*) FROM transcript_citations tc WHERE tc.flag_id = f.id) AS citation_count
        FROM flags f
        JOIN calls c ON c.id = f.call_id
@@ -1246,14 +1247,22 @@ export async function setFlagStatus(db, { flag_id, status, updated_by, firm_id =
       return { ok: false, alreadyResolved: true, current };
     }
   }
-  await db.query(
-    `INSERT INTO flag_status (flag_id, status, updated_by, updated_at)
-     VALUES ($1, $2, $3, now())
+  // Attempt counter (B-011): "left a message" / "spoke to them" each log one
+  // real touch on the phone, so those writes increment attempts. Terminal
+  // outcomes and undo don't count — the counter only grows, and only from
+  // logged touches. It powers encouragement copy, never a score.
+  const attemptInc = status === "reached_out" || status === "back_in_touch" ? 1 : 0;
+  const upsert = await db.query(
+    `INSERT INTO flag_status (flag_id, status, updated_by, updated_at, attempts, last_attempt_at)
+     VALUES ($1, $2, $3, now(), $4, CASE WHEN $4 = 1 THEN now() END)
      ON CONFLICT (flag_id) DO UPDATE
-       SET status = excluded.status, updated_by = excluded.updated_by, updated_at = now()`,
-    [flag_id, status, updated_by ?? null]
+       SET status = excluded.status, updated_by = excluded.updated_by, updated_at = now(),
+           attempts = flag_status.attempts + $4,
+           last_attempt_at = COALESCE(excluded.last_attempt_at, flag_status.last_attempt_at)
+     RETURNING attempts`,
+    [flag_id, status, updated_by ?? null, attemptInc]
   );
-  return { ok: true, firm_id: owner.rows[0].firm_id };
+  return { ok: true, firm_id: owner.rows[0].firm_id, attempts: Number(upsert.rows[0]?.attempts ?? 0) };
 }
 
 export async function listNonAnalyzedCalls(db, firmId) {

@@ -1304,6 +1304,7 @@ export function listLeakedFlags(db, firmId) {
       `SELECT f.id, f.call_id, f.qualification_score, f.reason, f.case_type,
               c.caller_name, c.caller_phone, c.received_at,
               fc.confidence_tier, fs.status AS save_status,
+              COALESCE(fs.attempts, 0) AS attempts, fs.last_attempt_at,
               (SELECT COUNT(*) FROM transcript_citations tc WHERE tc.flag_id = f.id) AS citation_count
          FROM flags f
          JOIN calls c ON c.id = f.call_id
@@ -1352,14 +1353,23 @@ export function setFlagStatus(db, { flag_id, status, updated_by, firm_id = null,
       return { ok: false, alreadyResolved: true, current: cur.status };
     }
   }
+  // Attempt counter (B-011): "left a message" / "spoke to them" each log one
+  // real touch on the phone, so those writes increment attempts. Terminal
+  // outcomes and undo don't count — the counter only grows, and only from
+  // logged touches. It powers encouragement copy, never a score.
+  const attemptInc = status === "reached_out" || status === "back_in_touch" ? 1 : 0;
   db.prepare(
-    `INSERT INTO flag_status (flag_id, status, updated_by, updated_at)
-     VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+    `INSERT INTO flag_status (flag_id, status, updated_by, updated_at, attempts, last_attempt_at)
+     VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ','now'), ?,
+             CASE WHEN ? = 1 THEN strftime('%Y-%m-%dT%H:%M:%SZ','now') END)
      ON CONFLICT (flag_id) DO UPDATE
        SET status = excluded.status, updated_by = excluded.updated_by,
-           updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')`
-  ).run(flag_id, status, updated_by ?? null);
-  return { ok: true, firm_id: owner.firm_id };
+           updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now'),
+           attempts = flag_status.attempts + ?,
+           last_attempt_at = COALESCE(excluded.last_attempt_at, flag_status.last_attempt_at)`
+  ).run(flag_id, status, updated_by ?? null, attemptInc, attemptInc, attemptInc);
+  const after = db.prepare("SELECT attempts FROM flag_status WHERE flag_id = ?").get(flag_id);
+  return { ok: true, firm_id: owner.firm_id, attempts: Number(after?.attempts ?? 0) };
 }
 
 export function listNonAnalyzedCalls(db, firmId) {

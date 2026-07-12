@@ -45,7 +45,9 @@ export async function POST(req: Request) {
     });
     if (!result) return Response.json({ error: "not found" }, { status: 404 });
     if (result.forbidden) return Response.json({ error: "forbidden" }, { status: 403 });
-    return Response.json({ ok: true, status: body.status });
+    // attempts rides back so the card's encouragement line (B-011) can update
+    // without a reload. It is the coordinator's own tally, never a score.
+    return Response.json({ ok: true, status: body.status, attempts: result.attempts ?? 0 });
   } finally {
     await store.closePipelineDb(db);
   }
