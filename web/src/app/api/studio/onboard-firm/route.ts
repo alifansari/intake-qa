@@ -15,8 +15,71 @@
 import { z } from "zod";
 import { Pool } from "pg";
 import { requireFounderRoute } from "@/lib/studio/guard";
+import { FOUNDER_NAME, FOUNDER_EMAIL } from "@/lib/site-constants";
+import { composeWelcomeEmail as composeWelcomeEmailUntyped } from "../../../../../messaging/welcome-email.mjs";
+
+// The .mjs module carries no types; give the one call site an explicit shape.
+const composeWelcomeEmail = composeWelcomeEmailUntyped as unknown as (opts: {
+  firmName: string;
+  email: string;
+  password?: string | null;
+  existingAccount?: boolean;
+  signinUrl: string;
+  webhookUrl: string;
+  uploadUrl: string;
+  founderName?: string;
+  founderEmail?: string;
+  founderPhone?: string;
+}) => { subject: string; body: string; redactedBody: string };
 
 export const runtime = "nodejs";
+
+// Compose the complete, firm-personalized welcome email server-side so the
+// founder never hand-assembles credentials again. Founder contact comes from
+// site-constants + env (FOUNDER_PHONE optional) — never hardcoded here.
+function welcomeEmailFor(opts: {
+  firmName: string;
+  email: string;
+  password: string | null;
+  existingAccount: boolean;
+  origin: string;
+  firmId: string;
+}) {
+  return composeWelcomeEmail({
+    firmName: opts.firmName,
+    email: opts.email,
+    password: opts.password,
+    existingAccount: opts.existingAccount,
+    signinUrl: `${opts.origin}/login`,
+    webhookUrl: `${opts.origin}/webhooks/callrail/${opts.firmId}`,
+    uploadUrl: `${opts.origin}/desk/upload`,
+    founderName: FOUNDER_NAME,
+    founderEmail: FOUNDER_EMAIL,
+    founderPhone: process.env.FOUNDER_PHONE?.trim() ?? "",
+  });
+}
+
+// Best-effort persistence of the REDACTED copy (password masked — it is shown
+// once and never stored readable). Best-effort on purpose: a hosted DB that
+// hasn't run migration 0036 yet must not break onboarding itself.
+async function persistWelcomeEmail(
+  client: { query: (sql: string, params: unknown[]) => Promise<unknown> },
+  firmId: string,
+  toEmail: string,
+  subject: string,
+  bodyRedacted: string,
+): Promise<boolean> {
+  try {
+    await client.query(
+      `insert into welcome_emails (firm_id, to_email, subject, body_redacted)
+       values ($1, $2, $3, $4)`,
+      [firmId, toEmail, subject, bodyRedacted],
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 const Body = z.object({
   firm_name: z.string().min(2).max(120),
@@ -81,6 +144,17 @@ export async function POST(req: Request) {
         );
         await client.query("commit");
         const origin = process.env.APP_URL?.replace(/\/$/, "") || "https://plaintiffops.com";
+        const welcome = welcomeEmailFor({
+          firmName: priorFirm.rows[0].name,
+          email,
+          password: null,
+          existingAccount: true,
+          origin,
+          firmId: priorFirm.rows[0].id,
+        });
+        const persisted = await persistWelcomeEmail(
+          client, priorFirm.rows[0].id, email, welcome.subject, welcome.redactedBody,
+        );
         return Response.json({
           ok: true,
           firm_id: priorFirm.rows[0].id,
@@ -91,6 +165,7 @@ export async function POST(req: Request) {
           already_onboarded: true,
           signin_url: `${origin}/login`,
           webhook_url: `${origin}/webhooks/callrail/${priorFirm.rows[0].id}`,
+          welcome_email: { subject: welcome.subject, body: welcome.body, persisted },
         });
       }
     }
@@ -149,6 +224,19 @@ export async function POST(req: Request) {
     await client.query("commit");
 
     const origin = process.env.APP_URL?.replace(/\/$/, "") || "https://plaintiffops.com";
+    const welcome = welcomeEmailFor({
+      firmName: firm.name,
+      email,
+      password,
+      existingAccount: password === null,
+      origin,
+      firmId: firm.id,
+    });
+    // After commit + redacted on purpose: the raw password lives only in this
+    // response (shown once), and a missing table can't roll back the firm.
+    const persisted = await persistWelcomeEmail(
+      client, firm.id, email, welcome.subject, welcome.redactedBody,
+    );
     return Response.json({
       ok: true,
       firm_id: firm.id,
@@ -158,6 +246,7 @@ export async function POST(req: Request) {
       existing_account: password === null,
       signin_url: `${origin}/login`,
       webhook_url: `${origin}/webhooks/callrail/${firm.id}`,
+      welcome_email: { subject: welcome.subject, body: welcome.body, persisted },
     });
   } catch (e) {
     await client.query("rollback").catch(() => {});
