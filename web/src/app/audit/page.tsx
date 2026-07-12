@@ -227,7 +227,8 @@ export default function AuditUploaderPage() {
             never a promise of what you&apos;ll recover.
           </p>
           <p className="mt-2 text-xs text-faint">
-            How we estimate missed value, and our error rate, are on the{" "}
+            How we estimate missed value, and how we&apos;ll report our false-alarm rate once the
+            test corpus is documented, are on the{" "}
             <a href="/honesty" className="font-semibold text-navy underline">calibration page</a>.
           </p>
         </div>

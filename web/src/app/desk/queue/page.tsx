@@ -66,18 +66,26 @@ export default async function QueuePage() {
     // green dot that can lie.
     let callsReceived = 0;
     let lastCallAt: string | null = null;
-    // Calls the pipeline hasn't finished with yet: received but not analyzed,
-    // not excluded — INCLUDING failed_scoring (a stuck call is "still working",
-    // never silently absorbed into a green light). While this is > 0, the
-    // all-clear panel must not render: "all clear" and "still reading your
-    // calls" cannot both be true.
+    // Calls the pipeline hasn't finished with yet: received, not analyzed, not
+    // excluded, and NOT terminally failed. A permanently-failed call
+    // (unreadable audio, Spanish/single-speaker transcript throw) is terminal
+    // once the retry guard stops re-queuing it — calling it "processing …
+    // usually within a few minutes" would be untruthful. It gets its OWN honest
+    // panel below (and the founder is alerted). While EITHER genuinely-in-flight
+    // OR failed calls exist, the all-clear panel must not render: "all clear"
+    // and "we're still on these calls" cannot both be true.
     let callsProcessing = 0;
+    let callsFailed = 0;
     try {
       const recon = await store.getCallReconciliation(db, firm.id);
       callsReceived = Number(recon?.received ?? 0);
+      callsFailed = Number(recon?.failed ?? 0);
       callsProcessing = Math.max(
         0,
-        callsReceived - Number(recon?.processed ?? 0) - Number(recon?.excluded ?? 0),
+        callsReceived
+          - Number(recon?.processed ?? 0)
+          - Number(recon?.excluded ?? 0)
+          - callsFailed,
       );
       if (typeof db.query === "function") {
         const r = await db.query(
@@ -89,6 +97,7 @@ export default async function QueuePage() {
     } catch {
       callsReceived = 0;
       callsProcessing = 0;
+      callsFailed = 0;
     }
 
     // The coordinator's "wins this week" — credit framing (the tool makes her
@@ -208,6 +217,24 @@ export default async function QueuePage() {
                 We&apos;re still reading {callsProcessing === 1 ? "this call" : "these calls"}.
                 Anything that needs a callback will appear right here as soon as we&apos;re done
                 &mdash; usually within a few minutes. Nothing needs you yet.
+              </p>
+            </div>
+          ) : callsFailed > 0 ? (
+            // Terminal failures: audio we couldn't read automatically (a
+            // corrupted file, or a call our transcription can't process). We do
+            // NOT pretend these are "processing" — that would age into a lie.
+            // The founder is alerted automatically and will follow up; the firm
+            // just needs the honest status, not an action.
+            <div className="rounded-card border border-hairline bg-surface p-8">
+              <h2 className="font-display text-xl font-semibold text-ink">
+                {callsFailed} call{callsFailed === 1 ? "" : "s"} we couldn&apos;t read automatically.
+              </h2>
+              <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+                {callsFailed === 1 ? "This recording" : "These recordings"} couldn&apos;t be
+                transcribed automatically (for example a corrupted or unusual audio file).
+                We&apos;ve been notified and will look into{" "}
+                {callsFailed === 1 ? "it" : "them"} &mdash; nothing is required from you.
+                Everything we could read is up to date.
               </p>
             </div>
           ) : (

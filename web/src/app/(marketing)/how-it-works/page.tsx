@@ -115,12 +115,15 @@ export default function HowItWorksPage() {
 
       {/* Spanish-language intake (California edge) */}
       <section className="mt-6 rounded-card border border-hairline bg-surface p-6">
-        <h2 className="font-display text-xl font-semibold text-ink">Spanish-language calls, analyzed natively</h2>
+        <h2 className="font-display text-xl font-semibold text-ink">Spanish-language calls, handled honestly</h2>
         <p className="mt-2 max-w-[72ch] text-ink-muted">
-          We analyze Spanish-language intake calls natively, not translated afterward. {STAT_LA_HISPANIC.value} of
+          We detect the call&apos;s language automatically. Today our scoring rubric is calibrated and
+          validated on English-language calls; we won&apos;t claim validated Spanish-language scoring
+          until we can show the test corpus behind it, so during the beta Spanish calls are reviewed
+          personally rather than scored automatically. It still matters in California: {STAT_LA_HISPANIC.value} of
           Los Angeles County residents are Hispanic or Latino ({STAT_LA_HISPANIC.source}), Spanish-first callers
           are where English-only intake leaks most, and a signable Spanish-speaking caller is worth
-          exactly as much as any other. Ali is bilingual and built the scoring against real calls in both languages.
+          exactly as much as any other. Ali is bilingual and reviews flagged Spanish calls himself.
         </p>
       </section>
 

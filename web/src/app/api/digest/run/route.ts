@@ -28,6 +28,7 @@ const sendMissedDigest = sendMissedDigestUntyped as unknown as (opts: {
 }) => Promise<{ mode: string; [k: string]: unknown }>;
 import { killSwitchEngaged } from "../../../../../messaging/compliance.mjs";
 import { recordEventOn } from "@/lib/events";
+import { bearerMatches } from "@/lib/http/bearer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,7 +38,7 @@ type Store = typeof import("../../../../../ingest/store.mjs");
 async function authorized(req: Request): Promise<boolean> {
   const secret = process.env.CRON_SECRET;
   const header = req.headers.get("authorization");
-  if (secret && header === `Bearer ${secret}`) return true;
+  if (bearerMatches(header, secret)) return true;
   if (!isSupabaseConfigured()) return true; // local pilot, nothing to protect
   const user = await getCurrentUser();
   const founder = process.env.FOUNDER_EMAIL?.trim().toLowerCase();

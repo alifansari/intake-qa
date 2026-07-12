@@ -5,6 +5,8 @@
 // SQL — so the storage seam stays in one place (Postgres later needs only
 // query-syntax tweaks here, no caller changes).
 
+import { encodeCallRailSecret } from "../integrations/crypto.mjs";
+
 // Insert a call, or update the existing one when the same firm re-sends the
 // same external_call_id (CallRail `call_modified`). Manual rows have a null
 // external_call_id and always insert.
@@ -81,9 +83,19 @@ export function setTranscript(db, callId, transcript) {
 // A call is "un-scored" when no flags row references it yet — the scoring
 // worker creates the flag, so its existence marks the call as scored.
 export function getUnscoredCalls(db, firmId = null) {
+  // A call is "unscored" only if it has no flag row AND is not in a terminal
+  // status. `failed_*` and `excluded_*` are terminal: without this guard a
+  // permanently-failed call (bad audio, Spanish/single-speaker transcript throw)
+  // is re-selected by EVERY sweep, burning a transcribe+score attempt per cycle
+  // forever and re-alerting the founder each pass. A failed call already
+  // surfaces once (visible status_reason on the desk + one founder alert); it
+  // must not be retried blindly. To retry after fixing the cause, clear the
+  // call's status back to NULL. (Retry-cap decision, Session 9 red-team.)
   const base = `
     SELECT c.* FROM calls c
-    WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)`;
+    WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)
+      AND (c.status IS NULL
+           OR (c.status NOT LIKE 'failed%' AND c.status NOT LIKE 'excluded%'))`;
   if (firmId != null) {
     return db
       .prepare(`${base} AND c.firm_id = ? ORDER BY c.id`)
@@ -282,9 +294,12 @@ export function addInboundMessage(db, { conversation_id, body }) {
 // Pass null to clear it (the per-firm webhook route then falls back to the
 // shared env secret). Returns true when a firm row was updated.
 export function setFirmCallRailSecret(db, firmId, secret) {
+  // Encrypt at rest — the signing key can forge valid webhook signatures, so it
+  // must never be stored as plaintext where a DB dump would expose it.
+  const stored = encodeCallRailSecret(secret);
   const info = db
     .prepare("UPDATE firms SET callrail_webhook_secret = ? WHERE id = ?")
-    .run(secret == null ? null : String(secret), firmId);
+    .run(stored, firmId);
   return Number(info.changes) > 0;
 }
 

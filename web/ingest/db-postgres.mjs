@@ -13,6 +13,8 @@
 // connection, so it operates outside browser RLS by design; the queue UI still
 // reads through the user-scoped, RLS-protected Supabase client.
 
+import { encodeCallRailSecret } from "../integrations/crypto.mjs";
+
 // Insert a call, or update the existing one when the same firm re-sends the same
 // external_call_id. Returns { id, created }.
 export async function upsertCall(db, call) {
@@ -63,9 +65,19 @@ export async function setTranscript(db, callId, transcript) {
 }
 
 export async function getUnscoredCalls(db, firmId = null) {
+  // A call is "unscored" only if it has no flag row AND is not in a terminal
+  // status. `failed_*` and `excluded_*` are terminal: without this guard a
+  // permanently-failed call (bad audio, Spanish/single-speaker transcript throw)
+  // is re-selected by EVERY sweep, burning a transcribe+score attempt per cycle
+  // forever and re-alerting the founder each pass. A failed call already
+  // surfaces once (visible status_reason on the desk + one founder alert); it
+  // must not be retried blindly. To retry after fixing the cause, clear the
+  // call's status back to NULL. (Retry-cap decision, Session 9 red-team.)
   const base = `
     SELECT c.* FROM calls c
-    WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)`;
+    WHERE NOT EXISTS (SELECT 1 FROM flags f WHERE f.call_id = c.id)
+      AND (c.status IS NULL
+           OR (c.status NOT LIKE 'failed%' AND c.status NOT LIKE 'excluded%'))`;
   if (firmId != null) {
     const r = await db.query(`${base} AND c.firm_id = $1 ORDER BY c.created_at, c.id`, [firmId]);
     return r.rows;
@@ -243,9 +255,12 @@ export async function addInboundMessage(db, { conversation_id, body }) {
 // Per-firm CallRail signing secret (supabase migration 0034). Pass null to
 // clear (falls back to the shared env secret). Returns true when a row updated.
 export async function setFirmCallRailSecret(db, firmId, secret) {
+  // Encrypt at rest — the signing key can forge valid webhook signatures, so it
+  // must never be stored as plaintext where a DB dump would expose it.
+  const stored = encodeCallRailSecret(secret);
   const r = await db.query(
     "UPDATE firms SET callrail_webhook_secret = $1 WHERE id = $2",
-    [secret == null ? null : String(secret), firmId],
+    [stored, firmId],
   );
   return (r.rowCount ?? 0) > 0;
 }

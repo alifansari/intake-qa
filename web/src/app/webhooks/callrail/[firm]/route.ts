@@ -8,6 +8,7 @@
 // call. The legacy env-pinned route stays for the original pilot firm.
 import { ingestCallRail } from "../../../../../ingest/callrail.mjs";
 import { openPipelineDb, closePipelineDb, logError, getFirm } from "../../../../../ingest/store.mjs";
+import { decodeCallRailSecret } from "../../../../../integrations/crypto.mjs";
 import { inngest } from "../../../../../inngest/client.mjs";
 
 export const runtime = "nodejs";
@@ -42,7 +43,10 @@ export async function POST(
       const firmRow = await getFirm(db, firm);
       if (firmRow?.id != null) firmDbId = firmRow.id;
       if (firmRow?.callrail_webhook_secret) {
-        secret = firmRow.callrail_webhook_secret;
+        // Stored encrypted at rest (crypto.encodeCallRailSecret) — decode back to
+        // the raw signing key before HMAC verification. Handles legacy plaintext
+        // and the local pilot transparently.
+        secret = decodeCallRailSecret(firmRow.callrail_webhook_secret);
         secretSource = "firm";
       }
     } catch {

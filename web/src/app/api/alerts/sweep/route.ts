@@ -15,6 +15,7 @@
 // internal founder-directed alert, never a firm-facing message.
 import { getCurrentUser } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { bearerMatches } from "@/lib/http/bearer";
 import { runAlertSweep as runAlertSweepUntyped } from "../../../../../messaging/founder-alerts.mjs";
 
 const runAlertSweep = runAlertSweepUntyped as unknown as (opts: {
@@ -31,7 +32,7 @@ type Store = typeof import("../../../../../ingest/store.mjs");
 async function authorized(req: Request): Promise<boolean> {
   const secret = process.env.CRON_SECRET;
   const header = req.headers.get("authorization");
-  if (secret && header === `Bearer ${secret}`) return true;
+  if (bearerMatches(header, secret)) return true;
   if (!isSupabaseConfigured()) return true; // local pilot, nothing to protect
   const user = await getCurrentUser();
   const founder = process.env.FOUNDER_EMAIL?.trim().toLowerCase();

@@ -833,3 +833,84 @@ upload_started/completed call sites (/desk/upload) — schema is settled, siblin
 them at integration; opens undercount by nature (image-blocking clients), so a streak is a
 "pick up the phone" signal, never proof of silence — labeled as such on the board.
 **Review:** 2026-07-18 (end of beta week 1).
+
+---
+
+## 2026-07-11 — Session 9: Red-team dress rehearsal (final gate before Monday 7/14 beta)
+
+**Change:** Adversarial stress-test of the whole `beta/integration` surface (Sessions 0–7 +
+copy-audit + trust-drift). Ran a security review and a high-effort code review over the
+cumulative diff (`origin/main...beta/integration`), drove every hostile week-1 input to a
+terminal state, ran a hostile-ethics copy pass over the public pages, and produced the Monday
+runbook. Fixes committed to branch `beta/s9-redteam` (off `beta/integration`); nothing pushed,
+nothing sent.
+
+**Fixes shipped (branch only):**
+1. **Retry cap / terminal-failed state (P0).** `getUnscoredCalls` (ingest/db.mjs +
+   db-postgres.mjs) selected any call lacking a flag row, ignoring status — so a
+   permanently-failed call (bad audio / Spanish / single-speaker / short) was re-selected by
+   every 15-min score sweep, burning a transcribe+score attempt and re-alerting the founder
+   forever. Now excludes terminal `failed%`/`excluded%` statuses. A failed call surfaces once
+   (visible desk status + one founder alert) then rests; clear its status to NULL to retry.
+2. **Pipeline never marked success 'analyzed' (P0, latent).** Nothing in the real pipeline
+   ever set `calls.status='analyzed'` — only `failed_scoring` — so the reconciliation view's
+   `processed` bucket was always 0, and a firm whose calls scored clean (flag rows, zero
+   leaks) read as "N calls processing" forever, the all-clear panel could never render, and
+   monthly scored counts were always 0. score-worker.mjs now sets `analyzed` on success.
+3. **Desk "N calls processing" counted terminally-failed calls (P0).** desk/queue/page.tsx
+   folded `failed` into the processing count with copy "usually within a few minutes, nothing
+   needs you yet" — untruthful for a stuck call. Now failed calls get their own honest panel
+   ("N calls we couldn't read automatically … we've been notified"); processing = genuinely
+   in-flight only; all-clear stays suppressed while either processing or failed > 0.
+4. **Per-firm CallRail signing secret stored plaintext (security, Medium).** The secret can
+   forge valid webhook signatures. Now AES-256-GCM encrypted at rest via the existing
+   integrations/crypto seam (new encode/decodeCallRailSecret, keyed by INTEGRATIONS_ENC_KEY,
+   `enc:v1:` prefix); encrypt in setFirmCallRailSecret (both DB layers), decrypt in the
+   webhook read. Legacy plaintext / local-pilot rows decode transparently.
+5. **CRON_SECRET bearer compared non-constant-time (security, Low).** digest/run + alerts/sweep
+   used `===`; now a shared timing-safe `bearerMatches` (src/lib/http/bearer.ts), matching the
+   webhook path's `timingSafeEqual` discipline.
+
+**Hostile inputs → outcome (zero silent deaths confirmed):** corrupted/truncated MP3, .m4a
+(accepted; whitelist mp3/m4a/wav), 30-sec hangup, single-speaker voicemail → engine throws
+"No diarized utterances…" → caught → `failed_scoring` (now terminal) → visible desk failed
+panel + founder alert. 100MB file → under the 200MB cap, accepted; >200MB → visible rejection.
+Wrong CallRail signature → 401 + logged, 3+/hr → founder alert. Digest cron without CRON_SECRET
+(hosted) → 500 naming the missing var + founder alert; with it → runs. Firm with zero member
+emails → mode "skipped" → digest.run ledger → founder alert (caveat: while EMAIL_ENABLED is
+off it renders-to-file and only alerts once email is enabled — verify member emails first).
+Upload without consent → 400 (server-enforced `z.literal(true)`). **Spanish call → engine does
+NOT throw; it gets an English-calibrated score with no honest label — accepted risk, English-
+only beta framing, no public claim of validated Spanish scoring.**
+
+**Copy pass — violations fixed (branch):** removed validated-Spanish-scoring claim ("built the
+scoring against real calls in both languages") on /faq and /how-it-works → honest
+English-calibrated + personal-review framing; removed live-guarantee refund reference on /terms
+§9 (guarantee is suspended); softened /audit "our error rate" → future/conditional to match
+/honesty. **Staged for Ali (copy decision, NOT edited):** the /letter signed essay + attestation
+assert a *currently published* error rate (5 spots in letter/content.ts, 1 in letter/page.tsx)
+which contradicts /honesty's deliberate withholding — resolve by publishing a real number or
+rewording; this is a hard §IV/§VIII item and a Monday blocker.
+
+**Accepted risks (documented in MONDAY_GO_NO_GO.md):** English-calibrated scoring of Spanish
+calls (no validation, no label); duplicate-scoring race (flags.call_id indexed not UNIQUE —
+bounded by TEST_MODE + PILOT MODE human approval; add UNIQUE post-beta); advisory-only
+client-side upload size cap; failed call's storage audio object not deleted until retention
+sweep.
+
+**Hypothesis:** the beta survives contact with real firm data only if every failure ends in a
+state a human can see — the firm on the desk or the founder in his inbox — and no public claim
+outruns what the frozen engine can defend.
+**Expected effect:** no runaway API spend or alert spam on poison calls; clean-call firms see
+"all clear" not "processing forever"; firm signing secrets safe in a DB dump; public copy makes
+no unvalidated Spanish or published-error-rate claim.
+**Status:** shipped to branch `beta/s9-redteam` (NOT pushed, nothing sent). Frozen scoring
+engine untouched.
+**Verified:** `npm run smoke` 0 failures; `npm test` 516/516; `npm run e2e-synthetic` all 9
+stages PASS; `npm run build` compiled successfully — all green after every fix.
+**Deliverable:** MONDAY_GO_NO_GO.md at repo root (merge beta/integration→main then deploy; full
+Vercel env list; 0037 migration floor; synthetic-call, digest dry-run, alert-sweep, CallRail
+self-test, boards-clean, retention=90 gates; rollback via Vercel Promote / `git revert -m 1`).
+**Ali-only blockers:** /letter published-error-rate copy decision; NDA template attorney review;
+provider (AssemblyAI/Anthropic) data-terms decision; launch pricing numbers.
+**Review:** 2026-07-18 (end of beta week 1).

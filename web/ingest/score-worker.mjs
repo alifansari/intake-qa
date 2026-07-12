@@ -107,6 +107,16 @@ export async function scoreUnscored({
       case_type: mapped.case_type,
     });
 
+    // Mark the call terminal-succeeded. The whole schema keys "done" off
+    // status = 'analyzed' (v_call_reconciliation's `processed` bucket, the
+    // desk's "N calls processing" count, getUnprocessedCalls, monthly scored
+    // counts) — but the pipeline previously only ever wrote 'failed_scoring',
+    // never 'analyzed', so a clean-scored call (flag row, no leak) stayed
+    // status=NULL and read as "still processing" forever, and the desk's
+    // all-clear panel could never render. Setting it here closes that gap.
+    // (Session 9 red-team.)
+    await setCallStatus(db, call.id, "analyzed").catch(() => {});
+
     let conversationId = null;
     let messageId = null;
 

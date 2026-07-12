@@ -129,7 +129,7 @@ export default function TermsPage() {
           <p>
             Either party may stop the engagement at any time. On termination we delete your data as
             described in the privacy policy, and any fees already paid for the current period are
-            non-refundable except where the guarantee or the law provides otherwise.
+            non-refundable except where the law provides otherwise.
           </p>
         </Section>
 
