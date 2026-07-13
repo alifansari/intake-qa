@@ -152,6 +152,13 @@ export const listNonAnalyzedCalls = wrap("listNonAnalyzedCalls");
 export const upsertCallAnalysis = wrap("upsertCallAnalysis");
 export const getCallWithAnalysis = wrap("getCallWithAnalysis");
 export const listCallsWithAnalysis = wrap("listCallsWithAnalysis");
+// Live case triage (migration 0033 / 0041).
+export const insertTriageCase = wrap("insertTriageCase");
+export const listTriageCases = wrap("listTriageCases");
+export const getTriageCase = wrap("getTriageCase");
+export const setTriageStatus = wrap("setTriageStatus");
+export const getFirmTriageProfile = wrap("getFirmTriageProfile");
+export const upsertFirmTriageProfile = wrap("upsertFirmTriageProfile");
 export const getReportStatus = wrap("getReportStatus");
 export const setReportStatus = wrap("setReportStatus");
 export const listReviewableSessions = wrap("listReviewableSessions");

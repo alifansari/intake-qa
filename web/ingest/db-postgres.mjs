@@ -1695,3 +1695,97 @@ export async function stuckUnscoredCalls(db, cutoffIso) {
     oldest: row.oldest == null ? null : new Date(row.oldest).toISOString(),
   }));
 }
+
+// --- Live case triage (migration 0041) -- twin of db.mjs ---------------------
+
+export async function insertTriageCase(db, t) {
+  const r = await db.query(
+    `INSERT INTO triage_cases (
+        firm_id, created_by, caller_name, caller_phone, case_type, incident_date,
+        grade_letter, grade_color, headline, disposition, value_tier,
+        driving_reason, flip_fact, sol_deadline, sol_days_remaining, sol_urgency,
+        attorney_review, input_json, verdict_json, status)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
+     RETURNING id`,
+    [
+      t.firm_id, t.created_by ?? null, t.caller_name ?? null, t.caller_phone ?? null,
+      t.case_type ?? null, t.incident_date ?? null, t.grade_letter ?? null,
+      t.grade_color ?? null, t.headline ?? null, t.disposition ?? null, t.value_tier ?? null,
+      t.driving_reason ?? null, t.flip_fact ?? null, t.sol_deadline ?? null,
+      t.sol_days_remaining ?? null, t.sol_urgency ?? null, t.attorney_review === true,
+      t.input_json ?? null, t.verdict_json ?? null, t.status ?? "new",
+    ]
+  );
+  return r.rows[0].id;
+}
+
+export async function listTriageCases(db, firmId, opts = {}) {
+  const clauses = ["firm_id = $1"];
+  const params = [firmId];
+  if (opts.status) {
+    params.push(opts.status);
+    clauses.push(`status = $${params.length}`);
+  }
+  if (opts.openOnly) {
+    clauses.push("status IN ('new','callback','contacted')");
+  }
+  const limit = Number.isInteger(opts.limit) ? opts.limit : 200;
+  const r = await db.query(
+    `SELECT * FROM triage_cases WHERE ${clauses.join(" AND ")}
+      ORDER BY created_at DESC LIMIT ${limit}`,
+    params
+  );
+  return r.rows;
+}
+
+export async function getTriageCase(db, firmId, id) {
+  const r = await db.query(
+    `SELECT * FROM triage_cases WHERE firm_id = $1 AND id = $2 LIMIT 1`,
+    [firmId, id]
+  );
+  return r.rows[0] || null;
+}
+
+export async function setTriageStatus(db, firmId, id, status, by = null) {
+  const r = await db.query(
+    `UPDATE triage_cases SET status = $1, status_updated_at = now(), status_by = $2
+      WHERE firm_id = $3 AND id = $4`,
+    [status, by, firmId, id]
+  );
+  return r.rowCount > 0;
+}
+
+export async function getFirmTriageProfile(db, firmId) {
+  const r = await db.query(
+    `SELECT * FROM firm_triage_profiles WHERE firm_id = $1 LIMIT 1`,
+    [firmId]
+  );
+  return r.rows[0] || null;
+}
+
+export async function upsertFirmTriageProfile(db, firmId, p) {
+  await db.query(
+    `INSERT INTO firm_triage_profiles (
+        firm_id, posture, accepted_case_types, min_policy_limits, take_mist,
+        cost_fronting, trial_capital, red_flag_strictness, profile_json, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, now())
+     ON CONFLICT (firm_id) DO UPDATE SET
+        posture = excluded.posture, accepted_case_types = excluded.accepted_case_types,
+        min_policy_limits = excluded.min_policy_limits, take_mist = excluded.take_mist,
+        cost_fronting = excluded.cost_fronting, trial_capital = excluded.trial_capital,
+        red_flag_strictness = excluded.red_flag_strictness, profile_json = excluded.profile_json,
+        updated_at = now()`,
+    [
+      firmId,
+      p.posture === "volume" ? "volume" : "selective",
+      p.accepted_case_types ? JSON.stringify(p.accepted_case_types) : null,
+      p.min_policy_limits ?? null,
+      p.take_mist == null ? null : p.take_mist === true,
+      p.cost_fronting ?? "moderate",
+      p.trial_capital === true,
+      p.red_flag_strictness ?? "balanced",
+      p.profile_json ?? JSON.stringify(p),
+    ]
+  );
+  return firmId;
+}

@@ -1859,3 +1859,119 @@ export function stuckUnscoredCalls(db, cutoffIso) {
     oldest: r.oldest ?? null,
   }));
 }
+
+// --- Live case triage (migration 0033) ---------------------------------------
+// Deterministic fact-based triage records + per-firm triage profile. Additive,
+// firm-scoped, independent of the calls/flags pipeline. Written by the desk
+// triage route; read by the triage queue. Twin: db-postgres.mjs.
+
+export function insertTriageCase(db, t) {
+  const info = db
+    .prepare(
+      `INSERT INTO triage_cases (
+          firm_id, created_by, caller_name, caller_phone, case_type, incident_date,
+          grade_letter, grade_color, headline, disposition, value_tier,
+          driving_reason, flip_fact, sol_deadline, sol_days_remaining, sol_urgency,
+          attorney_review, input_json, verdict_json, status)
+       VALUES (
+          @firm_id, @created_by, @caller_name, @caller_phone, @case_type, @incident_date,
+          @grade_letter, @grade_color, @headline, @disposition, @value_tier,
+          @driving_reason, @flip_fact, @sol_deadline, @sol_days_remaining, @sol_urgency,
+          @attorney_review, @input_json, @verdict_json, @status)`
+    )
+    .run({
+      firm_id: t.firm_id,
+      created_by: t.created_by ?? null,
+      caller_name: t.caller_name ?? null,
+      caller_phone: t.caller_phone ?? null,
+      case_type: t.case_type ?? null,
+      incident_date: t.incident_date ?? null,
+      grade_letter: t.grade_letter ?? null,
+      grade_color: t.grade_color ?? null,
+      headline: t.headline ?? null,
+      disposition: t.disposition ?? null,
+      value_tier: t.value_tier ?? null,
+      driving_reason: t.driving_reason ?? null,
+      flip_fact: t.flip_fact ?? null,
+      sol_deadline: t.sol_deadline ?? null,
+      sol_days_remaining: t.sol_days_remaining ?? null,
+      sol_urgency: t.sol_urgency ?? null,
+      attorney_review: t.attorney_review ? 1 : 0,
+      input_json: t.input_json ?? null,
+      verdict_json: t.verdict_json ?? null,
+      status: t.status ?? "new",
+    });
+  return Number(info.lastInsertRowid);
+}
+
+export function listTriageCases(db, firmId, opts = {}) {
+  const clauses = ["firm_id = ?"];
+  const params = [firmId];
+  if (opts.status) {
+    clauses.push("status = ?");
+    params.push(opts.status);
+  }
+  if (opts.openOnly) {
+    clauses.push("status IN ('new','callback','contacted')");
+  }
+  const limit = Number.isInteger(opts.limit) ? opts.limit : 200;
+  return db
+    .prepare(
+      `SELECT * FROM triage_cases
+        WHERE ${clauses.join(" AND ")}
+        ORDER BY created_at DESC
+        LIMIT ${limit}`
+    )
+    .all(...params);
+}
+
+export function getTriageCase(db, firmId, id) {
+  return db
+    .prepare(`SELECT * FROM triage_cases WHERE firm_id = ? AND id = ? LIMIT 1`)
+    .get(firmId, id);
+}
+
+export function setTriageStatus(db, firmId, id, status, by = null) {
+  const info = db
+    .prepare(
+      `UPDATE triage_cases
+          SET status = ?, status_updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now'), status_by = ?
+        WHERE firm_id = ? AND id = ?`
+    )
+    .run(status, by, firmId, id);
+  return info.changes > 0;
+}
+
+export function getFirmTriageProfile(db, firmId) {
+  return db
+    .prepare(`SELECT * FROM firm_triage_profiles WHERE firm_id = ? LIMIT 1`)
+    .get(firmId);
+}
+
+export function upsertFirmTriageProfile(db, firmId, p) {
+  db.prepare(
+    `INSERT INTO firm_triage_profiles (
+        firm_id, posture, accepted_case_types, min_policy_limits, take_mist,
+        cost_fronting, trial_capital, red_flag_strictness, profile_json, updated_at)
+     VALUES (@firm_id, @posture, @accepted_case_types, @min_policy_limits, @take_mist,
+        @cost_fronting, @trial_capital, @red_flag_strictness, @profile_json,
+        strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+     ON CONFLICT (firm_id) DO UPDATE SET
+        posture = excluded.posture, accepted_case_types = excluded.accepted_case_types,
+        min_policy_limits = excluded.min_policy_limits, take_mist = excluded.take_mist,
+        cost_fronting = excluded.cost_fronting, trial_capital = excluded.trial_capital,
+        red_flag_strictness = excluded.red_flag_strictness, profile_json = excluded.profile_json,
+        updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')`
+  ).run({
+    firm_id: firmId,
+    posture: p.posture === "volume" ? "volume" : "selective",
+    accepted_case_types: p.accepted_case_types ? JSON.stringify(p.accepted_case_types) : null,
+    min_policy_limits: p.min_policy_limits ?? null,
+    take_mist: p.take_mist == null ? null : p.take_mist ? 1 : 0,
+    cost_fronting: p.cost_fronting ?? "moderate",
+    trial_capital: p.trial_capital ? 1 : 0,
+    red_flag_strictness: p.red_flag_strictness ?? "balanced",
+    profile_json: p.profile_json ?? (p ? JSON.stringify(p) : null),
+  });
+  return firmId;
+}

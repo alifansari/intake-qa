@@ -22,6 +22,12 @@ export default async function DeskLayout({ children }: { children: React.ReactNo
             Intake QA · your desk
           </Link>
           <div className="flex items-center gap-x-5 text-sm">
+            <Link
+              href="/desk/triage"
+              className="rounded-lg bg-ink px-3 py-1.5 font-medium text-surface hover:opacity-90"
+            >
+              Live triage
+            </Link>
             {isFounder ? (
               <>
                 <Link href="/desk/review" className="text-faint hover:text-ink">
