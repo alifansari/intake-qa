@@ -11,6 +11,22 @@ import { rateLimited } from "@/lib/intake/rate-limit";
 
 export const runtime = "nodejs";
 
+// Founder ping on a new demo lead. This is an INTERNAL ops notification to Ali,
+// not a message to a prospect, so — like the beta-apply notifier — it is
+// deliberately NOT behind TEST_MODE / KILL_SWITCH (those gate outbound PRODUCT
+// sends to prospects/firms). Best-effort: the demo_leads table + the /studio
+// console remain the source of truth, so a mailer hiccup never loses the lead.
+// Silently no-ops if the Resend env vars are unset.
+async function notifyFounder(subject: string, text: string): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM;
+  const to = process.env.FOUNDER_EMAIL;
+  if (!apiKey || !from || !to) return;
+  const { Resend } = await import("resend");
+  const resend = new Resend(apiKey);
+  await resend.emails.send({ from, to, subject, text });
+}
+
 const Body = z.object({
   email: z.string().email(),
   demoCallId: z.string().optional(),
@@ -53,6 +69,28 @@ export async function POST(req: Request) {
     }
   } finally {
     await closePipelineDb(db);
+  }
+
+  // Internal ops ping so a demo lead never sits unseen. Best-effort and never
+  // blocks the capture; not TEST_MODE-gated (see notifyFounder above).
+  try {
+    const base = process.env.PUBLIC_BASE_URL ?? "";
+    const domain = email.split("@")[1] ?? "";
+    const resultLink = resume_token
+      ? `${base}/demo?t=${encodeURIComponent(resume_token)}`
+      : "(no result link)";
+    const volume = monthly_call_volume ? `${monthly_call_volume}/mo calls` : "volume not given";
+    await notifyFounder(
+      `New demo lead: ${email}`,
+      `A prospect just ran the demo and left an email.\n\n` +
+        `Email: ${email}\n` +
+        `Domain: ${domain}\n` +
+        `Monthly volume: ${volume}\n` +
+        `Their result: ${resultLink}\n\n` +
+        `Review leads and hot audits: ${base}/studio`,
+    );
+  } catch {
+    // Never fail the capture on a founder-ping error.
   }
 
   // Transmit only when explicitly configured and NOT in TEST_MODE.
