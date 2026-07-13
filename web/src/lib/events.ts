@@ -25,6 +25,8 @@ export const EVENT_NAMES = [
   "audit_started",
   "audit_completed",
   "apply_submitted",
+  "firm_created",
+  "score_completed",
 ] as const;
 
 export type ProductEventName = (typeof EVENT_NAMES)[number];

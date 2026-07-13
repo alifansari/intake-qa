@@ -190,6 +190,7 @@ export const lastEventAt = wrap("lastEventAt");
 export const getAlertState = wrap("getAlertState");
 export const setAlertState = wrap("setAlertState");
 export const getErrorsAfterId = wrap("getErrorsAfterId");
+export const getEventsAfterId = wrap("getEventsAfterId");
 export const setFirmStage = wrap("setFirmStage");
 export const callCountsSince = wrap("callCountsSince");
 export const lastCallAt = wrap("lastCallAt");

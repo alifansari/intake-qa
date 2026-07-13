@@ -1624,6 +1624,15 @@ export function getErrorsAfterId(db, afterId = 0, limit = 500) {
     .all(Number(afterId) || 0, Math.max(1, Math.floor(limit)));
 }
 
+// Product events newer than a watermark id — the founder-activity digest's
+// cursor (twin of getErrorsAfterId). Ascending by id so the sweep advances the
+// watermark to the newest row it examined.
+export function getEventsAfterId(db, afterId = 0, limit = 1000) {
+  return db
+    .prepare(`SELECT * FROM events WHERE id > ? ORDER BY id LIMIT ?`)
+    .all(Number(afterId) || 0, Math.max(1, Math.floor(limit)));
+}
+
 // --- Founder-set funnel stage (migration 0027) --------------------------------
 
 export function setFirmStage(db, firmId, stage) {

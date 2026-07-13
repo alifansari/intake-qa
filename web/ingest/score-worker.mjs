@@ -23,6 +23,7 @@ import {
   createDraftMessage,
   setCallStatus,
   logError,
+  recordEvent,
 } from "./store.mjs";
 import { evaluateFlag } from "../messaging/flag-logic.mjs";
 import { draftFirstMessage } from "../messaging/draft.mjs";
@@ -146,6 +147,21 @@ export async function scoreUnscored({
     // all-clear panel could never render. Setting it here closes that gap.
     // (Session 9 red-team.)
     await setCallStatus(db, call.id, "analyzed").catch(() => {});
+
+    // First-party product event: a call finished scoring. Feeds the founder
+    // activity digest ("N calls scored for firm X, K flagged") and the
+    // /studio/beta board. IDs/counts only, never transcript text or caller PII.
+    // Best-effort — a log failure must never fail the flag or abort the batch.
+    await recordEvent(db, {
+      event: "score_completed",
+      firm_id: call.firm_id ?? null,
+      actor: "system",
+      context: {
+        call_id: String(call.id),
+        leaked: Boolean(mapped.is_leaked_signable),
+        score: mapped.qualification_score ?? null,
+      },
+    }).catch(() => {});
 
     let conversationId = null;
     let messageId = null;

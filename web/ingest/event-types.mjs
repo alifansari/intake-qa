@@ -7,6 +7,12 @@
 // upload_started / upload_completed: call sites land with the /desk/upload
 // build (sibling branch). apply_submitted: call site lands with the apply-form
 // build (sibling branch). Both are defined now so the schema is settled.
+//
+// firm_created / score_completed: the two lifecycle events the founder-activity
+// digest reports on (SQLite 0031 / Postgres 0039). firm_created is recorded when
+// a firm is added in the studio; score_completed when the scoring worker finishes
+// a call (leaked-signable or clean). Adding a name here REQUIRES a matching CHECK
+// migration in BOTH dialects — never ad hoc.
 
 export const EVENT_TYPES = Object.freeze([
   "sign_in",
@@ -20,6 +26,8 @@ export const EVENT_TYPES = Object.freeze([
   "audit_started",
   "audit_completed",
   "apply_submitted",
+  "firm_created",
+  "score_completed",
 ]);
 
 export function isEventType(name) {

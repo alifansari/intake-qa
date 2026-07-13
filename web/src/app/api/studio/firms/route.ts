@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { requireFounderRoute } from "@/lib/studio/guard";
 import { createFirm, listFirms } from "@/lib/studio/data";
+import { recordProductEvent } from "@/lib/events";
 
 export const runtime = "nodejs";
 
@@ -32,6 +33,15 @@ export async function POST(req: Request) {
 
   try {
     const firm = await createFirm(gate.supabase, parsed);
+    // First-party product event: a firm was added to the studio. Feeds the
+    // founder activity digest and the /studio/beta board. Best-effort (opens
+    // its own pipeline connection) — a log failure never fails firm creation.
+    await recordProductEvent({
+      event: "firm_created",
+      firmId: firm?.id ?? null,
+      actor: gate.email ?? "founder",
+      context: { name: parsed.name },
+    });
     return Response.json({ firm }, { status: 201 });
   } catch {
     return Response.json({ error: "could not create firm" }, { status: 500 });

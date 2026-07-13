@@ -20,6 +20,7 @@ import {
   digestRunProblem,
   signatureFailureFirms,
   buildFounderAlert,
+  buildActivityDigest,
   buildBetaPulse,
   shouldSendDailyPulse,
   sendFounderEmail,
@@ -120,6 +121,95 @@ test("buildFounderAlert batches every trigger into ONE email; empty → null", (
   assert.match(alert.subject, /Scoring failed/);
   assert.match(alert.html, /Nguyen Law/);
   assert.match(alert.html, /rejected webhooks/);
+});
+
+// --- founder-activity digest ----------------------------------------------------------
+
+test("buildActivityDigest groups reportable events, ignores noise, names firms", () => {
+  const firmName = (id) => (String(id) === "7" ? "Nguyen Law" : `firm ${id}`);
+  const ev = (event, firm_id, context, mins = 3) => ({
+    event,
+    firm_id,
+    context,
+    created_at: minsAgo(mins),
+  });
+  const sections = buildActivityDigest({
+    now: NOW,
+    firmName,
+    events: [
+      ev("firm_created", 7, { name: "Nguyen Law" }),
+      ev("upload_completed", 7, { source: "callrail" }),
+      ev("score_completed", 7, { leaked: true, score: 82 }),
+      ev("score_completed", 7, { leaked: false, score: 30 }),
+      ev("callback_marked", 7, { status: "signed", via: "desk" }),
+      ev("desk_view", 7, { page: "home" }), // noise → ignored
+      ev("sign_in", 7, {}), // noise → ignored
+    ],
+  });
+  const titles = sections.map((s) => s.title);
+  assert.deepEqual(titles, [
+    "New firm added: 1",
+    "New call uploaded: 1",
+    "Call scored: 2",
+    "Intake action (callback worked): 1",
+  ]);
+  const flat = sections.flatMap((s) => s.lines).join("\n");
+  assert.match(flat, /Nguyen Law/);
+  assert.match(flat, /LEAKED SIGNABLE flagged, score 82/);
+  assert.match(flat, /via callrail/);
+  assert.match(flat, /signed \(desk\)/);
+});
+
+test("buildActivityDigest returns [] when nothing reportable", () => {
+  assert.deepEqual(
+    buildActivityDigest({ events: [{ event: "desk_view", firm_id: 1 }], now: NOW }),
+    [],
+  );
+  assert.deepEqual(buildActivityDigest({}), []);
+});
+
+test("buildFounderAlert renders an activity-only email with an activity subject", () => {
+  const alert = buildFounderAlert({
+    activity: [{ title: "New firm added: 1", lines: ["Nguyen Law (2m ago)"] }],
+    now: NOW,
+  });
+  assert.ok(alert);
+  assert.match(alert.subject, /^Intake QA beta activity —/);
+  assert.match(alert.html, /Beta activity/);
+  assert.match(alert.html, /New firm added: 1/);
+});
+
+test("runAlertSweep: activity events produce an email, advance the watermark, then go silent", async (t) => {
+  const { db, dir, firmId } = makeCtx(t);
+  recordEvent(db, { event: "firm_created", firm_id: firmId, actor: "founder", context: { name: "Alert Firm" } });
+  recordEvent(db, { event: "upload_completed", firm_id: firmId, context: { source: "manual" } });
+  recordEvent(db, { event: "score_completed", firm_id: firmId, actor: "system", context: { leaked: true, score: 90 } });
+  recordEvent(db, { event: "callback_marked", firm_id: firmId, context: { status: "reached_out", via: "desk" } });
+  recordEvent(db, { event: "desk_view", firm_id: firmId, context: { page: "home" } }); // noise
+
+  const env = { FOUNDER_EMAIL: "ali@example.com" }; // email off → file mode
+  const first = await runAlertSweep({ store, db, env, now: NOW, outDir: dir, listApplicants: async () => [] });
+  assert.ok(first.alert, "activity alone must produce an alert");
+  const files = readdirSync(dir).filter((f) => f.startsWith("founder-alert"));
+  assert.equal(files.length, 1);
+  const html = readFileSync(join(dir, files[0]), "utf8");
+  assert.match(html, /New firm added: 1/);
+  assert.match(html, /New call uploaded: 1/);
+  assert.match(html, /LEAKED SIGNABLE flagged, score 90/);
+  assert.match(html, /Intake action \(callback worked\): 1/);
+  assert.doesNotMatch(html, /desk_view/); // noise never surfaces
+
+  // Second sweep, no new events: silent, watermark held.
+  const second = await runAlertSweep({
+    store,
+    db,
+    env,
+    now: new Date(NOW.getTime() + 5 * 60_000),
+    outDir: dir,
+    listApplicants: async () => [],
+  });
+  assert.equal(second.alert, null, "second sweep with no new events stays silent");
+  assert.equal(readdirSync(dir).filter((f) => f.startsWith("founder-alert")).length, 1);
 });
 
 // --- pulse timing ---------------------------------------------------------------------

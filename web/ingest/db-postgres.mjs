@@ -1496,6 +1496,17 @@ export async function getErrorsAfterId(db, afterId = 0, limit = 500) {
   return r.rows;
 }
 
+// Product events newer than a watermark id — the founder-activity digest's
+// cursor (twin of getErrorsAfterId). Ascending by id so the sweep advances the
+// watermark to the newest row it examined.
+export async function getEventsAfterId(db, afterId = 0, limit = 1000) {
+  const r = await db.query(
+    `SELECT * FROM events WHERE id > $1 ORDER BY id LIMIT $2`,
+    [Number(afterId) || 0, Math.max(1, Math.floor(limit))]
+  );
+  return r.rows;
+}
+
 export async function setFirmStage(db, firmId, stage) {
   const s = stage === "pilot" || stage === "paid" ? stage : null;
   await db.query(

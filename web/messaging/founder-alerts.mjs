@@ -10,6 +10,9 @@
 //   (e) a once-daily 8am America/Los_Angeles one-line beta pulse
 //   (f) calls received but never scored past STUCK_SCORING_HOURS (Inngest-outage
 //       safety net — scoring has no non-Inngest fallback)
+//   (g) a founder-activity digest: every new firm added, call uploaded, call
+//       scored, and intake action (callback worked) since the last sweep, read
+//       from the first-party product-event log (ids/counts only, never PII)
 //
 // Delivery follows the SAME EMAIL_ENABLED gate + injectable-mailer pattern as
 // digest.mjs / alerts.mjs: KILL_SWITCH engaged, EMAIL_ENABLED off (default), or
@@ -20,7 +23,8 @@
 // Watermarks live in alert_state (migration 0027/0035) so each trigger fires
 // exactly once: 'alerts.error_watermark' (last errors.id examined),
 // 'alerts.apps_watermark' (last application created_at), 'alerts.pulse_date'
-// (last pulse day in LA time). The errors `alerted` flag is NOT reused — it
+// (last pulse day in LA time), 'alerts.events_watermark' (last events.id
+// reported in the activity digest). The errors `alerted` flag is NOT reused — it
 // belongs to the older sendErrorAlert path.
 
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -45,6 +49,29 @@ export const STUCK_SCORING_HOURS = Number(process.env.STUCK_SCORING_HOURS) || 2;
 const WM_ERRORS = "alerts.error_watermark";
 const WM_APPS = "alerts.apps_watermark";
 const WM_PULSE = "alerts.pulse_date";
+const WM_EVENTS = "alerts.events_watermark";
+
+// Which product events the founder-activity digest reports, in display order,
+// with their human labels. Deliberately CURATED: the noisy, low-signal events
+// (sign_in, desk_view, digest_*, upload_started, audit_started) are excluded so
+// the digest is the pulse of real activity, not every page view. apply_submitted
+// is excluded here because it already has its own richer dedicated section.
+const ACTIVITY_ORDER = [
+  "firm_created",
+  "upload_completed",
+  "score_completed",
+  "callback_marked",
+  "audit_completed",
+];
+const ACTIVITY_LABELS = {
+  firm_created: "New firm added",
+  upload_completed: "New call uploaded",
+  score_completed: "Call scored",
+  callback_marked: "Intake action (callback worked)",
+  audit_completed: "Leak audit completed (public)",
+};
+// Cap lines per section so a busy hour never produces a wall-of-text email.
+const ACTIVITY_LINE_CAP = 25;
 
 function esc(v) {
   if (v == null) return "";
@@ -134,14 +161,82 @@ export function signatureFailureFirms(
     .map(([firmId, count]) => ({ firmId, count }));
 }
 
+// --- Founder-activity digest (the "ping me for every good thing too" half) ----
+
+// events.context is a small JSON blob (ids/counts only). It arrives as a JSON
+// string (DB) or an already-parsed object (tests) or null — normalize to object.
+function parseContext(ctx) {
+  if (ctx == null) return {};
+  if (typeof ctx === "object") return ctx;
+  try {
+    return JSON.parse(ctx);
+  } catch {
+    return {};
+  }
+}
+
+// One human line for a single activity event. firmName maps a firm_id to its
+// name (falls back to "firm <id>"); public flows (audit) have no firm.
+function activityLine(ev, { firmName, now }) {
+  const c = parseContext(ev.context);
+  const who = ev.firm_id != null ? firmName(ev.firm_id) : "public";
+  const age = ev.created_at ? ` (${ageFromIso(ev.created_at, now)} ago)` : "";
+  switch (ev.event) {
+    case "firm_created":
+      return `${c.name ?? who}${age}`;
+    case "score_completed": {
+      const verdict = c.leaked ? "LEAKED SIGNABLE flagged" : "clean";
+      const score = c.score != null && c.score !== "" ? `, score ${c.score}` : "";
+      return `${who} — ${verdict}${score}${age}`;
+    }
+    case "callback_marked":
+      return `${who} — ${c.status ?? "callback worked"}${c.via ? ` (${c.via})` : ""}${age}`;
+    case "upload_completed":
+      return `${who}${c.source ? ` — via ${c.source}` : ""}${age}`;
+    case "audit_completed":
+      return `${who} — audit finished${age}`;
+    default:
+      return `${who}${age}`;
+  }
+}
+
+// Turn a batch of product events into founder-activity sections — one section
+// per reportable type, newest first, capped. Non-reportable events are ignored.
+// Returns [] when nothing reportable, so it contributes no email sections.
+export function buildActivityDigest({
+  events = [],
+  firmName = (id) => `firm ${id}`,
+  now = new Date(),
+} = {}) {
+  const byType = new Map();
+  for (const ev of events) {
+    if (!ACTIVITY_LABELS[ev?.event]) continue;
+    if (!byType.has(ev.event)) byType.set(ev.event, []);
+    byType.get(ev.event).push(ev);
+  }
+  const sections = [];
+  for (const type of ACTIVITY_ORDER) {
+    const rows = byType.get(type);
+    if (!rows || rows.length === 0) continue;
+    rows.sort((a, b) => String(b.created_at ?? "").localeCompare(String(a.created_at ?? "")));
+    const lines = rows.slice(0, ACTIVITY_LINE_CAP).map((ev) => activityLine(ev, { firmName, now }));
+    if (rows.length > ACTIVITY_LINE_CAP) lines.push(`…and ${rows.length - ACTIVITY_LINE_CAP} more`);
+    sections.push({ title: `${ACTIVITY_LABELS[type]}: ${rows.length}`, lines });
+  }
+  return sections;
+}
+
 // One batched alert email from everything the sweep found. Empty sections are
-// dropped; zero sections → null (send nothing).
+// dropped; zero sections → null (send nothing). `activity` holds already-built
+// founder-activity sections (buildActivityDigest); they render below the health
+// sections and, when they are the ONLY content, still produce an email.
 export function buildFounderAlert({
   scoringFailures = [],
   signatureFirms = [],
   digestProblems = [],
   newApplications = [],
   stuckUnscoredFirms = [],
+  activity = [],
   now = new Date(),
 } = {}) {
   const sections = [];
@@ -184,13 +279,24 @@ export function buildFounderAlert({
       ),
     });
   }
+
+  // Health/alert titles drive the subject; activity is appended below and, when
+  // it is the only content, gets a summary subject of its own.
+  const healthTitles = sections.map((s) => s.title);
+  for (const s of activity) sections.push(s);
   if (sections.length === 0) return null;
 
-  const total = sections.length;
-  const subject = `Intake QA beta — ${sections.map((s) => s.title).join(" · ")}`.slice(0, 140);
+  const onlyActivity = healthTitles.length === 0;
+  const subject = (
+    onlyActivity
+      ? `Intake QA beta activity — ${activity.map((s) => s.title).join(" · ")}`
+      : `Intake QA beta — ${healthTitles.join(" · ")}`
+  ).slice(0, 140);
   const html = renderFounderEmail({
-    heading: "Beta alerts",
-    intro: `${total} thing(s) need your eyes. One email per sweep window — nothing else is queued.`,
+    heading: onlyActivity ? "Beta activity" : "Beta alerts",
+    intro: onlyActivity
+      ? "Activity since the last sweep. One email per sweep window — nothing else is queued."
+      : `${healthTitles.length} thing(s) need your eyes${activity.length ? ", plus recent activity below" : ""}. One email per sweep window — nothing else is queued.`,
     sections,
     now,
   });
@@ -426,6 +532,28 @@ export async function runAlertSweep({
     stuckUnscoredFirms = []; // never break the sweep on an older DB shape
   }
 
+  // ---- Founder-activity digest: every new firm/upload/score/intake action ----
+  // Reads the product-event log since its own id watermark and turns the
+  // reportable events into email sections. IDs/counts only — never PII. The
+  // watermark advances after the send (below), alongside the error watermark.
+  let afterEventId = 0;
+  let maxEventId = 0;
+  let activity = [];
+  try {
+    const evWmRaw = await store.getAlertState(db, WM_EVENTS).catch(() => null);
+    afterEventId = Number(evWmRaw ?? 0) || 0;
+    const events = (await store.getEventsAfterId(db, afterEventId, 1000).catch(() => [])) ?? [];
+    maxEventId = events.reduce((m, e) => Math.max(m, Number(e.id) || 0), afterEventId);
+    if (events.length) {
+      const firms = (await store.listFirms(db).catch(() => [])) ?? [];
+      const nameById = new Map((firms ?? []).map((f) => [String(f.id), f.name]));
+      const firmName = (id) => nameById.get(String(id)) ?? `firm ${id}`;
+      activity = buildActivityDigest({ events, firmName, now });
+    }
+  } catch {
+    activity = []; // events table absent (older DB) — never break the sweep
+  }
+
   // ---- Send the batched alert (one email max) ----
   const alert = buildFounderAlert({
     scoringFailures,
@@ -433,6 +561,7 @@ export async function runAlertSweep({
     digestProblems,
     newApplications,
     stuckUnscoredFirms,
+    activity,
     now,
   });
   if (alert) {
@@ -452,6 +581,13 @@ export async function runAlertSweep({
   // triggered — examined is examined).
   const maxId = errors.reduce((m, e) => Math.max(m, Number(e.id) || 0), afterId);
   if (maxId > afterId) await store.setAlertState(db, WM_ERRORS, String(maxId)).catch(() => {});
+
+  // Advance the activity watermark to the newest event examined — same "examined
+  // is examined" rule, so noise events (page views) also move the cursor and are
+  // never re-scanned. Only after the send, so a send failure re-reports next time.
+  if (maxEventId > afterEventId) {
+    await store.setAlertState(db, WM_EVENTS, String(maxEventId)).catch(() => {});
+  }
 
   // ---- Daily 8am LA pulse (trigger e) ----
   const lastPulse = await store.getAlertState(db, WM_PULSE).catch(() => null);
