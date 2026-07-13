@@ -27,6 +27,8 @@ import {
   setFlagConfidence,
   recordEvent,
   upsertCallAnalysis,
+  insertTriageCase,
+  findTriageByCall,
 } from "./store.mjs";
 import { evaluateFlag } from "../messaging/flag-logic.mjs";
 import {
@@ -208,6 +210,20 @@ export async function scoreUnscored({
     // powers the per-call readout and the team scorecard. Best-effort — a
     // persistence failure must never fail the flag or abort the batch.
     await upsertCallAnalysis(db, extractAnalysis({ score, mapped, call })).catch(() => {});
+
+    // AUTO-TRIAGE FROM THE RECORDING: the v2 engine already produced a triage
+    // verdict on this transcript (score._v2_shadow). Persist it as a triage case
+    // so the "call these first" queue fills itself, instead of an intake
+    // specialist re-keying a 15-field form for a call we just read. Deduped by
+    // the source call so a re-score never doubles it. Best-effort and
+    // failure-isolated — it can never fail the flag or abort the batch.
+    await (async () => {
+      const { triageFromCall } = await import("../src/lib/desk/triage-from-call.mjs");
+      const t = triageFromCall({ score, call });
+      if (!t || !t.source_call_id) return;
+      const existing = await findTriageByCall(db, call.firm_id, t.source_call_id);
+      if (!existing) await insertTriageCase(db, t);
+    })().catch(() => {});
 
     // First-party product event: a call finished scoring. Feeds the founder
     // activity digest ("N calls scored for firm X, K flagged") and the

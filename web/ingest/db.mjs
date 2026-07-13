@@ -1872,12 +1872,12 @@ export function insertTriageCase(db, t) {
           firm_id, created_by, caller_name, caller_phone, case_type, incident_date,
           grade_letter, grade_color, headline, disposition, value_tier,
           driving_reason, flip_fact, sol_deadline, sol_days_remaining, sol_urgency,
-          attorney_review, input_json, verdict_json, status)
+          attorney_review, input_json, verdict_json, status, source, source_call_id)
        VALUES (
           @firm_id, @created_by, @caller_name, @caller_phone, @case_type, @incident_date,
           @grade_letter, @grade_color, @headline, @disposition, @value_tier,
           @driving_reason, @flip_fact, @sol_deadline, @sol_days_remaining, @sol_urgency,
-          @attorney_review, @input_json, @verdict_json, @status)`
+          @attorney_review, @input_json, @verdict_json, @status, @source, @source_call_id)`
     )
     .run({
       firm_id: t.firm_id,
@@ -1900,8 +1900,23 @@ export function insertTriageCase(db, t) {
       input_json: t.input_json ?? null,
       verdict_json: t.verdict_json ?? null,
       status: t.status ?? "new",
+      source: t.source ?? "manual",
+      source_call_id: t.source_call_id ?? null,
     });
   return Number(info.lastInsertRowid);
+}
+
+// Dedupe read for auto-triage: is there already a triage case for this source
+// call? Keeps re-scoring a call from creating duplicate triage entries.
+export function findTriageByCall(db, firmId, sourceCallId) {
+  if (sourceCallId == null) return null;
+  return (
+    db
+      .prepare(
+        `SELECT id FROM triage_cases WHERE firm_id = ? AND source_call_id = ? LIMIT 1`,
+      )
+      .get(firmId, String(sourceCallId)) || null
+  );
 }
 
 export function listTriageCases(db, firmId, opts = {}) {
@@ -1931,15 +1946,35 @@ export function getTriageCase(db, firmId, id) {
     .get(firmId, id);
 }
 
-export function setTriageStatus(db, firmId, id, status, by = null) {
+export function setTriageStatus(db, firmId, id, status, by = null, opts = {}) {
+  // Stamp the terminal outcome (signed/declined/referred) so the calibration
+  // loop can distinguish resolved from open, and capture signed_where /
+  // decline_reason when the caller provides them. COALESCE keeps prior values
+  // when a field is not supplied (e.g. a plain status change).
+  const terminal = ["signed", "declined", "referred"].includes(status) ? 1 : 0;
   const info = db
     .prepare(
       `UPDATE triage_cases
-          SET status = ?, status_updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now'), status_by = ?
+          SET status = ?,
+              status_updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now'),
+              status_by = ?,
+              outcome_recorded_at = CASE WHEN ? = 1
+                THEN strftime('%Y-%m-%dT%H:%M:%SZ','now') ELSE outcome_recorded_at END,
+              signed_where = COALESCE(?, signed_where),
+              decline_reason = COALESCE(?, decline_reason)
         WHERE firm_id = ? AND id = ?`
     )
-    .run(status, by, firmId, id);
+    .run(status, by, terminal, opts.signedWhere ?? null, opts.declineReason ?? null, firmId, id);
   return info.changes > 0;
+}
+
+// All triage cases for a firm, uncapped, for the calibration report. Unlike
+// listTriageCases (queue view, capped at 200) this reads the full history the
+// ground-truth loop needs. Pure read; the math lives in triage-reconcile.mjs.
+export function getTriageCasesForCalibration(db, firmId) {
+  return db
+    .prepare(`SELECT * FROM triage_cases WHERE firm_id = ? ORDER BY created_at DESC`)
+    .all(firmId);
 }
 
 export function getFirmTriageProfile(db, firmId) {

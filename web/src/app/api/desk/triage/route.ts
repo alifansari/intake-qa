@@ -53,6 +53,10 @@ const TriageInput = z.object({
 const StatusPatch = z.object({
   id: z.union([z.string().min(1).max(64), z.number().int()]),
   status: z.enum(TRIAGE_STATUSES as [string, ...string[]]),
+  // Outcome capture for the calibration loop: when a case signs, did it sign
+  // with THIS firm or elsewhere? A decline/refer may carry a short reason.
+  signed_where: z.enum(["us", "elsewhere"]).optional().nullable(),
+  decline_reason: z.string().max(300).optional().nullable(),
 });
 
 const Profile = z.object({
@@ -162,7 +166,10 @@ export async function PATCH(req: Request) {
     const gate = await requireDeskFirm(db, store.listFirms);
     if (gate.response) return gate.response;
     const { firm, user } = gate;
-    const ok = await store.setTriageStatus(db, firm.id, body.id, body.status, user?.email ?? "pilot");
+    const ok = await store.setTriageStatus(db, firm.id, body.id, body.status, user?.email ?? "pilot", {
+      signedWhere: body.signed_where ?? null,
+      declineReason: body.decline_reason ?? null,
+    });
     if (!ok) return Response.json({ error: "not found" }, { status: 404 });
     return Response.json({ ok: true, status: body.status });
   } finally {

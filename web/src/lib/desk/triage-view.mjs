@@ -40,6 +40,29 @@ export function isTerminalStatus(s) {
   return TERMINAL_STATUSES.includes(s);
 }
 
+// Plain-language labels for the live verdict. Intake staff are not lawyers, so
+// the console must never render a raw enum ("decline_with_grace", "indeterminate").
+export const DISPOSITION_PLAIN = {
+  sign_now: "Sign now",
+  develop: "Worth developing",
+  refer_out: "Refer out",
+  decline_with_grace: "Decline",
+};
+// value_tier speaks to money potential, without inventing a dollar figure at
+// intake (compliance §IV: no invented valuation before the facts are in).
+export const VALUE_TIER_PLAIN = {
+  high: "High value",
+  standard: "Standard value",
+  low: "Low value",
+  indeterminate: "Value unclear",
+};
+export function dispositionPlain(d) {
+  return DISPOSITION_PLAIN[d] || String(d || "").replaceAll("_", " ");
+}
+export function valueTierPlain(v) {
+  return VALUE_TIER_PLAIN[v] || String(v || "").replaceAll("_", " ");
+}
+
 // Grade color -> a small semantic token set the UI maps to CSS.
 export function gradeTone(color) {
   if (color === "green") return "good";

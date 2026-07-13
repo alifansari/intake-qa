@@ -21,6 +21,8 @@ import {
   isTerminalStatus,
   solTone,
   urgencyReason,
+  dispositionPlain,
+  valueTierPlain,
 } from "@/lib/desk/triage-view.mjs";
 import { CALIBRATION_SAMPLES, calibrateProfile } from "@/lib/desk/calibration.mjs";
 
@@ -144,13 +146,13 @@ export function TriageConsole({
     }
   }
 
-  async function setStatus(id: unknown, status: string) {
+  async function setStatus(id: unknown, status: string, signedWhere?: "us" | "elsewhere") {
     setQueue((q) => q.map((r) => (r.id === id ? { ...r, status } : r)));
     try {
       await fetch("/api/desk/triage", {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id, status }),
+        body: JSON.stringify({ id, status, signed_where: signedWhere ?? null }),
       });
     } catch {
       /* optimistic */
@@ -400,7 +402,7 @@ function Verdict({ verdict }: { verdict: Record<string, unknown> }) {
         <div>
           <div className="font-display text-lg font-semibold text-ink">{grade.headline}</div>
           <div className={`mt-0.5 inline-block rounded-pill px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${style.tint}`}>
-            {String(verdict.disposition).replaceAll("_", " ")} · value {String(verdict.value_tier)}
+            {dispositionPlain(String(verdict.disposition))} · {valueTierPlain(String(verdict.value_tier))}
           </div>
         </div>
       </div>
@@ -456,7 +458,7 @@ function Verdict({ verdict }: { verdict: Record<string, unknown> }) {
   );
 }
 
-function QueueCard({ row, onStatus }: { row: QueueRow; onStatus: (id: unknown, s: string) => void }) {
+function QueueCard({ row, onStatus }: { row: QueueRow; onStatus: (id: unknown, s: string, signedWhere?: "us" | "elsewhere") => void }) {
   const status = String(row.status || "new");
   const style = dispoStyle(String(row.disposition));
   const reason = urgencyReason(row);
@@ -482,15 +484,34 @@ function QueueCard({ row, onStatus }: { row: QueueRow; onStatus: (id: unknown, s
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        {((STATUS_NEXT as Record<string, Array<{ label: string; to: string }>>)[status] || []).map((n) => (
-          <button
-            key={n.to}
-            onClick={() => onStatus(row.id, n.to)}
-            className="rounded-base border border-line-strong px-2.5 py-1 text-xs text-ink hover:bg-canvas"
-          >
-            {n.label}
-          </button>
-        ))}
+        {((STATUS_NEXT as Record<string, Array<{ label: string; to: string }>>)[status] || []).map((n) =>
+          n.to === "signed" ? (
+            // "Signed" splits into with-us vs elsewhere — the one distinction the
+            // calibration loop needs to tell a real save from a case we lost.
+            <span key={n.to} className="inline-flex overflow-hidden rounded-base border border-line-strong">
+              <button
+                onClick={() => onStatus(row.id, "signed", "us")}
+                className="px-2.5 py-1 text-xs font-semibold text-accent hover:bg-canvas"
+              >
+                Signed · with us
+              </button>
+              <button
+                onClick={() => onStatus(row.id, "signed", "elsewhere")}
+                className="border-l border-line-strong px-2.5 py-1 text-xs text-ink-muted hover:bg-canvas"
+              >
+                elsewhere
+              </button>
+            </span>
+          ) : (
+            <button
+              key={n.to}
+              onClick={() => onStatus(row.id, n.to)}
+              className="rounded-base border border-line-strong px-2.5 py-1 text-xs text-ink hover:bg-canvas"
+            >
+              {n.label}
+            </button>
+          ),
+        )}
       </div>
     </div>
   );

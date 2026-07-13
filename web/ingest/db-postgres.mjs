@@ -1704,8 +1704,8 @@ export async function insertTriageCase(db, t) {
         firm_id, created_by, caller_name, caller_phone, case_type, incident_date,
         grade_letter, grade_color, headline, disposition, value_tier,
         driving_reason, flip_fact, sol_deadline, sol_days_remaining, sol_urgency,
-        attorney_review, input_json, verdict_json, status)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
+        attorney_review, input_json, verdict_json, status, source, source_call_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
      RETURNING id`,
     [
       t.firm_id, t.created_by ?? null, t.caller_name ?? null, t.caller_phone ?? null,
@@ -1714,6 +1714,7 @@ export async function insertTriageCase(db, t) {
       t.driving_reason ?? null, t.flip_fact ?? null, t.sol_deadline ?? null,
       t.sol_days_remaining ?? null, t.sol_urgency ?? null, t.attorney_review === true,
       t.input_json ?? null, t.verdict_json ?? null, t.status ?? "new",
+      t.source ?? "manual", t.source_call_id ?? null,
     ]
   );
   return r.rows[0].id;
@@ -1746,13 +1747,40 @@ export async function getTriageCase(db, firmId, id) {
   return r.rows[0] || null;
 }
 
-export async function setTriageStatus(db, firmId, id, status, by = null) {
+export async function setTriageStatus(db, firmId, id, status, by = null, opts = {}) {
+  // Twin of the SQLite setTriageStatus: stamp the terminal outcome and capture
+  // signed_where / decline_reason when supplied (COALESCE preserves priors).
+  const terminal = ["signed", "declined", "referred"].includes(status);
   const r = await db.query(
-    `UPDATE triage_cases SET status = $1, status_updated_at = now(), status_by = $2
-      WHERE firm_id = $3 AND id = $4`,
-    [status, by, firmId, id]
+    `UPDATE triage_cases
+        SET status = $1, status_updated_at = now(), status_by = $2,
+            outcome_recorded_at = CASE WHEN $3 THEN now() ELSE outcome_recorded_at END,
+            signed_where = COALESCE($4, signed_where),
+            decline_reason = COALESCE($5, decline_reason)
+      WHERE firm_id = $6 AND id = $7`,
+    [status, by, terminal, opts.signedWhere ?? null, opts.declineReason ?? null, firmId, id]
   );
   return r.rowCount > 0;
+}
+
+// Twin of getTriageCasesForCalibration: full firm history for the calibration
+// report (RLS still applies via the firm-scoped connection).
+export async function getTriageCasesForCalibration(db, firmId) {
+  const r = await db.query(
+    `SELECT * FROM triage_cases WHERE firm_id = $1 ORDER BY created_at DESC`,
+    [firmId]
+  );
+  return r.rows;
+}
+
+// Twin of findTriageByCall: dedupe an auto-triage against its source call.
+export async function findTriageByCall(db, firmId, sourceCallId) {
+  if (sourceCallId == null) return null;
+  const r = await db.query(
+    `SELECT id FROM triage_cases WHERE firm_id = $1 AND source_call_id = $2 LIMIT 1`,
+    [firmId, String(sourceCallId)]
+  );
+  return r.rows[0] || null;
 }
 
 export async function getFirmTriageProfile(db, firmId) {

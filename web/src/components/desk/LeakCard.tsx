@@ -124,11 +124,13 @@ export function LeakCard({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const terminal = TERMINAL.has(status);
-  const badge = leak.tier ? (leak.tier === "strong" ? "Strong flag" : "Moderate flag") : "Unrated";
+  const badge = leak.tier ? (leak.tier === "strong" ? "Strong flag" : "Moderate flag") : "Needs a look";
   // The money this callback is worth — the reason to pick up the phone. A compact
   // emerald chip in the header so the queue scans as dollars. Estimate only (¹).
+  // A dollar figure appears ONLY when a confidence tier backs it — never pair a
+  // money claim with an unrated card (compliance §IV: no basis, no claim).
   const feeChip =
-    leak.feeLowCents != null && (leak.feeLowCents > 0 || (leak.feeHighCents ?? 0) > 0)
+    leak.tier && leak.feeLowCents != null && (leak.feeLowCents > 0 || (leak.feeHighCents ?? 0) > 0)
       ? fmtKRange(leak.feeLowCents, leak.feeHighCents ?? leak.feeLowCents)
       : null;
   const urgency = leak.urgency;
