@@ -28,12 +28,12 @@ export function SettingsClient({
         <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Settings</h1>
       </div>
 
-      {/* How calls arrive — the integration story, answered before it's asked */}
+      {/* How calls arrive — the integration story, answered before it’s asked */}
       <section className="rounded-card border border-hairline bg-surface p-6">
         <HowCallsArrive />
         {webhookUrl ? (
           <div className="mt-5 rounded-card border border-hairline bg-canvas p-4">
-            <p className="text-sm font-semibold text-ink">Your firm's call-feed address</p>
+            <p className="text-sm font-semibold text-ink">Your firm’s call-feed address</p>
             <p className="mt-1 text-xs text-ink-muted">
               Pasted once into your phone system (in CallRail: Settings → Integrations →
               Webhooks, post-call), every new call flows in automatically. We do this with you
@@ -59,7 +59,7 @@ export function SettingsClient({
           Missed cases can land in your CRM as new leads — created, never edited, so your
           existing matters are untouched. Lead Docket and Filevine connect directly; anything
           else works through a signed webhook. We set this up with you; nothing writes until
-          you've approved a test record.
+          you’ve approved a test record.
         </p>
         {crmHref ? (
           <a
@@ -79,7 +79,7 @@ export function SettingsClient({
       <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-lg font-semibold text-ink">Data handling</h2>
         <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
-          Call audio is deleted the moment it&apos;s transcribed. Transcripts are kept only while we
+          Call audio is deleted the moment it’s transcribed. Transcripts are kept only while we
           serve you &mdash; so your team can check the evidence behind each flag &mdash; purged on a
           rolling 90-day window, and deleted immediately if you ask in writing.
         </p>
@@ -94,7 +94,7 @@ export function SettingsClient({
         ) : (
           <p className="mt-4 rounded-base border border-hairline bg-canvas px-3 py-2 text-sm text-ink">
             Your email draft is ready to send &mdash; deletion runs on our side once we receive
-            it. You&apos;ll receive a deletion receipt by email once it completes.
+            it. You’ll receive a deletion receipt by email once it completes.
           </p>
         )}
       </section>
@@ -107,7 +107,7 @@ export function SettingsClient({
         <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
           The beta is free &mdash; no card on file, no invoices, nothing to cancel. When paid plans
           begin at launch, the fee is a flat monthly subscription (never a share of any recovery),
-          founding testers lock in preferred pricing, and this is where you&apos;ll manage it.
+          founding testers lock in preferred pricing, and this is where you’ll manage it.
         </p>
         <p className="mt-3 text-xs">
           <a href="/billing" className="font-medium text-accent hover:text-accent-hover">
@@ -127,20 +127,20 @@ export function SettingsClient({
         <SetPassword />
       </section>
 
-      {/* Notifications — a promise, not a form. The old inputs here weren't
+      {/* Notifications — a promise, not a form. The old inputs here weren’t
           persisted anywhere (a silent no-op is worse than no control); until
           prefs are real, we state plainly what happens and how to change it. */}
       <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-lg font-semibold text-ink">Notifications</h2>
         <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
-          You don&apos;t need to check the desk. Once your calls are connected, a daily digest goes
+          You don’t need to check the desk. Once your calls are connected, a daily digest goes
           to your sign-in email each morning &mdash; even on all-clear days, so silence never means
           &ldquo;broken.&rdquo; Want a different address, more people on it, or a different rhythm?
           Email{" "}
           <a href="mailto:ali@plaintiffops.com" className="font-medium text-accent hover:text-accent-hover">
             ali@plaintiffops.com
           </a>{" "}
-          and it&apos;s changed the same day.
+          and it’s changed the same day.
         </p>
       </section>
 
@@ -148,12 +148,12 @@ export function SettingsClient({
       {confirming ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4">
           <div className="max-w-lg rounded-card border border-hairline bg-surface p-6 shadow-card">
-            <h3 className="font-display text-lg font-semibold text-ink">Delete all of this firm&apos;s data?</h3>
+            <h3 className="font-display text-lg font-semibold text-ink">Delete all of this firm’s data?</h3>
             <p className="mt-2 text-sm text-ink-muted">
-              This permanently deletes this firm&apos;s call recordings, transcripts, flags, and
+              This permanently deletes this firm’s call recordings, transcripts, flags, and
               statements from Intake QA and requests deletion of the transcripts held by our
               transcription provider. This cannot be undone. We do this immediately on request, and
-              automatically 72 hours after a Leak Audit if you don&apos;t continue. You&apos;ll get a
+              automatically 72 hours after a Leak Audit if you don’t continue. You’ll get a
               deletion receipt by email.
             </p>
             <div className="mt-5 flex justify-end gap-2">
@@ -168,7 +168,7 @@ export function SettingsClient({
                 href={
                   "mailto:ali@plaintiffops.com?subject=Data%20deletion%20request&body=" +
                   encodeURIComponent(
-                    "Please permanently delete all of our firm's data from Intake QA (recordings, transcripts, flags, statements) and send the deletion receipt to this address.",
+                    "Please permanently delete all of our firm’s data from Intake QA (recordings, transcripts, flags, statements) and send the deletion receipt to this address.",
                   )
                 }
                 onClick={() => { setConfirming(false); setRequested(true); }}

@@ -49,7 +49,7 @@ export default function CompliancePage() {
           characterized as exactly that kind of payment.
         </p>
         <p>
-          So we don&apos;t structure our fee that way. Intake QA charges a flat monthly subscription
+          So we don’t structure our fee that way. Intake QA charges a flat monthly subscription
           to analyze your calls. It does not change whether you sign zero cases or fifty. Because
           our compensation is not tied to procuring or recovering any case, it cannot fairly be
           characterized as payment to an agent for soliciting or procuring clients under §§6151-6152.
@@ -62,7 +62,7 @@ export default function CompliancePage() {
           645, Statutes of 2025, effective January 1, 2026, added a civil private right of action:
           &ldquo;statutory damages of a minimum of five thousand dollars ($5,000) up to a maximum of
           one hundred thousand dollars ($100,000) per violation, or three times the amount of actual
-          damages, whichever is larger,&rdquo; plus attorney&apos;s fees. SB 37 does not contain a
+          damages, whichever is larger,&rdquo; plus attorney’s fees. SB 37 does not contain a
           stand-alone ban on per-case vendor pricing; that conduct is reached through the §§6151-6152
           capping framework, now backed by this private right of action. Flat monthly pricing keeps
           the question from arising.
@@ -72,14 +72,14 @@ export default function CompliancePage() {
           beta the full desk is free as well, so no fee guarantee is currently in effect. When
           published pricing returns at launch, any guarantee attaches to a{" "}
           <em>diagnostic threshold and the first paid month</em>, not to any recovery: it triggers
-          on estimated value <em>identified</em> in a firm&apos;s own calls, never on fees
+          on estimated value <em>identified</em> in a firm’s own calls, never on fees
           recovered. Because nothing here is a share of, or contingent on, recovered fees, it
           creates no outcome-fee arrangement under §§6151-6152 / SB 37 and no earnings claim under
           FTC §5 / CA §17500.
         </p>
       </Sec>
 
-      <Sec rule="B&P §§6151-6152 · runner / capper" title="We don't find you clients. We help you answer the ones who already called.">
+      <Sec rule="B&P §§6151-6152 · runner / capper" title="We don’t find you clients. We help you answer the ones who already called.">
         <p>
           The same statutes bar acting as an agent who brings a lawyer new business. Intake QA never
           solicits or procures new clients. It only helps your firm re-contact people who already
@@ -89,20 +89,20 @@ export default function CompliancePage() {
         </p>
       </Sec>
 
-      <Sec rule="CA Rules of Professional Conduct 7.2 &amp; 7.3 (2018)" title="Responding to someone's own inquiry is not solicitation.">
+      <Sec rule="CA Rules of Professional Conduct 7.2 &amp; 7.3 (2018)" title="Responding to someone’s own inquiry is not solicitation.">
         <p>
-          Rule 7.2 bars a lawyer from giving anything of value for recommending the lawyer&apos;s
-          services. Intake QA doesn&apos;t recommend your firm to anyone and isn&apos;t paid to
+          Rule 7.2 bars a lawyer from giving anything of value for recommending the lawyer’s
+          services. Intake QA doesn’t recommend your firm to anyone and isn’t paid to
           refer.
         </p>
         <p>
           Rule 7.3 governs solicitation. The nuance that matters: a communication made in response to
-          the prospective client&apos;s own inquiry is treated differently from an unsolicited
+          the prospective client’s own inquiry is treated differently from an unsolicited
           approach to a stranger. Save-protocol texts go only to people who already called your firm.
           You are responding to an inbound inquiry, not soliciting a stranger. Written communications
-          must still honor a recipient&apos;s stated wish not to be contacted and must avoid intrusion,
+          must still honor a recipient’s stated wish not to be contacted and must avoid intrusion,
           coercion, or harassment; every draft includes an opt-out (&ldquo;Reply STOP&rdquo;) and human
-          approval. We don&apos;t claim the save protocol is categorically outside 7.3. We give you the
+          approval. We don’t claim the save protocol is categorically outside 7.3. We give you the
           controls, and your counsel makes the call.
         </p>
         <p className="text-sm text-faint">
@@ -119,12 +119,12 @@ export default function CompliancePage() {
         </div>
       </Sec>
 
-      <Sec rule="CA Rules 1.18 &amp; 1.6 · confidentiality" title="Your callers' words are confidential prospective-client information.">
+      <Sec rule="CA Rules 1.18 &amp; 1.6 · confidentiality" title="Your callers’ words are confidential prospective-client information.">
         <p>
           Intake calls are prospective-client information under Rule 1.18, and the duty of
           confidentiality under Rule 1.6 attaches. We treat every uploaded call as confidential and
           process it only to provide the service. Your firm remains the party that owes the duty;
-          we&apos;re built to help you keep it. {ACCOUNTABLE_PARTY_LINE} The vendor detail is on the{" "}
+          we’re built to help you keep it. {ACCOUNTABLE_PARTY_LINE} The vendor detail is on the{" "}
           <Link href="/security" className="font-semibold text-accent hover:text-accent-hover">
             security page
           </Link>
@@ -135,7 +135,7 @@ export default function CompliancePage() {
       <Sec rule="CA Rule 5.3 · supervising nonlawyer assistants" title="A nonlawyer service your firm supervises.">
         <p>
           Rule 5.3 is the correct hook here: a lawyer must make reasonable efforts to ensure a
-          nonlawyer&apos;s conduct is compatible with the lawyer&apos;s own obligations. Intake QA is
+          nonlawyer’s conduct is compatible with the lawyer’s own obligations. Intake QA is
           that nonlawyer service, under your supervision. The tool never contacts anyone
           autonomously; a person at your firm approves every send. The AI drafts. It does not decide
           who to contact or what your firm owes anyone.
@@ -144,7 +144,7 @@ export default function CompliancePage() {
 
       <Sec rule="CA State Bar GenAI guidance · ABA Formal Op. 512" title="The AI drafts. A human at your firm verifies and sends.">
         <p>
-          The California State Bar&apos;s Practical Guidance for the Use of Generative Artificial
+          The California State Bar’s Practical Guidance for the Use of Generative Artificial
           Intelligence in the Practice of Law (adopted November 16, 2023) and ABA
           Formal Opinion 512 (July 29, 2024) map existing duties to AI use: competence (Rule 1.1),
           confidentiality (Rule 1.6), communication (Rule 1.4), candor (Rule 3.3), supervision (Rules
@@ -173,7 +173,7 @@ export default function CompliancePage() {
         <p>
           No texting runs during the beta — your own staff make every callback. When the texting
           assist is enabled, this is the posture it ships under.
-          The FCC&apos;s &ldquo;one-to-one consent&rdquo; rule was vacated by the Eleventh Circuit in
+          The FCC’s &ldquo;one-to-one consent&rdquo; rule was vacated by the Eleventh Circuit in
           Insurance Marketing Coalition Ltd. v. FCC (Jan. 24, 2025), which held it
           &ldquo;impermissibly conflict[ed] with the ordinary statutory meaning of &lsquo;prior
           express consent,&rsquo;&rdquo; and the FCC declined to challenge it and reinstated the prior
@@ -181,7 +181,7 @@ export default function CompliancePage() {
           permissible. The TCPA still requires prior express written consent for marketing autodialed
           or prerecorded texts, and revocation must be honored, which is exactly why the same-day
           save protocol is compliance-gated and human-approved. Save-protocol texts go to your
-          firm&apos;s own prior callers, include an opt-out, and send only after A2P 10DLC
+          firm’s own prior callers, include an opt-out, and send only after A2P 10DLC
           registration clears and a person at your firm approves. Your counsel should confirm your
           consent basis. (A2P 10DLC registration is pending; texting stays dark until it clears.)
         </p>
@@ -199,7 +199,7 @@ export default function CompliancePage() {
       <Sec rule="Note for readers outside California" title="ABA Model Rule 5.4 (fee-sharing), a secondary footnote, not our lead.">
         <p>
           Outside California, some readers reach for ABA Model Rule 5.4 (sharing legal fees with a
-          nonlawyer). It isn&apos;t the right lead authority here: our fee is a flat monthly
+          nonlawyer). It isn’t the right lead authority here: our fee is a flat monthly
           subscription, not a share of any fee, so there is nothing to split. For a California firm
           the governing analysis is the runner/capper framework above (§§6151-6152), not Rule 5.4.
         </p>

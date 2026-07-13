@@ -10,7 +10,6 @@ import {
   CTA_PRIMARY,
   SUB_CTA_LINE,
   HONESTY_STRIP_LINE,
-  STAKE_LINE,
   INDEPENDENCE_LINE,
   WHO_DOES_THE_WORK,
   ACCOUNTABLE_PARTY_LINE,
@@ -24,7 +23,7 @@ import {
 export const metadata: Metadata = {
   title: "Intake QA: the independent intake desk for PI firms",
   description:
-    "We read your firm's intake calls, find the signable cases that walked, and show you what they cost, for a flat fee, never a share. Start with a free Leak Audit of 10 calls.",
+    "We read your firm’s intake calls, find the signable cases that walked, and show you what they cost, for a flat fee, never a share. Start with a free Leak Audit of 10 calls.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "See the signable cases that walked out of your intake.",
@@ -53,7 +52,7 @@ const THREE_STEPS = [
   },
   {
     title: "We show you what walked, in dollars",
-    body: "A real analyst scores every call and hands you a signed report: which signable callers didn't convert, the evidence for each, and what they were likely worth.",
+    body: "A real analyst scores every call and hands you a signed report: which signable callers didn’t convert, the evidence for each, and what they were likely worth.",
   },
   {
     title: "Want it every month? Join the beta",
@@ -103,11 +102,10 @@ export default function HomePage() {
           See the signable cases that walked out of your intake, and what they cost you.
         </h1>
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
-          We read your firm&apos;s recorded intake calls, flag the callers our analysis marks as
+          We read your firm’s recorded intake calls, flag the callers our analysis marks as
           signable who never signed, and put an estimated dollar figure on the misses.
           Independently, for a flat fee, never a share of anything. Start with a free audit of 10
-          calls.{" "}
-          <em>&ldquo;{STAKE_LINE}&rdquo; Ali, founder</em>
+          calls.
         </p>
         <div className="mt-8">
           <CTA />
@@ -170,7 +168,7 @@ export default function HomePage() {
       <Section className="pb-4">
         <StatBar stats={STATS} />
         <p className="mt-3 text-xs text-faint">
-          Why these four numbers: what a lead costs, how often nobody answers, who&apos;s calling,
+          Why these four numbers: what a lead costs, how often nobody answers, who’s calling,
           and how few firms know their own number. Sources named under each.
         </p>
       </Section>
@@ -182,9 +180,9 @@ export default function HomePage() {
             Every report you get on your intake is self-graded homework.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
-            {INDEPENDENCE_LINE} We have no stake in the answer. We&apos;re paid the same flat fee no
+            {INDEPENDENCE_LINE} We have no stake in the answer. We’re paid the same flat fee no
             matter what we find, whether that is nothing or a fortune. That independence is the
-            whole point: a QA function that grades the people it reports on isn&apos;t a QA function.
+            whole point: a QA function that grades the people it reports on isn’t a QA function.
           </p>
         </div>
 
@@ -203,7 +201,7 @@ export default function HomePage() {
             <tbody className="text-ink">
               {[
                 ["Grades its own work?", true, true, true, false],
-                ["Scores calls it didn't answer?", false, false, false, true],
+                ["Scores calls it didn’t answer?", false, false, false, true],
                 ["Reconciles against who actually signed?", false, false, false, true],
                 ["Paid the same no matter what it finds?", false, false, false, true],
               ].map(([label, a, b, c, iq]) => (
@@ -234,7 +232,7 @@ export default function HomePage() {
         <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-start">
           <ol className="flex flex-col gap-5">
             {[
-              ["Recoverable-Lead Alert", "The lead product. A signable case that didn't convert today, on one screen, so your team can call back within the hour, while the lead is still warm."],
+              ["Recoverable-Lead Alert", "The lead product. A signable case that didn’t convert today, on one screen, so your team can call back within the hour, while the lead is still warm."],
               ["Missed-Revenue Statement", "A two-page monthly read: the dollar range, the trend, and the saves. Page one is a 90-second boardroom look, signed by the analyst."],
               ["Team Coaching", "The call, not the colleague. One fixable step and the moment it happened, framed to help the team, never to rank people."],
               ["Saved-Case Ledger", "A running record of the cases your team actually recovered, so the value is on paper, not a claim."],
@@ -267,7 +265,7 @@ export default function HomePage() {
           </h2>
           <p className="mt-4 max-w-[64ch] text-white/75">
             Send up to 10 recent intake calls. A real analyst reviews every one and shows you, in
-            dollars, how much signable fee revenue didn&apos;t convert, with a per-call breakdown and
+            dollars, how much signable fee revenue didn’t convert, with a per-call breakdown and
             the evidence behind each flag. You keep the report either way.
           </p>
           <div className="mt-7">
@@ -300,7 +298,7 @@ export default function HomePage() {
           <div className="mt-6 grid gap-px overflow-hidden rounded-card border border-hairline bg-hairline sm:grid-cols-2">
             {[
               ["What you get", "The full desk on your own calls: every call scored, misses flagged the same day, the monthly statement, free for the whole beta."],
-              ["What it takes", "A mutual NDA, connecting or uploading your recorded intake calls, and candid feedback on what's useful. Your staff make every callback; we never contact your callers."],
+              ["What it takes", "A mutual NDA, connecting or uploading your recorded intake calls, and candid feedback on what’s useful. Your staff make every callback; we never contact your callers."],
             ].map(([h, b]) => (
               <div key={h} className="bg-surface p-5">
                 <p className="font-display text-base font-semibold text-ink">{h}</p>
@@ -358,7 +356,7 @@ export default function HomePage() {
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">
             A signed report you keep, a say in what the desk becomes, and no obligation to continue.
-            {" "}<em>&ldquo;{STAKE_LINE}&rdquo;, Ali</em>{" "}
+            {" "}
             <span className="tnum font-medium text-ink">{SEAT_LINE}</span>
           </p>
           <CTA />

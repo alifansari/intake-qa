@@ -1298,6 +1298,88 @@ export async function listNonAnalyzedCalls(db, firmId) {
   return r.rows;
 }
 
+// --- Per-call analysis (migration 0040) --------------------------------------
+// Postgres twins of the SQLite call_analyses functions. Same shapes.
+
+export async function upsertCallAnalysis(db, a) {
+  await db.query(
+    `INSERT INTO call_analyses (
+        call_id, firm_id, overall_score, band, case_signability, lost_signable,
+        revenue_at_risk_cents, case_type, retainer_asked, next_step_specificity,
+        contact_info_captured, cat_qualification, cat_conversion, cat_connection,
+        cat_risk_compliance, cat_process, summary, coaching_json, score_json,
+        rep, source, model_version)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+     ON CONFLICT (call_id) DO UPDATE SET
+        overall_score = excluded.overall_score, band = excluded.band,
+        case_signability = excluded.case_signability, lost_signable = excluded.lost_signable,
+        revenue_at_risk_cents = excluded.revenue_at_risk_cents, case_type = excluded.case_type,
+        retainer_asked = excluded.retainer_asked, next_step_specificity = excluded.next_step_specificity,
+        contact_info_captured = excluded.contact_info_captured,
+        cat_qualification = excluded.cat_qualification, cat_conversion = excluded.cat_conversion,
+        cat_connection = excluded.cat_connection, cat_risk_compliance = excluded.cat_risk_compliance,
+        cat_process = excluded.cat_process, summary = excluded.summary,
+        coaching_json = excluded.coaching_json, score_json = excluded.score_json,
+        rep = excluded.rep, source = excluded.source, model_version = excluded.model_version`,
+    [
+      a.call_id, a.firm_id, a.overall_score ?? null, a.band ?? null,
+      a.case_signability ?? null, Boolean(a.lost_signable),
+      a.revenue_at_risk_cents ?? null, a.case_type ?? null,
+      a.retainer_asked == null ? null : Boolean(a.retainer_asked),
+      a.next_step_specificity ?? null, a.contact_info_captured ?? null,
+      a.cat_qualification ?? null, a.cat_conversion ?? null, a.cat_connection ?? null,
+      a.cat_risk_compliance ?? null, a.cat_process ?? null, a.summary ?? null,
+      a.coaching_json ?? null, a.score_json ?? null, a.rep ?? null, a.source ?? null,
+      a.model_version ?? null,
+    ]
+  );
+  return a.call_id;
+}
+
+export async function getCallWithAnalysis(db, firmId, callId) {
+  const r = await db.query(
+    `SELECT c.id AS call_id, c.firm_id, c.received_at, c.status, c.status_reason,
+            c.caller_name, c.caller_phone, c.source AS call_source, c.transcript,
+            a.overall_score, a.band, a.case_signability, a.lost_signable,
+            a.revenue_at_risk_cents, a.case_type, a.retainer_asked,
+            a.next_step_specificity, a.contact_info_captured,
+            a.cat_qualification, a.cat_conversion, a.cat_connection,
+            a.cat_risk_compliance, a.cat_process, a.summary, a.coaching_json,
+            a.rep, a.source, a.created_at AS analyzed_at,
+            f.id AS flag_id, fs.status AS save_status
+       FROM calls c
+       LEFT JOIN call_analyses a ON a.call_id = c.id
+       LEFT JOIN flags f ON f.call_id = c.id
+       LEFT JOIN flag_status fs ON fs.flag_id = f.id
+      WHERE c.firm_id = $1 AND c.id = $2
+      LIMIT 1`,
+    [firmId, callId]
+  );
+  return r.rows[0];
+}
+
+export async function listCallsWithAnalysis(db, firmId) {
+  const r = await db.query(
+    `SELECT c.id AS call_id, c.received_at, c.status, c.status_reason,
+            c.caller_name, c.source AS call_source,
+            a.overall_score, a.band, a.case_signability, a.lost_signable,
+            a.revenue_at_risk_cents, a.case_type, a.retainer_asked,
+            a.next_step_specificity, a.contact_info_captured,
+            a.cat_qualification, a.cat_conversion, a.cat_connection,
+            a.cat_risk_compliance, a.cat_process, a.summary, a.coaching_json,
+            a.rep,
+            f.id AS flag_id, f.is_leaked_signable, fs.status AS save_status
+       FROM calls c
+       LEFT JOIN call_analyses a ON a.call_id = c.id
+       LEFT JOIN flags f ON f.call_id = c.id
+       LEFT JOIN flag_status fs ON fs.flag_id = f.id
+      WHERE c.firm_id = $1
+      ORDER BY c.received_at DESC, c.id DESC`,
+    [firmId]
+  );
+  return r.rows;
+}
+
 export async function getFeeValueRange(db, caseType, firmId = null) {
   if (firmId != null) {
     const firmRow = await db.query(

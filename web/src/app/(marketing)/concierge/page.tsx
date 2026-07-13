@@ -18,7 +18,7 @@ export default function ConciergePage() {
         Setup is on us.
       </h1>
       <p className="mt-6 max-w-[68ch] text-lg leading-relaxed text-ink-muted">
-        Once you join the founding beta, we don&apos;t just hand you a dashboard. We&apos;ll sit
+        Once you join the founding beta, we don’t just hand you a dashboard. We’ll sit
         with your staff while they work the first callback list. Your team makes every call; we
         make sure the setup, the scripts, and the ledger are working, so you see signed cases early.
       </p>

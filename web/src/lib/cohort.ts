@@ -17,11 +17,11 @@ export const COHORT_FULL = SEATS_REMAINING === 0;
 export const SEAT_LINE = COHORT_FULL
   ? "The founding cohort is full. Join the list for the next opening."
   : SEATS_TAKEN === 0
-    ? `We're taking only ${SEATS_TOTAL} founding firms.`
+    ? `We’re taking only ${SEATS_TOTAL} founding firms.`
     : `${SEATS_REMAINING} of ${SEATS_TOTAL} founding seats remaining.`;
 
 // Canonical cohort CTA, waitlist-aware. Destination is the existing apply flow
-// (/audit), which already collects the firm's email, recordings, and monthly
+// (/audit), which already collects the firm’s email, recordings, and monthly
 // call volume — the free audit is step one of the beta.
 export const COHORT_CTA_LABEL = COHORT_FULL ? "Join the waitlist" : "Join the beta";
 export const COHORT_CTA_HREF = "/audit";

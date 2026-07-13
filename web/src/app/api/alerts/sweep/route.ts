@@ -42,7 +42,7 @@ async function authorized(req: Request): Promise<boolean> {
 }
 
 // Best-effort errors-table write for the fail-loud branch (a logging failure
-// must never mask the response). Mirrors digest/run's logRun.
+// must never mask the response). Mirrors digest/run’s logRun.
 async function logSweep(store: Store, message: string, context: unknown): Promise<void> {
   try {
     if (!store.pipelineDbConfigured()) return;

@@ -8,7 +8,7 @@ import { listShops, type StudioShop } from "@/lib/studio/shops-data";
 
 export const dynamic = "force-dynamic";
 
-// A firm's Studio page: its recordings (each links to its analysis). Founder-only.
+// A firm’s Studio page: its recordings (each links to its analysis). Founder-only.
 export default async function FirmPage({
   params,
 }: {
@@ -20,7 +20,7 @@ export default async function FirmPage({
   const firm = await getFirm(supabase, id);
   if (!firm) return notFound();
   const recordings = await listRecordingsForFirm(supabase, id);
-  // Graceful degradation if migration 0024 (The Mirror) hasn't been applied yet.
+  // Graceful degradation if migration 0024 (The Mirror) hasn’t been applied yet.
   let shops: StudioShop[] = [];
   try {
     shops = await listShops(supabase, id);

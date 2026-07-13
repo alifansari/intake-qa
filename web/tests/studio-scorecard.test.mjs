@@ -39,7 +39,7 @@ test("disclosures scope contains no recording/recorded language (hard rule #1)",
 test("independence + flat-fee statements are outcome-neutral (compliance)", () => {
   const d = disclosures(2);
   assert.match(d.independence, /independent scorer/);
-  assert.match(d.independence, /not a participant in the firm's fees/);
+  assert.match(d.independence, /not a participant in the firm[’']s fees/);
   assert.match(d.flatFee, /flat monthly fee/);
   // The flat-fee statement affirmatively DISAVOWS outcome-tied pricing (it names
   // and negates it) — that negation must be present.

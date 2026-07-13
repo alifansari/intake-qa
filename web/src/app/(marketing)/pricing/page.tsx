@@ -82,7 +82,7 @@ export default function PricingPage() {
       <section className="mt-8 border-t border-hairline pt-8">
         <p className="eyebrow">After the beta</p>
         <h2 className="mt-2 max-w-[34ch] font-display text-2xl font-semibold text-ink text-balance">
-          There is a price. Here is how it works, and when you&apos;ll hear the number.
+          There is a price. Here is how it works, and when you’ll hear the number.
         </h2>
         <p className="mt-3 max-w-[72ch] text-ink-muted">{BETA_PRICING_LINE}</p>
         <p className="mt-3 max-w-[72ch] text-sm text-ink-muted">
@@ -106,7 +106,7 @@ export default function PricingPage() {
           Send up to 10 of your own recorded intake calls. A real analyst scores them and walks you
           through the signable cases that slipped, live and free, and you keep the written report
           whether or not we ever work together. No card, no obligation. Any pricing conversation
-          happens after you&apos;ve seen what the audit found in your own calls.
+          happens after you’ve seen what the audit found in your own calls.
         </p>
         <div className="mt-5">
           <Link

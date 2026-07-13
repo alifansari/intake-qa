@@ -1,5 +1,5 @@
 // The hero number — the one thing a PI attorney logs in to see, and the answer
-// to "where's the value?". Research is unanimous: lead with ONE money figure,
+// to "where’s the value?". Research is unanimous: lead with ONE money figure,
 // rendered as the largest element on the page, everything else de-emphasized
 // (information overload is the #1 dashboard failure). The design system reserves
 // muted red for exactly one thing — the leaking-$ figure — so the fees on the
@@ -61,10 +61,10 @@ export function MoneyHero({
                 <strong className="font-semibold">
                   {onTheTable.count} signable {onTheTable.count === 1 ? "caller" : "callers"}
                 </strong>{" "}
-                your team hasn&apos;t signed yet.
+                your team hasn’t signed yet.
               </>
             ) : (
-              <>Signable callers your team hasn&apos;t signed yet.</>
+              <>Signable callers your team hasn’t signed yet.</>
             )}{" "}
             The whole job today: call them back below.
           </p>
@@ -77,7 +77,7 @@ export function MoneyHero({
           </p>
           <p className="mt-3 max-w-[60ch] text-[15px] text-ink">
             {callsReceived > 0
-              ? "Every signable caller we've found is signed, in progress, or accounted for. New misses show up here the same day we read the call."
+              ? "Every signable caller we’ve found is signed, in progress, or accounted for. New misses show up here the same day we read the call."
               : "Once your calls are flowing, anything your team lets slip shows up here the same day — with the fees it was worth."}
           </p>
         </>

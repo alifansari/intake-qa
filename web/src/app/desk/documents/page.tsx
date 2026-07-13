@@ -1,7 +1,7 @@
 // Documents — screen (b). Firm-aware: the demo/pilot firm sees the rendered
 // sample documents; a real (membership-scoped) firm with no issued documents
 // yet sees the honest promise of when their first one lands — never someone
-// else's demo table dressed up as their history.
+// else’s demo table dressed up as their history.
 import Link from "next/link";
 import { resolveDeskFirm } from "@/lib/desk/firm";
 
@@ -34,7 +34,7 @@ const DOCS = [
 ];
 
 export default async function DocumentsPage() {
-  // Real firms (membership-scoped) shouldn't see the synthetic demo table.
+  // Real firms (membership-scoped) shouldn’t see the synthetic demo table.
   let showDemoDocs = true;
   let firmName: string | undefined;
   try {
@@ -60,7 +60,7 @@ export default async function DocumentsPage() {
         <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Documents</h1>
         <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
           Your monthly statement and audit readouts live here &mdash; nothing to build, export, or
-          remember. The statement&apos;s first page is a 90-second read; each document is a PDF you own.
+          remember. The statement’s first page is a 90-second read; each document is a PDF you own.
         </p>
       </div>
 
@@ -78,9 +78,9 @@ export default async function DocumentsPage() {
       ) : (
       <>
       {/* Demo provenance, stated before the table — these must never read as
-          the firm's real history. */}
+          the firm’s real history. */}
       <div className="mb-3 rounded-card border border-hairline bg-canvas px-4 py-2.5 text-sm text-ink-muted">
-        Example documents from the demo firm &mdash; your firm&apos;s statements will replace
+        Example documents from the demo firm &mdash; your firm’s statements will replace
         these.
       </div>
       <div className="overflow-x-auto rounded-card border border-hairline">

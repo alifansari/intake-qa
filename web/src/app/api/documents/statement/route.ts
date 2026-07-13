@@ -1,13 +1,13 @@
 // Renders the Monthly Missed-Revenue Statement PDF.
 //
 // - No ?firm → the self-contained demo fixture (a sample always renders).
-// - ?firm=<id>&period=YYYY-MM → the REAL statement for that firm's leaked-signable
+// - ?firm=<id>&period=YYYY-MM → the REAL statement for that firm’s leaked-signable
 //   flags in that month, FOUNDER-GATED (only Ali generates statements today; the
-//   analyst reviews before sending). It uses the firm's own stored case types and
+//   analyst reviews before sending). It uses the firm’s own stored case types and
 //   the SAME vetted fee source the desk shows (fee_value_ranges × contingency), so
 //   the statement and the live desk never contradict each other on a dollar figure.
 //
-// TODO(Ali): open this to a firm's own membership once a firm-facing "download my
+// TODO(Ali): open this to a firm’s own membership once a firm-facing "download my
 // statement" flow + analyst-release gate for real firm statements is decided.
 import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
@@ -90,7 +90,7 @@ export async function GET(request: Request) {
     const firm = firms.find((f: { id: unknown }) => String(f.id) === String(firmId));
     if (!firm) return new Response("Firm not found.", { status: 404 });
 
-    // Leaked-signable flags, filtered to the period by the call's received_at.
+    // Leaked-signable flags, filtered to the period by the call’s received_at.
     const allFlags = (await store.listLeakedFlags(db, firm.id)) as FirmFlag[];
     const inPeriod = allFlags.filter((f) => {
       const t = f.received_at ? new Date(f.received_at).getTime() : NaN;
@@ -108,7 +108,7 @@ export async function GET(request: Request) {
       }
     }
 
-    // Fee source == the desk's: the vetted fee_value_ranges table, per firm.
+    // Fee source == the desk’s: the vetted fee_value_ranges table, per firm.
     // getFeeValueRange is async, so pre-warm a cache the pure composer reads sync.
     const feeCache = new Map<string, { lowCents: number; highCents: number } | null>();
     const caseTypes = [...new Set(inPeriod.map((f) => f.case_type ?? "").filter(Boolean))];

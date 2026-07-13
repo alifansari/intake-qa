@@ -24,7 +24,7 @@ export async function POST(
   }
 
   const rawBody = await req.text();
-  // CallRail's documented header is literally `Signature`
+  // CallRail’s documented header is literally `Signature`
   // (https://apidocs.callrail.com/ → Security → Validating Payloads); Node
   // normalizes header names to lowercase. Keep `x-callrail-signature` as a
   // fallback for proxies/relays that rename it.
@@ -35,7 +35,7 @@ export async function POST(
   let firmDbId: string | number | null = null;
   let secretSource = "env";
   try {
-    // Prefer this firm's OWN CallRail account signing secret; fall back to the
+    // Prefer this firm’s OWN CallRail account signing secret; fall back to the
     // shared env secret (the original single-pilot firm). CallRail issues one
     // token per account, so five firms each need their own.
     let secret = process.env.CALLRAIL_WEBHOOK_SECRET ?? null;
@@ -51,15 +51,15 @@ export async function POST(
         secretSource = "firm";
       }
     } catch (decErr: unknown) {
-      // Don't swallow a decode failure silently: a stored-but-undecodable secret
+      // Don’t swallow a decode failure silently: a stored-but-undecodable secret
       // (rotated/missing CALLRAIL_SECRET_KEY) would otherwise fall through to the
-      // env fallback and, if that's also unset, die as a bare 500. Remember the
+      // env fallback and, if that’s also unset, die as a bare 500. Remember the
       // reason so the no-secret branch below can log it.
       secretDecodeError = decErr instanceof Error ? decErr.message : "secret decode failed";
     }
     if (!secret) {
       // FAILURE LOUDNESS: no per-firm secret AND no env fallback means this
-      // firm's CallRail webhooks can never verify — its calls silently never
+      // firm’s CallRail webhooks can never verify — its calls silently never
       // ingest. Persist an errors-table row (mirrors the bad_signature branch)
       // so /admin/status and the founder sweep surface it instead of a dead 500.
       await logError(db, {

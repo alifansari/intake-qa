@@ -1,6 +1,6 @@
-// One digest pass over every firm — the digest-first desk's engine.
+// One digest pass over every firm — the digest-first desk’s engine.
 // Callable two ways:
-//   * the founder, signed in (the "Send today's digests" button / manual run)
+//   * the founder, signed in (the "Send today’s digests" button / manual run)
 //   * Vercel Cron, authorized by `Authorization: Bearer ${CRON_SECRET}` (GET)
 // Delivery is fully gated inside sendMissedDigest: KILL_SWITCH halts here AND
 // inside the sender; email transmits only when EMAIL_ENABLED=true and a Resend
@@ -61,7 +61,7 @@ async function logRun(store: Store, message: string, context: unknown): Promise<
   }
 }
 
-// Sign-in emails for a firm's members (pg only; sqlite pilot has no members).
+// Sign-in emails for a firm’s members (pg only; sqlite pilot has no members).
 async function memberEmails(db: unknown, firmId: string | number): Promise<string[]> {
   const q = (db as { query?: (sql: string, p: unknown[]) => Promise<{ rows: { email: string | null }[] }> }).query;
   if (typeof q !== "function") return [];
@@ -108,7 +108,7 @@ async function run(req: Request) {
         const res = await sendMissedDigest({ store, db, firm, recipients });
         results.push({ firm: firm.id, ...res });
         // First-party event log: a digest actually EMAILED (mode live) counts
-        // as digest_sent — file renders don't, or the unopened-streak math on
+        // as digest_sent — file renders don’t, or the unopened-streak math on
         // /studio/beta would accuse firms of ignoring email that never left.
         if (res.mode === "live") {
           await recordEventOn(db, {

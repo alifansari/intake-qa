@@ -4,7 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from "./env";
 
-// Server-side Supabase client bound to the request's cookies (so auth sessions
+// Server-side Supabase client bound to the request’s cookies (so auth sessions
 // work in Server Components, Route Handlers, and Server Actions). Returns null
 // when Supabase is not configured, so callers can show the "connect" state
 // instead of crashing.

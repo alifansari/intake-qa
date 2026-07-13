@@ -1,6 +1,6 @@
 // POST /api/desk/flag-status — persist a missed-case workflow status click.
-// Signed-in + firm-scoped: the flag must belong to the caller's own firm
-// (resolveDeskFirm), so no firm can touch another's queue. The write is a
+// Signed-in + firm-scoped: the flag must belong to the caller’s own firm
+// (resolveDeskFirm), so no firm can touch another’s queue. The write is a
 // sibling upsert; the frozen flags row is never mutated.
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/supabase/server";
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     if (result.forbidden) return Response.json({ error: "forbidden" }, { status: 403 });
     // First-party event log: a callback-shaped status (worked the case) is what
     // the 48h activation clock on /studio/beta counts. needs_callback/bad_number
-    // are bookkeeping, not callback work — they don't count.
+    // are bookkeeping, not callback work — they don’t count.
     if (["reached_out", "back_in_touch", "signed", "didnt_sign"].includes(body.status)) {
       await recordEventOn(db, {
         event: "callback_marked",
@@ -57,8 +57,8 @@ export async function POST(req: Request) {
         context: { flagId: String(body.flag_id), status: body.status, via: "desk" },
       });
     }
-    // attempts rides back so the card's encouragement line (B-011) can update
-    // without a reload. It is the coordinator's own tally, never a score.
+    // attempts rides back so the card’s encouragement line (B-011) can update
+    // without a reload. It is the coordinator’s own tally, never a score.
     return Response.json({ ok: true, status: body.status, attempts: result.attempts ?? 0 });
   } finally {
     await store.closePipelineDb(db);

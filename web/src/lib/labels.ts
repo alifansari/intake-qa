@@ -26,7 +26,7 @@ export const OUTCOME_HOTKEYS: { key: string; code: OutcomeCode; label: string }[
 export const VERDICT_LABEL: Record<Verdict, string> = {
   correct_flag: "Correct flag — they signed elsewhere",
   correct_flag_recovered: "Correct flag — recovered by callback",
-  false_alarm: "False alarm — wasn't signable",
+  false_alarm: "False alarm — wasn’t signable",
   missed_catch: "Missed catch — signed elsewhere, unflagged",
   correct_pass: "Correct pass — rightly not flagged",
   excluded: "No outcome yet",

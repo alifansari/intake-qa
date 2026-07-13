@@ -97,7 +97,7 @@ export async function POST(req: Request) {
   const key = process.env.RESEND_API_KEY;
   if (key && !isTestMode()) {
     try {
-      // Computed specifier so Turbopack doesn't try to bundle the optional
+      // Computed specifier so Turbopack doesn’t try to bundle the optional
       // `resend` dep at build time (installed only before live email is enabled).
       const mod = "resend";
       const { Resend } = await import(mod);

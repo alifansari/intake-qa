@@ -33,7 +33,7 @@ export default async function ShopsHome() {
   try {
     [firms, shops] = await Promise.all([listFirms(supabase), listShops(supabase)]);
   } catch {
-    // Graceful degradation if migration 0024 hasn't been applied yet.
+    // Graceful degradation if migration 0024 hasn’t been applied yet.
   }
   const firmName = new Map(firms.map((f) => [f.id, f.name]));
 

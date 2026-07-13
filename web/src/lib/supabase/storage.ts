@@ -2,7 +2,7 @@ import "server-only";
 
 // Server-only Supabase Storage helper for public Demo Mode uploads.
 //
-// The hosted /demo can't stream audio through the Vercel function (Vercel caps
+// The hosted /demo can’t stream audio through the Vercel function (Vercel caps
 // request bodies at ~4.5MB). Instead the browser uploads straight to a private
 // Storage bucket via a short-lived signed upload URL, and the server later
 // downloads the object to a temp file for the pipeline to transcribe. This

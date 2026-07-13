@@ -1,4 +1,4 @@
-// Operator review-gate action (Stage 6). Transitions an audit session's report
+// Operator review-gate action (Stage 6). Transitions an audit session’s report
 // status via the state machine. Release requires every checklist item confirmed.
 // Auth mirrors the other admin routes (open when Supabase unconfigured; else a
 // signed-in operator).

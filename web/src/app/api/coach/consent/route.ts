@@ -4,7 +4,7 @@
 // The coach page must call this and receive a 200 before it starts speech
 // recognition. This writes a ConsentEvent through the store/Repository so there is
 // a durable, firm-scoped record that consent was affirmed. Denied by default when
-// the caller's firm is not entitled to the coach.
+// the caller’s firm is not entitled to the coach.
 import { z } from "zod";
 import {
   openPipelineDb,

@@ -3,7 +3,7 @@
 // Operator control: turn each per-firm feature flag on/off. Writes through the
 // /api/admin/features endpoint (which goes through the pipeline facade). Default
 // state comes from the server; each toggle updates optimistically-then-confirms
-// from the server's returned feature map.
+// from the server’s returned feature map.
 
 import { useState } from "react";
 import { ALL_FEATURES, FEATURE_LABELS } from "../../features.mjs";

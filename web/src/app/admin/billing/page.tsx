@@ -1,10 +1,10 @@
-// Operator billing console: per-firm plan + this period's analyzed-call volume
+// Operator billing console: per-firm plan + this period’s analyzed-call volume
 // (with an upgrade flag when a firm exceeds its tier), close-period, invoice
 // void, and the Stripe simulation log. Reads through the facade; actions post to
 // /api/admin/billing. Degrades gracefully with no DB.
 //
 // Billing is a FLAT MONTHLY subscription — there is nothing to meter per case.
-// Exceeding a tier's call volume never auto-charges; it only flags an upgrade.
+// Exceeding a tier’s call volume never auto-charges; it only flags an upgrade.
 
 import { PageShell, PageHeader, SectionTitle } from "@/components/page";
 import { Card, CardContent } from "@/components/ui/card";

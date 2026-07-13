@@ -17,24 +17,24 @@
 //
 // RENAME (2026-07-12, Ali-approved, copy-power-pass): the category label moved
 // from "the independent recovery desk" to "the independent intake desk". Reason:
-// to a CA plaintiff lawyer "recovery" primarily means the CLIENT's recovery, so
+// to a CA plaintiff lawyer "recovery" primarily means the CLIENT’s recovery, so
 // the old label carried avoidable §I fee-participation optics and forced the
 // letter to burn a paragraph defusing it. The compliance NEGATIONS that use the
-// word "recovery" to mean the client's settlement ("never a share of any
+// word "recovery" to mean the client’s settlement ("never a share of any
 // recovery") are LOAD-BEARING and deliberately left unchanged.
 
 // ─── Positioning: the independent intake desk ────────────────────────────────
 export const DESK_NAME = "the independent intake desk";
 // Certified forwardable Independence Statement (Round 7 Gold iii). Use verbatim.
 export const INDEPENDENCE_STATEMENT =
-  "Intake QA is an independent quality-control service that scores a PI firm's own intake calls, flags signable cases that slipped, and hands the firm a compliant way to follow up, for a flat monthly fee that never varies with any recovery. We take no referral fees and no contingent compensation.";
+  "Intake QA is an independent quality-control service that scores a PI firm’s own intake calls, flags signable cases that slipped, and hands the firm a compliant way to follow up, for a flat monthly fee that never varies with any recovery. We take no referral fees and no contingent compensation.";
 // Certified gold-standard sentences (Round 7 Section G). Use verbatim. No em-dashes.
 export const GOLD_ALTERNATIVE_VIEW =
-  "Here's the strongest case against our flag, the reading under which this case is not signable, so you can weigh both before you spend a callback.";
+  "Here’s the strongest case against our flag, the reading under which this case is not signable, so you can weigh both before you spend a callback.";
 export const GOLD_RIGHT_OF_REPLY =
-  "You can dispute anything in this Statement. Tell us what we got wrong and your correction is printed, unedited, in the next Statement's Corrections column and logged against the original finding. We'd rather be corrected than trusted blindly.";
+  "You can dispute anything in this Statement. Tell us what we got wrong and your correction is printed, unedited, in the next Statement’s Corrections column and logged against the original finding. We’d rather be corrected than trusted blindly.";
 export const GOLD_VALUATION_DISCLAIMER =
-  "Any dollar figure here is a conservative, case-within-a-case estimate of potential fee value, using an expected-value method described in the appendix. It is an operations estimate, not a legal opinion, a promise, or a guarantee. The merits are your firm's call.";
+  "Any dollar figure here is a conservative, case-within-a-case estimate of potential fee value, using an expected-value method described in the appendix. It is an operations estimate, not a legal opinion, a promise, or a guarantee. The merits are your firm’s call.";
 export const GOLD_ATTESTATION =
   "This is a record of the procedures we performed and the fidelity of the transcripts we reviewed. It is not an opinion on the value or legal merit of any case, and it carries no penalty-of-perjury attestation. Where we judge, we show the transcript moment behind the judgment so you can check it yourself.";
 export const INDEPENDENCE_LINE =
@@ -43,7 +43,7 @@ export const INDEPENDENCE_LINE =
 export const DIFFERENTIATORS: { title: string; body: string }[] = [
   {
     title: "Independence",
-    body: "We have no stake in the answer. We're paid the same flat fee regardless of what the audit finds, unlike the AI receptionist grading its own calls, the agency grading its own leads, or staff grading their own follow-up.",
+    body: "We have no stake in the answer. We’re paid the same flat fee regardless of what the audit finds, unlike the AI receptionist grading its own calls, the agency grading its own leads, or staff grading their own follow-up.",
   },
   {
     title: "Full-population coverage",
@@ -65,11 +65,11 @@ export const CATEGORY_BOUNDARY_LINE =
 export const OBJECTIONS: { q: string; a: string }[] = [
   {
     q: "My AI receptionist already scores calls.",
-    a: "It scores the calls it answered, and it's grading its own homework. We score 100% of your calls across every channel, including the ones your team answered live at 2pm, and we reconcile them against who actually signed.",
+    a: "It scores the calls it answered, and it’s grading its own homework. We score 100% of your calls across every channel, including the ones your team answered live at 2pm, and we reconcile them against who actually signed.",
   },
   {
     q: "My agency reports on lead quality.",
-    a: "Your agency has a stake in the answer. We don't: we're paid the same flat fee no matter what we find.",
+    a: "Your agency has a stake in the answer. We don’t: we’re paid the same flat fee no matter what we find.",
   },
   {
     q: "Lead Docket already tracks this.",
@@ -79,14 +79,14 @@ export const OBJECTIONS: { q: string; a: string }[] = [
 
 // ─── Who does the work (productized service; name Ali) ───────────────────────
 export const WHO_DOES_THE_WORK =
-  "Every audit and every monthly statement is reviewed by Ali, Intake QA's founder and analyst of record, a former PI paralegal who sat in the intake seat. The software does the listening at scale; a human who knows what a signable case sounds like decides what to flag and signs off on what you read.";
+  "Every audit and every monthly statement is reviewed by Ali, Intake QA’s founder and analyst of record, a former PI paralegal who sat in the intake seat. The software does the listening at scale; a human who knows what a signable case sounds like decides what to flag and signs off on what you read.";
 // Confirmed by Ali (July 2026): he personally reviews 100% of statements/readouts
 // at current cohort size. Revisit this wording if that stops holding at scale.
 
 // ─── What we do (plain description; the "Case Acquisition Intelligence" category
 // label is retired per the Round 7 master edit — banned as jargon). ────────────
 export const WHAT_WE_DO =
-  "We measure what happens to a signable case after the phone rings: which qualified callers didn't sign, across every channel, and what that walked-away fee revenue is worth.";
+  "We measure what happens to a signable case after the phone rings: which qualified callers didn’t sign, across every channel, and what that walked-away fee revenue is worth.";
 
 // The named "reason why" (copy-power-pass 2026-07-12): the four transcript-
 // observable failure modes. Actuarial, not vibes; blames the process, not a
@@ -111,14 +111,14 @@ export const SUB_CTA_LINE =
   "A real analyst reviews every call. You keep the report whether or not you continue. No card, no contract to start.";
 // One-line reassurance shown under each paid buy button.
 export const CHECKOUT_REASSURANCE =
-  "Flat monthly, cancel anytime. You'll get a login link by email and a kickoff with Ali before your first statement.";
+  "Flat monthly, cancel anytime. You’ll get a login link by email and a kickoff with Ali before your first statement.";
 // The lift line (staff time), pulled near pricing/audit CTAs.
 export const LIFT_LINE =
   "About 20 minutes from you and a one-time ~2 hours from your office manager to forward recordings. Built to make your intake manager look good.";
 // Trust strip: points at the calibration page. Copy-audit 2026-07-11: must not
 // promise a published error rate until /honesty actually publishes one (the page
 // currently, correctly, withholds precision/recall until the corpus is documented).
-export const HONESTY_STRIP_LINE = "We tell you what we won't claim yet.";
+export const HONESTY_STRIP_LINE = "We tell you what we won’t claim yet.";
 // Reviewer line near buy buttons (role, not a named person — see compliance §V).
 // Matches WHO_DOES_THE_WORK: Ali is a former PI paralegal who sat in the intake seat.
 export const REVIEWER_LINE = "A former PI paralegal who sat in the intake seat reviews every score.";
@@ -131,9 +131,9 @@ export const AUDIT_CAPACITY = 8;
 export const AUDIT_CAPACITY_LINE = `Because a real analyst reviews every call, we take on up to ${AUDIT_CAPACITY} audits each month.`;
 export const AUDIT_DELIVERABLES: string[] = [
   "A per-call score on our frozen, calibrated PI rubric.",
-  "The signable cases that didn't sign, with the transcript evidence behind each flag.",
+  "The signable cases that didn’t sign, with the transcript evidence behind each flag.",
   "A dollar figure for the estimated missed signable fee revenue.",
-  "The same-day callback script we'd hand your staff for the flagged cases.",
+  "The same-day callback script we’d hand your staff for the flagged cases.",
   "A shareable written report your firm keeps.",
 ];
 // The one funnel (present as a single path, no competing offers). During the
@@ -161,7 +161,7 @@ export const BETA_WHO_LINE =
 // rather than advertising it. Same fix pending in ops/drafts/lacba-beta-post.md.
 export const BETA_CONDITIONS: string[] = [
   "Sign a mutual NDA. Your calls and our beta stay confidential in both directions.",
-  "Connect your phone system or upload a sample of your recorded intake calls. That's the material we analyze; setup is measured in hours, not weeks.",
+  "Connect your phone system or upload a sample of your recorded intake calls. That’s the material we analyze; setup is measured in hours, not weeks.",
   "Give structured feedback on user experience and utility after each report you receive: were the flagged cases genuinely signable, was the diagnosis right, would you pay for this.",
 ];
 // The unchanged ground rules, stated wherever the conditions appear.
@@ -169,9 +169,9 @@ export const BETA_GROUND_RULES =
   "Two things never change, beta or not: your own staff make every callback, and we never contact your callers.";
 // How pricing is handled during the beta (transparent deferral, no games).
 export const BETA_PRICING_LINE =
-  "There is a real price, and it's flat: a monthly subscription tiered by call volume, never per case, never per signed client, never a share of any recovery. We share the number individually, after your free Leak Audit, so you can weigh it against what the audit found in your own calls.";
+  "There is a real price, and it’s flat: a monthly subscription tiered by call volume, never per case, never per signed client, never a share of any recovery. We share the number individually, after your free Leak Audit, so you can weigh it against what the audit found in your own calls.";
 export const BETA_PRICING_HONESTY =
-  "We're not hiding the number to play games; we're finishing the beta before we publish it. If you want to know where pricing is landing before you apply, email Ali and he'll tell you straight.";
+  "We’re not hiding the number to play games; we’re finishing the beta before we publish it. If you want to know where pricing is landing before you apply, email Ali and he’ll tell you straight.";
 
 // ─── The $25,000 find-it-free guarantee (backs the diagnostic + first month) ──
 // SUSPENDED FOR THE BETA WINDOW (Ali, 2026-07-09): the desk is free, so there is
@@ -182,19 +182,19 @@ export const BETA_PRICING_HONESTY =
 // FTC §5 / CA §17500 earnings claims and §§6151–6152 / SB 37 outcome-fee optics).
 export const GUARANTEE_THRESHOLD = "$25,000";
 export const GUARANTEE_CANONICAL =
-  "The $25,000 find-it-free guarantee: if your free Leak Audit doesn't identify at least $25,000 in estimated missed signable case value, we won't pitch you a subscription, and if you start one anyway, your first month is free. “Estimated missed signable case value” is an estimate of what walked, calculated from your own average fee per case type (or named industry benchmarks where we don't have it). It is not a promise of what we'll recover.";
+  "The $25,000 find-it-free guarantee: if your free Leak Audit doesn’t identify at least $25,000 in estimated missed signable case value, we won’t pitch you a subscription, and if you start one anyway, your first month is free. “Estimated missed signable case value” is an estimate of what walked, calculated from your own average fee per case type (or named industry benchmarks where we don’t have it). It is not a promise of what we’ll recover.";
 export const GUARANTEE_BADGE_LINE =
-  "$25,000 find-it-free guarantee: if the audit doesn't surface at least $25k in estimated missed signable case value, we won't pitch you, and if you subscribe anyway your first month is free. An estimate of what walked, not a promise of recovery.";
+  "$25,000 find-it-free guarantee: if the audit doesn’t surface at least $25k in estimated missed signable case value, we won’t pitch you, and if you subscribe anyway your first month is free. An estimate of what walked, not a promise of recovery.";
 export const GUARANTEE_METHODOLOGY =
-  "How we estimate missed signable case value: we count the signable cases our model flags that didn't sign, then multiply by your firm's own average fee per signed case for that case type. Where you haven't given us your average fee, we substitute a named, sourced benchmark (e.g., auto soft-tissue ~$16,000; serious injuries $55,000+) and label every substituted figure. Estimates are estimates, not a promise of recovered fees; our model's precision and recall will be published on this page the day the test corpus is documented, and not before.";
-// TODO(Ali): collect each firm's average fee per case type (guarantee methodology input).
+  "How we estimate missed signable case value: we count the signable cases our model flags that didn’t sign, then multiply by your firm’s own average fee per signed case for that case type. Where you haven’t given us your average fee, we substitute a named, sourced benchmark (e.g., auto soft-tissue ~$16,000; serious injuries $55,000+) and label every substituted figure. Estimates are estimates, not a promise of recovered fees; our model’s precision and recall will be published on this page the day the test corpus is documented, and not before.";
+// TODO(Ali): collect each firm’s average fee per case type (guarantee methodology input).
 
 // ─── Founding cohort (honest, durable language — no countdown, no "N seats left") ───
 // BETA WINDOW: the founding cohort is the free beta (NDA + call access +
 // structured feedback), not the paid Charter. The Charter block below is kept
 // for launch but is not rendered publicly during the beta.
 export const COHORT_MAX = 5;
-export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MAX} California PI firms into the beta, after each firm's free Leak Audit.`;
+export const COHORT_LINE = `We’re taking a founding cohort of ${COHORT_MAX} California PI firms into the beta, after each firm’s free Leak Audit.`;
 
 // ─── Data handling (one reconciled promise) ──────────────────────────────────
 // Canonical retention, reconciled to what the code actually does (2026-07-10):
@@ -204,13 +204,13 @@ export const COHORT_LINE = `We're taking a founding cohort of ${COHORT_MAX} Cali
 // the env default in inngest/functions.mjs), plus immediate deletion on request.
 export const DELETION_HOURS = 72;
 export const FIRM_RETENTION_DAYS = 90;
-export const DELETION_LINE = `Call audio is deleted the moment it's transcribed. Free Leak Audit transcripts and reports are purged within ${DELETION_HOURS} hours of your readout; for firms on the desk, transcripts are kept only while we serve you, purged on a rolling ${FIRM_RETENTION_DAYS}-day window, and deleted immediately if you ask in writing.`;
+export const DELETION_LINE = `Call audio is deleted the moment it’s transcribed. Free Leak Audit transcripts and reports are purged within ${DELETION_HOURS} hours of your readout; for firms on the desk, transcripts are kept only while we serve you, purged on a rolling ${FIRM_RETENTION_DAYS}-day window, and deleted immediately if you ask in writing.`;
 // Breach-notification commitment confirmed by Ali (July 2026): within 72 hours.
 export const BREACH_NOTICE_HOURS = 72;
 
 // ─── The accountable-party line (single-accountable-party framing) ───
 export const ACCOUNTABLE_PARTY_LINE =
-  "Your calls are handled by Intake QA, and we're the single party accountable to you for them. Transcription and analysis run on specialist engines under our data-processing agreement (every subprocessor is named in the DPA), encrypted in transit and at rest, and your callers' words are never used to train AI models.";
+  "Your calls are handled by Intake QA, and we’re the single party accountable to you for them. Transcription and analysis run on specialist engines under our data-processing agreement (every subprocessor is named in the DPA), encrypted in transit and at rest, and your callers’ words are never used to train AI models.";
 
 // ─── SMS / texting posture ───
 export const A2P_LINE =
@@ -222,7 +222,7 @@ export const A2P_LINE =
 // carry the decline trend alongside the 48% unreachable figure. All three numbers
 // (48% unreachable, 40% answer, 56% in 2019) are from the SAME Lux secret-shop and
 // coexist by definition (40% answered live + ~12% called back = 52% reachable;
-// 48% did neither). Verification: CONFIRMED across Clio's own PR + blog + independent
+// 48% did neither). Verification: CONFIRMED across Clio’s own PR + blog + independent
 // write-ups; direct clio.com PDF fetch was 403-blocked, so page-number rigor pending
 // a human opening the 2024 report PDF. Keep to this ONE stat; do not also cite a
 // different Clio figure elsewhere.
@@ -279,17 +279,17 @@ export const STAT_SPANISH_LIFT_UNVERIFIED_DO_NOT_RENDER = {
   values: ["40% more likely to retain", "15-25% vs 10-18% conversion", "<12% of firms bilingual", "95% capture"],
   label: "Spanish-intake lift figures — all trace to intake-vendor blogs cross-citing each other; no primary source",
   useInstead:
-    "ACS: ~16-18M limited-English Spanish speakers in the US; CSA Research 'Can't Read, Won't Buy' — the demand is real; the specific % lift is not measured yet (make it the beta's instrumented metric).",
+    "ACS: ~16-18M limited-English Spanish speakers in the US; CSA Research 'Can’t Read, Won’t Buy' — the demand is real; the specific % lift is not measured yet (make it the beta’s instrumented metric).",
   source: "REFUTED in verification, never cite",
 };
 export const STAT_FIRST_LAWYER_MISATTRIBUTED_DO_NOT_RENDER = {
   values: ["79% (general)", "391% (Velocify)"],
   label: "'first to respond wins' multipliers — mis-attributed / non-legal lineage",
-  useInstead: "FindLaw's ~78% hire the first lawyer they actually speak with (legal-specific) is the defensible version.",
+  useInstead: "FindLaw’s ~78% hire the first lawyer they actually speak with (legal-specific) is the defensible version.",
   source: "REFUTED in verification, never cite the 79%/391%",
 };
 export const STAT_LPL_CARRIER_AI_UNVERIFIED_DO_NOT_RENDER = {
-  values: ["60%+ of LPL carriers ask about AI", "CNA's five AI questions"],
+  values: ["60%+ of LPL carriers ask about AI", "CNA’s five AI questions"],
   label: "malpractice-carrier AI-diligence stats — circular ecosystem, no primary CNA document locatable",
   useInstead:
     "Frame the Vendor Due-Diligence File as governance-ready without claiming carriers demonstrably demand it. The verified hook is Rule 1.18 confidentiality of prospective-client info (Cal. Formal Op. 2021-205).",
@@ -297,7 +297,7 @@ export const STAT_LPL_CARRIER_AI_UNVERIFIED_DO_NOT_RENDER = {
 };
 
 // ─── Calibration / test corpus ───
-// Ali's call (July 2026): keep precision/recall HIDDEN until we can publish them
+// Ali’s call (July 2026): keep precision/recall HIDDEN until we can publish them
 // with a named, documented corpus (N, composition, date). Never a bare percentage.
 export const TEST_CORPUS_PRECISION: string | null = null;
 export const TEST_CORPUS_RECALL: string | null = null;
@@ -323,7 +323,7 @@ export const CONFIDENCE_TIERS_NOTE =
 // ─── What months 2–12 look like (retention story; STATUS-FLAGGED) ────────────
 // Presentation-only vs new-build must be labeled. Never market vaporware.
 export const MONTH_6_INTRO =
-  "The first audit finds the biggest leaks. After that, the desk becomes the one number on your intake that isn't self-graded: an independent monthly scorecard your intake manager is measured against, the way you'd never drop your malpractice carrier. Every statement shows whether the leak is shrinking, your team gets credit for the improvement, and new leaks get caught as your marketing and staffing change.";
+  "The first audit finds the biggest leaks. After that, the desk becomes the one number on your intake that isn’t self-graded: an independent monthly scorecard your intake manager is measured against, the way you’d never drop your malpractice carrier. Every statement shows whether the leak is shrinking, your team gets credit for the improvement, and new leaks get caught as your marketing and staffing change.";
 export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = [
   {
     title: "A statement that trends over time",
@@ -332,12 +332,12 @@ export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = 
   },
   {
     title: "Intake-team scorecards",
-    body: "Improvement trending that makes the manager look good, so credit lands where it's earned.",
+    body: "Improvement trending that makes the manager look good, so credit lands where it’s earned.",
     status: "In development with the founding cohort.",
   },
   {
     title: "Coaching clips from real calls",
-    body: "Short training clips built from your team's own best calls.",
+    body: "Short training clips built from your team’s own best calls.",
     status: "In development with the founding cohort.",
   },
   {
@@ -354,7 +354,7 @@ export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = 
 
 // ─── Intake-manager champion framing ─────────────────────────────────────────
 export const CHAMPION_LINE =
-  "This isn't a gotcha. High-volume intake means good cases slip. That's math, not a character flaw. The desk gives your manager proof of the workload, coaching clips built from your team's own best calls, and a monthly scorecard that shows the improvement so the credit lands where it's earned.";
+  "This isn’t a gotcha. High-volume intake means good cases slip. That’s math, not a character flaw. The desk gives your manager proof of the workload, coaching clips built from your team’s own best calls, and a monthly scorecard that shows the improvement so the credit lands where it’s earned.";
 
 // ─── Pricing (outcome-decoupled: FLAT MONTHLY, tiered by capability/volume) ───
 // NEVER a per-recovered-case, per-signed-client, or percentage-of-recovery fee.
@@ -415,7 +415,7 @@ export const PRICING_TIERS: PricingTier[] = [
 // ─── The Charter ("Founding 5") intro offer ──────────────────────────────────
 // A flat $1,500/mo for the first 90 days, then the flat $2,500/mo Core price.
 // Hard cap of 5 firms; closes at the 5th firm or Aug 31, 2026, whichever first.
-// Sold on Core's INDEPENDENT SCORING value — never on the (gated) Pro recovery
+// Sold on Core’s INDEPENDENT SCORING value — never on the (gated) Pro recovery
 // workflow. Flat monthly at every phase; never outcome-tied.
 export const CHARTER_NAME = "Charter (Founding 5)";
 export const CHARTER_PLAN_ID = "charter" as const;
@@ -432,7 +432,7 @@ export const CHARTER_SUB = `For the first ${CHARTER_CAP} founding firms only. Th
 export const REF_MONTHLY_USD = 2500;
 // The compliance argument for the pricing model, in lawyer-grade language.
 export const PRICING_COMPLIANCE_ARGUMENT =
-  "We deliberately do not charge per case, per signed client, or per recovered dollar. Our fee is a flat monthly subscription for a QA and recovery service on your own existing callers. It does not change whether you sign zero cases or fifty. Because our compensation is not tied to procuring or recovering any case, it isn't a share of a fee under CA Rule 5.4 and can't be characterized as paying a runner or capper under California Business & Professions Code §§6151-6152 (as strengthened by SB 37). You pay us a flat fee for a service, the same way you pay your answering service or your CRM.";
+  "We deliberately do not charge per case, per signed client, or per recovered dollar. Our fee is a flat monthly subscription for a QA and recovery service on your own existing callers. It does not change whether you sign zero cases or fifty. Because our compensation is not tied to procuring or recovering any case, it isn’t a share of a fee under CA Rule 5.4 and can’t be characterized as paying a runner or capper under California Business & Professions Code §§6151-6152 (as strengthened by SB 37). You pay us a flat fee for a service, the same way you pay your answering service or your CRM.";
 
 // ─── Cost comparables (2026-verified; anchor the flat monthly fee) ───
 export const PRICING_ANCHOR_LINE =

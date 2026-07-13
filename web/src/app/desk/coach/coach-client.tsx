@@ -6,7 +6,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
    INTAKE QA — LIVE IN-CALL COACH (v1)
 
    A heads-up display beside a PI intake specialist during a live call. It
-   transcribes with the browser's SpeechRecognition and runs the Intake QA rubric
+   transcribes with the browser’s SpeechRecognition and runs the Intake QA rubric
    continuously against the rolling transcript, surfacing the single highest-value
    next move. Two hard constraints, honored:
      1. The numeric score is computed live but NEVER shown; it only modulates the
@@ -16,7 +16,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
    The model calls go through the server proxy at /api/coach so the ANTHROPIC key
    never touches the browser and nothing third-party loads on this page. Fonts are
-   the app's self-hosted next/font families via CSS variables.
+   the app’s self-hosted next/font families via CSS variables.
 ============================================================================= */
 
 const T = {
@@ -37,7 +37,7 @@ const FACTORS = [
   { key: "liability", label: "Liability", hint: "how it happened · police report · fault" },
   { key: "injury", label: "Injury & treatment", hint: "injuries · ER/surgery · work missed" },
   { key: "insurance", label: "Recovery source", hint: "defendant insurance · UM/UIM · commercial" },
-  { key: "statute", label: "Date of loss", hint: "actual date · gov't / med-mal clock" },
+  { key: "statute", label: "Date of loss", hint: "actual date · gov’t / med-mal clock" },
 ];
 const LOGISTICS = [
   { key: "contact", label: "Contact info" },
@@ -149,7 +149,7 @@ export function CoachClient() {
       if (!res.ok) {
         setErr(
           res.status === 403
-            ? "The live coach isn't enabled for your firm."
+            ? "The live coach isn’t enabled for your firm."
             : "Could not record consent. The call was not started.",
         );
         setConsentBusy(false);
@@ -290,7 +290,7 @@ export function CoachClient() {
           </h1>
           <p style={{ color: T.inkMuted, fontSize: 15, lineHeight: 1.55, margin: "0 0 28px" }}>
             It stays quiet while the call goes well and surfaces one move when it matters, driven by
-            your firm&apos;s scoring rubric. The grade is kept off-screen during the call; you&apos;ll
+            your firm’s scoring rubric. The grade is kept off-screen during the call; you’ll
             see the full scorecard the moment you hang up.
           </p>
           {/* P0-2: active consent affirmation — the mic stays locked until this is checked. */}
@@ -316,16 +316,16 @@ export function CoachClient() {
           </div>
           {micState === "unsupported" && (
             <p style={{ color: T.alert, fontSize: 13, marginTop: 18 }}>
-              This browser doesn&apos;t support live speech recognition. Use Chrome or Edge on desktop.
+              This browser doesn’t support live speech recognition. Use Chrome or Edge on desktop.
             </p>
           )}
           {micState === "denied" && (
             <p style={{ color: T.alert, fontSize: 13, marginTop: 18 }}>
-              Microphone access was blocked. Allow the mic in your browser&apos;s site settings, then start again.
+              Microphone access was blocked. Allow the mic in your browser’s site settings, then start again.
             </p>
           )}
           <p style={{ color: T.faint, fontSize: 12, marginTop: 26, lineHeight: 1.5 }}>
-            Speaker tagging is manual in this preview. Tap the toggle to mark who&apos;s talking. In
+            Speaker tagging is manual in this preview. Tap the toggle to mark who’s talking. In
             production the phone system feeds diarized audio automatically.
           </p>
         </div>

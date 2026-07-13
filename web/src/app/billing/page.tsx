@@ -1,5 +1,5 @@
 // Firm-facing billing. Plain-English model explainer (flat monthly subscription,
-// never per case) + this period's subscription + past invoices + an ROI banner.
+// never per case) + this period’s subscription + past invoices + an ROI banner.
 //
 // The ROI banner shows recovered fees for CONTEXT ONLY — they are computed for
 // display and NEVER affect the bill. The bill is a flat monthly subscription
@@ -138,8 +138,8 @@ export default async function BillingPage({
                 </div>
                 {overCap && (
                   <p className="mt-3 rounded-base border border-line bg-canvas px-3 py-2 text-sm text-ink">
-                    You&apos;ve analyzed more calls than this tier includes. Your bill doesn&apos;t
-                    change automatically — reach out and we&apos;ll move you to the right tier.
+                    You’ve analyzed more calls than this tier includes. Your bill doesn’t
+                    change automatically — reach out and we’ll move you to the right tier.
                   </p>
                 )}
               </CardContent>

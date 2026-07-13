@@ -61,7 +61,7 @@ function setField(record, path, value) {
   obj[parts.at(-1)] = value;
 }
 
-// Render a node's prompt for the current record (prompts may be functions).
+// Render a node’s prompt for the current record (prompts may be functions).
 export function promptFor(nodeId, record) {
   const node = getNode(nodeId);
   if (!node) return null;
@@ -75,7 +75,7 @@ export function startConversation(sessionId, now = new Date()) {
   return { record, nodeId: START_NODE };
 }
 
-// Apply the visitor's answer to `nodeId` and advance. Returns
+// Apply the visitor’s answer to `nodeId` and advance. Returns
 // { record, nodeId, done } where done=true means nodeId is a terminal that has
 // been routed (record.bucket/routing/status are final).
 //

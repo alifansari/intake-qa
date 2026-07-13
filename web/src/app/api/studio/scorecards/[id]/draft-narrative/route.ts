@@ -1,6 +1,6 @@
 // POST /api/studio/scorecards/[id]/draft-narrative — founder-only. Anthropic drafts
 // ONLY the two narrative fields (narrative_failure, narrative_fix) from STRUCTURED
-// inputs + the founder's notes + the engine analysis (transcript excerpt/summary).
+// inputs + the founder’s notes + the engine analysis (transcript excerpt/summary).
 // It NEVER computes the score. Output lands as EDITABLE DRAFT text and resets the
 // review gate (narrative_reviewed=false) so a human must approve before finalize.
 import Anthropic from "@anthropic-ai/sdk";
@@ -46,7 +46,7 @@ export async function POST(
   const scoring = (rec?.scoring ?? {}) as Record<string, unknown>;
 
   // Compact, structured inputs for the drafter (NOT the raw transcript in full —
-  // give it the engine's summary + evidence quotes + the founder's structured
+  // give it the engine’s summary + evidence quotes + the founder’s structured
   // findings). The transcript is available but we send a bounded slice as context.
   const dimLabels = DIMENSIONS.map((d) => {
     const v = (sc.dimension_inputs ?? {})[d.key];

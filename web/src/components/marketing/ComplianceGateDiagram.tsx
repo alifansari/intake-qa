@@ -7,7 +7,7 @@ const GATES = [
   ["Global kill switch", "One switch halts all sending across every firm."],
   ["Per-firm autonomy lock", "A firm must be explicitly set to manual; no autonomous sending mode is enabled for any firm."],
   ["Per-firm kill switch", "Each firm can halt its own sending independently."],
-  ["Quiet hours", "No messages 8:00pm to 8:00am in the recipient's local time."],
+  ["Quiet hours", "No messages 8:00pm to 8:00am in the recipient’s local time."],
   ["Test mode", "Until A2P 10DLC is approved, sends are simulated and logged, never transmitted."],
 ];
 

@@ -23,9 +23,18 @@ import {
   createDraftMessage,
   setCallStatus,
   logError,
+  insertTranscriptCitation,
+  setFlagConfidence,
   recordEvent,
+  upsertCallAnalysis,
 } from "./store.mjs";
 import { evaluateFlag } from "../messaging/flag-logic.mjs";
+import {
+  candidateQuotes,
+  confidenceTier,
+  rubricVersion,
+} from "../messaging/flag-confidence.mjs";
+import { guardAndLog } from "../analysis/citation-guard.mjs";
 import { draftFirstMessage } from "../messaging/draft.mjs";
 import { getTemplate } from "../messaging/templates.mjs";
 
@@ -90,6 +99,50 @@ async function defaultScorer({ transcript, callId, firmConfigPath }) {
   return scoring;
 }
 
+// Flatten the engine's full ScoredCall + the mapped flag into the durable
+// call_analyses row shape (migration 0032). Pure + defensive: every field is
+// optional in the loose ScoredCall schema, so read through null-safe accessors.
+// The full blob is stored as score_json (minus the internal v2 shadow) so the
+// readout is never limited by which fields we happened to break out into columns.
+export function extractAnalysis({ score, mapped, call }) {
+  const s = score ?? {};
+  const cats = s.scores?.categories ?? {};
+  const catScore = (k) => {
+    const v = cats?.[k];
+    const n = typeof v === "number" ? v : v?.score;
+    return typeof n === "number" ? Math.round(n) : null;
+  };
+  const overall = s.scores?.overall;
+  const usd = s.alerts?.revenue_at_risk?.amount_usd;
+  const conv = s.conversion ?? {};
+  // Store the blob without the internal shadow key (never firm-visible).
+  const { _v2_shadow, ...blob } = s;
+  return {
+    call_id: call.id,
+    firm_id: call.firm_id,
+    overall_score: typeof overall === "number" ? Math.round(overall) : null,
+    band: s.scores?.band ?? null,
+    case_signability: s.case_signability ?? null,
+    lost_signable: Boolean(mapped?.is_leaked_signable),
+    revenue_at_risk_cents: typeof usd === "number" ? Math.round(usd * 100) : null,
+    case_type: mapped?.case_type ?? null,
+    retainer_asked: typeof conv.retainer_asked === "boolean" ? conv.retainer_asked : null,
+    next_step_specificity: conv.next_step_specificity ?? null,
+    contact_info_captured: conv.contact_info_captured ?? null,
+    cat_qualification: catScore("qualification"),
+    cat_conversion: catScore("conversion"),
+    cat_connection: catScore("connection"),
+    cat_risk_compliance: catScore("risk_compliance"),
+    cat_process: catScore("process"),
+    summary: s.summary ?? null,
+    coaching_json: s.coaching ? JSON.stringify(s.coaching) : null,
+    score_json: JSON.stringify(blob),
+    rep: call.rep ?? null,
+    source: call.source ?? null,
+    model_version: typeof s.model === "string" ? s.model : null,
+  };
+}
+
 // Score every un-scored call for a firm (or all firms) and create a flag row
 // for each. Newly flagged leaked-signable leads also get a pending-approval
 // conversation + a `drafted` first message. Returns created flag summaries.
@@ -148,6 +201,14 @@ export async function scoreUnscored({
     // (Session 9 red-team.)
     await setCallStatus(db, call.id, "analyzed").catch(() => {});
 
+    // Durably persist the ENGINE'S FULL READOUT for this call (migration 0032).
+    // The pipeline used to discard everything but the four flag scalars, so a
+    // firm could never see how a call went and a clean-scored call vanished into
+    // a counter. This sibling row (keyed by call_id, frozen flags untouched)
+    // powers the per-call readout and the team scorecard. Best-effort — a
+    // persistence failure must never fail the flag or abort the batch.
+    await upsertCallAnalysis(db, extractAnalysis({ score, mapped, call })).catch(() => {});
+
     // First-party product event: a call finished scoring. Feeds the founder
     // activity digest ("N calls scored for firm X, K flagged") and the
     // /studio/beta board. IDs/counts only, never transcript text or caller PII.
@@ -162,6 +223,62 @@ export async function scoreUnscored({
         score: mapped.qualification_score ?? null,
       },
     }).catch(() => {});
+
+    // Populate the desk card's evidence + confidence tier for leaked flags.
+    // Without this the card read "Unrated" with no verbatim quote on every REAL
+    // call (the producing pipeline never wrote flag_confidence /
+    // transcript_citations). COMPLIANCE §IV ("no citation, no claim"): the
+    // engine's evidence quotes are only CANDIDATES — the existing citation guard
+    // validates each against THIS transcript, drops (and logs for audit) anything
+    // that doesn't match, and only the survivors are stored as shown ('passed').
+    // The tier is evidence-tied: "strong" needs a passing citation. Best-effort —
+    // an enrichment failure must never fail the flag or abort the batch (scoring
+    // already succeeded above).
+    if (mapped.is_leaked_signable) {
+      try {
+        const candidates = candidateQuotes(score).map((snippet) => ({
+          fact_kind: "qualifying_fact",
+          start_ms: 0, // evidence_quotes carry no offsets; 0 = unknown-but-present
+          end_ms: 0,
+          verbatim_snippet: snippet,
+        }));
+        // Guard drops fabricated/paraphrased quotes and logs them to the review
+        // queue; `passed` are the transcript-confirmed lines we may display.
+        const { passed } = await guardAndLog({
+          db,
+          flagId,
+          citations: candidates,
+          transcript,
+        });
+        for (const c of passed) {
+          await insertTranscriptCitation(db, {
+            flag_id: flagId,
+            fact_kind: c.fact_kind,
+            start_ms: c.start_ms,
+            end_ms: c.end_ms,
+            verbatim_snippet: c.verbatim_snippet,
+            validation_score: c.score,
+            status: "passed", // confirmed against the transcript → showable
+          });
+        }
+        await setFlagConfidence(db, {
+          flag_id: flagId,
+          confidence_tier: confidenceTier({
+            score,
+            hasValidatedCitation: passed.length > 0,
+          }),
+          rubric_version: rubricVersion(score),
+        });
+      } catch (err) {
+        await logError(db, {
+          source: "score-worker.enrichFlag",
+          message: `flag ${flagId} confidence/citation enrich failed: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+          firm_id: call.firm_id ?? null,
+        }).catch(() => {});
+      }
+    }
 
     let conversationId = null;
     let messageId = null;

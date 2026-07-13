@@ -1,6 +1,6 @@
 // POST /webhooks/twilio — inbound SMS webhook (caller replies).
 //
-// Thin wrapper: verify Twilio's signature (when an auth token is configured),
+// Thin wrapper: verify Twilio’s signature (when an auth token is configured),
 // parse the form-encoded body, hand off to the shared inbound module which
 // stores the message, honors opt-outs, and drafts a reply into the approval
 // queue. No business logic here. Node runtime — the modules use node:sqlite

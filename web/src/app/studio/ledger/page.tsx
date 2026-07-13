@@ -15,7 +15,7 @@ const inputClass =
 
 // The Ledger (Phase 6) — the monthly one-page receipt, bank-statement styled,
 // printable. Founder-only for now (demo-scope data). Conservative by
-// construction: dollar lines exist only when the FIRM's average case fee is
+// construction: dollar lines exist only when the FIRM’s average case fee is
 // entered in the control bar (round-trips as ?fee= so URLs stay shareable),
 // misses are printed, and every number lists its underlying record count
 // (internal refs tucked behind a details toggle). Conversion column reads
@@ -93,7 +93,7 @@ export default async function LedgerPage({
             <input type="month" name="period" defaultValue={period} className={inputClass} />
           </label>
           <label className="flex flex-col gap-1 text-[11px] text-muted">
-            Firm&apos;s own average case fee — used only to print dollar lines
+            Firm’s own average case fee — used only to print dollar lines
             <input
               type="number"
               name="fee"
@@ -161,7 +161,7 @@ export default async function LedgerPage({
           <Row label="Converted / signed" value={ledger.firm.converted} ids={ledger.firm.converted_escalation_ids} />
           <p className="mt-2 text-[10px] text-faint">
             {ledger.firm.source === "manual_dispositions"
-              ? "Signed-case counts come from your own marks for now — automatic CRM read-back isn't connected yet, so this line undercounts."
+              ? "Signed-case counts come from your own marks for now — automatic CRM read-back isn’t connected yet, so this line undercounts."
               : "Source: CRM read-back."}
           </p>
         </div>
@@ -209,9 +209,9 @@ export default async function LedgerPage({
 
       <footer className="pt-3 text-[10px] leading-relaxed text-muted">
         <p>
-          Conservative by construction: the caught-leads value uses only the firm&apos;s own
+          Conservative by construction: the caught-leads value uses only the firm’s own
           stated average case fee; no value is invented. Counts reflect what the intake desk
-          captured, routed, and escalated; whether a lead converts is the firm&apos;s work and
+          captured, routed, and escalated; whether a lead converts is the firm’s work and
           is reported separately. Figures are estimates with stated inputs, not guarantees.
         </p>
       </footer>

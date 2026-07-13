@@ -6,7 +6,7 @@ import * as impl from "./shops-content.mjs";
 export interface ShopChannelDef {
   key: string;
   label: string;
-  // "call" channels show ring count in the editor; "web" channels don't.
+  // "call" channels show ring count in the editor; "web" channels don’t.
   kind: string;
 }
 export interface ShopGradeDef {

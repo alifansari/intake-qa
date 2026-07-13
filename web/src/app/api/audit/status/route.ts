@@ -1,4 +1,4 @@
-// GET /api/audit/status?token=... — poll a session's per-call progress so the
+// GET /api/audit/status?token=... — poll a session’s per-call progress so the
 // uploader UI can show "3 of 5 scored". Public but token-gated: only someone
 // holding the unguessable token can read it. Returns demo data only.
 

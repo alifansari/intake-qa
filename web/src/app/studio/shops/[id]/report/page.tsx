@@ -41,7 +41,7 @@ function gradeWord(g: string | null): string {
 }
 
 // The one-page "Intake Coverage Audit — Mystery Shop" report, print-ready.
-// Leads with the firm's own lost leads (never with any product or AI). Every
+// Leads with the firm’s own lost leads (never with any product or AI). Every
 // number is deterministic; the peer benchmark is labeled ILLUSTRATIVE whenever
 // any contributing row is seed data; the non-deletable disclosures + signature
 // + date are always present (same conventions as the Spot Check scorecard).
@@ -144,7 +144,7 @@ export default async function ShopReport({
         </div>
       </header>
 
-      {/* Headline — the firm's own lost leads, front and center */}
+      {/* Headline — the firm’s own lost leads, front and center */}
       <section className="rule flex items-end justify-between py-3">
         <div>
           <div className="eyebrow">What a new client experienced</div>

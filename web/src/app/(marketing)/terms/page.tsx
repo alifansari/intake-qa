@@ -41,7 +41,7 @@ export default function TermsPage() {
       <div className="mt-8">
         <Section n="1" title="What the service does">
           <p>
-            {LEGAL_DBA}{" "}reviews a firm&apos;s own intake calls, scores them against a fixed rubric,
+            {LEGAL_DBA}{" "}reviews a firm’s own intake calls, scores them against a fixed rubric,
             flags signable cases that did not sign, and drafts compliant follow-up messages for a
             person at the firm to approve. In the current pilot phase, nothing is sent to anyone
             without a human at the firm approving it first.

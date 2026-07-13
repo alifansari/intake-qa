@@ -143,7 +143,7 @@ export function StatementDoc({ d, falseAlarm }: { d: DocData; falseAlarm?: { rat
 
         {/* Analyst's note */}
         <View style={S.section} wrap={false}>
-          <Text style={S.h2}>Analyst&apos;s note</Text>
+          <Text style={S.h2}>Analyst’s note</Text>
           <Text style={S.p}>{d.analystNote}</Text>
           <Text style={S.faint}>{COACHING_XREF}</Text>
         </View>

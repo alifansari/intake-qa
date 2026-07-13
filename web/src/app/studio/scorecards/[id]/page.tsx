@@ -28,7 +28,7 @@ export default async function ScorecardEditorPage({
   // Safety net: if the scorecard is still untouched but its recording has been
   // scored, BUILD IT NOW so the founder always opens a pre-filled, editable
   // scorecard (covers the case where processing finished after the scorecard was
-  // created and the /process hook didn't run). No-op on a touched/final card.
+  // created and the /process hook didn’t run). No-op on a touched/final card.
   if (rec?.scoring) {
     const populated = await autoPopulateSpotCheckFromRecording(supabase, sc, rec);
     if (populated) sc = populated;

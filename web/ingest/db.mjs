@@ -1405,6 +1405,110 @@ export function listNonAnalyzedCalls(db, firmId) {
     .all(firmId);
 }
 
+// --- Per-call analysis (migration 0032) --------------------------------------
+// Durable store of the engine's full readout per call. Written by the score
+// worker; read by the per-call readout + team scorecard. Additive, keyed by
+// call_id; the frozen flags decision logic is untouched.
+
+export function upsertCallAnalysis(db, a) {
+  db.prepare(
+    `INSERT INTO call_analyses (
+        call_id, firm_id, overall_score, band, case_signability, lost_signable,
+        revenue_at_risk_cents, case_type, retainer_asked, next_step_specificity,
+        contact_info_captured, cat_qualification, cat_conversion, cat_connection,
+        cat_risk_compliance, cat_process, summary, coaching_json, score_json,
+        rep, source, model_version)
+     VALUES (
+        @call_id, @firm_id, @overall_score, @band, @case_signability, @lost_signable,
+        @revenue_at_risk_cents, @case_type, @retainer_asked, @next_step_specificity,
+        @contact_info_captured, @cat_qualification, @cat_conversion, @cat_connection,
+        @cat_risk_compliance, @cat_process, @summary, @coaching_json, @score_json,
+        @rep, @source, @model_version)
+     ON CONFLICT (call_id) DO UPDATE SET
+        overall_score = excluded.overall_score, band = excluded.band,
+        case_signability = excluded.case_signability, lost_signable = excluded.lost_signable,
+        revenue_at_risk_cents = excluded.revenue_at_risk_cents, case_type = excluded.case_type,
+        retainer_asked = excluded.retainer_asked, next_step_specificity = excluded.next_step_specificity,
+        contact_info_captured = excluded.contact_info_captured,
+        cat_qualification = excluded.cat_qualification, cat_conversion = excluded.cat_conversion,
+        cat_connection = excluded.cat_connection, cat_risk_compliance = excluded.cat_risk_compliance,
+        cat_process = excluded.cat_process, summary = excluded.summary,
+        coaching_json = excluded.coaching_json, score_json = excluded.score_json,
+        rep = excluded.rep, source = excluded.source, model_version = excluded.model_version`
+  ).run({
+    call_id: a.call_id,
+    firm_id: a.firm_id,
+    overall_score: a.overall_score ?? null,
+    band: a.band ?? null,
+    case_signability: a.case_signability ?? null,
+    lost_signable: a.lost_signable ? 1 : 0,
+    revenue_at_risk_cents: a.revenue_at_risk_cents ?? null,
+    case_type: a.case_type ?? null,
+    retainer_asked: a.retainer_asked == null ? null : a.retainer_asked ? 1 : 0,
+    next_step_specificity: a.next_step_specificity ?? null,
+    contact_info_captured: a.contact_info_captured ?? null,
+    cat_qualification: a.cat_qualification ?? null,
+    cat_conversion: a.cat_conversion ?? null,
+    cat_connection: a.cat_connection ?? null,
+    cat_risk_compliance: a.cat_risk_compliance ?? null,
+    cat_process: a.cat_process ?? null,
+    summary: a.summary ?? null,
+    coaching_json: a.coaching_json ?? null,
+    score_json: a.score_json ?? null,
+    rep: a.rep ?? null,
+    source: a.source ?? null,
+    model_version: a.model_version ?? null,
+  });
+  return a.call_id;
+}
+
+// One call's full record: the call row + its analysis + its flag's save status.
+export function getCallWithAnalysis(db, firmId, callId) {
+  return db
+    .prepare(
+      `SELECT c.id AS call_id, c.firm_id, c.received_at, c.status, c.status_reason,
+              c.caller_name, c.caller_phone, c.source AS call_source, c.transcript,
+              a.overall_score, a.band, a.case_signability, a.lost_signable,
+              a.revenue_at_risk_cents, a.case_type, a.retainer_asked,
+              a.next_step_specificity, a.contact_info_captured,
+              a.cat_qualification, a.cat_conversion, a.cat_connection,
+              a.cat_risk_compliance, a.cat_process, a.summary, a.coaching_json,
+              a.rep, a.source, a.created_at AS analyzed_at,
+              f.id AS flag_id, fs.status AS save_status
+         FROM calls c
+         LEFT JOIN call_analyses a ON a.call_id = c.id
+         LEFT JOIN flags f ON f.call_id = c.id
+         LEFT JOIN flag_status fs ON fs.flag_id = f.id
+        WHERE c.firm_id = ? AND c.id = ?
+        LIMIT 1`
+    )
+    .get(firmId, callId);
+}
+
+// Every call for a firm, newest first, with its analysis (when scored) and flag
+// save-status — the source for the Calls ledger AND the team scorecard aggregate.
+export function listCallsWithAnalysis(db, firmId) {
+  return db
+    .prepare(
+      `SELECT c.id AS call_id, c.received_at, c.status, c.status_reason,
+              c.caller_name, c.source AS call_source,
+              a.overall_score, a.band, a.case_signability, a.lost_signable,
+              a.revenue_at_risk_cents, a.case_type, a.retainer_asked,
+              a.next_step_specificity, a.contact_info_captured,
+              a.cat_qualification, a.cat_conversion, a.cat_connection,
+              a.cat_risk_compliance, a.cat_process, a.summary, a.coaching_json,
+              a.rep,
+              f.id AS flag_id, f.is_leaked_signable, fs.status AS save_status
+         FROM calls c
+         LEFT JOIN call_analyses a ON a.call_id = c.id
+         LEFT JOIN flags f ON f.call_id = c.id
+         LEFT JOIN flag_status fs ON fs.flag_id = f.id
+        WHERE c.firm_id = ?
+        ORDER BY c.received_at DESC, c.id DESC`
+    )
+    .all(firmId);
+}
+
 // Prefer the firm's own historical row; fall back to the global published row.
 export function getFeeValueRange(db, caseType, firmId = null) {
   if (firmId != null) {

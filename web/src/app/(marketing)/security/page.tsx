@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 const NEED: [string, string][] = [
   ["What we need", "Recorded intake calls only. Redact names first if you want to."],
-  ["What we don't need", "No signed-client files. No matter documents. No case-management access."],
+  ["What we don’t need", "No signed-client files. No matter documents. No case-management access."],
 ];
 
 function Row({ q, children }: { q: string; children: React.ReactNode }) {
@@ -39,7 +39,7 @@ export default function SecurityPage() {
         Answers to your vendor security review.
       </h1>
       <p className="mt-5 max-w-[72ch] text-lg text-ink-muted">
-        These are your prospective clients&apos; confidential communications. Here is what a
+        These are your prospective clients’ confidential communications. Here is what a
         2026 law-firm security review usually asks, answered in order.
       </p>
 
@@ -74,7 +74,7 @@ export default function SecurityPage() {
         </Row>
         <Row q="Access controls">
           <p>
-            Firm data is isolated per firm. Access is limited to what&apos;s needed to run the
+            Firm data is isolated per firm. Access is limited to what’s needed to run the
             service; your confidential audio and transcripts stay inside our systems and are never
             handed to anyone else.
           </p>
@@ -99,14 +99,14 @@ export default function SecurityPage() {
         </Row>
         <Row q="DPA & NDA">
           <p>
-            A data-processing agreement (DPA) is available on request, and we&apos;ll sign your NDA, or
-            work from your firm&apos;s own paper.
+            A data-processing agreement (DPA) is available on request, and we’ll sign your NDA, or
+            work from your firm’s own paper.
           </p>
         </Row>
         <Row q="Breach notification">
           <p>
             If we become aware of a breach affecting your data, we will notify you within{" "}
-            {BREACH_NOTICE_HOURS} hours of becoming aware, with what we know and what we&apos;re doing
+            {BREACH_NOTICE_HOURS} hours of becoming aware, with what we know and what we’re doing
             about it.
           </p>
         </Row>

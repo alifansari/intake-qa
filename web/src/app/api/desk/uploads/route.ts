@@ -6,13 +6,13 @@
 //   errors, requires the consent attestation, and answers with either
 //     { mode:"storage", signedUrl, ... }  — browser uploads DIRECTLY to the
 //       private bucket via the studio signed-URL pattern (200MB, bypasses
-//       Vercel's ~4.5MB body ceiling), then calls /complete; or
+//       Vercel’s ~4.5MB body ceiling), then calls /complete; or
 //     { mode:"direct", max_bytes }       — no storage configured (local/pilot):
 //       browser sends the bytes to /direct instead.
 //   No call row is created here — a half-finished upload must never become a
 //   call the score sweep tries to read.
 //
-// GET: the firm's recent uploads with the honest per-file status the page
+// GET: the firm’s recent uploads with the honest per-file status the page
 //   polls (waiting -> scoring -> done | failed). This is where failed_scoring
 //   stops being founder-only and becomes visible to the firm that uploaded.
 import { randomUUID } from "node:crypto";
@@ -98,7 +98,7 @@ export async function POST(req: Request) {
       })
       .catch(() => {});
     return Response.json(
-      { error: "We couldn't start the upload — we've been notified. Please try again in a minute." },
+      { error: "We couldn’t start the upload — we’ve been notified. Please try again in a minute." },
       { status: 500 },
     );
   } finally {

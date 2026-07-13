@@ -22,7 +22,7 @@ function severityFromStatute(days) {
   return "awareness";
 }
 
-// Turn a call's evidence quotes into CITED qualifying facts. Each quote is matched
+// Turn a call’s evidence quotes into CITED qualifying facts. Each quote is matched
 // to a transcript citation ({verbatim_snippet, start_ms}) by verbatim overlap; the
 // cite is formatted "[mm:ss]" from start_ms. Compliance §IV — "no citation, no
 // claim": a quote with NO matching citation is DROPPED, never shipped with cite:"".
@@ -67,7 +67,7 @@ export function auditReportToDocData(report, opts = {}) {
   const leaks = leakedCalls.map((c, i) => {
     const days = c?.sol?.daysRemaining;
     const pointFeeCents = Math.round((Number(c.feeAtRisk) || 0) * 100);
-    // Range, never a point estimate (methodology): treat the engine's point as the
+    // Range, never a point estimate (methodology): treat the engine’s point as the
     // conservative LOW anchor and derive the band from fee-value.mjs.
     const band = feeBandFromPoint(pointFeeCents, { contingency });
     const quotes = Array.isArray(c.evidenceQuotes) ? c.evidenceQuotes : [];
@@ -107,7 +107,7 @@ export function auditReportToDocData(report, opts = {}) {
   });
 
   // Statement headline = arithmetic sum of the derived per-leak fee bands (a range,
-  // never a point), consistent with the Leak Report's compose rule.
+  // never a point), consistent with the Leak Report’s compose rule.
   const missedLowCents = leaks.reduce((a, l) => a + l.feeLowCents, 0);
   const missedHighCents = leaks.reduce((a, l) => a + l.feeHighCents, 0);
   // `received` must be the TRUE total of attached calls — not summary.callsReviewed,

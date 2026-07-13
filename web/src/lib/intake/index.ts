@@ -1,5 +1,5 @@
 // Typed re-exports of the intake tree/engine/routing (implemented in .mjs so
-// node --test runs them with zero build step — the repo's dual pattern). The
+// node --test runs them with zero build step — the repo’s dual pattern). The
 // chat UI and API routes import from here.
 import * as tree from "./tree.mjs";
 import * as engine from "./engine.mjs";

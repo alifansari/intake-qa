@@ -27,7 +27,7 @@ const RECORDS_CALLS = [
   { value: "not_sure", label: "Not sure" },
 ];
 
-// Rough bands, not a percentage quiz — the value is the band's midpoint.
+// Rough bands, not a percentage quiz — the value is the band’s midpoint.
 const SPANISH_BANDS = [
   { value: "", label: "Skip this one" },
   { value: "0", label: "Almost none" },
@@ -50,7 +50,7 @@ export function ApplyForm() {
   const [done, setDone] = React.useState<string | null>(null);
   // True only when the API confirms the NDA actually went out by email.
   // When the send is simulated (pilot mode), the founder emails it manually —
-  // the success copy must not claim an email that hasn't arrived.
+  // the success copy must not claim an email that hasn’t arrived.
   const [ndaSent, setNdaSent] = React.useState(false);
   // "nda_pending" (qualified, NDA next) vs "waitlisted". The NDA timeline only
   // renders for qualified applicants — waitlisted firms get no NDA.
@@ -81,12 +81,12 @@ export function ApplyForm() {
         throw new Error(
           Array.isArray(data.details)
             ? "Please check the highlighted fields and try again."
-            : (data.error ?? "Something went wrong. Email ali@plaintiffops.com and we'll sort it."),
+            : (data.error ?? "Something went wrong. Email ali@plaintiffops.com and we’ll sort it."),
         );
       }
       setNdaSent(Boolean(data.ndaSent));
       setStatus(typeof data.status === "string" ? data.status : null);
-      setDone(data.next ?? "Application received. We'll follow up by email.");
+      setDone(data.next ?? "Application received. We’ll follow up by email.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -97,17 +97,17 @@ export function ApplyForm() {
   if (done) {
     return (
       <div className="rounded-card border border-hairline bg-surface p-7">
-        <p className="font-display text-xl font-semibold text-ink">You&apos;re in the queue.</p>
+        <p className="font-display text-xl font-semibold text-ink">You’re in the queue.</p>
         <p className="mt-2 text-ink-muted">{done}</p>
         {status === "nda_pending" ? (
           <>
         <ol className="mt-5 flex flex-col gap-3 border-t border-hairline pt-5">
           {[
             ndaSent
-              ? ["Today", "The mutual NDA arrives by email. Nothing connects until it's signed."]
+              ? ["Today", "The mutual NDA arrives by email. Nothing connects until it’s signed."]
               : [
                   "Within one business day",
-                  "We email your mutual NDA. Nothing connects until it's signed.",
+                  "We email your mutual NDA. Nothing connects until it’s signed.",
                 ],
             ["After you sign", "Your sign-in and desk arrive the same day, with a 15-minute setup call to connect your calls. Your team changes nothing about how they answer the phone."],
             ["Within days of calls flowing", "Missed cases start appearing on your desk, likely signable callers who walked, ready for your team to call back."],

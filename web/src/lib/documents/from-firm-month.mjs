@@ -1,7 +1,7 @@
-// Bridge: turn a firm's leaked-signable flags for a billing period into the
+// Bridge: turn a firm’s leaked-signable flags for a billing period into the
 // DocData shape the Statement PDF consumes — the SUBSCRIPTION-phase artifact.
 //
-// Unlike the audit (anonymous, single-point benchmark fee), this is the firm's
+// Unlike the audit (anonymous, single-point benchmark fee), this is the firm’s
 // OWN desk data: it uses the case type the desk already stores on each flag and
 // the SAME vetted fee source the desk shows (fee_value_ranges × contingency),
 // so the monthly statement and the live desk never contradict each other on a
@@ -103,8 +103,8 @@ export function composeMonthlyStatement({
               basis: "published case-value range for this case type",
             })
           : null,
-      // The per-flag statute clock isn't captured yet (backlog); the analyst
-      // confirms deadlines during review, so we don't invent one here.
+      // The per-flag statute clock isn’t captured yet (backlog); the analyst
+      // confirms deadlines during review, so we don’t invent one here.
       statuteDays: 9999,
       saveStatus: SAVE_STATUS_LABEL[status] ?? "Needs a callback",
       confidence: tier,

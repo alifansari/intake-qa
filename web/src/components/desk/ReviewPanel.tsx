@@ -95,7 +95,7 @@ export function ReviewPanel({ session }: { session: Session }) {
         </div>
       ) : null}
 
-      {status === "released" ? <p className="mt-3 text-sm text-accent">Released — stamped with the analyst&apos;s name and timestamp.</p> : null}
+      {status === "released" ? <p className="mt-3 text-sm text-accent">Released — stamped with the analyst’s name and timestamp.</p> : null}
       {err ? <p className="mt-2 text-sm text-red">{err}</p> : null}
     </div>
   );

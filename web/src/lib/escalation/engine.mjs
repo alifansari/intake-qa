@@ -7,7 +7,7 @@
 //   time_decay       — deadlines eating the case: SOL near, government
 //                      claims-notice window, perishable evidence (spoliation)
 //   competitive_loss — the prospect is actively shopping other firms
-//   human_judgment   — the machine knows it doesn't know: low confidence,
+//   human_judgment   — the machine knows it doesn’t know: low confidence,
 //                      distress cues, "something else" matters
 //
 // Three tiers: hot (page someone now) > warm (same-day) > flagged (review).

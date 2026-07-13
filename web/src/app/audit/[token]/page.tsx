@@ -118,7 +118,7 @@ export default async function AuditReportPage({
           We hit a snag on our side
         </h1>
         <p className="mx-auto mt-3 max-w-prose text-muted">
-          Your recordings reached us but didn&apos;t make it through processing. That&apos;s our
+          Your recordings reached us but didn’t make it through processing. That’s our
           problem, not yours, and nothing was lost. Email the files to{" "}
           <a href="mailto:ali@plaintiffops.com?subject=Leak%20Audit%20snag" className="font-semibold text-navy underline">
             ali@plaintiffops.com
@@ -155,7 +155,7 @@ export default async function AuditReportPage({
         <p className="mt-1 text-sm text-muted">
           {callCount} call{callCount === 1 ? "" : "s"} reviewed
           {report.pending ? ` · ${report.pending} still processing` : ""}
-          {report.errored ? ` · ${report.errored} couldn't be processed` : ""}
+          {report.errored ? ` · ${report.errored} couldn’t be processed` : ""}
         </p>
       </header>
 
@@ -173,7 +173,7 @@ export default async function AuditReportPage({
         {walkedCalls.length > 0 ? (
           <p className="mt-3 max-w-prose text-sm font-medium text-ink">
             You already paid to make these calls ring. The marketing worked; the intake
-            didn&apos;t. And every day an unsigned caller waits is a day the insurance adjuster
+            didn’t. And every day an unsigned caller waits is a day the insurance adjuster
             is negotiating with them alone.
           </p>
         ) : null}
@@ -240,13 +240,13 @@ export default async function AuditReportPage({
       {walkedCalls.length === 0 && (
         <section className="mt-8 rounded-sm border border-line bg-paper p-4">
           <p className="text-sm font-semibold text-ink">
-            No signable case walked in this sample. That&apos;s genuinely good news.
+            No signable case walked in this sample. That’s genuinely good news.
           </p>
           <p className="mt-2 max-w-prose text-sm text-muted">
-            It means these {callCount === 1 ? "wasn&apos;t a call" : "weren&apos;t calls"} where a
-            qualified, unrepresented caller slipped through. The handling score below still shows
-            how the calls were worked, and a sample this small can&apos;t clear a whole
-            intake operation. The honest way to know is a full month of calls.
+            It means no qualified, unrepresented caller slipped through uncaught in the calls we
+            reviewed. The handling score below still shows how each call was worked, and a sample
+            this small can’t clear a whole intake operation on its own. The honest way to
+            know is a full month of calls.
           </p>
         </section>
       )}
@@ -268,7 +268,7 @@ export default async function AuditReportPage({
         </p>
         {benchmark.available && benchmark.snapshot ? (
           <div className="mt-3 rounded-sm border border-line bg-paper p-4 text-sm text-ink">
-            Peer benchmark: participating firms&apos; median handling score is{" "}
+            Peer benchmark: participating firms’ median handling score is{" "}
             <b>{Math.round(benchmark.snapshot.median_handling_score ?? 0)}</b> / 100
             {s.avgHandlingScore != null ? (
               <>
@@ -286,7 +286,7 @@ export default async function AuditReportPage({
           </div>
         ) : (
           <div className="mt-3 rounded-sm border border-line bg-paper p-4 text-sm text-muted">
-            Industry context: in Clio&apos;s Legal Trends secret-shopper study of 500 firms, only{" "}
+            Industry context: in Clio’s Legal Trends secret-shopper study of 500 firms, only{" "}
             <b className="text-ink">40%</b> answered their intake calls at all, and most
             callers hire the first firm that treats them well. A named peer benchmark for your
             score unlocks as the audit network grows.
@@ -298,7 +298,7 @@ export default async function AuditReportPage({
       {walkedCalls.some((c) => c.draftPreview) && (
         <section className="mt-10">
           <h2 className="font-display text-xl font-semibold text-ink">
-            The same-day callback script we&apos;d hand your staff
+            The same-day callback script we’d hand your staff
           </h2>
           <div className="mt-2 rounded-sm border border-line bg-paper p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-amber">
@@ -320,7 +320,7 @@ export default async function AuditReportPage({
           Turn this audit into recovered cases
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Book a 20-minute walkthrough and we&apos;ll show you how your own team wins these cases
+          Book a 20-minute walkthrough and we’ll show you how your own team wins these cases
           back, compliantly. We find them, your staff make the calls.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -347,7 +347,7 @@ export default async function AuditReportPage({
         </p>
         <p className="mt-1">
           <b className="text-muted">How callers are protected:</b> caller identities are redacted
-          on this shared page; audio is deleted the moment it&apos;s transcribed; transcripts
+          on this shared page; audio is deleted the moment it’s transcribed; transcripts
           purge within 72 hours of your readout. Shareable link expires 30 days after creation ·
           not legal advice ·{" "}
           <a className="text-navy underline" href="/compliance">

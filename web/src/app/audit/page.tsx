@@ -38,7 +38,7 @@ export default function AuditUploaderPage() {
 
   // Copy = reality: ask the server what THIS deploy actually accepts (signed-URL
   // storage mode takes 200MB; the no-storage direct path far less) instead of
-  // promising a hard-coded number the upload can't honor.
+  // promising a hard-coded number the upload can’t honor.
   useEffect(() => {
     fetch("/api/demo/upload-url")
       .then((r) => (r.ok ? r.json() : null))
@@ -174,7 +174,7 @@ export default function AuditUploaderPage() {
     }
     // NOTE: `consent` MUST be in this dependency list. It was missing, which
     // froze consent=false inside this closure — visitors who attached files
-    // and THEN checked the box were told forever that they hadn't checked it.
+    // and THEN checked the box were told forever that they hadn’t checked it.
   }, [files, volume, consent, uploadOne, pollUntilComplete]);
 
   return (
@@ -189,7 +189,7 @@ export default function AuditUploaderPage() {
         <p className="mt-4 max-w-[66ch] text-lg text-ink-muted">
           Send us up to {MAX} recent intake calls. A real analyst, not just a model, reviews every
           one against our calibrated PI rubric and hands you a written report: the signable cases that
-          didn&apos;t sign, the evidence behind each flag, and what that walked-away fee revenue is
+          didn’t sign, the evidence behind each flag, and what that walked-away fee revenue is
           worth in dollars. You keep the report whether or not we ever work together.
         </p>
         <p className="mt-3 text-sm text-faint">{AUDIT_CAPACITY_LINE}</p>
@@ -224,10 +224,10 @@ export default function AuditUploaderPage() {
             The audit is free, and during the beta so is the desk itself: founding firms run it on
             their own calls under a mutual NDA, give structured feedback, and lock in preferred
             pricing at launch. Every dollar figure in your report is an estimate of what walked,
-            never a promise of what you&apos;ll recover.
+            never a promise of what you’ll recover.
           </p>
           <p className="mt-2 text-xs text-faint">
-            How we estimate missed value, and how we&apos;ll report our false-alarm rate once the
+            How we estimate missed value, and how we’ll report our false-alarm rate once the
             test corpus is documented, are on the{" "}
             <a href="/honesty" className="font-semibold text-navy underline">calibration page</a>.
           </p>
@@ -240,7 +240,7 @@ export default function AuditUploaderPage() {
             <span className="text-sm font-semibold text-ink">
               Roughly how many intake calls do you take a month?
             </span>
-            <span className="ml-2 text-xs text-faint">optional, we&apos;ll assume 100 if skipped</span>
+            <span className="ml-2 text-xs text-faint">optional, we’ll assume 100 if skipped</span>
             <input
               type="number"
               min={1}
@@ -280,7 +280,7 @@ export default function AuditUploaderPage() {
               Where to get your recordings
             </summary>
             <ul className="space-y-1.5 pb-4 text-sm text-ink-muted">
-              <li><b className="text-ink">CallRail:</b> Analytics → Activity → open the call&apos;s timeline → Download MP3.</li>
+              <li><b className="text-ink">CallRail:</b> Analytics → Activity → open the call’s timeline → Download MP3.</li>
               <li><b className="text-ink">RingCentral:</b> Admin Portal → Call Log → open the call → download the recording.</li>
               <li><b className="text-ink">8x8:</b> Admin Console → Recordings → select the call → Download.</li>
               <li><b className="text-ink">Dialpad:</b> Conversation History → open the call → three-dot menu → Download (bulk via Analytics → Recordings Export).</li>
@@ -294,16 +294,16 @@ export default function AuditUploaderPage() {
               friction moment in the funnel (a lawyer handing over confidential
               client audio). copy-power-pass 2026-07-12. */}
           <div className="rounded-card border border-hairline bg-surface p-5">
-            <p className="text-sm font-semibold text-ink">Here&apos;s the deal, in plain terms</p>
+            <p className="text-sm font-semibold text-ink">Here’s the deal, in plain terms</p>
             <p className="mt-2 text-sm font-medium text-ink">
               An outside read on your intake, from a desk paid the same flat fee whether it finds you
-              nothing or a fortune. Your recordings never train anyone&apos;s AI. An NDA, and a BAA if
+              nothing or a fortune. Your recordings never train anyone’s AI. An NDA, and a BAA if
               you want one, are available before you send a single file.
             </p>
             <p className="mt-2 text-sm text-ink-muted">
               You send up to 10 recorded intake calls. We score them and show you, in dollars, how
-              much signable fee revenue didn&apos;t convert, with the evidence behind every flag. Audio
-              is deleted the moment it&apos;s transcribed; the transcript and report are purged within{" "}
+              much signable fee revenue didn’t convert, with the evidence behind every flag. Audio
+              is deleted the moment it’s transcribed; the transcript and report are purged within{" "}
               {DELETION_HOURS} hours of your readout, and immediately if you ask in writing. Nothing is
               ever texted to anyone. One person is accountable for your data and your audit:{" "}
               {FOUNDER_NAME}, founder of Intake QA,{" "}
@@ -321,7 +321,7 @@ export default function AuditUploaderPage() {
               for you.
             </p>
             <p className="mt-2 text-xs text-faint">
-              These are your prospective clients&apos; confidential communications (Cal. Rule 1.18),
+              These are your prospective clients’ confidential communications (Cal. Rule 1.18),
               and we treat them that way. The named providers we use and their security postures are
               on the <a href="/security" className="font-semibold text-navy underline">security page</a>.
             </p>
@@ -381,7 +381,7 @@ export default function AuditUploaderPage() {
 
       {phase === "error" && (
         <div className="rounded-card border border-alert bg-red-tint p-6">
-          <p className="font-display text-lg font-semibold text-alert">We couldn&apos;t run the audit</p>
+          <p className="font-display text-lg font-semibold text-alert">We couldn’t run the audit</p>
           <p className="mt-1 text-sm text-ink">{err}</p>
           <button
             type="button"
@@ -490,7 +490,7 @@ function ProcessingPanel({
 
       <p className="mt-5 text-xs text-faint">
         Each call is transcribed in full, then scored against the same calibrated rubric every
-        firm gets. That&apos;s the minute or two per call. Keep this tab open; your report opens
+        firm gets. That’s the minute or two per call. Keep this tab open; your report opens
         by itself the moment the last call is scored.
       </p>
     </div>

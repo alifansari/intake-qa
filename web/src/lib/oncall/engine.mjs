@@ -5,7 +5,7 @@
 //   * Coverage windows are ALWAYS assigned — resolveOnCall() can never return
 //     nobody, because the config is invalid without an active backstop and
 //     resolution falls through to it. "No silent gaps" is validateConfig()'s
-//     job, not the operator's memory.
+//     job, not the operator’s memory.
 //   * Override precedence stack (highest wins):
 //       manual hold  >  one-off swap  >  holiday calendar  >  rotation
 //   * Ack is a DELIBERATE action by a NAMED person (store enforces the name).
@@ -101,7 +101,7 @@ export function validateConfig(cfg) {
 }
 
 // Whose duty is it for `role` at time `at`? Precedence:
-//   manual hold > swap > holiday > rotation. Falls back to the role's first
+//   manual hold > swap > holiday > rotation. Falls back to the role’s first
 // member, then to the backstop — someone is ALWAYS returned for a valid config.
 export function resolveOnCall(cfg, role, at = new Date()) {
   const t = at.getTime();

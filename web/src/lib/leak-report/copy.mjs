@@ -38,7 +38,7 @@ export const GUARANTEE_BOX =
   "Our find-it-free guarantee. If we do not find at least $25,000 in leaked signable fee value in your first Intake Leak Report, you owe us nothing for it. This guarantee attaches to your decision to subscribe. Our pricing is a flat monthly fee. We are never paid a share of any recovery. See the Methodology appendix for how we estimate fee value.";
 
 export function methodologyAppendix({ low, high }) {
-  return `How we estimated fee value. We use a conservative method. For each case we apply a value range, not a single number, and in the summary we quote the low end. Our sources, in order of preference: (1) your firm's own average fee by case type, when you provide it at onboarding; (2) otherwise, published fee ranges by case type, which you approve before we use them. We exclude any case whose statute has expired. We exclude moderate-confidence flags from the totals. We do not predict outcomes and we do not guarantee recoveries. Worked example: a case with a value range of ${low} to ${high} contributes ${low} to the conservative headline total, and appears as one row in the fee-at-risk schedule.`;
+  return `How we estimated fee value. We use a conservative method. For each case we apply a value range, not a single number, and in the summary we quote the low end. Our sources, in order of preference: (1) your firm’s own average fee by case type, when you provide it at onboarding; (2) otherwise, published fee ranges by case type, which you approve before we use them. We exclude any case whose statute has expired. We exclude moderate-confidence flags from the totals. We do not predict outcomes and we do not guarantee recoveries. Worked example: a case with a value range of ${low} to ${high} contributes ${low} to the conservative headline total, and appears as one row in the fee-at-risk schedule.`;
 }
 
 export function analystSignoff({ contact = ANALYST_CONTACT } = {}) {
@@ -67,6 +67,6 @@ export const REVIEW_CHECKLIST = [
 export function coverEmail({ firm, name, x, n, low, y, page }) {
   return {
     subject: `${firm}: we found ${x} leaked signable cases in your intake calls`,
-    body: `Hi ${name}, your Intake Leak Report is attached. Bottom line: we reviewed ${n} of your recorded intake calls and found ${x} qualified callers who didn't sign, with an estimated ${low} at risk on the conservative low end. ${y} of them look recoverable right now, and one has a closing statute clock, so I'd start there (page ${page}). Everything in the report traces to a timestamped quote from your own recordings, and I reviewed it personally before sending it. Reply here and I'll walk you through it. Thanks, Ali`,
+    body: `Hi ${name}, your Intake Leak Report is attached. Bottom line: we reviewed ${n} of your recorded intake calls and found ${x} qualified callers who didn’t sign, with an estimated ${low} at risk on the conservative low end. ${y} of them look recoverable right now, and one has a closing statute clock, so I’d start there (page ${page}). Everything in the report traces to a timestamped quote from your own recordings, and I reviewed it personally before sending it. Reply here and I’ll walk you through it. Thanks, Ali`,
   };
 }

@@ -33,7 +33,7 @@ function str(v) {
   return typeof v === "string" && v.trim() ? v.trim() : null;
 }
 
-// Map the v2 disposition to the product's categorical signability. refer_out is
+// Map the v2 disposition to the product’s categorical signability. refer_out is
 // a meritorious-but-not-for-this-firm case → needs_development (not a decline,
 // not a this-firm re-engage). Abstained/attorney-review → needs_development
 // (route to a human; never auto-declinable).
@@ -72,7 +72,7 @@ export function repCommitted(verdict) {
   const v = obj(facts.rep_committing_action).value;
   const s = typeof v === "string" ? v.toLowerCase() : "";
   if (!s) return false;
-  if (/\b(no ask|no move|none|did not|didn't|no close|no retainer|no e-?sign)\b/.test(s))
+  if (/\b(no ask|no move|none|did not|didn’t|no close|no retainer|no e-?sign)\b/.test(s))
     return false;
   return /\b(sign|close|retainer|e-?sign|esign|booked|callback set|hard close|offered)\b/.test(s);
 }

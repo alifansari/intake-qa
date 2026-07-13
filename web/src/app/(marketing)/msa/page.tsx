@@ -57,7 +57,7 @@ export default function MsaPage() {
       <div className="mt-8">
         <Section n="1" title="The service">
           <p>
-            {LEGAL_DBA} is an independent quality-control service. We score the Firm&apos;s own intake
+            {LEGAL_DBA} is an independent quality-control service. We score the Firm’s own intake
             calls against a fixed, calibrated rubric, flag signable cases that appear to have slipped,
             and deliver a monthly statement and readout. We are an independent scorer, not co-counsel,
             not a referral source, and not a participant in any fee.
@@ -89,7 +89,7 @@ export default function MsaPage() {
             The Firm is responsible for its own recording-consent posture. California is an all-party
             consent state (Penal Code §632/§632.7); by sending us recordings the Firm confirms it has
             the right and any required consent to share them. Prospective-client information and
-            conflicts (Cal. Rule 1.18) remain the Firm&apos;s responsibility. {LEGAL_DBA} does not give
+            conflicts (Cal. Rule 1.18) remain the Firm’s responsibility. {LEGAL_DBA} does not give
             legal advice and does not form a relationship with any claimant.
           </p>
         </Section>
@@ -106,7 +106,7 @@ export default function MsaPage() {
 
         <Section n="6" title="Confidentiality">
           <p>
-            Recordings, transcripts, scores, and reports are the Firm&apos;s confidential information.
+            Recordings, transcripts, scores, and reports are the Firm’s confidential information.
             We use them only to provide the service, we do not use them to train our models, and we do
             not sell or share them. Retention and deletion are as described in the DPA.
           </p>

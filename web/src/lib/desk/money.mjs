@@ -1,6 +1,6 @@
-// The desk's money math — the one number that answers "where's the value?".
+// The desk’s money math — the one number that answers "where’s the value?".
 //
-// Pure + testable (no I/O). Given the firm's leaked-case flags, each already
+// Pure + testable (no I/O). Given the firm’s leaked-case flags, each already
 // enriched with an estimated FEE range (cents) and a workflow status, this
 // splits the book into:
 //   * onTheTable — estimated fees still winnable (active, not yet signed/lost).
@@ -8,7 +8,7 @@
 //   * wonBack    — cases the FIRM marked signed via a callback. A COUNT, plus an
 //     estimated value range. Per compliance-invariants §IV we never present a
 //     realized-recovery dollar figure as a guarantee — the signed FEE is still an
-//     estimate (the settlement hasn't happened), so the count leads and the
+//     estimate (the settlement hasn’t happened), so the count leads and the
 //     dollars are labeled estimates, same methodology as every card.
 //
 // Status vocabulary matches LeakCard: TERMINAL = signed | didnt_sign | bad_number;
@@ -23,8 +23,8 @@ export const ON_THE_TABLE_STATUSES = new Set([
 
 // One item as the aggregator needs it. feeLowCents/feeHighCents may be null when
 // we have no fee-value row for that case type — such a case still COUNTS toward
-// the tally of cases but contributes $0 to the range (honest: we don't invent a
-// value we can't source).
+// the tally of cases but contributes $0 to the range (honest: we don’t invent a
+// value we can’t source).
 /** @typedef {{ status: string | null, feeLowCents: number | null, feeHighCents: number | null }} MoneyLeak */
 
 function feeOf(leak) {
@@ -37,7 +37,7 @@ function feeOf(leak) {
 }
 
 /**
- * Split the firm's flags into on-the-table vs won-back tallies.
+ * Split the firm’s flags into on-the-table vs won-back tallies.
  * @param {MoneyLeak[]} leaks
  * @returns {{
  *   onTheTable: { lowCents: number, highCents: number, count: number, valued: number },

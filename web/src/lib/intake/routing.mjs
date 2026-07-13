@@ -52,7 +52,7 @@ export const NEXT_ACTIONS = {
   escalate: "Flagged for immediate attention — the on-call attorney is notified right away.",
   human_handoff: "A person from the office reviews this and calls back the same day.",
   decline:
-    "A person at the office reviews every request before anything is closed — you'll hear back either way, and exceptions do exist.",
+    "A person at the office reviews every request before anything is closed — you’ll hear back either way, and exceptions do exist.",
 };
 
 // --- Matter scoring (deterministic signals → confidence 0–1) ------------------
@@ -102,7 +102,7 @@ function scoreDogBite(p) {
 }
 
 // --- The router ---------------------------------------------------------------
-// Called at a terminal node. `force` (from the tree's rule terminals) wins;
+// Called at a terminal node. `force` (from the tree’s rule terminals) wins;
 // otherwise: hard escalations → scored decision with the confidence gate.
 export function routeLead(record, force = null) {
   const sol = solCheck(record.incident?.date);
@@ -184,17 +184,17 @@ export function terminalMessage(record) {
       );
     case "escalate":
       return (
-        `${name}I've marked this for immediate attention. ${NEXT_ACTIONS.escalate} ` +
+        `${name}I’ve marked this for immediate attention. ${NEXT_ACTIONS.escalate} ` +
         `Keep your phone nearby.`
       );
     case "human_handoff":
       return (
-        `Thanks, ${name}I've saved everything you told me. ${NEXT_ACTIONS.human_handoff} ` +
+        `Thanks, ${name}I’ve saved everything you told me. ${NEXT_ACTIONS.human_handoff} ` +
         `Nothing you shared gets lost.`
       );
     case "decline":
       return (
-        `Thank you for telling me all of this, ${name}I've passed it to the office. ` +
+        `Thank you for telling me all of this, ${name}I’ve passed it to the office. ` +
         `${NEXT_ACTIONS.decline}`
       );
     default:

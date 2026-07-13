@@ -1,7 +1,7 @@
 // The Unscored Conversation — final, legally-reviewed essay body, stored VERBATIM.
 //
 // This is the single source of truth for the rendered letter. Punctuation is the
-// author's own final revision: curly quotes (“ ” ‘ ’), em dashes eliminated except
+// author’s own final revision: curly quotes (“ ” ‘ ’), em dashes eliminated except
 // where critically necessary (the one inside the quoted ISO standard title), and en
 // dashes kept only in numeric ranges. Do NOT run any typographic/smart-quote
 // transform over this text and do NOT reformat it — it is already exactly as the

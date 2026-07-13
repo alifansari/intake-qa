@@ -16,7 +16,7 @@ import type { OutcomePatch, Repository } from "./repository";
 // Sources of scored calls:
 //   1. SEED   — web/data/scored-calls/*.json  (baked in, deploys to Vercel)
 //   2. REAL   — <repo>/output/*.score.json    (the actual CLI output, if present
-//               locally). Skipped silently in deploy where output/ doesn't ship.
+//               locally). Skipped silently in deploy where output/ doesn’t ship.
 //
 // Every file is validated with Zod; anything that fails is skipped with a
 // console warning rather than crashing the demo (it must never break live).
@@ -26,7 +26,7 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const SEED_CALLS_DIR = path.join(DATA_DIR, "scored-calls");
 const OUTCOMES_FILE = path.join(DATA_DIR, "outcomes.json");
 const META_FILE = path.join(DATA_DIR, "call-meta.json");
-// The sibling CLI's output folder (web/ lives one level below the repo root).
+// The sibling CLI’s output folder (web/ lives one level below the repo root).
 const REAL_OUTPUT_DIR = path.join(process.cwd(), "..", "output");
 
 async function readJsonFilesFrom(dir: string): Promise<unknown[]> {
@@ -34,7 +34,7 @@ async function readJsonFilesFrom(dir: string): Promise<unknown[]> {
   try {
     names = await fs.readdir(dir);
   } catch {
-    return []; // directory absent (e.g. output/ not deployed) — that's fine
+    return []; // directory absent (e.g. output/ not deployed) — that’s fine
   }
   const out: unknown[] = [];
   for (const name of names) {

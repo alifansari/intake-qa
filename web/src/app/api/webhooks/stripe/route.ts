@@ -4,7 +4,7 @@
 // request body, then dispatches the event. Handles:
 //   * checkout.session.completed          -> provision the firm (billing active,
 //                                             auth user + owner membership, welcome)
-//   * invoice.payment_failed              -> pause the firm's billing
+//   * invoice.payment_failed              -> pause the firm’s billing
 //   * customer.subscription.updated       -> pause if status is past_due/unpaid
 //
 // UNSIGNED TEST PATH (P0-5a): a SIMULATED JSON payload (no signature) is accepted

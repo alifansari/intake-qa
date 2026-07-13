@@ -5,7 +5,7 @@
 // leaking anything more than the (public-length) token format.
 import { timingSafeEqual } from "node:crypto";
 
-// True iff the request's Authorization header is exactly `Bearer <secret>`,
+// True iff the request’s Authorization header is exactly `Bearer <secret>`,
 // compared in constant time. Returns false when either side is missing/empty.
 export function bearerMatches(header: string | null | undefined, secret: string | null | undefined): boolean {
   if (!secret) return false;

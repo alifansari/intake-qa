@@ -5,7 +5,7 @@ import { requireFounderPage, isStudioConfigured } from "@/lib/studio/guard";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Guide — Intake QA" };
 
-// The founder's plain-English "start here". Not marketing, not docs — the four
+// The founder’s plain-English "start here". Not marketing, not docs — the four
 // things Ali actually needs: what this is, where the money is, the daily
 // routine, and the 60-second demo. Written to be read once and remembered.
 // Every claim stays inside compliance-invariants: fees are ESTIMATES backed by

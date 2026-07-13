@@ -21,11 +21,11 @@ const STEPS: [string, string, string][] = [
   ["Call arrives", "Every intake call comes in through your existing phone system (CallRail, RingCentral, 8x8, Dialpad, or any system that records) or a manual upload.", "Nothing changes about how your clients reach you."],
   ["Transcribed", "Our transcription model produces a speaker-separated transcript.", "The audio is deleted the moment the transcript exists."],
   ["Scored, and placed in a tier", "Each call is scored against a frozen, calibrated rubric and placed in one of five plain-English signability tiers.", "The rubric is version-locked, so a Tier 4 means the same thing every month."],
-  ["Signable-case detection", "A case is flagged when it reaches Tier 4 or above, it wasn't converted, and it's within 72 hours.", "Pure, inspectable logic, not a black box."],
+  ["Signable-case detection", "A case is flagged when it reaches Tier 4 or above, it wasn’t converted, and it’s within 72 hours.", "Pure, inspectable logic, not a black box."],
   ["Ali reviews every flagged call", "A named analyst reviews every flag and the transcript moment behind it before it reaches your queue.", "Not an autonomous model deciding on its own; a person who knows what a signable case sounds like."],
   ["Same-day Recoverable-Lead Alert", "You get a one-screen Alert the same day. Lead value fades fast, so the play is a callback within the hour.", "A specific, same-day SLA, because speed is the biggest lever on recovery."],
-  ["Your staff make the callback", "Every flagged case comes with the number, the evidence, and a suggested script; a person at your firm makes the call. During the beta that's the whole play: no texts, no automation touching your callers.", "We never contact your callers. A drafted, human-approved text assist is on the roadmap, gated on A2P 10DLC registration and seven compliance gates."],
-  ["Monthly Missed-Revenue Statement", "A two-page monthly Statement, signed by the analyst, shows what walked in dollars, the trend, and the Saved-Case Ledger. A standing 15-minute review call and a Right of Reply come with it.", "Challenge any finding; your correction runs, unedited, in the next Statement's Corrections column."],
+  ["Your staff make the callback", "Every flagged case comes with the number, the evidence, and a suggested script; a person at your firm makes the call. During the beta that’s the whole play: no texts, no automation touching your callers.", "We never contact your callers. A drafted, human-approved text assist is on the roadmap, gated on A2P 10DLC registration and seven compliance gates."],
+  ["Monthly Missed-Revenue Statement", "A two-page monthly Statement, signed by the analyst, shows what walked in dollars, the trend, and the Saved-Case Ledger. A standing 15-minute review call and a Right of Reply come with it.", "Challenge any finding; your correction runs, unedited, in the next Statement’s Corrections column."],
   ["Flat monthly fee", "You pay one flat monthly fee tiered by call volume, the same whether you sign zero cases or fifty.", "Never per case, per client, or per recovered dollar (Cal. B&P §§6151-6152)."],
 ];
 
@@ -61,16 +61,16 @@ export default function HowItWorksPage() {
       <section className="mt-14 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-xl font-semibold text-ink">For the intake team: this is on your side</h2>
         <p className="mt-2 max-w-[70ch] text-ink-muted">
-          We score the call and the process, not the individual&apos;s job security. When the phones
-          spike after a campaign, even a great intake team can&apos;t catch every callback. That&apos;s
+          We score the call and the process, not the individual’s job security. When the phones
+          spike after a campaign, even a great intake team can’t catch every callback. That’s
           a staffing-and-timing problem, not a people problem, and the report says so. Scoring 100% of
           calls replaces the unfair 2% spot-check with an even standard for everyone.
         </p>
         <p className="mt-3 max-w-[70ch] text-ink-muted">{CHAMPION_LINE}</p>
         <p className="mt-3 max-w-[70ch] text-ink-muted">
-          It&apos;s proof of workload, the case an office manager usually has to make from memory:
-          you&apos;re not short on effort, you&apos;re short on hours. The team sees its own numbers
-          first, and a person on staff approves every send. It protects careers; it doesn&apos;t
+          It’s proof of workload, the case an office manager usually has to make from memory:
+          you’re not short on effort, you’re short on hours. The team sees its own numbers
+          first, and a person on staff approves every send. It protects careers; it doesn’t
           threaten them.
         </p>
       </section>
@@ -83,7 +83,7 @@ export default function HowItWorksPage() {
           <li><b className="text-ink">Office manager:</b> about 2 hours of setup, mostly exporting or forwarding call recordings.</li>
           <li><b className="text-ink">Intake team:</b> about 5 minutes a day on the triage queue.</li>
         </ul>
-        <p className="mt-2 text-sm text-faint">That&apos;s the whole lift.</p>
+        <p className="mt-2 text-sm text-faint">That’s the whole lift.</p>
       </section>
 
       {/* Speed-to-lead measurement (from your own recordings): ONE stat */}
@@ -109,7 +109,7 @@ export default function HowItWorksPage() {
         </ul>
         <p className="mt-3 text-xs text-faint">
           Some of the above is live today and some is rolling out with the founding cohort. We label
-          which is which in your kickoff, and we never bill for something that isn&apos;t running yet.
+          which is which in your kickoff, and we never bill for something that isn’t running yet.
         </p>
       </section>
 
@@ -117,8 +117,8 @@ export default function HowItWorksPage() {
       <section className="mt-6 rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-xl font-semibold text-ink">Spanish-language calls, handled honestly</h2>
         <p className="mt-2 max-w-[72ch] text-ink-muted">
-          We detect the call&apos;s language automatically. Today our scoring rubric is calibrated and
-          validated on English-language calls; we won&apos;t claim validated Spanish-language scoring
+          We detect the call’s language automatically. Today our scoring rubric is calibrated and
+          validated on English-language calls; we won’t claim validated Spanish-language scoring
           until we can show the test corpus behind it, so during the beta Spanish calls are reviewed
           personally rather than scored automatically. It still matters in California: {STAT_LA_HISPANIC.value} of
           Los Angeles County residents are Hispanic or Latino ({STAT_LA_HISPANIC.source}), Spanish-first callers
@@ -131,7 +131,7 @@ export default function HowItWorksPage() {
         <h2 className="font-display text-2xl font-semibold">See it on your own calls.</h2>
         <p className="mt-3 max-w-[60ch] text-white/75">
           Upload up to 10 recent intake calls and get a dollar-quantified report of the signable
-          cases that didn&apos;t sign, with the evidence behind every flag.
+          cases that didn’t sign, with the evidence behind every flag.
         </p>
         <Link href="/audit" className="mt-6 inline-flex rounded-pill bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover">
           {CTA_PRIMARY}

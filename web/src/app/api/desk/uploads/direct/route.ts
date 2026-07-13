@@ -96,7 +96,7 @@ export async function POST(req: Request) {
       })
       .catch(() => {});
     return Response.json(
-      { error: "We couldn't take that upload — we've been notified. Please try again." },
+      { error: "We couldn’t take that upload — we’ve been notified. Please try again." },
       { status: 500 },
     );
   } finally {

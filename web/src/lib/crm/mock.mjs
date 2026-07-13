@@ -13,7 +13,7 @@
 // gated on per-integration sign-off (ROADMAP.md). This mock exists so the
 // whole handoff pipeline — mapping, duplicate flagging, review postures,
 // retries, idempotency, read-back — is fully exercisable without touching
-// anyone's CRM.
+// anyone’s CRM.
 // ============================================================================
 
 export function createMockCrm(opts = {}) {

@@ -4,7 +4,7 @@
 //   example always exists.
 // - With `?token=<audit session>`: renders the REAL report, but ONLY if the analyst
 //   has RELEASED it (report_status = 'released', the Stage 6 review gate). An unknown
-//   token → 404; a token whose report isn't released yet → 403. This enforces that
+//   token → 404; a token whose report isn’t released yet → 403. This enforces that
 //   no un-reviewed report can leave the building.
 //
 // Engine modules (store/audit) are imported lazily so they stay out of the bundle.

@@ -12,7 +12,7 @@ import { appendEscalationEvent } from "@/lib/escalation/store";
 // ---------------------------------------------------------------------------
 // The ack-timeout sweep (Phase 4). Run periodically (founder-triggered route
 // or a cron later): finds unacked escalations past their deadline and either
-//   * waterfalls to the next target on the tier's chain (re-alert through the
+//   * waterfalls to the next target on the tier’s chain (re-alert through the
 //     mock chokepoint, new deadline), or
 //   * hits the BACKSTOP: marks the escalation 'unclaimed', which books a
 //     callback commitment and raises the dashboard alarm (both as events —

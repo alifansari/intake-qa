@@ -1200,3 +1200,24 @@ errors). Studio home + guide are founder-auth-gated; verified they compile + gat
 not visually driven (no founder session fabricated on live Supabase).
 
 **Review:** Ali to click through Home + Guide signed in, then decide on deploy.
+
+## 2026-07-12 — Engine V2 SHADOW MODE deployed to prod; compliant flip-copy staged
+**Change:** shipped v2 shadow mode to origin/main (commits ca24d15 + 7675c84 → Vercel).
+Engine V2 (triage) now runs DARK on every scored call — BOTH the studio pipeline and the
+ingest score-worker (real firm calls) — attaching its adapted verdict under the internal
+`scoring._v2_shadow` key (passthrough, never rendered, failure-isolated so it can never
+break the firm-visible path). v1 remains the firm-visible scorer + flag logic; ZERO
+firm-visible change. Adapter emits NO dollar (compliant). scoring-v2 vendored into web/.engine.
+**Why shadow not full flip:** compliance-invariants §IV — the live product publishes a
+v1-derived false-alarm rate + "calibrated rubric" claims; v2 has no measured rate yet, so a
+firm-visible flip would falsify those (§IV/§V). Shadow keeps v1 firm-visible (claims stay
+true) AND accrues the v1-vs-v2 corpus that will MEASURE v2's rate → earn the flip.
+**Staged for the flip:** `ops/drafts/engine-v2-flip-copy.md` — exact compliant copy reword
+(defer "validated / published false-alarm rate" for v2), apply in the same commit that flips
+v2 firm-visible. Yang methodology review deferred per Ali.
+**Verification:** build GREEN on current main (81/81); adapter 9/9; scoring-v2 145/145; canary
+7/7. Vercel re-builds on deploy as the final gate. Shadow data accrues on calls scored AFTER
+the deploy. **Next to earn the flip:** measure v2 false-alarm rate from the shadow corpus,
+apply flip-copy, (optional) Yang nod. Branches: feature/scoring-v2.1-triage-deltas (engine),
+feature/v2-cutover (full-flip pipeline, staged).
+**Review:** once shadow corpus has N calls, compute v2 vs v1 disagreement + v2 rate.

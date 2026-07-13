@@ -6,7 +6,7 @@
 //   3. maps user → firm in firm_members (what the desk scopes by)
 // and returns everything the founder pastes into the welcome email: sign-in
 // URL, a generated temporary password (new users only — shown ONCE, never
-// stored readable), and the firm's paste-once CallRail webhook address.
+// stored readable), and the firm’s paste-once CallRail webhook address.
 //
 // Auth-user creation uses the SQL pattern (auth.users + auth.identities with
 // bcrypt via pgcrypto) because no service-role key is configured. If the
@@ -62,7 +62,7 @@ function welcomeEmailFor(opts: {
 
 // Best-effort persistence of the REDACTED copy (password masked — it is shown
 // once and never stored readable). Best-effort on purpose: a hosted DB that
-// hasn't run migration 0036 yet must not break onboarding itself.
+// hasn’t run migration 0036 yet must not break onboarding itself.
 async function persistWelcomeEmail(
   client: { query: (sql: string, params: unknown[]) => Promise<unknown> },
   firmId: string,
@@ -102,7 +102,7 @@ function pool(): Pool {
   return _pool;
 }
 
-// Module-scoped so the production minifier can't drop it. A function-local
+// Module-scoped so the production minifier can’t drop it. A function-local
 // const referenced inside a `.map` arrow was being inlined away by the SWC
 // minifier, leaving a bare `alphabet` reference → "alphabet is not defined"
 // at runtime on Vercel (dev is unminified, so it only ever failed in prod).
@@ -135,7 +135,7 @@ export async function POST(req: Request) {
   try {
     await client.query("begin");
 
-    // 0) Idempotency: if this email already has a firm, DON'T create a second
+    // 0) Idempotency: if this email already has a firm, DON’T create a second
     // one. Re-running onboarding (e.g. clicking a still-listed application after
     // already onboarding it) would otherwise mint a duplicate firm and split the
     // desk between two firm_members rows — calls flow to one, the desk shows the
@@ -254,7 +254,7 @@ export async function POST(req: Request) {
       firmId: firm.id,
     });
     // After commit + redacted on purpose: the raw password lives only in this
-    // response (shown once), and a missing table can't roll back the firm.
+    // response (shown once), and a missing table can’t roll back the firm.
     const persisted = await persistWelcomeEmail(
       client, firm.id, email, welcome.subject, welcome.redactedBody,
     );

@@ -41,7 +41,7 @@ async function loadState() {
         store.getDraftedMessages(db),
       ]);
       // Enhancement subsystems query the 0008–0012 tables. Isolate them so that
-      // if those migrations haven't been applied yet, the core status page still
+      // if those migrations haven’t been applied yet, the core status page still
       // renders (graceful degradation) instead of failing to "not connected".
       let subsystems = null;
       try {
@@ -70,7 +70,7 @@ async function loadState() {
           integrationsConfigured,
         };
       } catch {
-        subsystems = null; // migrations not applied yet — hide the card, don't crash
+        subsystems = null; // migrations not applied yet — hide the card, don’t crash
       }
       return {
         connected: true as const,

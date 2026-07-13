@@ -12,7 +12,7 @@ import {
 // rubric-backed recompute and typed re-exports.
 // ---------------------------------------------------------------------------
 
-// Recompute the deterministic score/grade/leakage from the founder's inputs. This
+// Recompute the deterministic score/grade/leakage from the founder’s inputs. This
 // is what gets persisted — always from the rubric, never from the LLM.
 export function recomputeDeterministic(input: {
   dimensionInputs?: Record<string, number | null>;

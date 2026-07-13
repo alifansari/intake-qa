@@ -76,7 +76,7 @@ export function OnboardFirmForm({
     }
   }
 
-  // The one send path — runs ONLY on the founder's second (confirming) click.
+  // The one send path — runs ONLY on the founder’s second (confirming) click.
   async function sendNow(r: Result, subject: string, body: string) {
     setSend({ s: "sending" });
     try {
@@ -114,7 +114,7 @@ export function OnboardFirmForm({
           <p className="mt-1 text-sm text-muted">
             {result.existing_account
               ? "Linked to their existing account — no new password issued."
-              : "The temporary password below is shown ONCE — it isn't stored anywhere readable."}
+              : "The temporary password below is shown ONCE — it isn’t stored anywhere readable."}
           </p>
           <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-card border border-line bg-canvas p-4 text-xs leading-relaxed text-ink">
             {emailText}
@@ -172,8 +172,8 @@ export function OnboardFirmForm({
             Nothing sends on its own — the email goes out only if you press Send (and
             email sending is switched on), or when you paste the copy into your own email.
           </p>
-          {/* If this firm uses CallRail, store their account's signing key now —
-              their webhooks 401 until it's saved (each CallRail account has its
+          {/* If this firm uses CallRail, store their account’s signing key now —
+              their webhooks 401 until it’s saved (each CallRail account has its
               own key; the shared env secret only covers firm #1). */}
           <CallRailSecretForm initialFirmId={result.firm_id} compact />
         </CardContent>

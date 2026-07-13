@@ -5,7 +5,7 @@ import { Footer } from "@/components/marketing/Footer";
 import { FOUNDER_EMAIL } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "You're in | Intake QA",
+  title: "You’re in | Intake QA",
   description: "Your Intake QA subscription is active. Check your email for your login link.",
   robots: { index: false },
 };
@@ -28,7 +28,7 @@ export default async function WelcomePage({
       <main className="mx-auto max-w-2xl px-6 py-20">
         <p className="eyebrow">Welcome to the desk</p>
         <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance">
-          You&apos;re in.
+          You’re in.
         </h1>
         <p className="mt-5 max-w-[60ch] text-lg text-ink-muted">
           Your Intake QA subscription is active. Check your email for your login link. One click
@@ -39,7 +39,7 @@ export default async function WelcomePage({
           <p className="text-sm font-semibold text-ink">What happens next</p>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-ink-muted">
             <li>Ali will email you personally within one business day to set up your kickoff.</li>
-            <li>We set up your firm&apos;s workspace and send your magic login link by email.</li>
+            <li>We set up your firm’s workspace and send your magic login link by email.</li>
             <li>You sign in and connect your call source (or upload recordings).</li>
             <li>Your first monthly missed-revenue statement lands after your first scoring cycle.</li>
           </ol>
@@ -54,11 +54,11 @@ export default async function WelcomePage({
         )}
 
         <p className="mt-6 text-sm text-faint">
-          Didn&apos;t get the email within a few minutes? Check spam, or email{" "}
+          Didn’t get the email within a few minutes? Check spam, or email{" "}
           <a href={`mailto:${FOUNDER_EMAIL}`} className="font-semibold text-accent hover:text-accent-hover">
             {FOUNDER_EMAIL}
           </a>{" "}
-          and we&apos;ll sort it out.
+          and we’ll sort it out.
         </p>
 
         <div className="mt-8">

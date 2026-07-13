@@ -1,10 +1,10 @@
-// /studio/beta — the founder's per-firm beta health board. One dense screen
-// that answers: is each firm's pipeline alive, did the digest go out and get
+// /studio/beta — the founder’s per-firm beta health board. One dense screen
+// that answers: is each firm’s pipeline alive, did the digest go out and get
 // read, is anyone stuck before activation, and how are the two conversions
 // that decide everything (ops/insights.md B1/B2: audit→pilot, pilot→paid).
 //
 // FOUNDER-ONLY (same defense-in-depth as /admin/status: middleware + this
-// page's guard + RLS). Read-only except one control: the founder-set funnel
+// page’s guard + RLS). Read-only except one control: the founder-set funnel
 // stage per firm (pilot/paid) — there is no better source for those states yet.
 //
 // Every panel is best-effort: a database that predates migration 0027/0035
@@ -94,7 +94,7 @@ async function loadBoard() {
     const rows: FirmHealth[] = [];
     for (const f of firms) {
       // Full firm row via SELECT * — works whether or not 0027/0035 is applied
-      // (listFirms deliberately names columns, so it can't carry stage yet).
+      // (listFirms deliberately names columns, so it can’t carry stage yet).
       let full: Record<string, unknown> = {};
       try {
         full = ((await store.getFirm(db, f.id)) ?? {}) as Record<string, unknown>;
@@ -129,7 +129,7 @@ async function loadBoard() {
       );
 
       // Activation clock: first digest OR first miss starts it; first
-      // callback-shaped mark stops it (BETA_ONBOARDING.md's one metric).
+      // callback-shaped mark stops it (BETA_ONBOARDING.md’s one metric).
       const firstDigest = await tryOr(() =>
         store.firstEventAt(db, { event: "digest_sent", firm_id: f.id }),
       );

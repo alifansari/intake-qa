@@ -1,5 +1,5 @@
 // POST /api/intake/interpret — the ONE narrow LLM task in the intake agent:
-// turn the visitor's free-text "what happened" into structured DATA FIELDS
+// turn the visitor’s free-text "what happened" into structured DATA FIELDS
 // (summary, boolean flags). Output is never shown to the visitor and never
 // touches routing (see guardrails.mjs for the UPL rationale — ABA Op. 512).
 // Degrades silently: no ANTHROPIC_API_KEY → 200 with {interpreted:false} and

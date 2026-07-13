@@ -2,7 +2,7 @@
 // from the chat demo. Public endpoint BY DESIGN (the visitor is anonymous),
 // but write-only: it returns only the lead id, never reads anything back, and
 // the intake tables have no public read/write policy (this route writes via
-// the server-only store). Zod caps every field so the surface can't be abused
+// the server-only store). Zod caps every field so the surface can’t be abused
 // for storage. Called on every step so an ABANDONED session is still a lead.
 import { z } from "zod";
 import {

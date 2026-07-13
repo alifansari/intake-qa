@@ -43,7 +43,7 @@ export async function POST(
       {
         error: "score_incomplete",
         message:
-          "The score hasn't been derived yet — open the scorecard so it builds from the intake-call analysis, then finalize.",
+          "The score hasn’t been derived yet — open the scorecard so it builds from the intake-call analysis, then finalize.",
       },
       { status: 409 },
     );

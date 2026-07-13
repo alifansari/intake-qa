@@ -18,7 +18,7 @@ export async function getReconciledCalls(): Promise<ReconciledCall[]> {
   const rows = calls.map((call) => {
     const meta: CallMeta =
       metaById.get(call.call_id) ??
-      // Real CLI files won't have a sidecar — synthesize a neutral one.
+      // Real CLI files won’t have a sidecar — synthesize a neutral one.
       {
         call_id: call.call_id,
         received_at: new Date().toISOString(),

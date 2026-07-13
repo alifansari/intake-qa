@@ -40,7 +40,7 @@ export function RecordingAnalysis({
 
   // Poll while processing. A failed pipeline or a very long run must never
   // leave the founder staring at an eternal spinner: an "error" status stops
-  // the poll and says so, and past ~2 minutes we admit it's taking long.
+  // the poll and says so, and past ~2 minutes we admit it’s taking long.
   React.useEffect(() => {
     if (done) return;
     let stop = false;

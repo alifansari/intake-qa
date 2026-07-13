@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 // The Rescue desk console: import a dead-lead export, review what the triage
-// surfaced (named confirm/reject), build today's top-3 callback list, and hand
+// surfaced (named confirm/reject), build today’s top-3 callback list, and hand
 // it back to the CRM as a tagged CSV. All writes go through /api/rescue/run
-// (founder-gated); the firm's staff make every callback.
+// (founder-gated); the firm’s staff make every callback.
 
 export interface FirmRow {
   id: string | number;
@@ -103,7 +103,7 @@ function saveName(name: string) {
   try {
     window.localStorage.setItem(NAME_KEY, name);
   } catch {
-    // localStorage unavailable — fine, it just won't remember.
+    // localStorage unavailable — fine, it just won’t remember.
   }
 }
 
@@ -359,7 +359,7 @@ function ReviewQueue({ firmId, pending }: { firmId: string; pending: ReviewRow[]
   );
 }
 
-// --- today's rescue list -----------------------------------------------------------
+// --- today’s rescue list -----------------------------------------------------------
 
 function PacketPanel({ firmId, packet }: { firmId: string; packet: PacketView | null }) {
   const router = useRouter();
@@ -442,7 +442,7 @@ function PacketPanel({ firmId, packet }: { firmId: string; packet: PacketView | 
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="primary" size="sm" disabled={busy} onClick={build}>
-            {busy ? "Working…" : packet ? "Rebuild today's list" : "Build today's list"}
+            {busy ? "Working…" : packet ? "Rebuild today’s list" : "Build today’s list"}
           </Button>
           {packet ? (
             <Button variant="outline" size="sm" disabled={busy} onClick={download}>

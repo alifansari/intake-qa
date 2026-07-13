@@ -1,4 +1,4 @@
-// The digest link's landing page. Deliberately PUBLIC (the whole point is
+// The digest link’s landing page. Deliberately PUBLIC (the whole point is
 // no-login) — authority is the signed token, which names one flag, one firm,
 // one status, and expires. GET only *shows* the confirmation; the status is
 // written exclusively by the POST server action below, so email-client link
@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Confirm — Intake QA", robots: { index: false } };
 
-// Must match the desk's LeakCard labels so one caller doesn't have three names
+// Must match the desk’s LeakCard labels so one caller doesn’t have three names
 // across the digest → confirm → desk flow.
 const STATUS_LABEL: Record<string, string> = {
   reached_out: "Left a message",
@@ -21,9 +21,9 @@ const STATUS_LABEL: Record<string, string> = {
 const ERROR_COPY: Record<string, string> = {
   expired:
     "This link has expired (they last 14 days). Your desk always has the live list.",
-  bad_signature: "This link isn't valid. Your desk always has the live list.",
-  malformed: "This link isn't valid. Your desk always has the live list.",
-  not_configured: "One-click links aren't enabled yet. Your desk has the live list.",
+  bad_signature: "This link isn’t valid. Your desk always has the live list.",
+  malformed: "This link isn’t valid. Your desk always has the live list.",
+  not_configured: "One-click links aren’t enabled yet. Your desk has the live list.",
 };
 
 async function confirmAction(formData: FormData) {
@@ -37,7 +37,7 @@ async function confirmAction(formData: FormData) {
   let outcome = "done";
   try {
     // Firm scoping enforced inside setFlagStatus, before any write — the
-    // token's firm must own the flag. guardTerminal: a stale link tapped days
+    // token’s firm must own the flag. guardTerminal: a stale link tapped days
     // after the team already resolved the case must not regress it.
     const res = await store.setFlagStatus(db, {
       flag_id: check.flagId,
@@ -95,7 +95,7 @@ export default async function DigestConfirmPage({
       {invalid ? (
         <>
           <h1 className="mt-1 font-display text-2xl font-semibold text-ink">
-            This link doesn&apos;t work anymore
+            This link doesn’t work anymore
           </h1>
           <p className="mt-3 text-sm text-ink-muted">
             {ERROR_COPY[check.error ?? "malformed"] ?? ERROR_COPY.malformed}
@@ -114,7 +114,7 @@ export default async function DigestConfirmPage({
       ) : result === "failed" ? (
         <>
           <h1 className="mt-1 font-display text-2xl font-semibold text-ink">
-            Couldn&apos;t save that
+            Couldn’t save that
           </h1>
           <p className="mt-3 text-sm text-ink-muted">
             Something went wrong marking this caller. Your desk always has the live list — open it
@@ -127,7 +127,7 @@ export default async function DigestConfirmPage({
             Marked: {STATUS_LABEL[status] ?? status} ✓
           </h1>
           <p className="mt-3 text-sm text-ink-muted">
-            Saved to your desk. That caller leaves tomorrow&apos;s digest — you&apos;re done here.
+            Saved to your desk. That caller leaves tomorrow’s digest — you’re done here.
           </p>
         </>
       ) : (
@@ -136,7 +136,7 @@ export default async function DigestConfirmPage({
             Mark this caller &ldquo;{STATUS_LABEL[status] ?? status}&rdquo;?
           </h1>
           <p className="mt-3 text-sm text-ink-muted">
-            One tap and it&apos;s recorded on your desk — no sign-in needed. If you meant a
+            One tap and it’s recorded on your desk — no sign-in needed. If you meant a
             different caller, just close this page; nothing is saved until you press the button.
           </p>
           <form action={confirmAction} className="mt-6">

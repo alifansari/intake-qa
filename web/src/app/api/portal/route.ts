@@ -4,7 +4,7 @@
 // TEST_MODE-SAFE: with no Stripe keys / TEST_MODE, returns a simulated URL back
 // to the settings page and never calls Stripe.
 //
-// Firm resolution: when Supabase is configured we read the caller's firm from
+// Firm resolution: when Supabase is configured we read the caller’s firm from
 // their firm_members owner/operator row; otherwise (pilot) we fall back to the
 // first firm on record so the pilot desk can still surface the control.
 

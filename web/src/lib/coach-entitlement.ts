@@ -21,7 +21,7 @@ function truthyEnv(v: string | undefined): boolean {
   return /^(true|1|yes|on)$/i.test(v.trim());
 }
 
-// Resolve the caller's firm id (authenticated firm, else the pilot's single firm
+// Resolve the caller’s firm id (authenticated firm, else the pilot’s single firm
 // only when the pilot fallback is explicitly enabled). Returns null when unknown.
 async function resolveFirmId(db: unknown): Promise<number | string | null> {
   const user = await getCurrentUser().catch(() => null);

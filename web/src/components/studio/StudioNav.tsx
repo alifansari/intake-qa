@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 
 // ONE nav for the whole operator side, four plain words. This is a deliberate
 // cut from ten items to four, on evidence: NN/g menu design ("no made-up words,
-// no internal jargon") + Hick's Law (fewer choices decide faster) + progressive
+// no internal jargon") + Hick’s Law (fewer choices decide faster) + progressive
 // disclosure (everything rarer than daily lives one hop inside Home, not up
 // here). The invented names — "The Mirror", "The Ledger", "Mystery shops",
 // "Rescues" — are gone from navigation; they survive only as section labels on
@@ -13,7 +13,7 @@ import { cn } from "@/lib/cn";
 //
 //   Home    — the command center: the money, what needs you, the daily action
 //   Firms   — every firm and everything under it (shops, recordings, scorecards)
-//   Guide   — plain-English "what do I do, and where's the value" (start here)
+//   Guide   — plain-English "what do I do, and where’s the value" (start here)
 //   System  — the back office (status, audits, billing, feature switches)
 //
 // "Firm view" and "Sign out" sit quietly on the right, not in the main run.

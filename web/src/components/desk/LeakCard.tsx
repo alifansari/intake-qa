@@ -5,13 +5,13 @@
 // table beside the frozen flag) — it survives reload, device changes, and
 // colleagues see the same state. Optimistic UI with revert on failure.
 //
-// Designed around the coordinator's actual callback moment (see the intake-staff
+// Designed around the coordinator’s actual callback moment (see the intake-staff
 // field guide, 2026-07-10): one screen, tap-to-dial, one-tap outcomes that match
 // what really happens on the phone (spoke to them / left a message / bad number /
 // signed / passed), a two-sentence warm opener, an undo for misclicks, and NO
-// grading language — scores live in the attorney's documents, not on the queue.
+// grading language — scores live in the attorney’s documents, not on the queue.
 //
-// This card also carries the queue's honesty features (view logic shared with
+// This card also carries the queue’s honesty features (view logic shared with
 // the server page via lib/desk/queue-view.mjs):
 //   * B-013 — an elapsed-time urgency line ("Waiting 5 days — still very
 //     winnable"). Time since the call ONLY; never a statute deadline date.
@@ -57,21 +57,21 @@ const CONFIDENCE_TEXT: Record<string, string> = {
 };
 
 // Canonical status keys ↔ what an intake coordinator would actually say.
-// "reached_out" is the tried-but-didn't-connect state (voicemail / no answer) —
-// the digest's one-click "We called them" lands here too.
+// "reached_out" is the tried-but-didn’t-connect state (voicemail / no answer) —
+// the digest’s one-click "We called them" lands here too.
 const STATUS_LABEL: Record<string, string> = {
   needs_callback: "Needs a callback",
   reached_out: "Left a message",
   back_in_touch: "Spoke to them",
   signed: "Signed",
-  didnt_sign: "Didn't sign",
+  didnt_sign: "Didn’t sign",
   bad_number: "Bad number",
 };
 
 // One-tap outcomes per state — mirrors the phone call, not a form. Every
 // terminal state can be reopened; every active state can be undone.
 // "Left another message" (reached_out → reached_out) exists so the second,
-// third… voicemail is loggable — that's what makes the attempt count real.
+// third… voicemail is loggable — that’s what makes the attempt count real.
 const NEXT: Record<string, { label: string; to: string }[]> = {
   needs_callback: [
     { label: "Spoke to them", to: "back_in_touch" },
@@ -115,7 +115,7 @@ export function LeakCard({
   firmName?: string;
   compact?: boolean;
   // Sample/demo cards update local state only — never POST to the real
-  // flag-status API (the ids aren't real). The tap-to-dial button still works,
+  // flag-status API (the ids aren’t real). The tap-to-dial button still works,
   // so a live demo stays fully interactive without erroring.
   demo?: boolean;
 }) {
@@ -151,13 +151,13 @@ export function LeakCard({
         body: JSON.stringify({ flag_id: leak.id, status: to }),
       });
       if (!r.ok) throw new Error("save failed");
-      // Reconcile the tally with the server's authoritative count.
+      // Reconcile the tally with the server’s authoritative count.
       const data = await r.json().catch(() => null);
       if (data && typeof data.attempts === "number") setAttempts(data.attempts);
     } catch {
       setStatus(prev); // revert — never silently lie about persistence
       setAttempts(prevAttempts);
-      setError("Couldn't save — try again.");
+      setError("Couldn’t save — try again.");
     } finally {
       setSaving(false);
     }
@@ -209,7 +209,7 @@ export function LeakCard({
           </p>
           {/* B-013 — honest urgency: elapsed time since THEIR call, escalating
               weight, and the fix is one tap away. Never a statute deadline —
-              the firm's lawyer owns deadlines, this line never computes one. */}
+              the firm’s lawyer owns deadlines, this line never computes one. */}
           {!terminal && urgency ? (
             <p className="mt-1 text-xs">
               <span className={URGENCY_CLASS[urgency.tone] ?? "text-faint"}>{urgency.label}</span>
@@ -242,8 +242,8 @@ export function LeakCard({
       {/* One transcript-validated verbatim line. Turns an arguable tier into
           self-evident evidence: a coordinator argues with "Strong flag" but not
           with the words on the call. Only VALIDATED snippets reach here (the query
-          returns status='passed' only), so this never claims what wasn't said.
-          Framed "From the call" — the schema doesn't store the speaker, so we don't
+          returns status='passed' only), so this never claims what wasn’t said.
+          Framed "From the call" — the schema doesn’t store the speaker, so we don’t
           assert it was the caller. */}
       {leak.quote ? (
         <p className="mt-2 border-l-2 border-hairline pl-3 text-sm italic text-ink">
@@ -320,7 +320,7 @@ export function LeakCard({
       </div>
 
       {/* B-011 — encouragement after a logged try, grounded in the callback
-          science. Reads as "keep going", never "you've only called twice";
+          science. Reads as "keep going", never "you’ve only called twice";
           disappears the moment the case is decided. */}
       {nudge ? <p className="mt-2 text-xs font-medium text-accent">{nudge}</p> : null}
     </div>

@@ -7,7 +7,7 @@ import type { ReconciledCall } from "@/lib/reconcile";
 import { OUTCOME_LABEL, VERDICT_LABEL, VERDICT_TONE } from "@/lib/labels";
 import { money, shortDate, titleCase } from "@/lib/format";
 
-// Opens a call's full evidence inline: reconciliation summary at the top, then
+// Opens a call’s full evidence inline: reconciliation summary at the top, then
 // the original scored report (quotes + timestamps) one click away.
 export function EvidenceDrawer({
   row,

@@ -2,7 +2,7 @@
 // The Ledger — monthly one-page receipt. Pure compose, no I/O (Phase 6).
 //
 // Conservative by construction:
-//   * DOLLAR HEADLINE USES THE FIRM'S OWN NUMBER. If the firm hasn't set an
+//   * DOLLAR HEADLINE USES THE FIRM’S OWN NUMBER. If the firm hasn’t set an
 //     average case fee, the dollar lines are null and the receipt shows
 //     counts only — the product never invents a valuation
 //     (compliance-invariants §IV: estimates with stated inputs, or nothing).
@@ -10,7 +10,7 @@
 //     escalations and the worst ack time — a receipt that hides misses is
 //     marketing, not accounting.
 //   * PRODUCT vs FIRM contribution are separate columns: the product
-//     captured/routed/escalated; whether a lead CONVERTED is the firm's
+//     captured/routed/escalated; whether a lead CONVERTED is the firm’s
 //     column, and until the CRM read-back (Phase 7 integration) exists it
 //     shows manual dispositions only, labeled as such.
 //   * EVERY NUMBER IS DRILLABLE: each stat carries the underlying lead /
@@ -52,7 +52,7 @@ export function composeLedger(input) {
       : null;
   const minutesPer = settings.minutes_per_intake ?? DEFAULT_MINUTES_PER_INTAKE;
 
-  // --- captures (the product's column) --------------------------------------
+  // --- captures (the product’s column) --------------------------------------
   const hasContact = (l) => Boolean(l.contact?.phone || l.contact?.first_name);
   const captured = leads.filter(hasContact);
   const byBucket = { book: [], escalate: [], human_handoff: [], decline: [] };
@@ -87,7 +87,7 @@ export function composeLedger(input) {
     unclaimed_ids: unclaimed.map((e) => e.id),
   };
 
-  // --- the firm's column (conversion) ----------------------------------------
+  // --- the firm’s column (conversion) ----------------------------------------
   // Until the CRM read-back exists, this is manual dispositions only.
   const converted = dispositions.filter((d) => d.converted === true);
   const firmColumn = {
@@ -107,7 +107,7 @@ export function composeLedger(input) {
   const timeSavedMinutes = captured.length * minutesPer;
   const dollars = fee
     ? {
-        average_case_fee: fee,                        // the firm's number, printed
+        average_case_fee: fee,                        // the firm’s number, printed
         caught_leads_value: caughtIds.length * fee,   // count × THEIR fee
         inputs_note: `${caughtIds.length} caught leads × $${fee.toLocaleString("en-US")} (your stated average case fee)`,
       }

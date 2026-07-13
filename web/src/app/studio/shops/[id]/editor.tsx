@@ -426,7 +426,7 @@ export function ShopEditor({
                 disabled={locked}
                 value={fee}
                 onChange={(e) => setFee(e.target.value)}
-                placeholder={`the firm's own number (e.g. ${AVERAGE_SIGNED_CASE_FEE_PLACEHOLDER})`}
+                placeholder={`the firm’s own number (e.g. ${AVERAGE_SIGNED_CASE_FEE_PLACEHOLDER})`}
                 className="rounded-sm border border-line-strong bg-paper p-2 text-sm"
               />
             </label>

@@ -1,6 +1,6 @@
 // The consent attestation shown before ANY audio upload in the Spot Check Studio.
 // California is an all-party-consent state (CIPA / Penal Code §632); this tool
-// only ever processes the firm's OWN, lawfully recorded intake calls. The
+// only ever processes the firm’s OWN, lawfully recorded intake calls. The
 // attestation text is versioned so the exact wording the founder agreed to is
 // stored immutably alongside each recording (compliance-invariants §II).
 //

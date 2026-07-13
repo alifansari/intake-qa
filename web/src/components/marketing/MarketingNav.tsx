@@ -3,7 +3,7 @@ import { CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF } from "@/lib/site-const
 
 // Marketing top nav, emerald CTA pill. No client JS: the middle links show inline
 // on md+, and collapse into a native <details> disclosure menu on small screens.
-// Four links, plain words. A first-time visitor's questions, in order:
+// Four links, plain words. A first-time visitor’s questions, in order:
 // how does it work → what does it cost → is it safe → common objections.
 // Manifesto and the letter stay one click away in the footer.
 const LINKS = [

@@ -11,7 +11,7 @@ import { SendDigestsButton } from "./digest-button";
 
 export const dynamic = "force-dynamic";
 
-// The studio home — the founder's command center. One screen, top to bottom,
+// The studio home — the founder’s command center. One screen, top to bottom,
 // answering the only three questions that matter day to day:
 //
 //   1. THE MONEY     — how much value have we produced, and how do I show a firm?
@@ -332,12 +332,12 @@ export default async function StudioHome() {
             {
               href: "/studio/shops",
               title: "Mystery shops",
-              desc: "Call a firm's intake like a real client would, grade it, print the firm-branded report.",
+              desc: "Call a firm’s intake like a real client would, grade it, print the firm-branded report.",
             },
             {
               href: "/studio/rescue",
               title: "Rescues",
-              desc: "Upload a firm's dead CRM leads, re-triage for merit, and get a daily callback packet.",
+              desc: "Upload a firm’s dead CRM leads, re-triage for merit, and get a daily callback packet.",
             },
             {
               href: "/studio/escalations",

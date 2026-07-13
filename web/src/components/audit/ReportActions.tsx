@@ -1,7 +1,7 @@
 "use client";
 
 // Report actions (Stage 5): logs a view on mount, offers a "Save as PDF" that
-// prints the page (a real per-token PDF of the firm's own data, no server compose
+// prints the page (a real per-token PDF of the firm’s own data, no server compose
 // needed) and logs a download. Best-effort beacons — never block the page.
 
 import { useEffect } from "react";
@@ -53,7 +53,7 @@ export function ReportActions({ token }: { token: string }) {
         Save as PDF
       </button>
       <span className="text-xs text-faint">
-        Downloads the released report, or prints a clean copy you can forward. Audio isn&apos;t
+        Downloads the released report, or prints a clean copy you can forward. Audio isn’t
         stored. Every quote is timestamped to your original recording.
       </span>
     </div>

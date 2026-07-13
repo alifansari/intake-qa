@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 // The standalone chat-capture demo (Phase 2). PUBLIC page, but NOT wired to
-// any firm's live site: it demonstrates what a compliant intake agent looks
+// any firm’s live site: it demonstrates what a compliant intake agent looks
 // like — consent-first, one question at a time, gather-and-schedule only —
 // and displays the terminal bucket + the canonical record it produced.
 // Persistence is write-only into intake_leads so an abandoned session is

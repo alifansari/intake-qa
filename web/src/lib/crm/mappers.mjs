@@ -14,7 +14,7 @@
 //   * AI-CAPTURED IS VISIBLE: every payload carries source='intake_agent' and
 //     a review flag so the CRM side renders it distinctly until verified.
 //
-// A firm's firm_integrations.field_map (0012) overrides DEFAULT_FIELD_MAPS
+// A firm’s firm_integrations.field_map (0012) overrides DEFAULT_FIELD_MAPS
 // key-by-key; unknown target fields are allowed (the CRM validates).
 // ============================================================================
 

@@ -4,15 +4,15 @@
 // The Spot Check scorecard USED TO be hand-filled: the founder set the six
 // rubric dimensions, checked the critical fails, typed the leakage inputs, and
 // approved an AI narrative. This module makes the scorecard BUILD ITSELF: it
-// reads the frozen leak-audit engine's analysis of the uploaded intake call
+// reads the frozen leak-audit engine’s analysis of the uploaded intake call
 // (the `scoring` object persisted on studio_recordings) and DETERMINISTICALLY
 // derives every scorecard input. The founder can review/override, but nothing
 // requires manual entry.
 //
 // IMPORTANT — what stays pure vs. what changed:
 //   * The rubric MATH (rubric.mjs) is unchanged and still 100% deterministic.
-//   * What changed is where its INPUTS come from: previously the founder's
-//     keystrokes, now this mapper's deterministic read of the engine analysis.
+//   * What changed is where its INPUTS come from: previously the founder’s
+//     keystrokes, now this mapper’s deterministic read of the engine analysis.
 //   * The engine analysis itself uses the LLM (Claude scores the transcript).
 //     So the headline number is now DERIVED FROM AN LLM-PRODUCED ANALYSIS,
 //     mapped deterministically — a deliberate change from the prior
@@ -47,7 +47,7 @@ function num(v) {
 
 // Read a Category / item score out of scores.categories.<cat>.items.<item>.score.
 // Items are 0 / 50 / 100 or "n/a" per the system prompt. Returns a number or null
-// (null = not applicable / not present, so it doesn't drag a dimension down).
+// (null = not applicable / not present, so it doesn’t drag a dimension down).
 function itemScore(scoring, category, item) {
   const cats = obj(obj(obj(scoring).scores).categories);
   const items = obj(obj(cats[category]).items);
@@ -60,9 +60,9 @@ function categoryScore(scoring, category) {
   return num(obj(cats[category]).score);
 }
 
-// Snap an arbitrary 0–100 category score to the rubric's coarse 0/50/100 scale.
+// Snap an arbitrary 0–100 category score to the rubric’s coarse 0/50/100 scale.
 // >=75 -> 100 (strong), >=40 -> 50 (partial), else 0. Thresholds mirror the
-// engine's own bands (75-89 strong, 40-59 needs coaching) so the coarse mapping
+// engine’s own bands (75-89 strong, 40-59 needs coaching) so the coarse mapping
 // tracks the fine one.
 function snap(score) {
   if (score == null) return null;
@@ -214,7 +214,7 @@ function mapFollowUp(scoring) {
   const base = bestOf(b2, nssLevel);
   if (base == null && b1 == null) return 0;
   // A strong ask (B1=100) can lift a vague next step by one notch, but never
-  // above the next-step signal's own ceiling behavior; keep it simple: take the
+  // above the next-step signal’s own ceiling behavior; keep it simple: take the
   // best of next-step and ask.
   return bestOf(base, b1) ?? 0;
 }
@@ -231,18 +231,18 @@ function mapFollowUp(scoring) {
 const COVERAGE_MISSTATEMENT_CUES = [
   "not covered",
   "no coverage",
-  "your policy doesn't",
-  "you're not covered",
-  "won't be covered",
-  "isn't covered",
-  "coverage doesn't apply",
+  "your policy doesn’t",
+  "you’re not covered",
+  "won’t be covered",
+  "isn’t covered",
+  "coverage doesn’t apply",
 ];
 const YOU_HAVE_NO_CASE_CUES = [
   "you have no case",
-  "you don't have a case",
-  "there's no case here",
+  "you don’t have a case",
+  "there’s no case here",
   "nothing we can do",
-  "you don't have a claim",
+  "you don’t have a claim",
 ];
 
 function mapCriticalFails(scoring, transcript) {
@@ -256,7 +256,7 @@ function mapCriticalFails(scoring, transcript) {
   // CF-5 hostile/discriminatory -> rude_dismissive
   if (hasCF(scoring, "CF-5", "hostile_or_discriminatory_conduct")) out.push("rude_dismissive");
 
-  // premature_disqualification: the engine's flagship lost-signable alert, OR a
+  // premature_disqualification: the engine’s flagship lost-signable alert, OR a
   // graceful-decline that crossed into "you have no case" territory (the system
   // prompt explicitly warns against "you have no case" phrasing).
   const lostSignable = obj(obj(scoring).alerts).lost_signable_case === true;
@@ -285,18 +285,18 @@ function mapCriticalFails(scoring, transcript) {
 }
 
 // ---------------------------------------------------------------------------
-// LEAKAGE — average_signed_case_fee auto-derived from the engine's per-case-type
+// LEAKAGE — average_signed_case_fee auto-derived from the engine’s per-case-type
 // fee benchmark for the detected case type. The engine emits a single point fee
 // (a FIRM CONFIG table lookup) on a lost-signable alert; per web/analysis/
 // fee-value.mjs we treat that point as the CONSERVATIVE LOW anchor ("quote the
 // low"). When the engine did not fire an alert (no amount), we fall back to a
-// documented per-case-type benchmark table that mirrors the system prompt's
+// documented per-case-type benchmark table that mirrors the system prompt’s
 // stated fallback defaults. illustrative_monthly_recurrence defaults to 1.
 // The founder can override both.
 // ---------------------------------------------------------------------------
 
-// Fallback per-case-type fee benchmarks (USD), verbatim from the system prompt's
-// stated fallback defaults (STEP 3D). These are the LOW/anchor values; a firm's
+// Fallback per-case-type fee benchmarks (USD), verbatim from the system prompt’s
+// stated fallback defaults (STEP 3D). These are the LOW/anchor values; a firm’s
 // own FIRM CONFIG values take precedence and already flow through amount_usd.
 export const CASE_TYPE_FEE_BENCHMARKS = {
   mva_standard: 12000,
@@ -321,7 +321,7 @@ export function deriveLeakageInputs(scoring) {
   const s = obj(scoring);
   const rar = obj(obj(s.alerts).revenue_at_risk);
 
-  // 1) Prefer the engine's own per-call fee estimate (FIRM CONFIG-driven) — the
+  // 1) Prefer the engine’s own per-call fee estimate (FIRM CONFIG-driven) — the
   //    conservative low anchor.
   const engineFee = num(rar.amount_usd);
 
@@ -376,7 +376,7 @@ export function mapEngineToScorecard(scoring, transcript = "") {
 
 // ---------------------------------------------------------------------------
 // DETERMINISTIC NARRATIVE FALLBACK — drafts the two narrative fields from the
-// engine's flagged failure + evidence quotes, with NO LLM. Used to AUTO-DRAFT on
+// engine’s flagged failure + evidence quotes, with NO LLM. Used to AUTO-DRAFT on
 // population so a scorecard is finalizable without a manual click. (The Anthropic
 // draft route still exists for a richer rewrite; this guarantees a grounded draft
 // exists even when the API is unconfigured.) Every claim traces to an engine
@@ -389,7 +389,7 @@ export function draftNarrativeFromEngine(scoring) {
   const oneThing = obj(coaching.one_thing);
   const summary = str(s.summary);
 
-  // narrative_failure: prefer the engine's own single-most-important miss
+  // narrative_failure: prefer the engine’s own single-most-important miss
   // (one_thing), else the flagged critical fail / lost-signable alert, else the
   // summary. Grounded, non-alarmist, no score mentioned.
   let failure = null;
@@ -406,7 +406,7 @@ export function draftNarrativeFromEngine(scoring) {
     else if (summary) failure = summary;
   }
 
-  // narrative_fix: prefer the engine's model utterance / do-instruction.
+  // narrative_fix: prefer the engine’s model utterance / do-instruction.
   let fix = null;
   const model = str(oneThing.model_utterance);
   if (behavior && model) {

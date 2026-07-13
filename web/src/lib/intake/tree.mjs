@@ -17,7 +17,7 @@
 //
 // `next` may be a node id or a function(record) for data-dependent branches
 // (the SOL gate, the matter fork after the narrative). TREE_VERSION is stamped
-// into every record's provenance; bump it when the graph changes.
+// into every record’s provenance; bump it when the graph changes.
 //
 // Flow: consent → emergency screen → contact capture EARLY (an abandoned
 // session is still a lead) → matter fork → incident date (SOL gate) →
@@ -58,7 +58,7 @@ export const NODES = {
   em_name: {
     kind: "text",
     prompt:
-      "If it's an active emergency, please call 911 before anything else. So the attorney can follow up right away — what's your first name?",
+      "If it’s an active emergency, please call 911 before anything else. So the attorney can follow up right away — what’s your first name?",
     field: "contact.first_name",
     next: "em_phone",
   },
@@ -72,14 +72,14 @@ export const NODES = {
   // --- Contact capture, early (an abandoned session is still a lead) ---------
   name: {
     kind: "text",
-    prompt: "I'm sorry you're dealing with this. Let's get you taken care of. What's your first name?",
+    prompt: "I’m sorry you’re dealing with this. Let’s get you taken care of. What’s your first name?",
     field: "contact.first_name",
     next: "phone",
   },
   phone: {
     kind: "phone",
     prompt: (r) =>
-      `Thanks${r.contact.first_name ? `, ${r.contact.first_name}` : ""}. What's the best phone number to reach you at, in case we get disconnected?`,
+      `Thanks${r.contact.first_name ? `, ${r.contact.first_name}` : ""}. What’s the best phone number to reach you at, in case we get disconnected?`,
     field: "contact.phone",
     next: "matter",
   },
@@ -91,7 +91,7 @@ export const NODES = {
     field: "matter_type",
     options: [
       { key: "mva", label: "Car / vehicle accident", next: "incident_date" },
-      { key: "premises", label: "Injured on someone's property", next: "incident_date" },
+      { key: "premises", label: "Injured on someone’s property", next: "incident_date" },
       { key: "dog_bite", label: "Dog bite", next: "incident_date" },
       { key: "other", label: "Something else", next: "other_summary" },
     ],
@@ -99,7 +99,7 @@ export const NODES = {
   other_summary: {
     kind: "text",
     prompt:
-      "No problem — tell me briefly what happened, and I'll make sure it gets in front of a person at the office.",
+      "No problem — tell me briefly what happened, and I’ll make sure it gets in front of a person at the office.",
     field: "incident.narrative",
     next: "t_other",
   },
@@ -163,7 +163,7 @@ export const NODES = {
     prompt: "Were you (or anyone with you) injured?",
     field: "path_data.injured",
     options: [
-      { key: "treated", label: "Yes — I've seen a doctor", next: "mva_treatment" },
+      { key: "treated", label: "Yes — I’ve seen a doctor", next: "mva_treatment" },
       { key: "not_yet", label: "Yes — no treatment yet", next: "mva_other_insurance" },
       { key: "no", label: "No injuries", next: "mva_other_insurance" },
     ],
@@ -186,7 +186,7 @@ export const NODES = {
     options: [
       { key: "yes", label: "Yes", next: "mva_photos" },
       { key: "no", label: "No / uninsured", next: "mva_photos" },
-      { key: "unknown", label: "Don't know", next: "mva_photos" },
+      { key: "unknown", label: "Don’t know", next: "mva_photos" },
     ],
   },
   mva_photos: {
@@ -204,7 +204,7 @@ export const NODES = {
     field: "path_data.location_type",
     options: [
       { key: "business", label: "A business (store, restaurant…)", next: "prem_hazard" },
-      { key: "residence", label: "Someone's home", next: "prem_hazard" },
+      { key: "residence", label: "Someone’s home", next: "prem_hazard" },
       { key: "government", label: "Public / government property", next: "prem_hazard" },
       { key: "other_loc", label: "Somewhere else", next: "prem_hazard" },
     ],
@@ -233,7 +233,7 @@ export const NODES = {
     field: "path_data.hazard_still_present",
     options: [
       { key: "still_there", label: "Still there", next: "prem_photos" },
-      { key: "fixed", label: "It's been fixed/cleaned", next: "prem_injured" },
+      { key: "fixed", label: "It’s been fixed/cleaned", next: "prem_injured" },
       { key: "unsure", label: "Not sure", next: "prem_injured" },
     ],
   },
@@ -249,7 +249,7 @@ export const NODES = {
     prompt: "Were you injured?",
     field: "path_data.injured",
     options: [
-      { key: "treated", label: "Yes — I've seen a doctor", next: "prem_treatment" },
+      { key: "treated", label: "Yes — I’ve seen a doctor", next: "prem_treatment" },
       { key: "not_yet", label: "Yes — no treatment yet", next: TAIL_AFTER_PATH },
       { key: "no", label: "No injuries", next: TAIL_AFTER_PATH },
     ],
@@ -280,11 +280,11 @@ export const NODES = {
   dog_insurance: {
     kind: "choice",
     prompt:
-      "Do you know if the owner has homeowner's or renter's insurance? (It often covers this — no worries if you don't know.)",
+      "Do you know if the owner has homeowner’s or renter’s insurance? (It often covers this — no worries if you don’t know.)",
     field: "path_data.owner_insurance",
     options: [
       { key: "likely", label: "Yes / probably", next: "dog_child" },
-      { key: "unknown", label: "Don't know", next: "dog_child" },
+      { key: "unknown", label: "Don’t know", next: "dog_child" },
       { key: "none", label: "Probably not", next: "dog_child" },
     ],
   },
@@ -330,8 +330,8 @@ export const NODES = {
     prompt: "Last question: have you already hired or signed with another attorney for this?",
     field: "incident.prior_representation",
     options: [
-      { key: "signed", label: "Yes, I've signed with one", next: "t_prior_rep" },
-      { key: "talked", label: "I've talked to one, not signed", next: "t_routed" },
+      { key: "signed", label: "Yes, I’ve signed with one", next: "t_prior_rep" },
+      { key: "talked", label: "I’ve talked to one, not signed", next: "t_routed" },
       { key: "no", label: "No", next: "t_routed" },
     ],
   },
@@ -350,7 +350,7 @@ export function getNode(id) {
   return NODES[id] ?? null;
 }
 
-// Resolve a node's next id (string or function-of-record).
+// Resolve a node’s next id (string or function-of-record).
 export function resolveNext(next, record) {
   return typeof next === "function" ? next(record) : next;
 }

@@ -68,7 +68,7 @@ function LoginForm() {
     setPending(true);
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
     // shouldCreateUser:false — accounts are provisioned by the founder during
-    // onboarding. Without this, Supabase's default silently creates a user for
+    // onboarding. Without this, Supabase’s default silently creates a user for
     // ANY email typed here, and a member-less session could reach the desk.
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -103,12 +103,12 @@ function LoginForm() {
         ) : null}
         {linkError ? (
           <p className="mb-4 rounded-sm border border-line-strong bg-paper px-3 py-2 text-xs text-ink">
-            That sign-in link didn&apos;t work (it may have expired or already been used). Enter your
+            That sign-in link didn’t work (it may have expired or already been used). Enter your
             email below for a fresh one, or use your password.
           </p>
         ) : null}
         {mode === "password" ? (
-          // Single <form> with username + password fields so the browser's
+          // Single <form> with username + password fields so the browser’s
           // password manager recognizes it and offers to save the credentials.
           <form onSubmit={submitPassword} className="flex flex-col gap-3" autoComplete="on">
             <label className="text-sm text-ink" htmlFor="email">

@@ -1,7 +1,7 @@
 // Pure, testable scorecard-content helpers (no rubric/LLM dependency): the four
 // NON-DELETABLE disclosures with a DYNAMIC call count, the signature string,
 // ref_code generation, and the single-excerpt exhibit picker. Authored as .mjs so
-// node --test imports them directly (the repo's dual pattern); scorecard.ts
+// node --test imports them directly (the repo’s dual pattern); scorecard.ts
 // re-exports them with types.
 
 // The four NON-DELETABLE disclosures. The scope/method statement is DYNAMIC on the
@@ -26,7 +26,7 @@ export function disclosures(callsAnalyzed) {
     scope,
     independence:
       "Independence: This analysis was prepared by an independent scorer. Intake QA " +
-      "is not a participant in the firm's fees and has no stake in any case outcome.",
+      "is not a participant in the firm’s fees and has no stake in any case outcome.",
     flatFee:
       "Fee: Intake QA is engaged on a flat monthly fee. Nothing here is priced as a " +
       "percentage of recovery, per case, or tied to any case outcome.",

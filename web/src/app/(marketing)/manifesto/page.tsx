@@ -5,7 +5,7 @@ import { CTA_PRIMARY, CATEGORY_BOUNDARY_LINE } from "@/lib/site-constants";
 export const metadata: Metadata = {
   title: "Why intake is where PI firms bleed | Intake QA",
   description:
-    "A point of view: personal-injury firms spend fortunes to make the phone ring, then lose signable cases after it's answered, and nobody independent is checking. The case for closing the loop.",
+    "A point of view: personal-injury firms spend fortunes to make the phone ring, then lose signable cases after it’s answered, and nobody independent is checking. The case for closing the loop.",
   alternates: { canonical: "/manifesto" },
 };
 
@@ -26,9 +26,9 @@ export default function ManifestoPage() {
         Why intake is where personal injury firms bleed.
       </h1>
       <p className="mt-5 max-w-[68ch] text-lg text-ink-muted">
-        This is an argument, not a category proclamation. Here&apos;s how we see the problem, and why
-        we built the desk the way we did. Disagree with any part of it and tell us. We&apos;re early
-        and we&apos;d rather be right than loud.
+        This is an argument, not a category proclamation. Here’s how we see the problem, and why
+        we built the desk the way we did. Disagree with any part of it and tell us. We’re early
+        and we’d rather be right than loud.
       </p>
 
       <Movement kicker="The money is already spent">
@@ -36,14 +36,14 @@ export default function ManifestoPage() {
           Every injured caller who dials your firm cost money to get there: a click, a billboard, a
           referral. By the time the phone rings, the acquisition cost is sunk. What happens in the
           next ninety seconds decides whether that spend turns into a fee agreement or evaporates. A
-          call lands during a lunch rush. A voicemail doesn&apos;t get returned. A &ldquo;let me talk
+          call lands during a lunch rush. A voicemail doesn’t get returned. A &ldquo;let me talk
           to my spouse&rdquo; never gets a follow-up. The case was signable. It just left.
         </p>
       </Movement>
 
       <Movement kicker="Everyone grades their own homework">
         <p>
-          Here&apos;s the part that should bother you: every report you get on your intake comes from
+          Here’s the part that should bother you: every report you get on your intake comes from
           someone with a stake in the answer. The AI receptionist reports on the calls it answered.
           The agency reports on the leads it sold you. Your own staff report on their own follow-up.
           None of them are lying, but none of them are independent, and none of them reconcile what
@@ -55,21 +55,21 @@ export default function ManifestoPage() {
 
       <Movement kicker="Close the loop">
         <p>
-          The fix isn&apos;t answering faster. Plenty of tools already do that well. The fix is a
-          closed loop: read every call across every channel, flag the signable ones that didn&apos;t
+          The fix isn’t answering faster. Plenty of tools already do that well. The fix is a
+          closed loop: read every call across every channel, flag the signable ones that didn’t
           convert, reconcile them against the fee agreements that actually got signed, put a dollar
           figure on what walked, and hand the firm a compliant, human-reviewed way to win the
-          recoverable ones back. Done by someone with no stake in the grade. That&apos;s the desk.
+          recoverable ones back. Done by someone with no stake in the grade. That’s the desk.
         </p>
         <p>{CATEGORY_BOUNDARY_LINE}</p>
       </Movement>
 
       <Movement kicker="Why it compounds">
         <p>
-          A firm doesn&apos;t lose because it can&apos;t generate leads. It loses because it
-          can&apos;t see which paid-for cases it&apos;s leaving on the table. The firm across the
+          A firm doesn’t lose because it can’t generate leads. It loses because it
+          can’t see which paid-for cases it’s leaving on the table. The firm across the
           street that installs a measurement layer on its intake will keep getting a little better
-          every month while the one that guesses keeps paying to generate cases it can&apos;t hold
+          every month while the one that guesses keeps paying to generate cases it can’t hold
           onto. Intake is the cheapest place a PI firm can find growth, because the money to get there
           is already spent.
         </p>

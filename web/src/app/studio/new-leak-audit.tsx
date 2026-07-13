@@ -179,7 +179,7 @@ export function NewLeakAudit({ firms }: { firms: StudioFirm[] }) {
           ].join(" ")}
         >
           <p className="text-sm font-medium text-ink">
-            Upload the firm&apos;s recorded intake call
+            Upload the firm’s recorded intake call
           </p>
           <p className="text-xs text-muted">MP3, M4A, or WAV. Drag &amp; drop or choose a file.</p>
           <input
@@ -209,7 +209,7 @@ export function NewLeakAudit({ firms }: { firms: StudioFirm[] }) {
         {error ? <p className="text-xs text-red">{error}</p> : null}
         <p className="text-xs text-faint">
           Audio goes to a private, access-controlled store and is deleted right after it is
-          transcribed. Only the firm&apos;s own consented recordings belong here.
+          transcribed. Only the firm’s own consented recordings belong here.
         </p>
       </CardContent>
     </Card>

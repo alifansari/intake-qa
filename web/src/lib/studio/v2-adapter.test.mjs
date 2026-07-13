@@ -34,7 +34,7 @@ const verdict = ({
   recommendation: {
     recommended_disposition: abstained ? null : disposition,
     case_type: caseType,
-    prior_context: "Published prior (not this firm's data): ...",
+    prior_context: "Published prior (not this firm’s data): ...",
     disposition_basis: ["R6 all load-bearing reads strong/adequate → sign_now"],
     attorney_review_required: false,
     case_type_routing: { refer_default: false },
@@ -46,7 +46,7 @@ const verdict = ({
   citations: [],
 });
 
-test("disposition maps to the product's categorical signability", () => {
+test("disposition maps to the product’s categorical signability", () => {
   assert.equal(dispositionToSignability("sign_now"), "likely_signable");
   assert.equal(dispositionToSignability("develop"), "needs_development");
   assert.equal(dispositionToSignability("refer_out"), "needs_development");

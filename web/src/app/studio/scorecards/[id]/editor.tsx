@@ -164,7 +164,7 @@ export function ScorecardEditor({
 
       {!locked ? (
         <div className="rounded-sm border border-accent/30 bg-accent-tint px-3 py-2 text-xs text-accent">
-          Auto-built from the leak-audit engine&apos;s analysis of this intake call. Every
+          Auto-built from the leak-audit engine’s analysis of this intake call. Every
           field below is pre-filled and editable — review and override anything, then finalize.
           Nothing requires manual entry.
         </div>
@@ -289,7 +289,7 @@ export function ScorecardEditor({
                 disabled={locked}
                 value={fee}
                 onChange={(e) => setFee(e.target.value)}
-                placeholder={`auto-derived from case type (e.g. ${AVERAGE_SIGNED_CASE_FEE_PLACEHOLDER}) — edit to the firm's number`}
+                placeholder={`auto-derived from case type (e.g. ${AVERAGE_SIGNED_CASE_FEE_PLACEHOLDER}) — edit to the firm’s number`}
                 className="rounded-sm border border-line-strong bg-paper p-2 text-sm"
               />
             </label>
@@ -347,7 +347,7 @@ export function ScorecardEditor({
           </div>
           <p className="mb-3 text-xs text-faint">
             {hasEvidence
-              ? "Pre-drafted from the engine's flagged failure and cited evidence. Edit if you want; an edit re-opens the approval box below. Optionally use AI to rewrite."
+              ? "Pre-drafted from the engine’s flagged failure and cited evidence. Edit if you want; an edit re-opens the approval box below. Optionally use AI to rewrite."
               : "Attach a processed intake call to enable AI rewriting."}
           </p>
 

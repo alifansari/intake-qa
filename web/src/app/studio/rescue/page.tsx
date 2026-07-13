@@ -25,14 +25,14 @@ import type { BatchRow, ReviewRow, PacketView, LeadRow, FirmRow, LedgerView } fr
 
 export const dynamic = "force-dynamic";
 
-// The Rescue desk — the layer ABOVE the firm's CRM cadence.
+// The Rescue desk — the layer ABOVE the firm’s CRM cadence.
 //
 // A cadence fires on elapsed time; it cannot tell a soft-tissue whiff from a
 // lost six-figure case. This desk takes the leads the cadence marked dead,
 // re-triages them on legal merit (deterministic rules — statute, case type,
 // the reasons follow-up stopped), and walks the few live ones through the
 // SAME human-review conveyor as call flags: named confirm -> top-3 daily
-// list with callback scripts -> tagged CSV back into the firm's CRM.
+// list with callback scripts -> tagged CSV back into the firm’s CRM.
 // Nothing here contacts a prospect or writes to a live CRM.
 
 const globalDb = globalThis as unknown as { __rescuePageDb?: unknown };
@@ -77,7 +77,7 @@ export default async function RescuePage({
       const today = new Date().toISOString().slice(0, 10);
       const raw = (await getRescuePacket(handle, firmId, today)) as PacketView | null;
       if (raw?.items) {
-        // Attach each item's import provenance (tier, gap, CRM ids) for display.
+        // Attach each item’s import provenance (tier, gap, CRM ids) for display.
         for (const item of raw.items) {
           const lead = (await getCrmLeadByFlag(handle, item.flag_id)) as Record<string, unknown> | null;
           item.value_tier = (lead?.value_tier as string | undefined) ?? null;
@@ -91,7 +91,7 @@ export default async function RescuePage({
       const entries = (await listLedgerEntries(handle, firmId)) ?? [];
       ledger = ledgerSummary(entries) as unknown as LedgerView;
     } catch {
-      // The crm_leads tables (migration 0027 / supabase 0035) aren't in this
+      // The crm_leads tables (migration 0027 / supabase 0035) aren’t in this
       // database yet — render an honest state instead of a broken page.
       migrationPending = true;
     }

@@ -1,4 +1,4 @@
-// Canonical demo SNAPSHOT — the SINGLE source of truth for the demo firm's page-one
+// Canonical demo SNAPSHOT — the SINGLE source of truth for the demo firm’s page-one
 // numbers across every surface. `composeLeakReport(DEMO_DOC)` (strong-only,
 // arithmetic-summed) is authoritative; the on-site SampleStatement and the Statement
 // PDF headline both derive from THIS snapshot so all three reconcile to the same

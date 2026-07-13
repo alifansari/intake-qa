@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 // Magic-link landing: Supabase redirects here with a one-time `code`. We exchange
 // it for a session (cookies are set by the SSR client), then send the user on to
-// their intended page. If Supabase isn't configured, just go home.
+// their intended page. If Supabase isn’t configured, just go home.
 // Only same-origin, path-only targets — never an absolute/protocol-relative URL
 // (an emailed sign-in link is a phishing vector otherwise).
 function safeNext(raw: string | null): string {

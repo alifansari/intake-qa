@@ -1,8 +1,8 @@
-// /api/studio/callrail-secret — founder-only. Set (or clear) a firm's own
+// /api/studio/callrail-secret — founder-only. Set (or clear) a firm’s own
 // CallRail webhook signing key: `firms.callrail_webhook_secret` (supabase
 // migration 0034 / local 0026).
 //
-// WHY: CallRail issues ONE signing key per CallRail account — you don't choose
+// WHY: CallRail issues ONE signing key per CallRail account — you don’t choose
 // it — so the shared CALLRAIL_WEBHOOK_SECRET can only ever verify one firm.
 // Every additional firm silently 401s until its own key is stored. This route
 // is the no-DB-edits way to store it during the setup call (UI lives on
@@ -98,7 +98,7 @@ export async function POST(req: Request) {
     });
   } catch (e) {
     // A missing callrail_webhook_secret column means migration 0034 (hosted) /
-    // 0026 (local) hasn't been applied — say so instead of a generic 500.
+    // 0026 (local) hasn’t been applied — say so instead of a generic 500.
     const msg = e instanceof Error ? e.message : "";
     if (/callrail_webhook_secret/i.test(msg)) {
       return Response.json(

@@ -9,7 +9,7 @@
 // Rules the spec makes load-bearing:
 //   * Precision counts true_positive vs false_positive ONLY.
 //     right_call_bad_outcome is excluded from the denominator (the call was
-//     right), and "didn't convert" (the separate `converted` axis) never
+//     right), and "didn’t convert" (the separate `converted` axis) never
 //     touches precision — a signable case that walked is not a false alarm.
 //   * SAMPLE-SIZE GATE: below MIN_SAMPLE dispositions, no proposal. Noise is
 //     not a trend.
@@ -79,7 +79,7 @@ export function proposeTunings(stats, overrides = {}) {
     const currentTier = overrides?.[key]?.tier ?? trigger.tier;
 
     // Sample-size gate: noise is not a trend.
-    const sample = s.tp + s.fp; // rcbo doesn't count toward the gate either
+    const sample = s.tp + s.fp; // rcbo doesn’t count toward the gate either
     if (sample < MIN_SAMPLE) continue;
     if (s.precision === null || s.precision >= PRECISION_FLOOR) continue;
 

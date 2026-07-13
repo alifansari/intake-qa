@@ -15,7 +15,7 @@ import {
   downloadStudioAudio,
   removeStudioAudio,
 } from "@/lib/studio/storage";
-// The engine bridge is a native runtime .mjs import (webpackIgnore'd engine deps);
+// The engine bridge is a native runtime .mjs import (webpackIgnore’d engine deps);
 // import it lazily inside the handler so it stays out of the static graph.
 
 export const runtime = "nodejs";
@@ -36,7 +36,7 @@ export async function POST(
   const recording = await getRecording(gate.supabase, id);
   if (!recording) return Response.json({ error: "not found" }, { status: 404 });
 
-  // Idempotent: if we already have a transcript, don't re-run (guards abuse/cost).
+  // Idempotent: if we already have a transcript, don’t re-run (guards abuse/cost).
   if (recording.transcript && recording.transcript.trim()) {
     return Response.json({ ok: true, status: "done" });
   }

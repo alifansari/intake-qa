@@ -10,7 +10,7 @@ export type ScoreBand = "0-39" | "40-59" | "60-79" | "80-100";
 
 export const SCORE_BANDS: ScoreBand[] = ["0-39", "40-59", "60-79", "80-100"];
 
-// Editorial band labels, matching the scoring engine's own language.
+// Editorial band labels, matching the scoring engine’s own language.
 export const BAND_LABEL: Record<ScoreBand, string> = {
   "0-39": "Intervention",
   "40-59": "Needs coaching",

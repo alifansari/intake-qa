@@ -1,12 +1,12 @@
 // POST /api/studio/shops/[id]/draft-narrative — founder-only. Drafts ONLY the
 // two narrative fields (narrative_failure, narrative_fix) for the shop report
-// from the founder's STRUCTURED channel facts + field notes. It NEVER grades a
+// from the founder’s STRUCTURED channel facts + field notes. It NEVER grades a
 // channel, ranks the firm, or computes any number — those are deterministic
 // (shops-content.mjs). Output lands as EDITABLE DRAFT and resets the review
 // gate (narrative_reviewed=false) so a human must approve before finalize.
 //
 // If ANTHROPIC_API_KEY is unconfigured, falls back to the deterministic no-LLM
-// draft (draftShopNarrative) — same philosophy as the scorecard's mapper
+// draft (draftShopNarrative) — same philosophy as the scorecard’s mapper
 // fallback: a grounded draft always exists.
 import Anthropic from "@anthropic-ai/sdk";
 import { requireFounderRoute } from "@/lib/studio/guard";
@@ -23,14 +23,14 @@ export const maxDuration = 60;
 
 const MODEL = "claude-sonnet-4-6";
 
-const SYSTEM = `You draft prose for an "Intake Coverage Audit — Mystery Shop" report prepared by an independent intake scorer for a California plaintiff personal-injury firm. The firm's intake channels were shopped with a fixed scenario; you write TWO short fields only, from the structured per-channel facts and the analyst's field notes you are given.
+const SYSTEM = `You draft prose for an "Intake Coverage Audit — Mystery Shop" report prepared by an independent intake scorer for a California plaintiff personal-injury firm. The firm’s intake channels were shopped with a fixed scenario; you write TWO short fields only, from the structured per-channel facts and the analyst’s field notes you are given.
 
 STRICT RULES:
 - You do NOT assign or mention any grade, rank, count, or number beyond restating the facts provided — grades and benchmarks are computed elsewhere deterministically. Never invent one.
 - Every factual claim must trace to the provided facts/field notes. No citation, no claim. Do not invent quotes, events, dollar amounts, or outcomes.
 - No guarantees, no promised recoveries, no manufactured urgency. Plain, precise, non-alarmist.
 - This is a small structured sample; do not imply it measures the whole firm.
-- The report is about the firm's own lost leads — keep it about their prospective clients' experience, not about any product or technology.
+- The report is about the firm’s own lost leads — keep it about their prospective clients' experience, not about any product or technology.
 - Return ONE JSON object only, no prose around it, no code fences:
   { "narrative_failure": "...", "narrative_fix": "..." }
 - narrative_failure: 2–4 sentences naming the single most expensive thing that went wrong across the shopped channels, grounded in the facts.

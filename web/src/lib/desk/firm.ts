@@ -4,7 +4,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 // ---------------------------------------------------------------------------
 // Which firm does the signed-in user see? THE simplicity rule of the desk:
-// you see your firm's data, full stop.
+// you see your firm’s data, full stop.
 //
 // Resolution order:
 //   1. firm_members mapping for the signed-in user (the real answer)
@@ -43,13 +43,13 @@ export async function resolveDeskFirm(
       }
     } catch {
       // membership tables absent/unreadable — do NOT fall through to another
-      // firm's data when real auth is in play (see the hard rule below).
+      // firm’s data when real auth is in play (see the hard rule below).
       if (isSupabaseConfigured()) return null;
     }
 
     // Signed-in but no membership row, on a real (Supabase-configured) deploy:
     // NEVER bind them to firms[0] — that would show a stranger, or a firm whose
-    // onboarding half-failed, another firm's callers and phone numbers. Only a
+    // onboarding half-failed, another firm’s callers and phone numbers. Only a
     // firm explicitly named DEMO is a safe fallback (founder demo/seed data);
     // otherwise there is no firm for this user.
     if (isSupabaseConfigured()) {

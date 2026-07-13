@@ -1,4 +1,4 @@
-// Settings — server wrapper. Resolves the signed-in user's firm so the client
+// Settings — server wrapper. Resolves the signed-in user’s firm so the client
 // screen can show THEIR paste-once webhook address and THEIR CRM connector
 // link. No firm resolvable → the sections degrade to the concierge line.
 import { resolveDeskFirm } from "@/lib/desk/firm";

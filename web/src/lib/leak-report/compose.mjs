@@ -26,7 +26,7 @@ import {
 } from "./copy.mjs";
 import { ANALYST } from "../analyst.mjs";
 
-// Map sol.mjs urgencyBand output → the report's standardized badge label.
+// Map sol.mjs urgencyBand output → the report’s standardized badge label.
 export function badgeFor(leak) {
   if (leak.statuteExpired) return "EXPIRED";
   const b = urgencyBand(leak.statuteDays);

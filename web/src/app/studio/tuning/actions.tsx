@@ -21,7 +21,7 @@ function saveNameForNextTime(name: string) {
   try {
     window.localStorage.setItem(NAME_KEY, name);
   } catch {
-    // localStorage unavailable — the action still works, it just won't remember.
+    // localStorage unavailable — the action still works, it just won’t remember.
   }
 }
 

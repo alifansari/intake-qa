@@ -65,7 +65,7 @@ export default function DpaPage() {
           Master Services Agreement
         </Link>{" "}
         between {LEGAL_ENTITY} (&quot;{LEGAL_DBA}&quot;) and the subscribing Firm, and describes how we
-        process data on the Firm&apos;s behalf.
+        process data on the Firm’s behalf.
       </p>
 
       <div className="mt-8">
@@ -74,7 +74,7 @@ export default function DpaPage() {
             For the intake-call recordings, transcripts, scores, and reports processed through the
             service, the <strong>Firm is the controller</strong> and{" "}
             <strong>{LEGAL_DBA} is the processor</strong>. We process this data only to provide the
-            service and only on the Firm&apos;s documented instructions, which include this DPA and the
+            service and only on the Firm’s documented instructions, which include this DPA and the
             MSA.
           </p>
         </Section>
@@ -148,7 +148,7 @@ export default function DpaPage() {
           <p>
             Recordings and transcripts are confidential (consistent with Cal. Rule 1.18). Transcription
             redacts sensitive identifiers server-side by default (Social Security, payment-card and
-            banking, driver&apos;s-license and passport numbers). We do not place claimant PII in URLs,
+            banking, driver’s-license and passport numbers). We do not place claimant PII in URLs,
             analytics events, or third-party tools without a processing basis. Spanish-language intake
             data receives the same protection.
           </p>

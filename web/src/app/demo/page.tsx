@@ -98,7 +98,7 @@ export default function DemoPage() {
 
   // Copy = reality: show the size cap this deploy actually enforces (signed-URL
   // storage mode vs the much smaller direct body path) instead of a hard-coded
-  // promise the upload can't keep.
+  // promise the upload can’t keep.
   useEffect(() => {
     fetch("/api/demo/upload-url")
       .then((r) => (r.ok ? r.json() : null))
@@ -224,8 +224,8 @@ export default function DemoPage() {
           Score one of your intake calls
         </h1>
         <p className="mt-2 text-muted">
-          Upload a single call recording. In a few minutes you&apos;ll see how it scored, whether it
-          was a signable case your team let slip, and the same-day callback script we&apos;d hand
+          Upload a single call recording. In a few minutes you’ll see how it scored, whether it
+          was a signable case your team let slip, and the same-day callback script we’d hand
           your staff. We never contact your callers.
         </p>
         <p className="mt-2 text-sm text-muted">
@@ -328,7 +328,7 @@ function Processing({ status }: { status: Status | null }) {
         })}
       </ul>
       <p className="mt-6 text-xs text-faint">
-        This usually takes a couple of minutes. Your audio is deleted the moment it&apos;s
+        This usually takes a couple of minutes. Your audio is deleted the moment it’s
         transcribed.
       </p>
     </div>
@@ -338,7 +338,7 @@ function Processing({ status }: { status: Status | null }) {
 function ErrorCard({ message, onRetry }: { message: string | null; onRetry: () => void }) {
   return (
     <div className="rounded-lg border border-line bg-paper p-8 text-center">
-      <p className="font-display text-lg font-semibold text-red">We couldn&apos;t process that call</p>
+      <p className="font-display text-lg font-semibold text-red">We couldn’t process that call</p>
       <p className="mt-2 text-sm text-muted">{message ?? "Something went wrong."}</p>
       <button
         onClick={onRetry}
@@ -406,8 +406,8 @@ function Results({
           <p className="font-display text-lg font-semibold text-green">No signable case walked</p>
           <p className="mt-1 text-sm text-muted">{result.reason}</p>
           <p className="mt-2 text-xs text-faint">
-            That&apos;s the product being honest. It only flags genuinely signable cases your team
-            didn&apos;t close, so you never text the wrong lead.
+            That’s the product being honest. It only flags genuinely signable cases your team
+            didn’t close, so you never text the wrong lead.
           </p>
         </div>
       )}
@@ -415,7 +415,7 @@ function Results({
       {/* Draft preview: watermarked, never sent */}
       {result.leaked && result.draftPreview && (
         <div className="rounded-lg border border-line bg-paper p-6">
-          <p className="eyebrow">The callback script we&apos;d hand your staff</p>
+          <p className="eyebrow">The callback script we’d hand your staff</p>
           <div className="mt-2 rounded-md border border-line bg-canvas p-4 text-sm text-ink">
             {result.draftPreview}
           </div>
@@ -473,7 +473,7 @@ function DeadlineWatch({ sol }: { sol: SolResult }) {
         </div>
       ) : (
         <p className="mt-3 text-sm text-muted">
-          We couldn&apos;t compute a deadline. No incident date was clear on the call.
+          We couldn’t compute a deadline. No incident date was clear on the call.
         </p>
       )}
       {sol.notes.length > 0 && (
@@ -576,7 +576,7 @@ function Stat({ label, value, sub, tone = "ink" }: { label: string; value: strin
 function RetentionNote({ audioDeleted = false }: { audioDeleted?: boolean }) {
   return (
     <p className="mt-4 text-center text-xs text-faint">
-      {audioDeleted ? "Your audio has already been deleted. " : "Your audio is deleted the moment it's transcribed. "}
+      {audioDeleted ? "Your audio has already been deleted. " : "Your audio is deleted the moment it’s transcribed. "}
       The transcript and this report are automatically purged after 72 hours. Recordings and
       transcripts are treated as confidential.
     </p>
@@ -604,7 +604,7 @@ function EmailCapture({ demoCallId, resumeToken }: { demoCallId: string; resumeT
   if (sent) {
     return (
       <div className="no-print rounded-lg border border-line bg-paper p-5 text-center text-sm text-green">
-        Thanks. We&apos;ll send this report to your inbox.
+        Thanks. We’ll send this report to your inbox.
       </div>
     );
   }

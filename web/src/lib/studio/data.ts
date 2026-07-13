@@ -4,7 +4,7 @@ import { mapEngineToScorecard, draftNarrativeFromEngine } from "./mapper";
 import { computeSpotCheck, computeLeakage } from "./rubric";
 
 // ---------------------------------------------------------------------------
-// Studio data access. Every function takes the FOUNDER's RLS-bound Supabase
+// Studio data access. Every function takes the FOUNDER’s RLS-bound Supabase
 // client (from lib/studio/guard.ts) so created_by defaults to auth.uid() and
 // Postgres RLS scopes every read/write to the owner. The service-role client is
 // used ONLY for Storage (signed URLs / downloads), never for these row writes.
@@ -190,7 +190,7 @@ export async function createSpotCheck(
     // If the recording is already processed (scoring present), BUILD THE
     // SCORECARD ITSELF now: derive dimensions/critical-fails/leakage/narrative
     // from the engine analysis so the founder lands on a pre-filled, editable
-    // scorecard rather than empty inputs. (When processing hasn't finished yet,
+    // scorecard rather than empty inputs. (When processing hasn’t finished yet,
     // the /process route auto-populates once scoring lands.)
     const rec = await getRecording(supabase, input.recording_id);
     if (rec?.scoring) {
@@ -269,7 +269,7 @@ export async function setRecordingTranscriptAndScoring(
 // derive the six rubric dimensions, the critical fails, and the leakage inputs
 // from the engine `scoring` (via mapper.mjs), recompute the headline score/grade/
 // leakage via the pure rubric, auto-draft the two narrative fields from the
-// engine's flagged failure + evidence, and mark narrative_reviewed = true so the
+// engine’s flagged failure + evidence, and mark narrative_reviewed = true so the
 // scorecard is finalizable/printable with NO manual entry required. The founder
 // can still edit any field afterwards (which re-opens the review gate).
 //

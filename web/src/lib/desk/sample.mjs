@@ -1,11 +1,11 @@
-// A realistic, clearly-labeled SAMPLE of what the desk looks like once a firm's
-// calls are flowing — so a live demo (or a brand-new firm's first login) sees a
+// A realistic, clearly-labeled SAMPLE of what the desk looks like once a firm’s
+// calls are flowing — so a live demo (or a brand-new firm’s first login) sees a
 // dollar figure and a call-ready queue in seconds instead of an empty "connect
 // your calls" panel. Research (time-to-value): the first-run dashboard is the
 // highest-stakes empty state; seed it so value is legible immediately.
 //
 // HONESTY (compliance-invariants §IV/§V): every surface that renders this MUST
-// label it "Sample" so it is never mistaken for the firm's real book. The fee
+// label it "Sample" so it is never mistaken for the firm’s real book. The fee
 // ranges use the same estimated-range methodology as real cards (never a point
 // estimate, never a guarantee). No real caller PII — invented initials + a
 // non-routable 555 number.
@@ -30,7 +30,7 @@ function make(now) {
       reason:
         "Rear-ended on the 405, treating with a chiropractor, no attorney yet — clearly signable and no sign of a signed agreement.",
       quote:
-        "I got hit from behind on the freeway and my back's been killing me — I haven't signed with anybody, I just want to know what to do.",
+        "I got hit from behind on the freeway and my back’s been killing me — I haven’t signed with anybody, I just want to know what to do.",
       phone: "(555) 010-2042",
       saveStatus: "needs_callback",
       attempts: 0,
@@ -62,7 +62,7 @@ function make(now) {
       feeLowCents: 10_000_00,
       feeHighCents: 23_000_00,
       reason:
-        "Neighbor's dog bit her hand, required stitches, animal control was called — strong liability, not signed.",
+        "Neighbor’s dog bit her hand, required stitches, animal control was called — strong liability, not signed.",
       quote:
         "The dog got out and bit me, I needed seven stitches — I filed a report with animal control the same day.",
       phone: "(555) 010-2031",
@@ -106,7 +106,7 @@ function dollars(cents) {
 // this month — enough to show both halves of the hero honestly.
 export function sampleDesk(now = Date.now()) {
   const leaks = make(now);
-  // One prior win this month (signed), so "won back" isn't zero in the demo.
+  // One prior win this month (signed), so "won back" isn’t zero in the demo.
   const wonBack = {
     id: "sample-0",
     caseType: "Auto accident",

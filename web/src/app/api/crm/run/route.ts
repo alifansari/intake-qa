@@ -6,7 +6,7 @@
 //   { action: "process" }                 → one worker pass (duplicate check,
 //                                           review hold, write, retry)
 //   { action: "approve", id, by }         → named approval of a review item
-// The mock's memory is per-process; this route exists to demonstrate and
+// The mock’s memory is per-process; this route exists to demonstrate and
 // verify the contract, not to move real data.
 import { z } from "zod";
 import { Pool } from "pg";

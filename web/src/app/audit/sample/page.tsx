@@ -25,7 +25,7 @@ const CALL_COUNT = 8;
 const TOTAL_FEE_AT_RISK = 27000;
 // Copy-audit 2026-07-11: the monthly projection ($253k–$506k extrapolated from 8
 // synthetic calls) was removed — vendor-computed extrapolation is the #1 distrust
-// trigger for this audience, and it contradicted this page's own "not a
+// trigger for this audience, and it contradicted this page’s own "not a
 // projection" subhead. The section below now sells the refusal instead.
 
 const WALKED = [
@@ -110,18 +110,18 @@ export default function SampleAuditPage() {
       {/* No projection — the refusal is the pitch */}
       <section className="mt-8 rounded-sm border border-line bg-paper p-4">
         <p className="text-sm font-semibold uppercase tracking-wide text-muted">
-          What a full month looks like: we won&apos;t tell you from a sample
+          What a full month looks like: we won’t tell you from a sample
         </p>
         <p className="mt-2 max-w-prose text-sm text-ink">
           Eight synthetic calls prove the method, not your number. Extrapolating a monthly dollar
-          figure from a sample is the kind of math you&apos;ve been pitched before, so we don&apos;t
+          figure from a sample is the kind of math you’ve been pitched before, so we don’t
           do it. The honest way to know is a month on your own calls, and the first look is free.
         </p>
       </section>
 
       {/* Sample callback script */}
       <section className="mt-10">
-        <h2 className="font-display text-xl font-semibold text-ink">The same-day callback script we&apos;d hand your staff</h2>
+        <h2 className="font-display text-xl font-semibold text-ink">The same-day callback script we’d hand your staff</h2>
         <div className="mt-2 rounded-sm border border-line bg-paper p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-amber">
             Draft preview: we never contact your callers

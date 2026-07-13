@@ -1,5 +1,5 @@
 // Loose TypeScript shapes for the untyped `ingest/audit.mjs` boundary.
-// checkJs infers `{ ok: boolean }` result unions that don't narrow on `!res.ok`,
+// checkJs infers `{ ok: boolean }` result unions that don’t narrow on `!res.ok`,
 // so the routes and the report page cast the awaited results to these.
 
 export type AuditSessionRow = {

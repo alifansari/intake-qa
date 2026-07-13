@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     const gate = await requireDeskFirm(db, store.listFirms);
     if (gate.response) return gate.response;
 
-    // Ownership: the object must live under THIS firm's prefix.
+    // Ownership: the object must live under THIS firm’s prefix.
     if (!body.path.startsWith(`desk/${gate.firm.id}/`)) {
       return Response.json({ error: "forbidden" }, { status: 403 });
     }
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
       })
       .catch(() => {});
     return Response.json(
-      { error: "We couldn't finish that upload — we've been notified. Please try again." },
+      { error: "We couldn’t finish that upload — we’ve been notified. Please try again." },
       { status: 500 },
     );
   } finally {

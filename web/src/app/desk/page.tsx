@@ -74,7 +74,7 @@ export default async function DeskHome({ searchParams }: { searchParams: SearchP
 
     const flags = await store.listLeakedFlags(db, firm.id);
 
-    // Pipeline heartbeat: prove the whole thing is on, in the firm's own nouns.
+    // Pipeline heartbeat: prove the whole thing is on, in the firm’s own nouns.
     let callsReceived = 0;
     let lastCallAt: string | null = null;
     let callsProcessing = 0;
@@ -192,6 +192,7 @@ export default async function DeskHome({ searchParams }: { searchParams: SearchP
           ) : null}
         </div>
 
+        <ReadoutLinks />
         <RecordsRow />
         <Footnote />
       </Shell>
@@ -221,7 +222,7 @@ function QueueEmpty({
           {callsProcessing} call{callsProcessing === 1 ? "" : "s"} still being read.
         </h2>
         <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
-          Anything that needs a callback appears here as soon as we&apos;re done — usually within a
+          Anything that needs a callback appears here as soon as we’re done — usually within a
           few minutes. Nothing needs you yet.
         </p>
       </div>
@@ -231,22 +232,28 @@ function QueueEmpty({
     return (
       <div className="rounded-card border border-hairline bg-surface p-6">
         <h2 className="font-display text-lg font-semibold text-ink">
-          {callsFailed} call{callsFailed === 1 ? "" : "s"} we couldn&apos;t read automatically.
+          {callsFailed} call{callsFailed === 1 ? "" : "s"} we couldn’t read automatically.
         </h2>
         <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
-          We&apos;ve been notified and will look into {callsFailed === 1 ? "it" : "them"} — nothing
+          We’ve been notified and will look into {callsFailed === 1 ? "it" : "them"} — nothing
           is required from you. Everything we could read is up to date.
         </p>
       </div>
     );
   }
+  const callWord = callsReceived === 1 ? "call" : "calls";
   return (
     <div className="rounded-card border border-hairline bg-surface p-6">
       <h2 className="font-display text-lg font-semibold text-ink">Nothing to call back right now.</h2>
       <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
-        We&apos;ve read {callsReceived} call{callsReceived === 1 ? "" : "s"} and every signable
-        caller is signed, in progress, or accounted for. New misses appear here the same day we read
-        the call — the daily digest emails you when one lands, so you don&apos;t have to check back.
+        We’ve read {callsReceived} {callWord} and every signable caller is signed, in progress,
+        or accounted for. New misses appear here the same day we read the call, and the daily digest
+        emails you when one lands, so you don’t have to check back.
+      </p>
+      <p className="mt-3 text-sm">
+        <a href="/desk/scorecard" className="font-semibold text-accent hover:text-accent-hover">
+          See how your team is doing →
+        </a>
       </p>
     </div>
   );
@@ -281,7 +288,7 @@ function SampleDesk({ note }: { note: "connect" }) {
 
       {note === "connect" ? (
         <div className="mt-6 rounded-card border border-hairline bg-canvas p-6">
-          <h3 className="font-display text-base font-semibold text-ink">See your firm&apos;s real cases</h3>
+          <h3 className="font-display text-base font-semibold text-ink">See your firm’s real cases</h3>
           <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
             The cases above are a sample. Connect your calls and anything your team lets slip shows
             up here the same day — with the fees it was worth. It takes about 15 minutes, or we do
@@ -307,17 +314,22 @@ function SampleDesk({ note }: { note: "connect" }) {
         </div>
       ) : null}
 
-      <RecordsRow />
+      <ReadoutLinks demo />
+      <RecordsRow demo />
       <Footnote />
     </>
   );
 }
 
 // Quiet records row — the old Calls / Documents / Upload tabs, demoted to
-// where they belong: available, but never in the way of the daily job.
-function RecordsRow() {
+// where they belong: available, but never in the way of the daily job. The
+// sample desk points these at the demo variants so a prospect can explore the
+// sample calls + scorecard without connecting anything.
+function RecordsRow({ demo = false }: { demo?: boolean }) {
+  const q = demo ? "?demo=1" : "";
   const links = [
-    { href: "/desk/reconciliation", label: "Every call we read" },
+    { href: `/desk/calls${q}`, label: "Every call we read" },
+    { href: `/desk/scorecard${q}`, label: "How your team is doing" },
     { href: "/desk/documents", label: "Monthly statements" },
     { href: "/desk/upload", label: "Upload a recording" },
   ];
@@ -333,12 +345,35 @@ function RecordsRow() {
   );
 }
 
+// A calm, always-present way into the two new readouts — the past-calls detail
+// and the team-wide grade — so "how did we do?" is never a dead end even when
+// the callback queue is empty.
+function ReadoutLinks({ demo = false }: { demo?: boolean }) {
+  const q = demo ? "?demo=1" : "";
+  return (
+    <div className="mt-6 flex flex-wrap gap-3">
+      <a
+        href={`/desk/scorecard${q}`}
+        className="rounded-pill border border-hairline px-4 py-2 text-sm font-semibold text-ink hover:border-accent"
+      >
+        How your team is doing →
+      </a>
+      <a
+        href={`/desk/calls${q}`}
+        className="rounded-pill border border-hairline px-4 py-2 text-sm font-semibold text-ink hover:border-accent"
+      >
+        Every call we read →
+      </a>
+    </div>
+  );
+}
+
 function Footnote() {
   return (
     <p className="mt-6 max-w-[80ch] text-xs text-faint">
       <sup>1</sup> Estimated fee value is a range under the methodology on the honesty page — an
       estimate of what walked, not a guarantee of recovery. The waiting time on each card counts from
-      the caller&apos;s original call — it&apos;s a callback reminder, not a legal deadline.
+      the caller’s original call — it’s a callback reminder, not a legal deadline.
       Statute-of-limitations tracking stays with your attorneys.
     </p>
   );
@@ -350,7 +385,7 @@ function Shell({ children, firmName }: { children: React.ReactNode; firmName?: s
       <div className="mb-6">
         <p className="eyebrow">Your desk{firmName ? ` · ${firmName}` : ""}</p>
         <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
-          We read every intake call so your team doesn&apos;t have to. Here&apos;s the money your
+          We read every intake call so your team doesn’t have to. Here’s the money your
           team missed, and the callers to phone back to win it.
         </p>
       </div>

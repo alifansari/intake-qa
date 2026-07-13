@@ -1,7 +1,7 @@
 // POST /api/demo/upload-url — public, no-auth. Step 1 of the serverless-safe
 // demo flow: rate-limit by IP, create an isolated demo_calls row, and hand back
 // a short-lived signed URL the browser uploads the audio to DIRECTLY (bypassing
-// Vercel's ~4.5MB request-body limit). When Supabase Storage isn't configured
+// Vercel’s ~4.5MB request-body limit). When Supabase Storage isn’t configured
 // (e.g. local dev on SQLite) it returns { mode:"direct" } and the client falls
 // back to the legacy /api/demo/upload path, which works on a long-lived server.
 //
@@ -49,7 +49,7 @@ const Body = z.object({
   filename: z.string().min(1).max(255),
   size: z.number().int().nonnegative(),
   // Optional Intake Quality Audit session token — when present, this upload joins that
-  // session (governed by the session's 10-call cap, not the 3/hour demo limit).
+  // session (governed by the session’s 10-call cap, not the 3/hour demo limit).
   session: z.string().min(1).max(128).optional(),
 });
 
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
   if (parsed.size > maxBytes) {
     return Response.json(
       {
-        error: `That file is ${toMb(parsed.size)}MB and the limit here is ${toMb(maxBytes)}MB — try re-exporting it as an MP3, or email it to ali@plaintiffops.com and we'll run it by hand.`,
+        error: `That file is ${toMb(parsed.size)}MB and the limit here is ${toMb(maxBytes)}MB — try re-exporting it as an MP3, or email it to ali@plaintiffops.com and we’ll run it by hand.`,
       },
       { status: 413 },
     );
@@ -115,7 +115,7 @@ export async function POST(req: Request) {
         const msg =
           gate.reason === "concurrent"
             ? "A demo is still processing — please wait for it to finish."
-            : "You've reached the hourly demo limit (3). Please try again later.";
+            : "You’ve reached the hourly demo limit (3). Please try again later.";
         return Response.json({ error: msg, reason: gate.reason }, { status: 429 });
       }
     }

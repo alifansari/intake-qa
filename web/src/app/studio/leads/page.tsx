@@ -8,7 +8,7 @@ import { BUCKET_LABELS } from "@/lib/intake/plain-labels";
 export const dynamic = "force-dynamic";
 
 // The captured-leads browser: every canonical intake record the chat produced,
-// newest first — including abandoned sessions (that's the point: an abandoned
+// newest first — including abandoned sessions (that’s the point: an abandoned
 // chat is still a lead). Founder-only; read-only; the review flag reminds that
 // AI-captured data stays visually distinct until a human verifies it.
 let _pool: Pool | null = null;
@@ -50,7 +50,7 @@ const BUCKET_TONE: Record<string, string> = {
 // statuses; matter types come from the intake tree so they live here).
 const MATTER_LABELS: Record<string, string> = {
   mva: "Car / vehicle accident",
-  premises: "Injured on someone's property",
+  premises: "Injured on someone’s property",
   dog_bite: "Dog bite",
   other: "Something else",
 };

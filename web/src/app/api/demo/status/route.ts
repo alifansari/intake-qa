@@ -1,5 +1,5 @@
-// GET /api/demo/status?token=... — poll a demo call's processing state + result.
-// Public (no-auth). The result contains the uploader's OWN callers' names and
+// GET /api/demo/status?token=... — poll a demo call’s processing state + result.
+// Public (no-auth). The result contains the uploader’s OWN callers' names and
 // callback numbers, so the handle is an unguessable per-row token, never the
 // sequential integer id (which any visitor could enumerate to harvest PII).
 // The legacy ?id= parameter is intentionally NOT honored.
@@ -22,7 +22,7 @@ export async function GET(req: Request) {
     }
     return Response.json({
       id: String(row.id),
-      // Echo the caller's own poll token so the client can build a resume
+      // Echo the caller’s own poll token so the client can build a resume
       // deep-link (/demo?t=…) — e.g. the emailed "view your result" link.
       token: token,
       status: row.status,

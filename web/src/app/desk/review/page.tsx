@@ -38,7 +38,7 @@ export default async function ReviewPage() {
         <p className="eyebrow">The desk · analyst</p>
         <h1 className="mt-1 font-display text-2xl font-semibold text-ink">Review queue</h1>
         <p className="mt-1 text-sm text-ink-muted">
-          Every report is reviewed and signed off before it&apos;s released. Confirm the checklist, then
+          Every report is reviewed and signed off before it’s released. Confirm the checklist, then
           release — the sign-off stamps your name and the timestamp into the footer.
         </p>
       </div>

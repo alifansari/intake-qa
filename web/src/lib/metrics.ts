@@ -305,7 +305,7 @@ export function whatIfRecovery(
 // Plain-language method notes surfaced in the UI (tooltips / methodology page).
 export const METHODOLOGY = {
   flagPrecision:
-    "When we flag a call as a lost signable case, we're right this share of the time. Formula: correct flags ÷ (correct flags + false alarms), counting recovered cases as correct. Calls without a confirmed outcome are excluded.",
+    "When we flag a call as a lost signable case, we’re right this share of the time. Formula: correct flags ÷ (correct flags + false alarms), counting recovered cases as correct. Calls without a confirmed outcome are excluded.",
   catchRate:
     "Of the signable cases that actually walked (signed elsewhere), the share we caught. Formula: correct flags ÷ (correct flags + missed catches).",
   recoveredFees: `Conservative counts only flagged calls that got a callback and then signed with us within ${WITHIN_DAYS} days. Optimistic adds flagged calls that got a callback and are still open (potential). We always show both bounds — never a single number.`,

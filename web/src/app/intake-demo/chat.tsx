@@ -18,7 +18,7 @@ import {
 // answered by its FIXED deflection (guardrails.mjs) — never an improvised
 // reply, never a tree jump. Firms can poke these and watch the rails hold.
 const OFF_SCRIPT = [
-  { key: "case_value", label: "“What's my case worth?”", reply: CASE_VALUE_DEFLECTION },
+  { key: "case_value", label: "“What’s my case worth?”", reply: CASE_VALUE_DEFLECTION },
   { key: "legal_advice", label: "“Should I talk to the insurance company?”", reply: LEGAL_ADVICE_DEFLECTION },
   { key: "fees", label: "“How much do you charge?”", reply: FEE_DEFLECTION },
 ];
@@ -302,7 +302,7 @@ export function IntakeChat() {
                 {/* The raw record, one click away — nothing hidden. */}
                 <details className="rounded-card border border-line bg-canvas">
                   <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted">
-                    Full structured record (what the firm&apos;s CRM receives)
+                    Full structured record (what the firm’s CRM receives)
                   </summary>
                   <pre className="max-h-72 overflow-auto border-t border-line p-3 text-[11px] leading-snug text-muted">
                     {JSON.stringify(

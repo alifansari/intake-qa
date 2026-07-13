@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   const secret = process.env.CALLRAIL_WEBHOOK_SECRET;
   if (!secret) {
     // FAILURE LOUDNESS: with no secret this legacy env-pinned route can never
-    // verify a webhook, so the pilot firm's calls silently never ingest.
+    // verify a webhook, so the pilot firm’s calls silently never ingest.
     // Persist an errors-table row (mirrors the bad_signature branch below) so
     // /admin/status and the founder sweep surface it instead of a dead 500.
     const db = await openPipelineDb();
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   }
 
   const rawBody = await req.text();
-  // CallRail's documented header is literally `Signature` (Node lowercases it);
+  // CallRail’s documented header is literally `Signature` (Node lowercases it);
   // keep `x-callrail-signature` as a fallback for renaming proxies.
   const signature =
     req.headers.get("signature") ??
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
       }).catch(() => {});
       return Response.json({ error: "invalid payload" }, { status: 400 });
     }
-    // P1(c): don't echo raw internal error text to the caller. Log details
+    // P1(c): don’t echo raw internal error text to the caller. Log details
     // server-side; return a generic message.
     await logError(db, {
       source: "webhooks.callrail",

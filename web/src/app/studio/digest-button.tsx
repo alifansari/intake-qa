@@ -47,7 +47,7 @@ export function SendDigestsButton() {
     <span className="flex flex-col items-end gap-1">
       <span className="flex items-center gap-2">
         <Button variant="outline" size="sm" disabled={busy} onClick={run}>
-          {busy ? "Running…" : "Send today's digests"}
+          {busy ? "Running…" : "Send today’s digests"}
         </Button>
         {result ? <span className="text-xs text-faint tnum">{result}</span> : null}
       </span>

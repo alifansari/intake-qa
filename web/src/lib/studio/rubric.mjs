@@ -7,7 +7,7 @@
 // elsewhere; it never touches anything in this file.
 //
 // Authored as .mjs so the node --test runner and the Next runtime both import it
-// with zero build step (the repo's established pattern, e.g. messaging/reconcile.mjs
+// with zero build step (the repo’s established pattern, e.g. messaging/reconcile.mjs
 // + src/lib/reconcile.ts). src/lib/studio/rubric.ts re-exports these with types.
 //
 // Everything a reader/reviewer needs to audit the number lives here and is
@@ -59,9 +59,9 @@ export const GRADE_THRESHOLDS = [
 
 // --- Critical fails ---------------------------------------------------------
 // If ANY of these is checked, the headline grade is CAPPED AT F regardless of the
-// weighted score, and surfaced prominently. This mirrors the frozen engine's own
+// weighted score, and surfaced prominently. This mirrors the frozen engine’s own
 // critical-fail philosophy but is computed here deterministically from the
-// founder's structured inputs.
+// founder’s structured inputs.
 export const CRITICAL_FAILS = [
   { key: "non_lawyer_legal_opinion", label: "Non-lawyer gave a legal opinion (UPL)" },
   {
@@ -91,8 +91,8 @@ export function gradeForScore(score) {
 //   * `null` (explicit) stays null → the dimension is EXCLUDED from the score.
 //   * A valid level (0/50/100) is kept as-is.
 //   * Anything else invalid/absent counts as 0 (absence of evidence = the
-//     behavior didn't happen — same stance as the engine). Note this is distinct
-//     from `null`: 0 is an ASSESSED "Poor", null is "we didn't test this".
+//     behavior didn’t happen — same stance as the engine). Note this is distinct
+//     from `null`: 0 is an ASSESSED "Poor", null is "we didn’t test this".
 function level(v) {
   if (v === null) return null;
   return DIMENSION_LEVELS.includes(v) ? v : 0;

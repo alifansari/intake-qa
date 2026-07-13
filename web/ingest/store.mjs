@@ -146,6 +146,12 @@ export const getFeeValueRange = wrap("getFeeValueRange");
 export const listLeakedFlags = wrap("listLeakedFlags");
 export const setFlagStatus = wrap("setFlagStatus");
 export const listNonAnalyzedCalls = wrap("listNonAnalyzedCalls");
+
+// Per-call analysis (migration 0032 / 0040). Durable engine readout per call —
+// powers the per-call readout page and the team scorecard.
+export const upsertCallAnalysis = wrap("upsertCallAnalysis");
+export const getCallWithAnalysis = wrap("getCallWithAnalysis");
+export const listCallsWithAnalysis = wrap("listCallsWithAnalysis");
 export const getReportStatus = wrap("getReportStatus");
 export const setReportStatus = wrap("setReportStatus");
 export const listReviewableSessions = wrap("listReviewableSessions");

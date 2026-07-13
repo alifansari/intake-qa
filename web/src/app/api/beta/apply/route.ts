@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     }
 
     // First-party funnel event: top of the audit→pilot→paid funnel on
-    // /studio/beta. Qualification status only — never the applicant's PII.
+    // /studio/beta. Qualification status only — never the applicant’s PII.
     await recordEventOn(db, {
       event: "apply_submitted",
       actor: "applicant",
@@ -121,7 +121,7 @@ export async function POST(req: Request) {
     // True only when the NDA actually went out through Dropbox Sign. In
     // TEST_MODE (or with no API key) the send is simulated and the founder
     // emails the NDA manually — the copy must say so (never claim a send
-    // that didn't happen).
+    // that didn’t happen).
     const ndaSent = Boolean(nda && !nda.simulated);
 
     return NextResponse.json({
@@ -134,8 +134,8 @@ export async function POST(req: Request) {
         result.status === "nda_pending"
           ? ndaSent
             ? "Check your email for the NDA. Nothing connects until it is signed."
-            : "You're in the queue — we'll email your NDA within one business day. Nothing connects until it is signed."
-          : "You're on the waitlist for your practice area. The current beta is California personal-injury firms only.",
+            : "You’re in the queue — we’ll email your NDA within one business day. Nothing connects until it is signed."
+          : "You’re on the waitlist for your practice area. The current beta is California personal-injury firms only.",
       ndaSent,
       nda: nda ? { sent: true, simulated: Boolean(nda.simulated) } : null,
     });

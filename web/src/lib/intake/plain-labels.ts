@@ -1,4 +1,4 @@
-// Plain-English labels for the intake system's internal keys. The consoles are
+// Plain-English labels for the intake system’s internal keys. The consoles are
 // read by a non-technical law-office founder, so every raw enum gets a label a
 // person would actually say. Raw keys stay visible only as tooltips/suffixes.
 // Pure maps + lookups — no I/O, safe for server and client components alike.

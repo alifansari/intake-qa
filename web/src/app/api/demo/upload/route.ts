@@ -62,7 +62,7 @@ export async function POST(req: Request) {
   if (upload.size > MAX_BYTES) {
     return Response.json(
       {
-        error: `That file is ${toMb(upload.size)}MB and the limit here is ${toMb(MAX_BYTES)}MB — try re-exporting it as an MP3, or email it to ali@plaintiffops.com and we'll run it by hand.`,
+        error: `That file is ${toMb(upload.size)}MB and the limit here is ${toMb(MAX_BYTES)}MB — try re-exporting it as an MP3, or email it to ali@plaintiffops.com and we’ll run it by hand.`,
       },
       { status: 413 },
     );
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
     // Opportunistic retention purge (also runnable as a cron).
     await purgeDemo({ db }).catch(() => {});
 
-    // Audit uploads are governed by the session's 10-call cap, not the 3/hour
+    // Audit uploads are governed by the session’s 10-call cap, not the 3/hour
     // single-demo gate. A non-audit upload keeps the demo rate limit.
     let auditSessionId: unknown = null;
     if (sessionToken) {
@@ -101,7 +101,7 @@ export async function POST(req: Request) {
         const msg =
           gate.reason === "concurrent"
             ? "A demo is still processing — please wait for it to finish."
-            : "You've reached the hourly demo limit (3). Please try again later.";
+            : "You’ve reached the hourly demo limit (3). Please try again later.";
         await closePipelineDb(db);
         return Response.json({ error: msg, reason: gate.reason }, { status: 429 });
       }

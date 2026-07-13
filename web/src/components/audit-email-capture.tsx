@@ -32,7 +32,7 @@ export function AuditEmailCapture({ token }: { token: string }) {
   if (sent) {
     return (
       <p className="text-sm text-green">
-        Sent — a copy of this audit is on its way, and we&apos;ll be in touch.
+        Sent — a copy of this audit is on its way, and we’ll be in touch.
       </p>
     );
   }

@@ -1,14 +1,14 @@
 "use client";
-// Founder-only: store a firm's CallRail webhook signing key
+// Founder-only: store a firm’s CallRail webhook signing key
 // (firms.callrail_webhook_secret) without touching the database by hand.
 // Lives on /studio/onboard-firm (rendered standalone AND inside the
-// onboarding success panel with the new firm's id prefilled).
+// onboarding success panel with the new firm’s id prefilled).
 //
-// The signing key comes from the firm's CallRail account (Settings →
-// Integrations → Webhooks — CallRail issues it per account; you can't choose
-// it). Until it's stored here, the per-firm webhook can only verify against
+// The signing key comes from the firm’s CallRail account (Settings →
+// Integrations → Webhooks — CallRail issues it per account; you can’t choose
+// it). Until it’s stored here, the per-firm webhook can only verify against
 // the shared env secret, which belongs to firm #1's CallRail account — every
-// other firm's webhooks silently 401.
+// other firm’s webhooks silently 401.
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ export function CallRailSecretForm({
             value={firmId}
             onChange={(e) => setFirmId(e.target.value)}
             className="rounded-sm border border-line-strong bg-paper p-2 font-mono text-sm"
-            placeholder="the id from the firm's webhook address"
+            placeholder="the id from the firm’s webhook address"
           />
         </label>
       ) : null}
@@ -92,8 +92,8 @@ export function CallRailSecretForm({
           Connect CallRail: paste their signing key
         </h3>
         <p className="mb-3 mt-1 text-xs text-muted">
-          On the setup call, copy the signing key from the firm&apos;s CallRail account
-          (Settings → Integrations → Webhooks). Without it, their webhooks can&apos;t be
+          On the setup call, copy the signing key from the firm’s CallRail account
+          (Settings → Integrations → Webhooks). Without it, their webhooks can’t be
           verified and no calls will arrive.
         </p>
         {form}
@@ -108,8 +108,8 @@ export function CallRailSecretForm({
           CallRail signing key
         </h2>
         <p className="mb-4 mt-1 max-w-[70ch] text-sm text-muted">
-          Each firm&apos;s CallRail account has its own signing key — store it here so
-          their webhook calls verify. Until this is set, the firm&apos;s calls will be
+          Each firm’s CallRail account has its own signing key — store it here so
+          their webhook calls verify. Until this is set, the firm’s calls will be
           rejected (a &quot;0 calls&quot; desk). Verify the setup afterwards with{" "}
           <code className="font-mono text-xs">npm --prefix web run callrail:selftest</code>.
         </p>

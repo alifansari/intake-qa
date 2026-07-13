@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 // ---------------------------------------------------------------------------
 // "The Mirror" shop data access. Same contract as lib/studio/data.ts: every
-// function takes the FOUNDER's RLS-bound Supabase client (from guard.ts) so
+// function takes the FOUNDER’s RLS-bound Supabase client (from guard.ts) so
 // created_by defaults to auth.uid() and Postgres RLS scopes every read/write to
 // the owner. The peer-benchmark table is read-only reference data (select-only
 // policy; writes happen out-of-band via service role / SQL).

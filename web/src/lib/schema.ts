@@ -4,7 +4,7 @@ import { z } from "zod";
 // ScoredCall — the EXISTING scoring-engine output (output/*.score.json).
 // This schema is deliberately LOOSE (.passthrough, most fields optional) so a
 // real, hand-scored call file drops in unchanged and never fails validation on
-// a field the dashboard doesn't happen to use. We only pin the handful of
+// a field the dashboard doesn’t happen to use. We only pin the handful of
 // fields the reconciliation math and UI actually read.
 // DO NOT redesign this to "clean it up" — it mirrors the calibrated engine.
 // ---------------------------------------------------------------------------

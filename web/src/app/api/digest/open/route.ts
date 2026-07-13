@@ -9,7 +9,7 @@
 // the firm" — BETA_ONBOARDING.md).
 //
 // It ALWAYS answers with the gif — a broken token, missing table, or closed
-// database must never draw a broken-image square in an attorney's inbox.
+// database must never draw a broken-image square in an attorney’s inbox.
 import { verifyOpenToken } from "../../../../../messaging/digest-open.mjs";
 import { recordProductEvent } from "@/lib/events";
 

@@ -8,15 +8,15 @@
 //   { action: "import", firmId, crm, csvText, filename?, importedBy }
 //   { action: "review", reviewItemId, decision: "confirm"|"reject", reviewer,
 //     reason?, firmId }
-//   { action: "packet", firmId }        → build (or return) today's packet
-//   { action: "export", firmId }        → today's packet as a tagged CSV (text/csv)
+//   { action: "packet", firmId }        → build (or return) today’s packet
+//   { action: "export", firmId }        → today’s packet as a tagged CSV (text/csv)
 //   { action: "callback", firmId, flagId, employeeName, outcome?, note? }
 import { z } from "zod";
 import { requireFounderRoute } from "@/lib/studio/guard";
 import { openPipelineDb } from "../../../../../ingest/store.mjs";
 import { importDeadLeads as importDeadLeadsUntyped, CRM_KEYS } from "../../../../../rescue/import.mjs";
 
-// The .mjs module's inferred types are too narrow (defaults like `= null`);
+// The .mjs module’s inferred types are too narrow (defaults like `= null`);
 // give the call site an explicit shape, same pattern as api/digest/run.
 const importDeadLeads = importDeadLeadsUntyped as unknown as (opts: {
   db: unknown;

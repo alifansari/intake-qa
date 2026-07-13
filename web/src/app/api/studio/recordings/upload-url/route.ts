@@ -2,8 +2,8 @@
 // upload: the founder MUST attest all-party consent; we then create the recording
 // row (which stores the immutable consent attestation and is refused by the DB
 // unless consent_attested = true), and hand back a short-lived signed URL the
-// browser uploads the firm's audio DIRECTLY to the PRIVATE studio-audio bucket
-// (bypassing Vercel's ~4.5MB body limit). Nothing here transcribes or scores.
+// browser uploads the firm’s audio DIRECTLY to the PRIVATE studio-audio bucket
+// (bypassing Vercel’s ~4.5MB body limit). Nothing here transcribes or scores.
 import { z } from "zod";
 import { requireFounderRoute } from "@/lib/studio/guard";
 import { createRecording } from "@/lib/studio/data";

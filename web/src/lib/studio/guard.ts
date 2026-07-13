@@ -27,7 +27,7 @@ function founderEmail(): string | null {
 }
 
 // Returns the founder context, or null if the caller is not the founder (or the
-// stack isn't configured). Never throws — for callers that want to branch.
+// stack isn’t configured). Never throws — for callers that want to branch.
 export async function getFounderContext(): Promise<FounderContext | null> {
   const supabase = await getSupabaseServer();
   if (!supabase) return null;
@@ -61,7 +61,7 @@ export async function requireFounderRoute(): Promise<FounderContext | Response> 
   return ctx;
 }
 
-// For Server Actions: throws so the action aborts. Server Actions can't return a
+// For Server Actions: throws so the action aborts. Server Actions can’t return a
 // Response; a thrown error is the correct hard stop.
 export async function requireFounderAction(): Promise<FounderContext> {
   const ctx = await getFounderContext();

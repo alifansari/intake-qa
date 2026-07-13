@@ -9,7 +9,7 @@ import { useState } from "react";
 const usd = (n: number) =>
   "$" + Math.round(n).toLocaleString("en-US");
 
-// Conservative vs optimistic: what share of the signable cases that didn't
+// Conservative vs optimistic: what share of the signable cases that didn’t
 // convert the workflow realistically wins back. Shown to the user as captions.
 const CONSERVATIVE = 0.2;
 const OPTIMISTIC = 0.4;
@@ -54,7 +54,7 @@ function Result({ tone, rate, casesLost, avgFee }: { tone: string; rate: number;
   return (
     <div className="flex flex-col gap-2 rounded-card border border-hairline bg-canvas p-5">
       <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{tone}</p>
-      <p className="text-xs text-faint">That&apos;s {Math.round(rate * 100)}% of the signable cases that didn&apos;t convert</p>
+      <p className="text-xs text-faint">That’s {Math.round(rate * 100)}% of the signable cases that didn’t convert</p>
       <dl className="mt-1 flex flex-col gap-1.5 text-sm">
         <div className="flex justify-between"><dt className="text-ink-muted">Cases won back / yr</dt><dd className="tnum font-semibold text-ink">{recoveredCases.toFixed(1)}</dd></div>
         <div className="flex justify-between"><dt className="text-ink-muted">Fees recovered / yr</dt><dd className="tnum font-semibold text-accent">{usd(recoveredFees)}</dd></div>

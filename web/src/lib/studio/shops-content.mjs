@@ -9,7 +9,7 @@
 // gate (same compliance stance as rubric.mjs).
 //
 // Authored as .mjs so the node --test runner and the Next runtime both import
-// it with zero build step (the repo's established pattern); shops.ts re-exports
+// it with zero build step (the repo’s established pattern); shops.ts re-exports
 // with types.
 // ============================================================================
 
@@ -56,7 +56,7 @@ export function channelLabel(key) {
 // --- CIPA-safe fieldwork attestation (compliance-invariants §II) -------------
 // The founder must affirmatively attest this BEFORE a shop report can be
 // finalized (DB CHECK studio_shops_final_requires_protocol backs it up).
-// Mystery-shop fieldwork never records the firm's staff without a consent
+// Mystery-shop fieldwork never records the firm’s staff without a consent
 // basis, runs only a fixed approved scenario, and the scenario is signed off
 // before any dialing.
 export const SHOP_PROTOCOL_TEXT_VERSION = "shop-protocol-v1-2026-07";
@@ -68,7 +68,7 @@ export const SHOP_PROTOCOL_TEXT =
 
 // --- Headline counts ---------------------------------------------------------
 // A channel with grade null is "not graded yet" and EXCLUDED from every count
-// (never counted as a failure by default — same honesty stance as the rubric's
+// (never counted as a failure by default — same honesty stance as the rubric’s
 // "Not assessed").
 /**
  * @param {Array<{channel?: string, grade?: string|null}>} channels
@@ -97,7 +97,7 @@ export function computeShopSummary(channels = []) {
 // Ordering (best → worst): grade first (captured > fumbled > lost), then
 // response latency (lower is better; null latency sorts worst within a grade),
 // then ring count (lower is better). Standard competition ranking ("1224"):
-// the firm's rank is 1 + the number of peers strictly better than it, so exact
+// the firm’s rank is 1 + the number of peers strictly better than it, so exact
 // ties share the better rank.
 //
 // A ranked comparative line is a CLAIM (compliance-invariants §IV/§V), so:
@@ -109,7 +109,7 @@ export const MIN_BENCHMARK_COHORT = 3;
 const GRADE_ORDER = { captured: 0, fumbled: 1, lost: 2 };
 
 // Comparable tuple: smaller is better. Null grade is treated as worst (but the
-// firm's own channel must be graded for a rank to exist at all).
+// firm’s own channel must be graded for a rank to exist at all).
 function rankKey(row) {
   const g = GRADE_ORDER[row?.grade] ?? 3;
   const latency =
@@ -188,7 +188,7 @@ export function shopDisclosures({ channelsShopped = 0, benchmarkShown = false, b
       "is an all-party-consent state).",
     independence:
       "Independence: This analysis was prepared by an independent scorer. Intake QA " +
-      "is not a participant in the firm's fees and has no stake in any case outcome.",
+      "is not a participant in the firm’s fees and has no stake in any case outcome.",
     flatFee:
       "Fee: Intake QA is engaged on a flat monthly fee. Nothing here is priced as a " +
       "percentage of recovery, per case, or tied to any case outcome.",
@@ -207,7 +207,7 @@ export function shopDisclosures({ channelsShopped = 0, benchmarkShown = false, b
   return d;
 }
 
-// ref_code: MS-YYYYMMDD-XXXX (Mystery Shop; same shape as the scorecard's SC- code).
+// ref_code: MS-YYYYMMDD-XXXX (Mystery Shop; same shape as the scorecard’s SC- code).
 export function generateShopRefCode(now = new Date()) {
   const y = now.getUTCFullYear();
   const m = String(now.getUTCMonth() + 1).padStart(2, "0");
@@ -220,7 +220,7 @@ export function generateShopRefCode(now = new Date()) {
 }
 
 // --- Worst channel + deterministic narrative draft ---------------------------
-// The report leads with the firm's own lost leads. The "one expensive failure"
+// The report leads with the firm’s own lost leads. The "one expensive failure"
 // is the worst-graded channel (lost > fumbled; tie-break: slowest response).
 // Returns null when nothing graded is worse than captured — we never invent a
 // failure (no citation, no claim).
@@ -258,7 +258,7 @@ export function formatLatency(seconds) {
 }
 
 // Deterministic, grounded draft of the two narrative fields — NO LLM. Built
-// only from the founder's structured channel facts + field notes, so every
+// only from the founder’s structured channel facts + field notes, so every
 // sentence traces to entered evidence. Used to pre-fill the report (the AI
 // rewrite route can replace it, always re-opening the review gate).
 const CHANNEL_FIX = {

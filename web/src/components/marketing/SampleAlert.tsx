@@ -12,14 +12,14 @@ export function SampleAlert() {
           From: Ali, Intake QA &nbsp;·&nbsp; To: Sample PI Firm intake
         </p>
         <p className="mt-1 font-display text-base font-semibold text-ink">
-          Signable case from today&apos;s calls, call back within the hour
+          Signable case from today’s calls, call back within the hour
         </p>
       </div>
 
       {/* Body */}
       <div className="px-5 py-5 text-sm leading-relaxed text-ink">
         <p className="text-ink-muted">
-          One call today scored as a signable case that didn&apos;t convert, and lead value fades
+          One call today scored as a signable case that didn’t convert, and lead value fades
           fast. Details and the exact transcript moment are below. Ali reviewed this flag before it
           reached you.
         </p>
@@ -42,7 +42,7 @@ export function SampleAlert() {
 
         <dl className="mt-4 space-y-1.5">
           <div className="flex gap-2">
-            <dt className="w-32 flex-none text-ink-muted">Why it&apos;s flagged</dt>
+            <dt className="w-32 flex-none text-ink-muted">Why it’s flagged</dt>
             <dd className="text-ink">Clear liability and injury, ready to proceed, no retainer sent and no callback logged.</dd>
           </div>
           <div className="flex gap-2">

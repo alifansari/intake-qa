@@ -8,7 +8,7 @@ import { getSupabaseServer } from "./supabase/server";
 // the reconciliation Repository so the dashboards are untouched. The UI and
 // server actions depend ONLY on this interface, never on Supabase directly.
 //
-// Today's adapter is SupabasePilotRepository. It degrades gracefully when
+// Today’s adapter is SupabasePilotRepository. It degrades gracefully when
 // Supabase is not configured (returns empty lists / no-ops) so the deployed app
 // never breaks before a project exists — the queue simply shows a "connect
 // Supabase" empty state.

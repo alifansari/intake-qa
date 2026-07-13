@@ -31,7 +31,7 @@ const STATUS_COPY: Record<string, { label: string; tone: "busy" | "ok" | "bad" }
   done: { label: "Scored ✓ — anything that needs action is on Missed cases", tone: "ok" },
   failed: {
     label:
-      "We hit a problem with this file — we've been notified. Try re-exporting it as an MP3, or email it to ali@plaintiffops.com.",
+      "We hit a problem with this file — we’ve been notified. Try re-exporting it as an MP3, or email it to ali@plaintiffops.com.",
     tone: "bad",
   },
 };
@@ -69,7 +69,7 @@ export function UploadClient() {
     }
   }, []);
 
-  // Load the recent list once (deferred a tick — effects shouldn't set state
+  // Load the recent list once (deferred a tick — effects shouldn’t set state
   // synchronously), then poll while anything is still in flight so the page is
   // honest without a manual refresh.
   useEffect(() => {
@@ -110,7 +110,7 @@ export function UploadClient() {
       const { error } = await supabase.storage
         .from(plan.bucket)
         .uploadToSignedUrl(plan.path, plan.token, file);
-      if (error) throw new Error("The upload didn't finish — please try again.");
+      if (error) throw new Error("The upload didn’t finish — please try again.");
       const done = await fetch("/api/desk/uploads/complete", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -291,8 +291,8 @@ export function UploadClient() {
           >
             ali@plaintiffops.com
           </a>{" "}
-          — we&apos;ll take the files any way you can send them. Recordings are deleted as soon as
-          they&apos;re transcribed.
+          — we’ll take the files any way you can send them. Recordings are deleted as soon as
+          they’re transcribed.
         </p>
       </div>
     </div>

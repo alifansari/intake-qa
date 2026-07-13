@@ -1,9 +1,9 @@
 // Pure beta-health logic for the founder board (/studio/beta) and its tests.
-// NO I/O — identical for SQLite now and Postgres later (the repo's pure-logic
+// NO I/O — identical for SQLite now and Postgres later (the repo’s pure-logic
 // convention: reconcile.ts, compliance.mjs, sla.mjs live the same way).
 //
 // Three jobs:
-//   * activationState — BETA_ONBOARDING.md's one activation event: "first
+//   * activationState — BETA_ONBOARDING.md’s one activation event: "first
 //     callback marked done within 48 hours of the first digest/miss", as a
 //     live clock.
 //   * unopenedStreak — "three consecutive unopened digests = call the firm"
@@ -15,8 +15,8 @@ export const ACTIVATION_WINDOW_HOURS = 48;
 export const UNOPENED_STREAK_CALL_THRESHOLD = 3;
 
 // The activation clock for one firm.
-//   firstDigestAt   — ISO of the firm's first digest_sent event (or first miss), or null
-//   firstCallbackAt — ISO of the firm's first callback_marked event, or null
+//   firstDigestAt   — ISO of the firm’s first digest_sent event (or first miss), or null
+//   firstCallbackAt — ISO of the firm’s first callback_marked event, or null
 // Returns { state, hoursLeft?, hoursToActivate? } where state is one of:
 //   'waiting'   — no digest/miss yet, the clock has not started
 //   'on_clock'  — clock running; hoursLeft until the 48h window closes

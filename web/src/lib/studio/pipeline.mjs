@@ -24,7 +24,7 @@ import { pathToFileURL } from "node:url";
 import { engineRoot } from "../../../engine-root.mjs";
 import { v2VerdictToScoredCall } from "./v2-adapter.mjs";
 
-// The same frozen firm config the demo scores against, so the Studio's numbers
+// The same frozen firm config the demo scores against, so the Studio’s numbers
 // are produced by the identical calibrated v1 engine path (firm-visible).
 const FIRM_CONFIG_REL = "config/demo-firm.md";
 
@@ -42,7 +42,7 @@ function importV2() {
 // SHADOW PASS — run Engine V2 dark on the same transcript and return the
 // adapted verdict (which carries the full v2 verdict under `.v2`). Wrapped so
 // it can NEVER throw into the firm-visible path: any failure returns a small
-// error stub instead. Not awaited on the critical path's success.
+// error stub instead. Not awaited on the critical path’s success.
 async function runV2Shadow({ transcript, recordingId, root }) {
   try {
     const { scoreV2 } = await importV2();

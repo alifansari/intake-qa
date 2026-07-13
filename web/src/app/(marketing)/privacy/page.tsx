@@ -48,7 +48,7 @@ export default function PrivacyPage() {
             product. When a law firm uses our service, that firm decides which calls to send us and
             why. For that call data, the firm is the party responsible for the information (the
             business or controller) and we act as its service provider, processing the data only to
-            provide the service and only on the firm&apos;s instructions.
+            provide the service and only on the firm’s instructions.
           </p>
         </Section>
 
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
             <b className="text-ink">We do not use your calls, transcripts, or results to train AI
             models, and we use our transcription and analysis providers under terms that do not
             permit training on your data. We do not sell your data, and we do not share it for
-            anyone else&apos;s advertising.</b>
+            anyone else’s advertising.</b>
           </p>
         </Section>
 
@@ -125,8 +125,8 @@ export default function PrivacyPage() {
 
         <Section n="7" title="Security">
           <p>
-            Data is encrypted in transit (TLS) and at rest (AES-256), with each firm&apos;s data
-            isolated from every other firm&apos;s. We do not claim to be SOC 2 certified or HIPAA
+            Data is encrypted in transit (TLS) and at rest (AES-256), with each firm’s data
+            isolated from every other firm’s. We do not claim to be SOC 2 certified or HIPAA
             compliant as a company; we make plain commitments and put them in writing.
           </p>
         </Section>
@@ -136,7 +136,7 @@ export default function PrivacyPage() {
             California residents have rights under the CCPA/CPRA, including the right to know what
             personal information is collected, to access or delete it, to correct it, and to opt out
             of its sale or sharing. We do not sell or share personal information. Because call data is
-            usually processed on a firm&apos;s behalf, a request about a specific caller may be routed
+            usually processed on a firm’s behalf, a request about a specific caller may be routed
             to that firm. To exercise a right, contact us at{" "}
             <a href={`mailto:${FOUNDER_EMAIL}`} className="font-semibold text-accent hover:text-accent-hover">
               {FOUNDER_EMAIL}
@@ -147,10 +147,10 @@ export default function PrivacyPage() {
 
         <Section n="9" title="Text messages">
           <p>
-            No text messages are sent today; during the beta, follow-up happens by the firm&apos;s own
+            No text messages are sent today; during the beta, follow-up happens by the firm’s own
             staff calling back. If and when the texting feature is enabled, follow-up texts will go
-            only to a firm&apos;s own prior callers, include an opt-out, and send only after a person
-            at the firm approves each one and the firm&apos;s carrier registration clears. Reply STOP
+            only to a firm’s own prior callers, include an opt-out, and send only after a person
+            at the firm approves each one and the firm’s carrier registration clears. Reply STOP
             to any message to opt out; once opted out, that number is not texted again.
           </p>
         </Section>

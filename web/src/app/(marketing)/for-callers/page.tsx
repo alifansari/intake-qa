@@ -20,11 +20,11 @@ export default function ForCallersPage() {
         <p>
           If you recently called a personal-injury law firm and were told the call may be reviewed
           for quality, this may be why. Law firms use Intake QA to make sure callers who need help
-          don&apos;t get missed.
+          don’t get missed.
         </p>
         <p>
           We work only for the firm you called, under their instructions. We never contact you
-          ourselves, we never sell your information, and we don&apos;t add you to marketing lists. If
+          ourselves, we never sell your information, and we don’t add you to marketing lists. If
           the firm follows up, it is a person at that firm calling so they can help. If the firm ever
           texts you, replying STOP tells them to stop.
         </p>

@@ -1,6 +1,6 @@
-// The integration story, answered before anyone asks. Shown on the desk's
+// The integration story, answered before anyone asks. Shown on the desk’s
 // first-run/empty states and in Settings. The message that matters: NOTHING
-// about the firm's existing workflow changes — intake staff keep answering
+// about the firm’s existing workflow changes — intake staff keep answering
 // calls exactly as they do today; the desk works from recordings that already
 // exist. Three ways in, all of them "we handle it."
 const PATHS: { title: string; body: string; cta?: { href: string; label: string } }[] = [
@@ -22,20 +22,20 @@ const PATHS: { title: string; body: string; cta?: { href: string; label: string 
   },
 ];
 
-// The busy owner's real move is DELEGATE, not do: one click forwards
-// self-contained setup instructions (with the firm's own call-feed address)
+// The busy owner’s real move is DELEGATE, not do: one click forwards
+// self-contained setup instructions (with the firm’s own call-feed address)
 // to whoever actually runs the phones. The attorney never has to understand it.
 export function ForwardToPhonePerson({ webhookUrl }: { webhookUrl: string }) {
   const subject = "Please connect our phones to Intake QA (5 minutes)";
   const body = [
-    "Hi — can you set this up? It's one paste and it's done.",
+    "Hi — can you set this up? It’s one paste and it’s done.",
     "",
     "If we use CallRail:",
     "1. Sign in to CallRail",
     "2. Settings → Integrations → Webhooks",
     "3. Add a Post-Call webhook with this exact address:",
     `   ${webhookUrl}`,
-    "4. Save. That's it — every call now flows automatically.",
+    "4. Save. That’s it — every call now flows automatically.",
     "",
     "If we use something else (answering service, different phone system):",
     "just reply to this email or contact ali@plaintiffops.com — they set it up",
@@ -59,7 +59,7 @@ export function HowCallsArrive() {
       <h2 className="font-display text-lg font-semibold text-ink">How your calls get here</h2>
       <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
         Your team changes nothing about how they answer the phone. The desk reads the recordings
-        your firm already makes — that&apos;s the whole integration.
+        your firm already makes — that’s the whole integration.
       </p>
       <ol className="mt-4 grid gap-3 sm:grid-cols-3">
         {PATHS.map((p, i) => (
