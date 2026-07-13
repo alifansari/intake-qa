@@ -22,3 +22,7 @@ ops/drafts/MONDAY-vercel-env-values.md
 
 # Stray macOS duplicate artifacts (e.g. "package 2.json"). web/.engine/ itself is TRACKED.
 web/.engine/package 2.json
+
+# iCloud/Finder cloud-sync conflict copies ("foo 2.mjs") — never commit these
+* 2.*
+* [2-9].*
