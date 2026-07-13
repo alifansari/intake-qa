@@ -16,6 +16,7 @@ import { z } from "zod";
 import { Pool } from "pg";
 import { requireFounderRoute } from "@/lib/studio/guard";
 import { FOUNDER_NAME, FOUNDER_EMAIL } from "@/lib/site-constants";
+import { recordProductEvent } from "@/lib/events";
 import { composeWelcomeEmail as composeWelcomeEmailUntyped } from "../../../../../messaging/welcome-email.mjs";
 
 // The .mjs module carries no types; give the one call site an explicit shape.
@@ -231,6 +232,17 @@ export async function POST(req: Request) {
     );
 
     await client.query("commit");
+
+    // First-party product event: a firm was ONBOARDED (the apply→account
+    // bridge, distinct from the manual add in /api/studio/firms). Feeds the
+    // founder activity digest + material text, and the /studio/beta board.
+    // Best-effort — a log failure never affects the just-committed onboarding.
+    await recordProductEvent({
+      event: "firm_created",
+      firmId: firm.id,
+      actor: gate.email ?? "founder",
+      context: { name: firm.name, via: "onboarding" },
+    });
 
     const origin = process.env.APP_URL?.replace(/\/$/, "") || "https://plaintiffops.com";
     const welcome = welcomeEmailFor({

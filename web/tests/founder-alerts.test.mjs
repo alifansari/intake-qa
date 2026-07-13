@@ -21,6 +21,8 @@ import {
   signatureFailureFirms,
   buildFounderAlert,
   buildActivityDigest,
+  buildMaterialSms,
+  selectStuckToAlert,
   buildBetaPulse,
   shouldSendDailyPulse,
   sendFounderEmail,
@@ -210,6 +212,89 @@ test("runAlertSweep: activity events produce an email, advance the watermark, th
   });
   assert.equal(second.alert, null, "second sweep with no new events stays silent");
   assert.equal(readdirSync(dir).filter((f) => f.startsWith("founder-alert")).length, 1);
+});
+
+// --- material SMS ---------------------------------------------------------------------
+
+test("buildMaterialSms names the money set, stays terse, null when nothing material", () => {
+  assert.equal(buildMaterialSms({}), null);
+  // Clean scores / uploads are NOT material → still null.
+  assert.equal(buildMaterialSms({ leakedFlags: 0, signedCases: 0 }), null);
+
+  const sms = buildMaterialSms({
+    firmsAdded: [{ name: "Torres & Park PI" }],
+    leakedFlags: 2,
+    signedCases: 1,
+    newApplications: [{ firm_name: "Nguyen Law" }],
+    healthIssues: 1,
+  });
+  assert.match(sms, /^Intake QA:/);
+  assert.match(sms, /1 new application \(Nguyen Law\)/);
+  assert.match(sms, /\+1 firm \(Torres & Park PI\)/);
+  assert.match(sms, /2 leaked-signable/);
+  assert.match(sms, /1 signed/);
+  assert.match(sms, /1 issue/);
+  assert.match(sms, /Details emailed\./);
+});
+
+test("selectStuckToAlert alerts once, then mutes until the re-alert window passes", () => {
+  const stuck = [{ firm_id: 3, count: 2, oldest: minsAgo(200) }];
+  const first = selectStuckToAlert(stuck, {}, { now: NOW, realertHours: 6 });
+  assert.equal(first.toAlert.length, 1);
+  assert.ok(first.nextState["3"], "firm 3 gets an alert stamp");
+
+  // 2 minutes later (a 1-min cron), still stuck → muted, not re-alerted.
+  const soon = new Date(NOW.getTime() + 2 * 60_000);
+  const second = selectStuckToAlert(stuck, first.nextState, { now: soon, realertHours: 6 });
+  assert.equal(second.toAlert.length, 0, "still muted inside the window");
+  assert.equal(second.nextState["3"], first.nextState["3"], "mute stamp preserved");
+
+  // 7 hours later, still stuck → re-alerts (ongoing outage worth repeating).
+  const later = new Date(NOW.getTime() + 7 * 3600_000);
+  const third = selectStuckToAlert(stuck, first.nextState, { now: later, realertHours: 6 });
+  assert.equal(third.toAlert.length, 1, "re-alerts after the window");
+
+  // Recovered firm drops out of the state entirely.
+  const recovered = selectStuckToAlert([], first.nextState, { now: soon });
+  assert.deepEqual(recovered.nextState, {});
+});
+
+test("runAlertSweep: material events send ONE text via the injected sender; non-material do not", async (t) => {
+  const { db, dir, firmId } = makeCtx(t);
+  recordEvent(db, { event: "firm_created", firm_id: firmId, context: { name: "Alert Firm" } });
+  recordEvent(db, { event: "score_completed", firm_id: firmId, context: { leaked: true, score: 91 } });
+  recordEvent(db, { event: "callback_marked", firm_id: firmId, context: { status: "signed" } });
+  recordEvent(db, { event: "upload_completed", firm_id: firmId, context: { source: "manual" } }); // NOT material
+
+  const texts = [];
+  const env = {
+    FOUNDER_EMAIL: "ali@example.com",
+    FOUNDER_PHONE: "+15551234567",
+    FOUNDER_SMS_ENABLED: "true",
+    TWILIO_ACCOUNT_SID: "AC_x",
+    TWILIO_AUTH_TOKEN: "tok",
+    FOUNDER_SMS_FROM: "+15559990000",
+  };
+  const first = await runAlertSweep({
+    store, db, env, now: NOW, outDir: dir,
+    listApplicants: async () => [],
+    smsSender: async (m) => { texts.push(m); return { sid: "SM_x" }; },
+  });
+  assert.equal(first.sms?.mode, "live");
+  assert.equal(texts.length, 1, "exactly one text per sweep");
+  assert.match(texts[0].body, /\+1 firm/);
+  assert.match(texts[0].body, /1 leaked-signable/);
+  assert.match(texts[0].body, /1 signed/);
+
+  // Second sweep: only a non-material upload happened → email may fire, NO text.
+  recordEvent(db, { event: "upload_completed", firm_id: firmId, context: { source: "callrail" } });
+  const second = await runAlertSweep({
+    store, db, env, now: new Date(NOW.getTime() + 60_000), outDir: dir,
+    listApplicants: async () => [],
+    smsSender: async (m) => { texts.push(m); return { sid: "SM_y" }; },
+  });
+  assert.equal(second.sms, null, "an upload-only sweep sends no text");
+  assert.equal(texts.length, 1, "still just the one text");
 });
 
 // --- pulse timing ---------------------------------------------------------------------
