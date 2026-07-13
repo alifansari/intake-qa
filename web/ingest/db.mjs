@@ -1462,51 +1462,108 @@ export function upsertCallAnalysis(db, a) {
   return a.call_id;
 }
 
+// True when an error is "the call_analyses table isn't there yet" — i.e. the
+// code deployed before migration 0032/0040 was applied. We degrade gracefully to
+// the flags data (which already carries the score, case type, and leak status)
+// rather than error the whole page. SQLite: "no such table"; Postgres: "does not
+// exist" / code 42P01.
+function isMissingAnalysisTable(err) {
+  const m = String((err && err.message) || err || "");
+  return /call_analyses/.test(m) && /(no such table|does not exist|undefined table)/i.test(m);
+}
+
 // One call's full record: the call row + its analysis + its flag's save status.
 export function getCallWithAnalysis(db, firmId, callId) {
-  return db
-    .prepare(
-      `SELECT c.id AS call_id, c.firm_id, c.received_at, c.status, c.status_reason,
-              c.caller_name, c.caller_phone, c.source AS call_source, c.transcript,
-              a.overall_score, a.band, a.case_signability, a.lost_signable,
-              a.revenue_at_risk_cents, a.case_type, a.retainer_asked,
-              a.next_step_specificity, a.contact_info_captured,
-              a.cat_qualification, a.cat_conversion, a.cat_connection,
-              a.cat_risk_compliance, a.cat_process, a.summary, a.coaching_json,
-              a.rep, a.source, a.created_at AS analyzed_at,
-              f.id AS flag_id, fs.status AS save_status
-         FROM calls c
-         LEFT JOIN call_analyses a ON a.call_id = c.id
-         LEFT JOIN flags f ON f.call_id = c.id
-         LEFT JOIN flag_status fs ON fs.flag_id = f.id
-        WHERE c.firm_id = ? AND c.id = ?
-        LIMIT 1`
-    )
-    .get(firmId, callId);
+  try {
+    return db
+      .prepare(
+        `SELECT c.id AS call_id, c.firm_id, c.received_at, c.status, c.status_reason,
+                c.caller_name, c.caller_phone, c.source AS call_source, c.transcript,
+                a.overall_score, a.band, a.case_signability, a.lost_signable,
+                a.revenue_at_risk_cents, a.case_type, a.retainer_asked,
+                a.next_step_specificity, a.contact_info_captured,
+                a.cat_qualification, a.cat_conversion, a.cat_connection,
+                a.cat_risk_compliance, a.cat_process, a.summary, a.coaching_json,
+                a.rep, a.source, a.created_at AS analyzed_at,
+                f.id AS flag_id, fs.status AS save_status
+           FROM calls c
+           LEFT JOIN call_analyses a ON a.call_id = c.id
+           LEFT JOIN flags f ON f.call_id = c.id
+           LEFT JOIN flag_status fs ON fs.flag_id = f.id
+          WHERE c.firm_id = ? AND c.id = ?
+          LIMIT 1`
+      )
+      .get(firmId, callId);
+  } catch (err) {
+    if (!isMissingAnalysisTable(err)) throw err;
+    // Pre-migration fallback: no analysis blob, but flags carries the score,
+    // case type, and leak status so the readout still renders (no coaching).
+    return db
+      .prepare(
+        `SELECT c.id AS call_id, c.firm_id, c.received_at, c.status, c.status_reason,
+                c.caller_name, c.caller_phone, c.source AS call_source, c.transcript,
+                f.qualification_score AS overall_score, NULL AS band, NULL AS case_signability,
+                f.is_leaked_signable AS lost_signable, NULL AS revenue_at_risk_cents,
+                f.case_type AS case_type, NULL AS retainer_asked, NULL AS next_step_specificity,
+                NULL AS contact_info_captured, NULL AS cat_qualification, NULL AS cat_conversion,
+                NULL AS cat_connection, NULL AS cat_risk_compliance, NULL AS cat_process,
+                NULL AS summary, NULL AS coaching_json, NULL AS rep, NULL AS analyzed_at,
+                f.id AS flag_id, fs.status AS save_status
+           FROM calls c
+           LEFT JOIN flags f ON f.call_id = c.id
+           LEFT JOIN flag_status fs ON fs.flag_id = f.id
+          WHERE c.firm_id = ? AND c.id = ?
+          LIMIT 1`
+      )
+      .get(firmId, callId);
+  }
 }
 
 // Every call for a firm, newest first, with its analysis (when scored) and flag
 // save-status — the source for the Calls ledger AND the team scorecard aggregate.
 export function listCallsWithAnalysis(db, firmId) {
-  return db
-    .prepare(
-      `SELECT c.id AS call_id, c.received_at, c.status, c.status_reason,
-              c.caller_name, c.source AS call_source,
-              a.overall_score, a.band, a.case_signability, a.lost_signable,
-              a.revenue_at_risk_cents, a.case_type, a.retainer_asked,
-              a.next_step_specificity, a.contact_info_captured,
-              a.cat_qualification, a.cat_conversion, a.cat_connection,
-              a.cat_risk_compliance, a.cat_process, a.summary, a.coaching_json,
-              a.rep,
-              f.id AS flag_id, f.is_leaked_signable, fs.status AS save_status
-         FROM calls c
-         LEFT JOIN call_analyses a ON a.call_id = c.id
-         LEFT JOIN flags f ON f.call_id = c.id
-         LEFT JOIN flag_status fs ON fs.flag_id = f.id
-        WHERE c.firm_id = ?
-        ORDER BY c.received_at DESC, c.id DESC`
-    )
-    .all(firmId);
+  try {
+    return db
+      .prepare(
+        `SELECT c.id AS call_id, c.received_at, c.status, c.status_reason,
+                c.caller_name, c.source AS call_source,
+                a.overall_score, a.band, a.case_signability, a.lost_signable,
+                a.revenue_at_risk_cents, a.case_type, a.retainer_asked,
+                a.next_step_specificity, a.contact_info_captured,
+                a.cat_qualification, a.cat_conversion, a.cat_connection,
+                a.cat_risk_compliance, a.cat_process, a.summary, a.coaching_json,
+                a.rep,
+                f.id AS flag_id, f.is_leaked_signable, fs.status AS save_status
+           FROM calls c
+           LEFT JOIN call_analyses a ON a.call_id = c.id
+           LEFT JOIN flags f ON f.call_id = c.id
+           LEFT JOIN flag_status fs ON fs.flag_id = f.id
+          WHERE c.firm_id = ?
+          ORDER BY c.received_at DESC, c.id DESC`
+      )
+      .all(firmId);
+  } catch (err) {
+    if (!isMissingAnalysisTable(err)) throw err;
+    // Pre-migration fallback: real calls still list, graded from flags.
+    return db
+      .prepare(
+        `SELECT c.id AS call_id, c.received_at, c.status, c.status_reason,
+                c.caller_name, c.source AS call_source,
+                f.qualification_score AS overall_score, NULL AS band, NULL AS case_signability,
+                f.is_leaked_signable AS lost_signable, NULL AS revenue_at_risk_cents,
+                f.case_type AS case_type, NULL AS retainer_asked, NULL AS next_step_specificity,
+                NULL AS contact_info_captured, NULL AS cat_qualification, NULL AS cat_conversion,
+                NULL AS cat_connection, NULL AS cat_risk_compliance, NULL AS cat_process,
+                NULL AS summary, NULL AS coaching_json, NULL AS rep,
+                f.id AS flag_id, f.is_leaked_signable, fs.status AS save_status
+           FROM calls c
+           LEFT JOIN flags f ON f.call_id = c.id
+           LEFT JOIN flag_status fs ON fs.flag_id = f.id
+          WHERE c.firm_id = ?
+          ORDER BY c.received_at DESC, c.id DESC`
+      )
+      .all(firmId);
+  }
 }
 
 // Prefer the firm's own historical row; fall back to the global published row.
