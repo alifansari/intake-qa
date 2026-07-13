@@ -2,13 +2,9 @@
 //
 // A periodic sweep (POST/GET /api/alerts/sweep, cron or manual) gathers every
 // trigger since the last sweep and sends ONE batched email to FOUNDER_EMAIL —
-// never a spam stream. It ALSO sends ONE terse text (sendFounderSms) when the
-// sweep found a MATERIAL event — new application, firm added, leaked-signable
-// flagged, case signed, or a health issue — so the founder's phone buzzes for
-// money/urgent items while the email carries the full detail (uploads, clean
-// scores, routine actions). The cron runs near-real-time (every minute); the
-// stuck-scoring watchdog is muted per firm (STUCK_REALERT_HOURS) so an ongoing
-// outage can't text every minute. Triggers:
+// never a spam stream. The cron runs near-real-time; the stuck-scoring watchdog
+// is muted per firm (STUCK_REALERT_HOURS) so an ongoing outage doesn't re-email
+// every sweep. Triggers:
 //   (a) any failed_scoring (errors table + calls with a failed_* status)
 //   (b) 3+ CallRail signature failures within an hour for one firm
 //   (c) a digest run that skipped or failed any firm
@@ -37,7 +33,6 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { isEmailEnabled, killSwitchEngaged } from "./compliance.mjs";
 import { defaultOutDir } from "./out-dir.mjs";
-import { sendFounderSms } from "./founder-sms.mjs";
 
 const DEFAULT_OUT_DIR = defaultOutDir();
 
@@ -53,9 +48,9 @@ export const SIGNATURE_FAILURE_WINDOW_MS = 60 * 60 * 1000;
 // overridable so the threshold can be tuned without a deploy.
 export const STUCK_SCORING_HOURS = Number(process.env.STUCK_SCORING_HOURS) || 2;
 
-// How long a stuck-scoring incident stays MUTED after it texts once. The sweep
-// now runs near-real-time (every minute), so without this an ongoing outage
-// would text the founder every single minute. Re-alert only every N hours.
+// How long a stuck-scoring incident stays MUTED after it alerts once. The sweep
+// runs near-real-time, so without this an ongoing outage would re-email the
+// founder every sweep. Re-alert only every N hours.
 export const STUCK_REALERT_HOURS = Number(process.env.STUCK_REALERT_HOURS) || 6;
 
 const WM_ERRORS = "alerts.error_watermark";
@@ -242,8 +237,8 @@ export function buildActivityDigest({
 // --- Stuck-alert mute (cadence safety) ----------------------------------------
 
 // The stuck-unscored watchdog re-fires by design while an outage persists. At a
-// 1-minute sweep cadence that would text every minute, so mute each firm after
-// it alerts once and only re-alert every STUCK_REALERT_HOURS. `priorState` is
+// near-real-time sweep cadence that would re-email every sweep, so mute each firm
+// after it alerts once and only re-alert every STUCK_REALERT_HOURS. `priorState` is
 // the parsed alert_state map (firmId -> last-alerted ISO). Returns the firms to
 // alert this sweep and the next state (recovered firms drop out).
 export function selectStuckToAlert(
@@ -267,34 +262,6 @@ export function selectStuckToAlert(
     }
   }
   return { toAlert, nextState };
-}
-
-// --- The founder TEXT (material events only) ----------------------------------
-
-// The terse SMS body from one sweep's MATERIAL events. Only the money/urgent set
-// earns a text — the email carries full detail (uploads, clean scores, routine
-// actions). Returns null when nothing material happened, so no text is sent.
-export function buildMaterialSms({
-  firmsAdded = [], // [{ name }]
-  leakedFlags = 0, // leaked-signable calls scored this window
-  signedCases = 0, // callback_marked with status 'signed'
-  newApplications = [], // [{ firm_name }]
-  healthIssues = 0, // scoring/signature/digest/stuck problems (count)
-} = {}) {
-  const parts = [];
-  if (newApplications.length) {
-    const names = newApplications.map((a) => a.firm_name).filter(Boolean).slice(0, 2).join(", ");
-    parts.push(`${newApplications.length} new application${newApplications.length > 1 ? "s" : ""}${names ? ` (${names})` : ""}`);
-  }
-  if (firmsAdded.length) {
-    const names = firmsAdded.map((f) => f.name).filter(Boolean).slice(0, 2).join(", ");
-    parts.push(`+${firmsAdded.length} firm${firmsAdded.length > 1 ? "s" : ""}${names ? ` (${names})` : ""}`);
-  }
-  if (leakedFlags) parts.push(`${leakedFlags} leaked-signable`);
-  if (signedCases) parts.push(`${signedCases} signed`);
-  if (healthIssues) parts.push(`⚠ ${healthIssues} issue${healthIssues > 1 ? "s" : ""}`);
-  if (parts.length === 0) return null;
-  return `Intake QA: ${parts.join(" · ")}. Details emailed.`;
 }
 
 // One batched alert email from everything the sweep found. Empty sections are
@@ -518,9 +485,8 @@ export async function runAlertSweep({
   mailer = defaultMailer,
   outDir = DEFAULT_OUT_DIR,
   listApplicants = null, // injectable for tests; default: beta/store.mjs
-  smsSender = null, // injectable Twilio sender for tests; default: real Twilio
 }) {
-  const result = { alert: null, pulse: null, sms: null, examined: 0 };
+  const result = { alert: null, pulse: null, examined: 0 };
 
   // ---- Errors since the id watermark (triggers a, b, c) ----
   const wmRaw = await store.getAlertState(db, WM_ERRORS).catch(() => null);
@@ -608,14 +574,9 @@ export async function runAlertSweep({
   // Reads the product-event log since its own id watermark and turns the
   // reportable events into email sections. IDs/counts only — never PII. The
   // watermark advances after the send (below), alongside the error watermark.
-  // The SAME events feed the material-SMS extract (firms added / leaked-signable
-  // flagged / cases signed) — the money set that earns a text.
   let afterEventId = 0;
   let maxEventId = 0;
   let activity = [];
-  let firmsAdded = [];
-  let leakedFlags = 0;
-  let signedCases = 0;
   try {
     const evWmRaw = await store.getAlertState(db, WM_EVENTS).catch(() => null);
     afterEventId = Number(evWmRaw ?? 0) || 0;
@@ -626,15 +587,6 @@ export async function runAlertSweep({
       const nameById = new Map((firms ?? []).map((f) => [String(f.id), f.name]));
       const firmName = (id) => nameById.get(String(id)) ?? `firm ${id}`;
       activity = buildActivityDigest({ events, firmName, now });
-      firmsAdded = events
-        .filter((e) => e.event === "firm_created")
-        .map((e) => ({ name: parseContext(e.context).name ?? firmName(e.firm_id) }));
-      leakedFlags = events.filter(
-        (e) => e.event === "score_completed" && parseContext(e.context).leaked,
-      ).length;
-      signedCases = events.filter(
-        (e) => e.event === "callback_marked" && parseContext(e.context).status === "signed",
-      ).length;
     }
   } catch {
     activity = []; // events table absent (older DB) — never break the sweep
@@ -676,22 +628,6 @@ export async function runAlertSweep({
       now,
     });
     result.alert.sections = alert.sections.length;
-  }
-
-  // ---- The material TEXT (money/urgent events only) ----
-  // Email carries everything; the phone only buzzes for the material set. Fully
-  // gated + best-effort inside sendFounderSms (off until FOUNDER_SMS_ENABLED +
-  // Twilio creds + FOUNDER_PHONE, KILL_SWITCH halts it). null body → no text.
-  const smsBody = buildMaterialSms({
-    firmsAdded,
-    leakedFlags,
-    signedCases,
-    newApplications,
-    healthIssues:
-      scoringFailures.length + signatureFirms.length + digestProblems.length + stuckToAlert.length,
-  });
-  if (smsBody) {
-    result.sms = await sendFounderSms({ body: smsBody, env, ...(smsSender ? { sender: smsSender } : {}) });
   }
 
   // Advance the error watermark to the newest row examined (even when nothing

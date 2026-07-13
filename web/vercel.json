@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/alerts/sweep",
-      "schedule": "* * * * *"
+      "schedule": "*/5 * * * *"
     }
   ]
 }

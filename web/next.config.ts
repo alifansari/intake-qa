@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
   // (and its deps) ship in the serverless bundle for both the engine and the
   // analysis passes to share. Same reasoning for `assemblyai`, which the engine's
   // transcribe.js imports ("import { AssemblyAI } from 'assemblyai'").
-  serverExternalPackages: ["@anthropic-ai/sdk", "assemblyai", "twilio"],
+  serverExternalPackages: ["@anthropic-ai/sdk", "assemblyai"],
   // The JsonFileRepository reads seed JSON from ./data at request time. Ensure
   // those files are traced into the serverless bundle so the demo has data on
   // Vercel (where the CLI's ../output folder does NOT ship).
