@@ -78,32 +78,71 @@ export function digestSubject(data) {
   return `Intake QA — ${data.missCount} missed case${data.missCount === 1 ? "" : "s"} need${data.missCount === 1 ? "s" : ""} a callback`;
 }
 
+// The one font stack, inlined on every text element (email clients have no
+// shared stylesheet; there is no cascade to rely on).
+const FONT = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`;
+
+// A bulletproof, padding-based button (Litmus pattern): a padded anchor with an
+// INLINE literal-hex background AND a matching border so the shape survives even
+// when a dark-mode client repaints backgrounds. No CSS classes, no variables —
+// Gmail strips <style>/<head> and ignores CSS custom properties.
+function emailButton(href, label, { bg, textColor = "#ffffff", border } = {}) {
+  return `<a href="${href}" style="display:inline-block;background-color:${bg};color:${textColor};text-decoration:none;font-weight:700;font-size:14px;font-family:${FONT};padding:11px 16px;border-radius:6px;border:1px solid ${border || bg};line-height:1;margin:0 8px 8px 0;">${label}</a>`;
+}
+
 // HTML email. Action links are one-click-to-CONFIRM-page (a human presses the
 // button there — GET never mutates, so inbox link scanners can't mark cases).
+//
+// Rendering discipline (see the research trail in ops/decisions.md): EVERY style
+// is inline with literal hex colors, layout is table-based, colored cells carry a
+// bgcolor= attribute so text is never white-on-white, and a prefers-color-scheme
+// block is progressive enhancement only. This template must not reintroduce a
+// <style> class dependency or a CSS var() — Gmail drops both and the email breaks.
 export function renderMissedDigest(data, { appUrl, env = process.env } = {}) {
   const base = (appUrl || env.APP_URL || "https://plaintiffops.com").replace(/\/$/, "");
   const canLink = Boolean(digestLinkSecret(env)) && data.firmId != null;
 
+  const ACCENT = "#1a4d8f";
+  const GREEN = "#166534";
+  const heroBg = data.missCount === 0 ? GREEN : ACCENT;
+
   const rows = data.items
     .map((i) => {
-      let action = `<a class="btn secondary" href="${base}/desk/queue">Open the desk</a>`;
+      let action = emailButton(`${base}/desk/queue`, "Open the desk", {
+        bg: "#ffffff",
+        textColor: ACCENT,
+        border: ACCENT,
+      });
       if (canLink) {
         const token = signDigestToken(
           { firmId: data.firmId, flagId: i.flagId, status: "reached_out" },
           env,
         );
-        action = `<a class="btn" href="${base}/digest/confirm?token=${encodeURIComponent(token)}">We called them</a>`;
+        action = emailButton(
+          `${base}/digest/confirm?token=${encodeURIComponent(token)}`,
+          "We called them",
+          { bg: ACCENT },
+        );
       }
+      const meta = esc(
+        [i.caseType, i.tier ? `${i.tier} confidence` : null].filter(Boolean).join(" · "),
+      );
+      const callCell = i.phone
+        ? emailButton(`tel:${esc(i.phone.replace(/[^+\d]/g, ""))}`, `Call ${esc(i.phone)}`, {
+            bg: GREEN,
+          })
+        : `<span style="display:inline-block;font-size:13px;color:#9ca3af;font-family:${FONT};margin:0 8px 8px 0;">No number captured</span>`;
       return `
-      <tr>
-        <td>
-          <div class="name">${esc(i.name)}</div>
-          <div class="meta">${esc([i.caseType, i.tier ? `${i.tier} confidence` : null].filter(Boolean).join(" · "))}</div>
-          ${i.reason ? `<div class="reason">${esc(i.reason)}</div>` : ""}
-        </td>
-        <td class="call">${i.phone ? `<a class="btn call-btn" href="tel:${esc(i.phone.replace(/[^+\d]/g, ""))}">Call ${esc(i.phone)}</a>` : `<span class="meta">no number captured</span>`}</td>
-        <td class="act">${action}</td>
-      </tr>`;
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="rowcard" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;margin:0 0 12px 0;background-color:#ffffff;">
+        <tr>
+          <td style="padding:16px 18px;">
+            <div class="ink" style="font-size:16px;font-weight:700;color:#111827;font-family:${FONT};">${esc(i.name)}</div>
+            ${meta ? `<div class="muted" style="font-size:13px;color:#6b7280;margin-top:3px;font-family:${FONT};">${meta}</div>` : ""}
+            ${i.reason ? `<div class="reason" style="font-size:14px;color:#374151;margin-top:6px;line-height:1.45;font-family:${FONT};">${esc(i.reason)}</div>` : ""}
+            <div style="margin-top:12px;">${callCell}${action}</div>
+          </td>
+        </tr>
+      </table>`;
     })
     .join("");
 
@@ -114,64 +153,63 @@ export function renderMissedDigest(data, { appUrl, env = process.env } = {}) {
         : `${data.callsReceived} call${data.callsReceived === 1 ? "" : "s"} read. Every qualified caller is signed, in progress, or accounted for. Nothing needs you today.`
       : `${data.missCount} likely-signable caller${data.missCount === 1 ? "" : "s"} walked without signing. The whole job: call them back, then tap the button.`;
 
+  // Open-tracking pixel (1x1, HMAC-signed, no PII — firm id + day only). Renders
+  // only when DIGEST_LINK_SECRET is configured; measurement never degrades to an
+  // unsigned URL. Reason: BETA_ONBOARDING — "three consecutive unopened digests =
+  // call the firm" must be measurable on /studio/beta.
+  const pixel = canLink
+    ? openPixelTag({ base, firmId: data.firmId, day: data.generatedAt.slice(0, 10) }, env)
+    : "";
+
   return `<!doctype html>
-<html lang="en">
+<html lang="en" style="margin:0;padding:0;">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="color-scheme" content="light dark"/>
+<meta name="supported-color-schemes" content="light dark"/>
 <title>Intake QA — Missed cases for ${esc(data.firmName)}</title>
 <style>
-  :root { --accent:#1a4d8f; --ink:#1a1a1a; --muted:#666; --line:#e2e2e2; --green:#166534; }
-  * { box-sizing:border-box; }
-  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-    color:var(--ink); margin:0; background:#f4f4f5; }
-  .page { max-width:680px; margin:24px auto; background:#fff; padding:32px 36px;
-    box-shadow:0 1px 4px rgba(0,0,0,.08); }
-  header { border-bottom:2px solid var(--ink); padding-bottom:14px; }
-  .h-firm { font-size:18px; font-weight:700; }
-  .h-sub { font-size:13px; color:var(--muted); margin-top:4px; }
-  .hero { border-radius:8px; padding:18px 20px; margin:20px 0; font-size:16px; font-weight:600;
-    line-height:1.45; color:#fff; background:${data.missCount === 0 ? "var(--green)" : "var(--accent)"}; }
-  table { width:100%; border-collapse:collapse; font-size:14px; margin-top:8px; }
-  td { text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
-  .name { font-weight:700; }
-  .meta { font-size:12px; color:var(--muted); margin-top:2px; }
-  .reason { font-size:13px; color:#333; margin-top:4px; }
-  .call, .act { white-space:nowrap; text-align:right; }
-  .btn { display:inline-block; background:var(--accent); color:#fff !important; border-radius:6px;
-    padding:8px 12px; font-size:13px; font-weight:700; text-decoration:none; }
-  .btn.secondary { background:#fff; color:var(--accent) !important; border:1px solid var(--accent); }
-  .btn.call-btn { background:var(--green); }
-  footer { margin-top:28px; border-top:1px solid var(--line); padding-top:12px;
-    font-size:12px; color:var(--muted); text-align:center; }
-  footer a { color:var(--muted); }
+  /* Progressive enhancement ONLY. Apple Mail / iOS honor this; Gmail strips it,
+     so the inline styles below must stand alone. Never move real styling here. */
+  @media (prefers-color-scheme: dark) {
+    .page { background-color:#0f172a !important; }
+    .card, .rowcard { background-color:#1e293b !important; border-color:#334155 !important; }
+    .ink { color:#f1f5f9 !important; }
+    .muted { color:#94a3b8 !important; }
+    .reason { color:#cbd5e1 !important; }
+    .divider { background-color:#334155 !important; }
+  }
 </style>
 </head>
-<body>
-<div class="page">
-  <header>
-    <div class="h-firm">${esc(data.firmName)}</div>
-    <div class="h-sub">Missed cases — daily digest</div>
-  </header>
-  <div class="hero">${esc(hero)}</div>
-  ${
-    data.missCount === 0
-      ? ""
-      : `<table><tbody>${rows}</tbody></table>`
-  }
-  ${
-    // Open-tracking pixel (1x1, HMAC-signed, no PII — firm id + day only). Renders
-    // only when DIGEST_LINK_SECRET is configured; measurement never degrades to
-    // an unsigned URL. Reason: BETA_ONBOARDING — "three consecutive unopened
-    // digests = call the firm" must be measurable on /studio/beta.
-    canLink ? openPixelTag({ base, firmId: data.firmId, day: data.generatedAt.slice(0, 10) }, env) : ""
-  }
-  <footer>
-    Intake QA — the independent recovery desk. This digest goes to your sign-in email;
-    the same list always lives at <a href="${base}/desk/queue">your desk</a>.
-    Estimates are operations estimates, not legal opinions.
-  </footer>
-</div>
+<body style="margin:0;padding:0;background-color:#f4f5f7;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="page" style="background-color:#f4f5f7;margin:0;padding:0;">
+  <tr>
+    <td align="center" style="padding:24px 12px;">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" class="card" style="width:100%;max-width:600px;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:12px;">
+        <tr>
+          <td style="padding:28px 32px;">
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${ACCENT};font-family:${FONT};">Intake QA</div>
+            <div class="ink" style="font-size:22px;font-weight:700;color:#111827;margin-top:8px;font-family:${FONT};">${esc(data.firmName)}</div>
+            <div class="muted" style="font-size:14px;color:#6b7280;margin-top:3px;font-family:${FONT};">Missed cases &middot; daily digest</div>
+            <div class="divider" style="height:1px;line-height:1px;font-size:0;background-color:#e5e7eb;margin:18px 0;">&nbsp;</div>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px 0;">
+              <tr>
+                <td bgcolor="${heroBg}" style="background-color:${heroBg};color:#ffffff;padding:18px 20px;border-radius:8px;font-size:16px;font-weight:600;line-height:1.5;font-family:${FONT};">${esc(hero)}</td>
+              </tr>
+            </table>
+            ${data.missCount === 0 ? "" : rows}
+            ${pixel}
+            <div class="divider" style="height:1px;line-height:1px;font-size:0;background-color:#e5e7eb;margin:24px 0 16px;">&nbsp;</div>
+            <div class="muted" style="font-size:12px;color:#9ca3af;line-height:1.5;text-align:center;font-family:${FONT};">
+              Intake QA — the independent recovery desk. This digest goes to your sign-in email; the same list always lives at <a href="${base}/desk/queue" style="color:${ACCENT};text-decoration:underline;">your desk</a>.<br/>Estimates are operations estimates, not legal opinions.
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
 </body>
 </html>`;
 }
