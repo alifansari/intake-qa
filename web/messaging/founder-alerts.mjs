@@ -124,6 +124,47 @@ export function isSignatureFailure(row) {
   return source.includes("signature") || message.includes("signature");
 }
 
+// Does a row describe a CallRail INGEST BLOCKER — any webhook error that stops a
+// firm's calls from entering the pipeline at all (bad/absent signing secret,
+// signature rejection)? Broader than isSignatureFailure on purpose: it also
+// catches `no_secret`, which matches NO other classifier and is the silent hole
+// where a mis-set secret drops every call for a firm with zero alert.
+export function isIngestBlocker(row) {
+  const source = String(row?.source ?? "").toLowerCase();
+  const message = String(row?.message ?? "").toLowerCase();
+  if (source.startsWith("webhooks.callrail")) return true;
+  if (!source.includes("callrail") && !message.includes("callrail")) return false;
+  return (
+    source.includes("signature") ||
+    message.includes("signature") ||
+    source.includes("secret") ||
+    message.includes("secret")
+  );
+}
+
+// Firms with ANY CallRail ingest-blocker error in the trailing window. Unlike
+// signatureFailureFirms this fires at the FIRST failure (threshold 1) — a bad or
+// absent webhook secret drops EVERY call for that firm, so even one dropped
+// webhook is a 100% outage worth an immediate alert. Closes the hole where a
+// mis-set secret looked identical to a merely quiet firm.
+export function ingestBlockedFirms(
+  rows = [],
+  { threshold = 1, windowMs = SIGNATURE_FAILURE_WINDOW_MS, now = new Date() } = {},
+) {
+  const cutoff = new Date(now).getTime() - windowMs;
+  const byFirm = new Map();
+  for (const row of rows) {
+    if (!isIngestBlocker(row)) continue;
+    const t = new Date(row.created_at ?? 0).getTime();
+    if (!Number.isFinite(t) || t < cutoff) continue;
+    const key = row.firm_id == null ? "unknown" : String(row.firm_id);
+    byFirm.set(key, (byFirm.get(key) ?? 0) + 1);
+  }
+  return [...byFirm.entries()]
+    .filter(([, n]) => n >= threshold)
+    .map(([firmId, count]) => ({ firmId, count }));
+}
+
 // Does a digest.run ledger row report trouble? Returns null when fine, else a
 // short plain-English description. Defensive JSON parse (sibling-branch rows).
 export function digestRunProblem(row) {
@@ -271,6 +312,7 @@ export function selectStuckToAlert(
 export function buildFounderAlert({
   scoringFailures = [],
   signatureFirms = [],
+  ingestBlockedFirms = [],
   digestProblems = [],
   newApplications = [],
   stuckUnscoredFirms = [],
@@ -278,6 +320,15 @@ export function buildFounderAlert({
   now = new Date(),
 } = {}) {
   const sections = [];
+  if (ingestBlockedFirms.length) {
+    sections.push({
+      title: "Firms whose calls cannot ingest",
+      lines: ingestBlockedFirms.map(
+        (s) =>
+          `firm ${s.firmId}: ${s.count} CallRail webhook error(s) — EVERY call from this firm is being dropped. Check the firm's CallRail signing secret.`,
+      ),
+    });
+  }
   if (stuckUnscoredFirms.length) {
     sections.push({
       title: "Calls received but never scored",
@@ -524,6 +575,26 @@ export async function runAlertSweep({
     .setAlertState(db, "alerts.signature_firms", sigAll.map((s) => s.firmId).join(","))
     .catch(() => {});
 
+  // ---- Ingest-blocked firms (the silent-secret hole) ----
+  // Any CallRail webhook error means a firm's calls are being dropped. Fire at
+  // the FIRST failure — not the 3/hr signature threshold — and include no_secret
+  // (which matches no other classifier). Exclude firms already in the
+  // signature-flood section so nothing lists twice; dedupe per firm per incident
+  // via its own state key so it doesn't re-alert every 5-minute sweep.
+  const alreadyIngestFlagged = new Set(
+    String((await store.getAlertState(db, "alerts.ingest_blocked_firms").catch(() => null)) ?? "")
+      .split(",")
+      .filter(Boolean),
+  );
+  const sigFirmIds = new Set(signatureFirms.map((s) => String(s.firmId)));
+  const ingestAll = ingestBlockedFirms(sigRows, { now });
+  const ingestBlocked = ingestAll.filter(
+    (b) => !alreadyIngestFlagged.has(String(b.firmId)) && !sigFirmIds.has(String(b.firmId)),
+  );
+  await store
+    .setAlertState(db, "alerts.ingest_blocked_firms", ingestAll.map((b) => String(b.firmId)).join(","))
+    .catch(() => {});
+
   // ---- New beta applications since the created_at watermark (trigger d) ----
   let newApplications = [];
   try {
@@ -611,6 +682,7 @@ export async function runAlertSweep({
   const alert = buildFounderAlert({
     scoringFailures,
     signatureFirms,
+    ingestBlockedFirms: ingestBlocked,
     digestProblems,
     newApplications,
     stuckUnscoredFirms: stuckToAlert,

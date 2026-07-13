@@ -17,6 +17,8 @@ import { createFirm, logError, recordEvent, upsertCall, setCallStatus } from "..
 import {
   isScoringFailure,
   isSignatureFailure,
+  isIngestBlocker,
+  ingestBlockedFirms,
   digestRunProblem,
   signatureFailureFirms,
   buildFounderAlert,
@@ -53,6 +55,42 @@ test("classifiers match on shape, not exact source strings (sibling-branch rows)
   assert.ok(isSignatureFailure({ source: "callrail.signature", message: "rejected" }));
   assert.ok(!isSignatureFailure({ source: "webhooks.twilio", message: "invalid signature" })); // not CallRail
   assert.ok(!isSignatureFailure({ source: "webhooks.callrail", message: "timeout" }));
+});
+
+test("isIngestBlocker catches the silent no_secret hole and any callrail webhook error", () => {
+  // The hole isSignatureFailure misses: a mis-set / absent secret drops EVERY call.
+  assert.ok(isIngestBlocker({ source: "webhooks.callrail_firm.no_secret", message: "no secret configured" }));
+  assert.ok(isIngestBlocker({ source: "webhooks.callrail_firm", message: "invalid signature" }));
+  assert.ok(isIngestBlocker({ source: "webhooks.callrail", message: "signing secret missing" }));
+  // Any callrail webhook-source error blocks ingest.
+  assert.ok(isIngestBlocker({ source: "webhooks.callrail.route", message: "500" }));
+  // Not a callrail ingest problem.
+  assert.ok(!isIngestBlocker({ source: "webhooks.twilio", message: "invalid signature" }));
+  assert.ok(!isIngestBlocker({ source: "score-worker", message: "failed to score" }));
+});
+
+test("ingestBlockedFirms fires at the FIRST failure (threshold 1), unlike the 3/hr signature rule", () => {
+  const row = (firmId, mins) => ({
+    firm_id: firmId,
+    source: "webhooks.callrail_firm.no_secret",
+    message: "no secret",
+    created_at: minsAgo(mins),
+  });
+  // A single dropped webhook for a low-volume firm is already a 100% outage.
+  const one = ingestBlockedFirms([row(7, 5)], { now: NOW });
+  assert.deepEqual(one, [{ firmId: "7", count: 1 }]);
+  // Outside the trailing window is ignored.
+  assert.deepEqual(ingestBlockedFirms([row(7, 120)], { now: NOW }), []);
+});
+
+test("buildFounderAlert surfaces a 'cannot ingest' section for blocked firms", () => {
+  const alert = buildFounderAlert({
+    ingestBlockedFirms: [{ firmId: "7", count: 2 }],
+    now: NOW,
+  });
+  assert.ok(alert);
+  assert.ok(alert.sections.some((s) => s.title === "Firms whose calls cannot ingest"));
+  assert.match(alert.subject, /cannot ingest/i);
 });
 
 test("digestRunProblem flags skipped/failed firms and fail-loud rows, ignores clean runs", () => {
