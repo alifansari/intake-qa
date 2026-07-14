@@ -26,6 +26,7 @@ function wrap(name) {
 export const upsertCall = wrap("upsertCall");
 export const setTranscript = wrap("setTranscript");
 export const getUnscoredCalls = wrap("getUnscoredCalls");
+export const countFailedScoring = wrap("countFailedScoring");
 export const insertFlag = wrap("insertFlag");
 export const getFirm = wrap("getFirm");
 export const createConversation = wrap("createConversation");

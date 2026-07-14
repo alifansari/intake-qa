@@ -104,6 +104,14 @@ export function getUnscoredCalls(db, firmId = null) {
   return db.prepare(`${base} ORDER BY c.id`).all();
 }
 
+// Count calls that ended in a terminal scoring failure — the standing backlog
+// of unresolved failures. Independent of the alert watermarks, so a missed
+// alert email never erases the signal; surfaced on /admin/status.
+export function countFailedScoring(db) {
+  const row = db.prepare(`SELECT COUNT(*) AS n FROM calls WHERE status LIKE 'failed%'`).get();
+  return Number(row?.n ?? 0);
+}
+
 // Record a flag for a scored call. Returns the new flag id.
 export function insertFlag(db, flag) {
   const {

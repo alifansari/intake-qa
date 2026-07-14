@@ -35,10 +35,11 @@ async function loadState() {
     }
     const db = await store.openPipelineDb();
     try {
-      const [firms, errors, drafted] = await Promise.all([
+      const [firms, errors, drafted, failedScoring] = await Promise.all([
         store.listFirms(db),
         store.getRecentErrors(db, 15),
         store.getDraftedMessages(db),
+        store.countFailedScoring(db).catch(() => 0),
       ]);
       // Enhancement subsystems query the 0008–0012 tables. Isolate them so that
       // if those migrations haven’t been applied yet, the core status page still
@@ -77,6 +78,7 @@ async function loadState() {
         firms: firms as FirmRow[],
         errors: errors as ErrorRow[],
         pendingCount: (drafted as unknown[]).length,
+        failedScoring: Number(failedScoring ?? 0),
         subsystems,
       };
     } finally {
@@ -112,12 +114,40 @@ export default async function AdminStatusPage() {
   const assemblySet = Boolean(env.ASSEMBLYAI_API_KEY);
   const dbConfigured = Boolean(env.DATABASE_URL) || Boolean(env.NEXT_PUBLIC_SUPABASE_URL);
   const twilioLive = truthy(env.TWILIO_ACCOUNT_SID) && !testMode;
+  const serviceRoleSet = Boolean(env.SUPABASE_SERVICE_ROLE_KEY);
+
+  // Are the founder-alert prerequisites in place? Without ALL of these, a broken
+  // firm (e.g. a wrong CallRail secret dropping every call) fails silently — the
+  // operator is running blind. This is the loudest thing on the page.
+  const alertingReqs: Array<[string, boolean]> = [
+    ["EMAIL_ENABLED", truthy(env.EMAIL_ENABLED)],
+    ["CRON_SECRET", Boolean(env.CRON_SECRET)],
+    ["FOUNDER_EMAIL", Boolean(env.FOUNDER_EMAIL)],
+    ["RESEND_API_KEY", Boolean(env.RESEND_API_KEY)],
+  ];
+  const missingAlerting = alertingReqs.filter(([, ok]) => !ok).map(([k]) => k);
+  const runningBlind = dbConfigured && missingAlerting.length > 0;
 
   const state = await loadState();
+  const failedScoring = state.connected ? state.failedScoring ?? 0 : 0;
 
   return (
     <PageShell>
       <PageHeader kicker="Intake QA · Studio · System" title="System status" />
+
+      {runningBlind ? (
+        <div className="mb-6 rounded-sm border-2 border-red bg-red-tint p-4">
+          <p className="text-sm font-bold text-red">Alerting is DISABLED — you are running blind.</p>
+          <p className="mt-1 text-sm text-ink">
+            Founder alerts cannot fire until these are set in the environment:{" "}
+            <span className="font-semibold">{missingAlerting.join(", ")}</span>. Until then a firm whose
+            calls stop ingesting (e.g. a wrong CallRail secret) will fail silently — you will not be told.
+            {!state.connected || !truthy(env.CRON_SECRET)
+              ? " CRON_SECRET is the critical one: without it the every-5-minute alert sweep never runs at all."
+              : ""}
+          </p>
+        </div>
+      ) : null}
 
       <Card className="mb-6">
         <CardContent className="pt-5">
@@ -146,6 +176,26 @@ export default async function AdminStatusPage() {
               value={assemblySet ? "set" : "missing"}
               good={assemblySet}
               note="Required to transcribe uploaded/recorded audio."
+            />
+            <Check
+              label="Uploads (real-length calls)"
+              value={serviceRoleSet ? "storage ready" : "capped at 4MB"}
+              good={serviceRoleSet}
+              note={
+                serviceRoleSet
+                  ? "Uploads go to private storage — a full 30-minute call works."
+                  : "Without SUPABASE_SERVICE_ROLE_KEY, uploads fall back to a 4MB cap and a real call cannot be uploaded."
+              }
+            />
+            <Check
+              label="Unresolved scoring failures"
+              value={String(failedScoring)}
+              good={failedScoring === 0}
+              note={
+                failedScoring === 0
+                  ? "No calls stuck in a terminal failure."
+                  : "Calls that failed scoring twice and need a look. This count survives a missed alert email."
+              }
             />
           </div>
           {twilioLive ? (

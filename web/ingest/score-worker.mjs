@@ -336,13 +336,27 @@ export async function scoreUnscored({
     });
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
-      await setCallStatus(db, call.id, "failed_scoring", reason).catch(() => {});
-      await logError(db, {
-        source: "score-worker.scoreUnscored",
-        message: `call ${call.id} failed to score: ${reason}`,
-        firm_id: call.firm_id ?? null,
-      }).catch(() => {});
-      results.push({ call_id: call.id, error: reason, failed: true });
+      // Bounded retry (2 attempts total). A transient blip (AssemblyAI/Anthropic
+      // momentary outage, a flaky transcript) should self-heal on the next sweep
+      // instead of dying permanently. First failure -> a non-'failed'
+      // "retry_scoring" status, which getUnscoredCalls re-selects (it excludes
+      // only 'failed%'/'excluded%'); the retry runs quietly, no founder alert.
+      // Second failure -> terminal 'failed_scoring' + the error row/alert, as
+      // before. Capped at one retry, so the Session-9 anti-infinite-retry rule
+      // still holds (a permanently-bad call goes terminal on attempt two).
+      const alreadyRetried = String(call.status ?? "").startsWith("retry_scoring");
+      if (alreadyRetried) {
+        await setCallStatus(db, call.id, "failed_scoring", reason).catch(() => {});
+        await logError(db, {
+          source: "score-worker.scoreUnscored",
+          message: `call ${call.id} failed to score (2 attempts): ${reason}`,
+          firm_id: call.firm_id ?? null,
+        }).catch(() => {});
+        results.push({ call_id: call.id, error: reason, failed: true });
+      } else {
+        await setCallStatus(db, call.id, "retry_scoring", reason).catch(() => {});
+        results.push({ call_id: call.id, error: reason, retry: true });
+      }
       // continue with the next call — never abort the batch.
     }
   }

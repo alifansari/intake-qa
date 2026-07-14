@@ -86,6 +86,12 @@ export async function getUnscoredCalls(db, firmId = null) {
   return r.rows;
 }
 
+// Twin of countFailedScoring: standing count of terminal scoring failures.
+export async function countFailedScoring(db) {
+  const r = await db.query(`SELECT COUNT(*)::int AS n FROM calls WHERE status LIKE 'failed%'`);
+  return Number(r.rows[0]?.n ?? 0);
+}
+
 export async function insertFlag(db, flag) {
   const {
     call_id,

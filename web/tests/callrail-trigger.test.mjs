@@ -134,13 +134,23 @@ test("scoreUnscored isolates a poison call and continues the batch", async (t) =
     return { scores: { overall: 45 }, case_signability: "needs_development", conversion: { retainer_outcome: "no_ask" } };
   };
 
+  // First sweep: the poison call is RETRIED (bounded retry), not terminal, while
+  // the two good calls score — the batch is never aborted by the poison.
   const results = await scoreUnscored({ db, firmId, scorer: poisonScorer, drafter: fakeDrafter });
   assert.equal(results.length, 3, "every call produced a result (none aborted the batch)");
-  assert.equal(results.filter((r) => r.failed).length, 1, "one call failed");
-  assert.equal(results.filter((r) => !r.failed).length, 2, "two calls scored");
+  assert.equal(results.filter((r) => r.retry).length, 1, "the poison call is retried on attempt one");
+  assert.equal(results.filter((r) => !r.failed && !r.retry).length, 2, "two calls scored");
+  assert.equal(
+    db.prepare("SELECT status FROM calls WHERE caller_name = 'POISON'").get().status,
+    "retry_scoring",
+    "poison call is retryable after the first failure",
+  );
 
+  // Second sweep: it fails again -> terminal failed_scoring with the reason. The
+  // two good calls are already flagged, so only the poison is re-attempted.
+  await scoreUnscored({ db, firmId, scorer: poisonScorer, drafter: fakeDrafter });
   const poison = db.prepare("SELECT status, status_reason FROM calls WHERE caller_name = 'POISON'").get();
-  assert.equal(poison.status, "failed_scoring", "poison call marked failed");
+  assert.equal(poison.status, "failed_scoring", "poison call is terminal after two attempts");
   assert.ok(poison.status_reason?.includes("boom"), "failure reason recorded");
   // The two good calls got flags.
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM flags").get().n, 2, "the two good calls were flagged");
