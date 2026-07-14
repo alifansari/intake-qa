@@ -707,6 +707,24 @@ function ProfileEditor({
         <div className="flex items-end">
           <Check label="We carry trial capital" checked={p.trial_capital} onChange={(v) => setP({ ...p, trial_capital: v })} />
         </div>
+        <div>
+          <label className={label}>Minimum coverage to sign</label>
+          <select className={field} value={p.min_policy_limits || "any"} onChange={(e) => setP({ ...p, min_policy_limits: e.target.value })}>
+            <option value="any">Any (no floor)</option>
+            <option value="25k">$25k+</option>
+            <option value="50k">$50k+</option>
+            <option value="100k">$100k+</option>
+            <option value="250k">$250k+</option>
+          </select>
+        </div>
+        <div>
+          <label className={label}>Client red-flag strictness</label>
+          <select className={field} value={p.red_flag_strictness || "balanced"} onChange={(e) => setP({ ...p, red_flag_strictness: e.target.value })}>
+            <option value="forgiving">Forgiving</option>
+            <option value="balanced">Balanced</option>
+            <option value="strict">Strict (flag review early)</option>
+          </select>
+        </div>
       </div>
       <div className="mt-4">
         <label className={label}>Case types we take</label>

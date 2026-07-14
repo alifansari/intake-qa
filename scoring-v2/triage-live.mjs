@@ -229,6 +229,19 @@ function riskMarkers(rf = {}) {
   };
 }
 
+// How many client-behavior markers the intake person observed. Used only to
+// tune the firm's review appetite (red_flag_strictness) — never to cap a
+// disposition (fairness rail: behaviors route to human review, they do not
+// reject a case; see gateG3ClientRisk).
+function firmMarkerCount(rf = {}) {
+  return [
+    rf.fee_haggling === true,
+    rf.multiple_prior_attorneys === true,
+    rf.unrealistic_expectations === true,
+    rf.noncooperative === true,
+  ].filter(Boolean).length;
+}
+
 // Map the form's lien selection to the liens.mjs source shape (tiers only).
 function lienSources(liens) {
   const map = {
@@ -453,8 +466,21 @@ export function triageFromFacts(input = {}, profile = {}, opts = {}) {
   }
 
   const grade = toGrade(disposition, valueTier);
-  const attorney_review_required =
+  let attorney_review_required =
     rec.attorney_review_required || caResult.attorney_review_required;
+
+  // Firm red-flag strictness (forgiving | balanced | strict): appetite for how
+  // eagerly to route a client-behavior file to a human. It can only ADD caution
+  // and never caps a disposition. "strict" flags review at the first observed
+  // behavior marker; "balanced"/"forgiving" leave the calibrated floor (G3 at
+  // >=2 markers) untouched — we never lower the engine's safety floor.
+  if (
+    profile &&
+    profile.red_flag_strictness === "strict" &&
+    firmMarkerCount(input.red_flags) >= 1
+  ) {
+    attorney_review_required = true;
+  }
 
   // When the firm-appetite floor is the change that controls the outcome (no CA
   // statutory gate took over), make it the human-facing reason and flip fact.

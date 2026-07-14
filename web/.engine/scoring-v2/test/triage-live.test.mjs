@@ -250,6 +250,27 @@ test("habitability / mold is a first-class case type the firm can accept or refe
   assert.equal(notAccepted.disposition, "refer_out"); // not taken -> refer out
 });
 
+test("red-flag strictness only adds review caution, never caps a disposition", () => {
+  const facts = {
+    case_type: "mva_standard",
+    incident_date: recent,
+    liability: "clear",
+    injury: "hard",
+    objective_findings: true,
+    coverage: "high",
+    red_flags: { multiple_prior_attorneys: true }, // a single behavior marker
+  };
+  const balanced = triageFromFacts(facts, { posture: "selective", red_flag_strictness: "balanced" }, { now: NOW, computeSol });
+  const strict = triageFromFacts(facts, { posture: "selective", red_flag_strictness: "strict" }, { now: NOW, computeSol });
+  // One marker: balanced leaves the calibrated floor (G3 needs >=2); strict
+  // flags review at the first marker.
+  assert.equal(balanced.attorney_review_required, false);
+  assert.equal(strict.attorney_review_required, true);
+  // Neither caps the disposition — a strong file still signs even under strict.
+  assert.equal(balanced.disposition, "sign_now");
+  assert.equal(strict.disposition, "sign_now");
+});
+
 test("output always carries the SOL disclaimer and a flip fact path", () => {
   const r = triageFromFacts(
     { case_type: "mva_standard", incident_date: recent, liability: "unclear", injury: "moderate", coverage: "unknown" },
