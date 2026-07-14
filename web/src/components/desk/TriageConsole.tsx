@@ -35,6 +35,7 @@ type Profile = {
   trial_capital?: boolean;
   min_policy_limits?: string | null;
   red_flag_strictness?: string;
+  decline_out_of_appetite?: boolean;
 };
 type QueueRow = Record<string, unknown>;
 
@@ -725,6 +726,13 @@ function ProfileEditor({
             <option value="strict">Strict (flag review early)</option>
           </select>
         </div>
+      </div>
+      <div className="mt-4">
+        <Check
+          label="Decline out-of-appetite types (instead of refer out)"
+          checked={p.decline_out_of_appetite}
+          onChange={(v) => setP({ ...p, decline_out_of_appetite: v })}
+        />
       </div>
       <div className="mt-4">
         <label className={label}>Case types we take</label>

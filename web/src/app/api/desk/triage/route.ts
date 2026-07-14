@@ -71,6 +71,9 @@ const Profile = z.object({
   cost_fronting: z.enum(["minimal", "moderate", "deep"]).optional(),
   trial_capital: z.boolean().optional(),
   red_flag_strictness: z.enum(["forgiving", "balanced", "strict"]).optional(),
+  // When true, an out-of-appetite (unaccepted) case type is DECLINED rather than
+  // referred out. Stored in profile_json (no dedicated column needed).
+  decline_out_of_appetite: z.boolean().optional(),
 });
 
 async function openScoped() {
@@ -88,6 +91,19 @@ function profileFromRow(row: Record<string, unknown> | null) {
     typeof row.accepted_case_types === "string"
       ? safeParseArray(row.accepted_case_types)
       : (row.accepted_case_types as string[] | null) ?? null;
+  // Fields that live in the profile_json blob rather than a dedicated column
+  // (forward-compatible extension point; SQLite stores a string, Postgres jsonb
+  // an object).
+  let extra: Record<string, unknown> = {};
+  if (typeof row.profile_json === "string") {
+    try {
+      extra = (JSON.parse(row.profile_json) as Record<string, unknown>) ?? {};
+    } catch {
+      extra = {};
+    }
+  } else if (row.profile_json && typeof row.profile_json === "object") {
+    extra = row.profile_json as Record<string, unknown>;
+  }
   return {
     posture: row.posture ?? "selective",
     accepted_case_types: accepted,
@@ -96,6 +112,7 @@ function profileFromRow(row: Record<string, unknown> | null) {
     trial_capital: Boolean(row.trial_capital),
     min_policy_limits: row.min_policy_limits ?? null,
     red_flag_strictness: row.red_flag_strictness ?? "balanced",
+    decline_out_of_appetite: extra.decline_out_of_appetite === true,
   };
 }
 function safeParseArray(s: string): string[] | null {

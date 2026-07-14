@@ -64,6 +64,11 @@ export const TRIAGE_CASE_TYPES = Object.freeze([
   { id: "other_pi", label: "Other injury" },
 ]);
 
+function caseTypeLabel(id) {
+  const t = TRIAGE_CASE_TYPES.find((c) => c.id === id);
+  return t ? t.label.toLowerCase() : "this type of";
+}
+
 // --- fact shaping ----------------------------------------------------------
 // Everything the intake person enters is, by definition, observed on the call,
 // so each fact carries observability "observed_on_call" with a synthetic quote
@@ -457,6 +462,26 @@ export function triageFromFacts(input = {}, profile = {}, opts = {}) {
     }
   }
 
+  // Firm "decline vs refer" appetite for OUT-OF-APPETITE case types. By default
+  // an out-of-appetite but viable case refers out; a firm may instead decline it
+  // outright. Only the PURE appetite refer converts (case type not in the accept
+  // list) — never a statutory refer (WC comp-only, venue), which a CA gate
+  // controls and which stays a refer to the right specialist.
+  let appetiteDeclineFired = false;
+  if (
+    profile &&
+    profile.decline_out_of_appetite === true &&
+    disposition === "refer_out" &&
+    !caResult.controlling &&
+    caseTypeFitLevel(input, profile) === "fatal"
+  ) {
+    disposition = "decline_with_grace";
+    appetiteDeclineFired = true;
+    basis.push(
+      `FIRM-APPETITE ${input.case_type} not accepted and firm declines out-of-appetite types -> decline`
+    );
+  }
+
   // Elder-abuse heightened track lifts the value read (never past what the
   // calibrated engine allows to sign, but enough to grade a real 15657 case).
   let valueTier = rec.value_tier;
@@ -482,16 +507,20 @@ export function triageFromFacts(input = {}, profile = {}, opts = {}) {
     attorney_review_required = true;
   }
 
-  // When the firm-appetite floor is the change that controls the outcome (no CA
-  // statutory gate took over), make it the human-facing reason and flip fact.
-  const driving_reason =
-    firmFloorFired && !caResult.controlling
-      ? `Below the firm's minimum-limits appetite (${FLOOR_PRETTY[profile.min_policy_limits] || profile.min_policy_limits}); real case, better placed elsewhere.`
-      : plainReason({ ...rec, disposition_basis: basis }, caResult);
-  const flip_fact =
-    firmFloorFired && !caResult.controlling
-      ? "Confirm higher coverage (umbrella / other policy) or the caller's own UM/UIM — current limits are below the firm's floor."
-      : flipFact(input, rec, caResult, dimension_reads);
+  // When a firm-appetite overlay controls the outcome (no CA statutory gate took
+  // over), make it the human-facing reason and flip fact.
+  let driving_reason;
+  let flip_fact;
+  if (appetiteDeclineFired) {
+    driving_reason = `The firm does not take ${caseTypeLabel(input.case_type)} cases and declines out-of-appetite types.`;
+    flip_fact = `Add ${caseTypeLabel(input.case_type)} to the firm's accepted case types if the firm wants to take it.`;
+  } else if (firmFloorFired && !caResult.controlling) {
+    driving_reason = `Below the firm's minimum-limits appetite (${FLOOR_PRETTY[profile.min_policy_limits] || profile.min_policy_limits}); real case, better placed elsewhere.`;
+    flip_fact = "Confirm higher coverage (umbrella / other policy) or the caller's own UM/UIM — current limits are below the firm's floor.";
+  } else {
+    driving_reason = plainReason({ ...rec, disposition_basis: basis }, caResult);
+    flip_fact = flipFact(input, rec, caResult, dimension_reads);
+  }
 
   return {
     engine: "triage-live",

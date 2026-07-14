@@ -271,6 +271,26 @@ test("red-flag strictness only adds review caution, never caps a disposition", (
   assert.equal(strict.disposition, "sign_now");
 });
 
+test("decline-vs-refer appetite: a firm can decline out-of-appetite types instead of referring them, but statutory refers still refer", () => {
+  const dog = { case_type: "dog_bite", incident_date: recent, liability: "clear", injury: "moderate", objective_findings: true, coverage: "moderate" };
+  const accepted = ["mva_standard", "premises"]; // dog_bite NOT accepted
+
+  const refers = triageFromFacts(dog, { posture: "selective", accepted_case_types: accepted }, { now: NOW, computeSol });
+  const declines = triageFromFacts(dog, { posture: "selective", accepted_case_types: accepted, decline_out_of_appetite: true }, { now: NOW, computeSol });
+  assert.equal(refers.disposition, "refer_out"); // default: refer the out-of-appetite type
+  assert.equal(declines.disposition, "decline_with_grace"); // firm chose to decline
+  assert.match(declines.driving_reason, /does not take/i);
+
+  // A STATUTORY refer (workers-comp comp-only) must stay a refer even when the
+  // firm declines out-of-appetite types and does not accept work_injury.
+  const wc = triageFromFacts(
+    { case_type: "work_injury", incident_date: recent, liability: "clear", injury: "hard", objective_findings: true, coverage: "moderate", work_injury_third_party: false },
+    { posture: "selective", accepted_case_types: ["mva_standard"], decline_out_of_appetite: true },
+    { now: NOW, computeSol }
+  );
+  assert.equal(wc.disposition, "refer_out");
+});
+
 test("output always carries the SOL disclaimer and a flip fact path", () => {
   const r = triageFromFacts(
     { case_type: "mva_standard", incident_date: recent, liability: "unclear", injury: "moderate", coverage: "unknown" },
