@@ -1221,3 +1221,32 @@ the deploy. **Next to earn the flip:** measure v2 false-alarm rate from the shad
 apply flip-copy, (optional) Yang nod. Branches: feature/scoring-v2.1-triage-deltas (engine),
 feature/v2-cutover (full-flip pipeline, staged).
 **Review:** once shadow corpus has N calls, compute v2 vs v1 disagreement + v2 rate.
+
+## 2026-07-14 — Tiered/sampled review shipped LIVE flag-ON; Ali accepts pre-Yang exposure
+**Change:** deploying the mill-readiness branch (feat/mill-readiness → main → Vercel) with
+`SAMPLED_REVIEW_ENABLED=true` (Ali set the env). This activates the tiered review model on the
+ongoing Monthly Missed-Revenue Statement: the calibrated engine + citation guard carry
+strong-confidence, evidence-verified, low-stakes findings (auto-release, labeled
+"Engine-scored · evidence-verified"); any high-value / low-confidence / citation-gap flag forces
+analyst sign-off ("Analyst-reviewed"). Firm-facing released-only statement download shipped.
+Also live: recovery-first repositioning, Enterprise "Custom" volume tier, checkout re-enabled
+(beta-free gate; still simulated until Stripe keys set), roles + /desk/team, throughput/upload
+fixes. Free Leak Audit stays 100% hand-reviewed.
+**The flagged exposure (§IV/§V):** the narrowed analyst attestation ("I personally reviewed every
+high-value flag … and a random sample of the remainder") changes what Ali's SIGNED attestation
+attests to. Compliance-invariants routes novel regulated changes to Yang FIRST. Yang has NOT yet
+reviewed the wording.
+**Decision (Ali, explicit + informed, 2026-07-14):** go live now, accept the pre-Yang exposure,
+route the attestation wording to Yang as a WARM contact reviewing AFTER (mirrors the §VII
+deploy-authority amendment precedent). Agent surfaced the exposure three times and via an explicit
+choice before deploy; not smoothed over.
+**Still owed to Yang (warm, not a hard block):** review of the narrowed attestation wording +
+the BAA draft. Send-ready packet in ops/drafts/sampled-review-model-PROPOSAL-2026-07-14.md +
+ops/drafts/baa-and-data-protection-DRAFT-2026-07-14.md.
+**Safety properties (verified):** flag-OFF is byte-identical to prior behavior; force_review can
+never reach the auto-release branch; the §IV floor is a REAL citation_failures count (not an
+assumed 0), which is why auto-release runs on the firm pipeline, not the demo-isolated
+audit_sessions; firm statement download serves ONLY released rows, firm-scoped (no ?firm param),
+cross-firm → 404. tsc clean, 643/643 tests, next build green. Hosted PG current through 0045.
+**Review:** after Yang reviews the attestation wording — if she objects, flip
+SAMPLED_REVIEW_ENABLED=false (reverts to 100% hand-review, byte-identical) and revise.
