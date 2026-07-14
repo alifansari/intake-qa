@@ -309,6 +309,22 @@ export function TriageConsole({
                   <Check label="Caller has UM / UIM" onChange={(v) => set("client_has_um", v)} />
                 </div>
 
+                <div className="col-span-2">
+                  <label className={label}>Was the caller insured at the time? (Prop 213)</label>
+                  <select
+                    className={field}
+                    defaultValue="unknown"
+                    onChange={(e) => set("client_insured_status", e.target.value)}
+                  >
+                    <option value="unknown">Unknown / not asked</option>
+                    <option value="insured">Yes &mdash; caller had their own insurance</option>
+                    <option value="uninsured_driver_of_insured_vehicle">Drove someone else&rsquo;s insured car</option>
+                    <option value="passenger">Was a passenger</option>
+                    <option value="uninsured_owner_operator">No &mdash; own vehicle, uninsured</option>
+                    <option value="uninsured_driver_of_uninsured_vehicle">No &mdash; drove an uninsured vehicle</option>
+                  </select>
+                </div>
+
                 {isWork && (
                   <div className="col-span-2 rounded-base bg-amber-tint p-3">
                     <label className={label}>Was anyone other than the employer at fault?</label>

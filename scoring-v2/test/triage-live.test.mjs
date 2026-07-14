@@ -133,6 +133,58 @@ test("thin soft-tissue with minimal limits is not a confident sign", () => {
   assert.ok(r.flip_fact);
 });
 
+test("Prop 213: uninsured owner/operator with no objective anchors is not signable, but an insured caller (and an excepted passenger) is not barred", () => {
+  const facts = {
+    case_type: "mva_standard",
+    incident_date: recent,
+    liability: "clear",
+    injury: "soft_tissue",
+    objective_findings: false, // Prop 213 profile requires NO objective anchors
+    coverage: "moderate",
+  };
+  const insured = triageFromFacts({ ...facts, client_insured_status: "insured" }, { posture: "selective" }, { now: NOW, computeSol });
+  const barred = triageFromFacts({ ...facts, client_insured_status: "uninsured_owner_operator" }, { posture: "selective" }, { now: NOW, computeSol });
+  const passenger = triageFromFacts({ ...facts, client_insured_status: "passenger" }, { posture: "selective" }, { now: NOW, computeSol });
+
+  // The bar collapses the economic-only file; an insured caller keeps it alive.
+  assert.equal(barred.disposition, "decline_with_grace");
+  assert.notEqual(insured.disposition, "decline_with_grace");
+  // Passengers are excepted from §3333.4 — same outcome as insured.
+  assert.equal(passenger.disposition, insured.disposition);
+  // A surgical/objective-anchor file is NEVER barred, even uninsured.
+  const withImaging = triageFromFacts(
+    { ...facts, objective_findings: true, injury: "hard", client_insured_status: "uninsured_owner_operator" },
+    { posture: "selective" },
+    { now: NOW, computeSol }
+  );
+  assert.notEqual(withImaging.disposition, "decline_with_grace");
+});
+
+test("firm minimum-limits floor refers out a signable file below the floor, unless UM/UIM backstops it", () => {
+  const signable = {
+    case_type: "mva_standard",
+    incident_date: recent,
+    liability: "clear",
+    injury: "hard",
+    objective_findings: true,
+    coverage: "moderate", // ~$50-100k band, below a $100k floor
+  };
+  const noFloor = triageFromFacts(signable, { posture: "selective" }, { now: NOW, computeSol });
+  const floor100 = triageFromFacts(signable, { posture: "selective", min_policy_limits: "100k" }, { now: NOW, computeSol });
+  const floor100um = triageFromFacts({ ...signable, client_has_um: true }, { posture: "selective", min_policy_limits: "100k" }, { now: NOW, computeSol });
+  const floor50 = triageFromFacts(signable, { posture: "selective", min_policy_limits: "50k" }, { now: NOW, computeSol });
+  const floorUnknownCov = triageFromFacts({ ...signable, coverage: "unknown" }, { posture: "selective", min_policy_limits: "100k" }, { now: NOW, computeSol });
+
+  assert.equal(noFloor.disposition, "sign_now");
+  assert.equal(floor100.disposition, "refer_out"); // appetite floor caps to refer, never decline
+  assert.match(floor100.driving_reason, /minimum-limits appetite/i);
+  assert.equal(floor100um.disposition, "sign_now"); // UM/UIM backstop -> floor does not fire
+  assert.equal(floor50.disposition, "sign_now"); // moderate band meets a $50k floor
+  assert.notEqual(floorUnknownCov.disposition, "refer_out"); // unknown coverage never fires the floor
+  // The floor is appetite, not a statutory bar: it can never push past refer_out to decline.
+  assert.notEqual(floor100.disposition, "decline_with_grace");
+});
+
 test("output always carries the SOL disclaimer and a flip fact path", () => {
   const r = triageFromFacts(
     { case_type: "mva_standard", incident_date: recent, liability: "unclear", injury: "moderate", coverage: "unknown" },

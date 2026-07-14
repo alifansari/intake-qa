@@ -255,6 +255,42 @@ export function profileToConfig(profile = {}) {
   });
 }
 
+// --- firm collectibility floor (min_policy_limits) -------------------------
+// The firm's minimum-limits appetite is a PREFERENCE tier (any / 25k / 50k /
+// 100k / 250k), never the defendant's actual dollar limits — those are not
+// captured on the call (compliance rail: no dollar output). When the observed
+// coverage BAND is clearly below the firm's floor and there is no UM/UIM
+// backstop, the case is a real case the firm would rather place elsewhere:
+// cap to refer_out, never decline (this is appetite, not a statutory bar).
+//
+// Guards: unknown coverage never fires (we do not guess); UM/UIM present never
+// fires (the client's own policy can still collect). The form's coverage bands
+// are coarse, so a 250k floor can only be enforced to the "high ($100k+)" band
+// (it cannot tell 100k from 250k); this deliberately UNDER-enforces rather than
+// wrongly refer a good-coverage file.
+const COVERAGE_RANK = Object.freeze({
+  none_uninsured: 0,
+  minimal: 1,
+  moderate: 2,
+  high: 3,
+  commercial_deep: 4,
+});
+const FLOOR_REQUIRED_RANK = Object.freeze({ "25k": 1, "50k": 2, "100k": 3, "250k": 3 });
+const FLOOR_PRETTY = Object.freeze({ "25k": "$25k", "50k": "$50k", "100k": "$100k", "250k": "$250k" });
+
+function firmFloorUnmet(input, profile) {
+  const floor = profile && profile.min_policy_limits;
+  if (!floor || floor === "any") return false;
+  const required = FLOOR_REQUIRED_RANK[floor];
+  if (required == null) return false;
+  const band = input.coverage;
+  if (!band || band === "unknown") return false; // never guess on unknown coverage
+  if (input.client_has_um === true) return false; // UM/UIM backstop can still collect
+  const rank = COVERAGE_RANK[band];
+  if (rank == null) return false;
+  return rank < required;
+}
+
 // --- grade mapping ---------------------------------------------------------
 // Disposition + value tier -> the letter grade and color the desk shows. This
 // mirrors how PI firms already grade intake (A/B/C/D, green/amber/red), so the
@@ -365,6 +401,21 @@ export function triageFromFacts(input = {}, profile = {}, opts = {}) {
     disposition = overridden;
   }
 
+  // Firm collectibility floor (min_policy_limits appetite) runs after the
+  // statutory overrides. Appetite, not law: it can only cap a still-viable
+  // file to refer_out, never to decline.
+  let firmFloorFired = false;
+  if (disposition !== "decline_with_grace" && firmFloorUnmet(input, profile)) {
+    const capped = worseDisposition(disposition, "refer_out");
+    if (capped !== disposition) {
+      disposition = capped;
+      firmFloorFired = true;
+      basis.push(
+        `FIRM-FLOOR min-limits ${profile.min_policy_limits} not met by observed coverage "${input.coverage}" (no UM/UIM backstop) -> refer_out`
+      );
+    }
+  }
+
   // Elder-abuse heightened track lifts the value read (never past what the
   // calibrated engine allows to sign, but enough to grade a real 15657 case).
   let valueTier = rec.value_tier;
@@ -377,6 +428,17 @@ export function triageFromFacts(input = {}, profile = {}, opts = {}) {
   const attorney_review_required =
     rec.attorney_review_required || caResult.attorney_review_required;
 
+  // When the firm-appetite floor is the change that controls the outcome (no CA
+  // statutory gate took over), make it the human-facing reason and flip fact.
+  const driving_reason =
+    firmFloorFired && !caResult.controlling
+      ? `Below the firm's minimum-limits appetite (${FLOOR_PRETTY[profile.min_policy_limits] || profile.min_policy_limits}); real case, better placed elsewhere.`
+      : plainReason({ ...rec, disposition_basis: basis }, caResult);
+  const flip_fact =
+    firmFloorFired && !caResult.controlling
+      ? "Confirm higher coverage (umbrella / other policy) or the caller's own UM/UIM — current limits are below the firm's floor."
+      : flipFact(input, rec, caResult, dimension_reads);
+
   return {
     engine: "triage-live",
     schema_version: TRIAGE_SCHEMA_VERSION,
@@ -385,8 +447,8 @@ export function triageFromFacts(input = {}, profile = {}, opts = {}) {
     grade,
     disposition,
     value_tier: valueTier,
-    driving_reason: plainReason({ ...rec, disposition_basis: basis }, caResult),
-    flip_fact: flipFact(input, rec, caResult, dimension_reads),
+    driving_reason,
+    flip_fact,
     next_questions: nextQuestions(input, dimension_reads, sol),
     sol: {
       statute: sol.statute,
