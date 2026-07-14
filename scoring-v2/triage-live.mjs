@@ -53,6 +53,7 @@ export const TRIAGE_CASE_TYPES = Object.freeze([
   { id: "trucking", label: "Truck / commercial vehicle" },
   { id: "rideshare", label: "Rideshare (Uber / Lyft)" },
   { id: "premises", label: "Slip / trip / premises" },
+  { id: "habitability", label: "Habitability / mold (landlord)" },
   { id: "dog_bite", label: "Dog bite" },
   { id: "product", label: "Defective product" },
   { id: "med_mal", label: "Medical malpractice" },
@@ -84,12 +85,32 @@ const LIABILITY_LEVEL = {
   client_mostly_at_fault: "fatal",
 };
 
+// Corroboration lifts a merely "disputed" liability read: a police report
+// assigning fault to the other side, or independent witnesses, move it up to
+// "adequate" (the signals Andrew named as the fallbacks when there's no clean
+// admission). Everything else reads straight off the base map.
+function liabilityLevel(input) {
+  const base = LIABILITY_LEVEL[input.liability] || "unknown";
+  if (
+    input.liability === "disputed" &&
+    (input.police_report_favorable === true || input.independent_witnesses === true)
+  ) {
+    return "adequate";
+  }
+  return base;
+}
+
 function damagesLevel(input) {
   const inj = input.injury;
   if (inj === "none") return "fatal";
   if (inj === "death" || inj === "catastrophic") return "strong";
   if (inj === "hard") return input.objective_findings ? "strong" : "adequate";
-  if (inj === "moderate") return input.objective_findings ? "adequate" : "thin";
+  if (inj === "moderate") {
+    if (input.objective_findings) return "adequate";
+    // Ambulance / ER transport corroborates an acute injury even before imaging.
+    if (input.ambulance_transport === true) return "adequate";
+    return "thin";
+  }
   if (inj === "soft_tissue") return "thin";
   return "unknown";
 }
@@ -148,7 +169,7 @@ function capitalTier(input) {
 function buildLlmShape(input, profile) {
   const dimension_reads = {
     liability_comparative_fault: {
-      level: LIABILITY_LEVEL[input.liability] || "unknown",
+      level: liabilityLevel(input),
       basis: "intake liability read",
     },
     damages_credibility: { level: damagesLevel(input), basis: "intake injury read" },
@@ -176,7 +197,10 @@ function buildLlmShape(input, profile) {
       "objective findings (imaging / surgery / ER)"
     ),
     property_damage_stated: observed(
-      { minimal_impact_signal: input.minimal_impact === true },
+      // Bidirectional: significant property damage defeats the minor-impact
+      // (MIST) skepticism — a hard hit and "minor impact" cannot both be true,
+      // and the heavy damage corroborates a real collision.
+      { minimal_impact_signal: input.minimal_impact === true && input.significant_property_damage !== true },
       "property damage / impact"
     ),
     client_risk_markers: observed(riskMarkers(input.red_flags), "client red flags"),
@@ -225,6 +249,10 @@ function engineCaseType(caseType) {
   if (caseType === "nursing_home") return "elder_abuse";
   if (caseType === "work_injury") return "workers_comp";
   if (caseType === "dram_shop" || caseType === "social_host") return "other_pi";
+  // Habitability / mold (landlord-tenant) has no dedicated engine prior; route
+  // it to the neutral prior so the firm can still accept/decline it as its own
+  // type without borrowing the slip-and-fall premises reference class.
+  if (caseType === "habitability") return "other_pi";
   return caseType;
 }
 

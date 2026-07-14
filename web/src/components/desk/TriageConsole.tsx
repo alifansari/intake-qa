@@ -276,9 +276,15 @@ export function TriageConsole({
                   </select>
                 </div>
                 <div className="col-span-2 flex flex-wrap gap-4 py-1">
+                  <Check label="Police report blames other side" onChange={(v) => set("police_report_favorable", v)} />
+                  <Check label="Independent witnesses" onChange={(v) => set("independent_witnesses", v)} />
+                </div>
+                <div className="col-span-2 flex flex-wrap gap-4 py-1">
                   <Check label="Imaging / surgery / ER" onChange={(v) => set("objective_findings", v)} />
+                  <Check label="Ambulance / ER transport" onChange={(v) => set("ambulance_transport", v)} />
                   <Check label="Gap in treatment" onChange={(v) => set("treatment_gap", v)} />
                   <Check label="Minor impact / low damage" onChange={(v) => set("minimal_impact", v)} />
+                  <Check label="Significant property damage" onChange={(v) => set("significant_property_damage", v)} />
                 </div>
 
                 <div className="col-span-1">

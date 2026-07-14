@@ -185,6 +185,71 @@ test("firm minimum-limits floor refers out a signable file below the floor, unle
   assert.notEqual(floor100.disposition, "decline_with_grace");
 });
 
+test("liability corroboration: a police report or witnesses lift a merely disputed fault read", () => {
+  const base = {
+    case_type: "mva_standard",
+    incident_date: recent,
+    liability: "disputed",
+    injury: "hard",
+    objective_findings: true,
+    coverage: "high",
+  };
+  const bare = triageFromFacts(base, { posture: "selective" }, { now: NOW, computeSol });
+  const withReport = triageFromFacts({ ...base, police_report_favorable: true }, { posture: "selective" }, { now: NOW, computeSol });
+  const withWitnesses = triageFromFacts({ ...base, independent_witnesses: true }, { posture: "selective" }, { now: NOW, computeSol });
+  // Corroboration should never make a file worse, and should push a good-injury
+  // disputed file toward signing.
+  assert.equal(withReport.disposition, "sign_now");
+  assert.equal(withWitnesses.disposition, "sign_now");
+  assert.notEqual(bare.disposition, "sign_now");
+});
+
+test("ambulance/ER transport corroborates a moderate injury with no imaging", () => {
+  const base = {
+    case_type: "mva_standard",
+    incident_date: recent,
+    liability: "clear",
+    injury: "moderate",
+    objective_findings: false,
+    coverage: "high",
+  };
+  const noTransport = triageFromFacts(base, { posture: "selective" }, { now: NOW, computeSol });
+  const transport = triageFromFacts({ ...base, ambulance_transport: true }, { posture: "selective" }, { now: NOW, computeSol });
+  // Transport lifts the damages read, so the transported file is at least as
+  // strong and no worse.
+  assert.equal(transport.disposition, "sign_now");
+  assert.notEqual(noTransport.disposition, "sign_now");
+});
+
+test("property damage is bidirectional: significant damage defeats the minor-impact (MIST) penalty", () => {
+  // A firm that does NOT take MIST: a minor-impact soft-tissue file is penalized.
+  // Heavy property damage cannot coexist with minor impact, so it lifts that
+  // penalty and the file reads strictly better than the MIST-only version.
+  const softMist = {
+    case_type: "mva_standard",
+    incident_date: recent,
+    liability: "clear",
+    injury: "soft_tissue",
+    objective_findings: false,
+    coverage: "high",
+    minimal_impact: true,
+  };
+  const mistOnly = triageFromFacts(softMist, { posture: "selective", take_mist: false }, { now: NOW, computeSol });
+  const withHeavyPd = triageFromFacts({ ...softMist, significant_property_damage: true }, { posture: "selective", take_mist: false }, { now: NOW, computeSol });
+  const rank = { sign_now: 3, develop: 2, refer_out: 1, decline_with_grace: 0 };
+  assert.equal(mistOnly.disposition, "decline_with_grace"); // MIST penalty applied
+  assert.ok(rank[withHeavyPd.disposition] > rank[mistOnly.disposition]); // penalty lifted
+});
+
+test("habitability / mold is a first-class case type the firm can accept or refer out", () => {
+  const facts = { case_type: "habitability", incident_date: recent, liability: "clear", injury: "moderate", objective_findings: true, coverage: "moderate" };
+  const accepted = triageFromFacts(facts, { posture: "selective", accepted_case_types: ["habitability", "mva_standard"] }, { now: NOW, computeSol });
+  const notAccepted = triageFromFacts(facts, { posture: "selective", accepted_case_types: ["mva_standard"] }, { now: NOW, computeSol });
+  assert.equal(accepted.case_type, "habitability");
+  assert.notEqual(accepted.disposition, "refer_out"); // taken -> scored on merits
+  assert.equal(notAccepted.disposition, "refer_out"); // not taken -> refer out
+});
+
 test("output always carries the SOL disclaimer and a flip fact path", () => {
   const r = triageFromFacts(
     { case_type: "mva_standard", incident_date: recent, liability: "unclear", injury: "moderate", coverage: "unknown" },
