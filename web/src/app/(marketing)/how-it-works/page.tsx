@@ -26,6 +26,7 @@ const STEPS: [string, string, string][] = [
   ["Same-day Recoverable-Lead Alert", "You get a one-screen Alert the same day. Lead value fades fast, so the play is a callback within the hour.", "A specific, same-day SLA, because speed is the biggest lever on recovery."],
   ["Your staff make the callback", "Every flagged case comes with the number, the evidence, and a suggested script; a person at your firm makes the call. During the beta that’s the whole play: no texts, no automation touching your callers.", "We never contact your callers. A drafted, human-approved text assist is on the roadmap, gated on A2P 10DLC registration and seven compliance gates."],
   ["Monthly Missed-Revenue Statement", "A two-page monthly Statement, signed by the analyst, shows what walked in dollars, the trend, and the Saved-Case Ledger. A standing 15-minute review call and a Right of Reply come with it.", "Challenge any finding; your correction runs, unedited, in the next Statement’s Corrections column."],
+  ["We grade ourselves against what you signed", "Weeks later, we reconcile every call we graded against what your firm actually did with it: signed, declined, or referred. That tells us how often our SIGN was right, and our worst error, the cases we told you to pass that you signed anyway. We publish those numbers with their sample size.", "The one number on your intake that isn’t self-graded is ours. See the Accuracy page."],
   ["Flat monthly fee", "You pay one flat monthly fee tiered by call volume, the same whether you sign zero cases or fifty.", "Never per case, per client, or per recovered dollar (Cal. B&P §§6151-6152)."],
 ];
 
@@ -81,7 +82,7 @@ export default function HowItWorksPage() {
         <ul className="mt-3 flex flex-col gap-2 text-ink-muted">
           <li><b className="text-ink">Owner:</b> about 20 minutes total, a kickoff call and sign-off.</li>
           <li><b className="text-ink">Office manager:</b> about 2 hours of setup, mostly exporting or forwarding call recordings.</li>
-          <li><b className="text-ink">Intake team:</b> about 5 minutes a day on the triage queue.</li>
+          <li><b className="text-ink">Intake team:</b> about 5 minutes a day confirming the triage queue, which fills itself from your recordings so no one re-types a form.</li>
         </ul>
         <p className="mt-2 text-sm text-faint">That’s the whole lift.</p>
       </section>

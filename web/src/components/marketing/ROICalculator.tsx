@@ -69,23 +69,35 @@ export function ROICalculator() {
   const [missedPerWeek, setMissed] = useState(10);
   const [avgFee, setAvgFee] = useState(12000);
   const [signPct, setSignPct] = useState(5);
+  // Cost per LEAD (not per signed case). Default = the one verified acquisition
+  // number on the site ($284/lead, Pareto Legal). This is the money already
+  // spent to make the phone ring — the marketing-waste frame.
+  const [costPerLead, setCostPerLead] = useState(284);
 
-  const casesLost = missedPerWeek * 52 * (signPct / 100);
+  const leadsLost = missedPerWeek * 52;
+  const adSpendWasted = leadsLost * costPerLead;
+  const casesLost = leadsLost * (signPct / 100);
   const feesLost = casesLost * avgFee;
 
   return (
     <div className="rounded-card border border-hairline bg-surface p-6 shadow-card">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Missed / unreturned calls per week" value={missedPerWeek} onChange={setMissed} />
+        <Field label="What you pay per lead" value={costPerLead} onChange={setCostPerLead} prefix="$" />
         <Field label="Avg. fee per signed case" value={avgFee} onChange={setAvgFee} prefix="$" />
         <Field label="Sign rate on those calls" value={signPct} onChange={setSignPct} suffix="%" />
       </div>
 
-      <div className="mt-5 flex flex-col gap-1 rounded-card bg-canvas p-5">
+      <div className="mt-5 flex flex-col gap-2 rounded-card bg-canvas p-5">
+        <p className="text-sm text-ink">
+          You already paid to make those calls happen:{" "}
+          <span className="tnum font-semibold text-alert">{usd(adSpendWasted)}</span> in acquisition
+          spend a year, walking after the phone rang.
+        </p>
         <p className="text-sm text-ink-muted">
-          At that rate you lose{" "}
+          At that sign rate it’s{" "}
           <span className="tnum font-semibold text-ink">{casesLost.toFixed(0)}</span> signable cases,
-          about <span className="tnum font-semibold text-alert">{usd(feesLost)}</span> in fees, a year.
+          about <span className="tnum font-semibold text-alert">{usd(feesLost)}</span> in fees, on top.
         </p>
       </div>
 

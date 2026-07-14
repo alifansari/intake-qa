@@ -5,6 +5,7 @@ import { ROICalculator } from "@/components/marketing/ROICalculator";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
 import { SampleStatement } from "@/components/marketing/SampleStatement";
 import { SampleAlert } from "@/components/marketing/SampleAlert";
+import { LostCallTape } from "@/components/marketing/LostCallTape";
 import { SEAT_LINE } from "@/lib/cohort";
 import {
   CTA_PRIMARY,
@@ -103,10 +104,11 @@ export default function HomePage() {
           See the signable cases that walked out of your intake, and what they cost you.
         </h1>
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
-          We read your firm’s recorded intake calls, flag the callers our analysis marks as
-          signable who never signed, and put an estimated dollar figure on the misses.
-          Independently, for a flat fee, never a share of anything. Start with a free audit of 10
-          calls.
+          You spend real money to make the phone ring. What happens after it rings, which signable
+          callers didn’t sign and what they were worth, is the one number no one in your building
+          can see. We read your recorded intake calls, flag the signable callers who walked, put a
+          dollar on the misses, and publish how accurate we are. Independently, for a flat fee,
+          never a share. Start with a free audit of 10 calls.
         </p>
         <div className="mt-8">
           <CTA />
@@ -139,6 +141,11 @@ export default function HomePage() {
           Page one of a sample Missed-Revenue Statement, the monthly document the desk produces.
           Figures are illustrative and names are redacted; yours is built from your calls.
         </p>
+      </Section>
+
+      {/* THE TAPE — hear a signable case walk (the most visceral proof) */}
+      <Section className="pb-16">
+        <LostCallTape />
       </Section>
 
       {/* HOW IT WORKS — three steps, one breath */}
