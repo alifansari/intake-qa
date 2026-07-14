@@ -9,7 +9,6 @@ export const MARKETING_ROUTES = [
   "/honesty",
   "/compliance",
   "/how-it-works",
-  "/manifesto",
   "/faq",
   "/security",
   "/founder",

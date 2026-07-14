@@ -20,6 +20,7 @@ import {
   STAT_WEBRIS_DISTRUST,
   FOUR_FAILURE_MODES,
   CHAMPION_LINE,
+  CATEGORY_BOUNDARY_LINE,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
@@ -176,8 +177,12 @@ export default function HomePage() {
       <Section className="pb-4">
         <StatBar stats={STATS} />
         <p className="mt-3 text-xs text-faint">
-          Why these four numbers: what a lead costs, how often nobody answers, who’s calling,
-          and how few firms know their own number. Sources named under each.
+          Why these four numbers: what a lead costs, how many firms never connect the call, who’s
+          calling, and how few firms know their own number. Sources named under each.
+        </p>
+        <p className="mt-4 max-w-[68ch] text-sm text-ink">
+          {CATEGORY_BOUNDARY_LINE} The number we own is the one after the phone gets answered: the
+          signable caller who got through, and still didn’t sign.
         </p>
       </Section>
 
