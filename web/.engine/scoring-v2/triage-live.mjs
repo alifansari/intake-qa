@@ -533,6 +533,21 @@ export function triageFromFacts(input = {}, profile = {}, opts = {}) {
     driving_reason,
     flip_fact,
     next_questions: nextQuestions(input, dimension_reads, sol),
+    // The ranked CA-PI workup conveyor the engine already computes for a
+    // "develop" file: what to gather next, most time-critical first. Surfaced
+    // only when the FINAL disposition is develop (a signed/declined/referred
+    // file has no workup to do here). Slim shape so the UI never depends on
+    // engine-internal field names.
+    ranked_actions:
+      disposition === "develop" &&
+      rec.develop_payload &&
+      Array.isArray(rec.develop_payload.ranked_actions)
+        ? rec.develop_payload.ranked_actions.map((a) => ({
+            label: a.label,
+            latency: a.latency_criticality,
+            obtainability: a.obtainability,
+          }))
+        : [],
     sol: {
       statute: sol.statute,
       period: sol.periodLabel,

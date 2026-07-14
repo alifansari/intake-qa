@@ -291,6 +291,28 @@ test("decline-vs-refer appetite: a firm can decline out-of-appetite types instea
   assert.equal(wc.disposition, "refer_out");
 });
 
+test("a develop file surfaces the ranked workup actions; a clean sign does not", () => {
+  const develop = triageFromFacts(
+    { case_type: "mva_standard", incident_date: recent, liability: "unclear", injury: "moderate", objective_findings: false, coverage: "unknown" },
+    { posture: "selective" },
+    { now: NOW, computeSol }
+  );
+  const sign = triageFromFacts(
+    { case_type: "mva_standard", incident_date: recent, liability: "clear", injury: "hard", objective_findings: true, coverage: "high" },
+    { posture: "selective" },
+    { now: NOW, computeSol }
+  );
+  assert.equal(develop.disposition, "develop");
+  assert.ok(Array.isArray(develop.ranked_actions) && develop.ranked_actions.length > 0);
+  for (const a of develop.ranked_actions) {
+    assert.equal(typeof a.label, "string");
+    assert.ok(["critical", "time_critical", "routine"].includes(a.latency)); // qualitative, never a date
+  }
+  // A clean sign has nothing to work up here.
+  assert.equal(sign.disposition, "sign_now");
+  assert.equal(sign.ranked_actions.length, 0);
+});
+
 test("output always carries the SOL disclaimer and a flip fact path", () => {
   const r = triageFromFacts(
     { case_type: "mva_standard", incident_date: recent, liability: "unclear", injury: "moderate", coverage: "unknown" },

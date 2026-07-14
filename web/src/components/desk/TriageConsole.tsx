@@ -60,6 +60,17 @@ function toneChip(tone: string) {
   return "bg-canvas text-faint";
 }
 
+function latencyTone(latency: string) {
+  if (latency === "critical") return "bad";
+  if (latency === "time_critical") return "warn";
+  return "neutral";
+}
+function latencyLabel(latency: string) {
+  if (latency === "critical") return "Now";
+  if (latency === "time_critical") return "Soon";
+  return "Routine";
+}
+
 const field =
   "w-full rounded-base border border-line-strong bg-surface px-3 py-2 text-sm text-ink focus:outline-none";
 const label = "block text-xs font-medium text-ink-muted mb-1";
@@ -470,6 +481,21 @@ function Verdict({ verdict }: { verdict: Record<string, unknown> }) {
         <Line title="Ask next">
           <ul className="list-disc pl-4 text-sm text-ink-muted">
             {(verdict.next_questions as string[]).map((q, i) => <li key={i}>{q}</li>)}
+          </ul>
+        </Line>
+      ) : null}
+
+      {Array.isArray(verdict.ranked_actions) && (verdict.ranked_actions as Array<Record<string, string>>).length ? (
+        <Line title="Work up next">
+          <ul className="space-y-1.5 text-sm text-ink-muted">
+            {(verdict.ranked_actions as Array<Record<string, string>>).map((a, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className={`mt-0.5 shrink-0 rounded-base px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${toneChip(latencyTone(a.latency))}`}>
+                  {latencyLabel(a.latency)}
+                </span>
+                <span>{a.label}</span>
+              </li>
+            ))}
           </ul>
         </Line>
       ) : null}
