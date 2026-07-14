@@ -18,6 +18,7 @@ import {
   STAT_LA_HISPANIC,
   STAT_WEBRIS_DISTRUST,
   FOUR_FAILURE_MODES,
+  CHAMPION_LINE,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
@@ -123,8 +124,8 @@ export default function HomePage() {
         </p>
         <p className="mt-2 text-sm text-faint">
           {HONESTY_STRIP_LINE}{" "}
-          <Link href="/honesty" className="font-semibold text-accent hover:text-accent-hover">
-            See the calibration page →
+          <Link href="/accuracy" className="font-semibold text-accent hover:text-accent-hover">
+            See our accuracy →
           </Link>
         </p>
       </Section>
@@ -203,6 +204,7 @@ export default function HomePage() {
                 ["Grades its own work?", true, true, true, false],
                 ["Scores calls it didn’t answer?", false, false, false, true],
                 ["Reconciles against who actually signed?", false, false, false, true],
+                ["Publishes its own accuracy and miss rate?", false, false, false, true],
                 ["Paid the same no matter what it finds?", false, false, false, true],
               ].map(([label, a, b, c, iq]) => (
                 <tr key={label as string} className="border-b border-hairline">
@@ -254,6 +256,17 @@ export default function HomePage() {
               A sample Recoverable-Lead Alert. Figures illustrative; caller redacted.
             </p>
           </div>
+        </div>
+      </Section>
+
+      {/* THE CHAMPION — the user is the intake team; make them the hero, not the accused */}
+      <Section className="py-14 border-t border-hairline">
+        <div className="max-w-[70ch]">
+          <p className="eyebrow">For your intake team</p>
+          <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">
+            Built to make your intake team look good, not to grade them.
+          </h2>
+          <p className="mt-5 text-lg leading-relaxed text-ink-muted">{CHAMPION_LINE}</p>
         </div>
       </Section>
 

@@ -8,6 +8,7 @@ import { CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF } from "@/lib/site-const
 // Manifesto and the letter stay one click away in the footer.
 const LINKS = [
   { href: "/how-it-works", label: "How it works" },
+  { href: "/accuracy", label: "Accuracy" },
   { href: "/pricing", label: "Pricing" },
   { href: "/compliance", label: "Compliance" },
   { href: "/faq", label: "FAQ" },

@@ -5,6 +5,7 @@
 export const MARKETING_ROUTES = [
   "/",
   "/pricing",
+  "/accuracy",
   "/honesty",
   "/compliance",
   "/how-it-works",
@@ -12,7 +13,6 @@ export const MARKETING_ROUTES = [
   "/faq",
   "/security",
   "/founder",
-  "/concierge",
   "/terms",
   "/privacy",
   "/apply",

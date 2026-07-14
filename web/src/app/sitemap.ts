@@ -10,7 +10,7 @@ const ROUTES = [
   "/how-it-works",
   "/compliance",
   "/pricing",
-  "/honesty",
+  "/accuracy",
   "/faq",
   "/security",
   "/founder",

@@ -118,7 +118,7 @@ export const LIFT_LINE =
 // Trust strip: points at the calibration page. Copy-audit 2026-07-11: must not
 // promise a published error rate until /honesty actually publishes one (the page
 // currently, correctly, withholds precision/recall until the corpus is documented).
-export const HONESTY_STRIP_LINE = "We tell you what we won’t claim yet.";
+export const HONESTY_STRIP_LINE = "We publish how accurate we are, sample size and all.";
 // Reviewer line near buy buttons (role, not a named person — see compliance §V).
 // Matches WHO_DOES_THE_WORK: Ali is a former PI paralegal who sat in the intake seat.
 export const REVIEWER_LINE = "A former PI paralegal who sat in the intake seat reviews every score.";
@@ -327,13 +327,13 @@ export const MONTH_6_INTRO =
 export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = [
   {
     title: "A statement that trends over time",
-    body: "Your monthly missed-revenue statement shows the leak shrinking, not just a static snapshot.",
-    status: "In development with the founding cohort.",
+    body: "Your monthly Recovered statement shows the leak shrinking, not just a static snapshot.",
+    status: "Live: the Recovered statement updates on its own.",
   },
   {
-    title: "Intake-team scorecards",
-    body: "Improvement trending that makes the manager look good, so credit lands where it’s earned.",
-    status: "In development with the founding cohort.",
+    title: "An accuracy scorecard on us",
+    body: "The Our-accuracy page grades our own calls against what your firm actually signed, so the one number on your intake that isn’t self-graded is ours.",
+    status: "Live for the founding cohort.",
   },
   {
     title: "Coaching clips from real calls",
