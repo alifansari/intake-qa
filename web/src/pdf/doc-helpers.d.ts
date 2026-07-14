@@ -22,6 +22,8 @@ export function readoutId(firmCode: string, year: number | string, nn: number | 
 export const SAVE_STATUSES: string[];
 export const SEVERITY_TIERS: { critical: string; significant: string; awareness: string };
 export const ATTESTATION: string;
+export const ATTESTATION_SAMPLED_REVIEW: string;
+export function getAttestation(env?: Record<string, string | undefined>): string;
 export const FOOTNOTES: { fee: string; confidence: string; reconciliation: string };
 export const AGENCY_INTRO: string;
 export const COACHING_XREF: string;

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 const STEPS: [string, string, string][] = [
   ["Month-Zero Baseline, co-signed", "Before we change anything, we co-sign a Baseline that records where your intake stands today, so every later number is measured against a line we both agreed to.", "You approve the starting point; nobody moves the goalposts later."],
-  ["Call arrives", "Every intake call comes in through your existing phone system (CallRail, RingCentral, 8x8, Dialpad, or any system that records) or a manual upload.", "Nothing changes about how your clients reach you."],
+  ["Call arrives", "Every intake call comes in through your existing phone system (CallRail, RingCentral, 8x8, Dialpad, or any system that records) or a manual upload.", "Nothing changes about how your clients reach you, and nothing changes about the CMS you run it in: the desk sits on top of Filevine, CasePeer, Litify, or your own stack, with nothing to migrate."],
   ["Transcribed", "Our transcription model produces a speaker-separated transcript.", "The audio is deleted the moment the transcript exists."],
   ["Scored, and placed in a tier", "Each call is scored against a frozen, calibrated rubric and placed in one of five plain-English signability tiers.", "The rubric is version-locked, so a Tier 4 means the same thing every month."],
   ["Signable-case detection", "A case is flagged when it reaches Tier 4 or above, it wasn’t converted, and it’s within 72 hours.", "Pure, inspectable logic, not a black box."],
@@ -58,9 +58,9 @@ export default function HowItWorksPage() {
         ))}
       </ol>
 
-      {/* Staff-facing reassurance: the intake manager is the champion, not the target */}
+      {/* Staff-facing reassurance: the intake department is on the same side, not the target */}
       <section className="mt-14 rounded-card border border-hairline bg-surface p-6">
-        <h2 className="font-display text-xl font-semibold text-ink">For the intake team: this is on your side</h2>
+        <h2 className="font-display text-xl font-semibold text-ink">For the intake department: this is on your side</h2>
         <p className="mt-2 max-w-[70ch] text-ink-muted">
           We score the call and the process, not the individual’s job security. When the phones
           spike after a campaign, even a great intake team can’t catch every callback. That’s

@@ -10,7 +10,7 @@ export const dynamic = "force-static";
 
 const PUBLICATION_DATE = "July 6, 2026"; // set once; used in dateline, attestation, OG
 const PUBLICATION_ISO = "2026-07-06";
-const REVISION_DATE = "July 12, 2026"; // last text revision; shown in the version line/colophon
+const REVISION_DATE = "July 14, 2026"; // last text revision; shown in the version line/colophon
 
 // The Spanish translation at /carta is scaffolded but not yet published. Flip this
 // (and paste content into app/carta) to emit hreflang alternates + link it.
@@ -19,7 +19,7 @@ const CARTA_READY = false;
 export const metadata: Metadata = {
   title: "The Unscored Conversation — An open letter to California PI managing partners",
   description:
-    "A signed open letter on the four minutes of intake that decide a case, and a free Leak Audit for California PI firms, with a founding charter for the first five.",
+    "A signed open letter on the four minutes of intake that decide a case, and a free Leak Audit for California PI firms, single-office or high-volume, with a founding charter for firms that continue.",
   authors: [{ name: "Ali Ansari" }],
   alternates: {
     canonical: "https://plaintiffops.com/letter",
@@ -100,13 +100,17 @@ export default function LetterPage() {
             <span className={styles.monogram} aria-hidden="true">
               IQ
             </span>
-            <span className={styles.version}>Version 1.4 · updated {REVISION_DATE}</span>
+            <span className={styles.version}>Version 1.5 · updated {REVISION_DATE}</span>
           </div>
         </footer>
 
         <aside className={styles.colophon}>
           <p>
-            Changelog. 1.4: the Calibration and Honesty references were corrected to match the
+            Changelog. 1.5: the invitation was opened to higher-volume and multi-office firms:
+            the free audit is framed as a sample of your own calls, ten to start, and the founding
+            beta is offered to firms that continue rather than a fixed count, run across one office
+            or many. The fee remains flat monthly and outcome-decoupled; no dollar figure is
+            published during the beta. 1.4: the Calibration and Honesty references were corrected to match the
             page: the method and the two failure modes are published now; the false-alarm number
             publishes with its documented test corpus, not before. 1.3: the invitation was updated
             for the beta window: the first five firms

@@ -5,6 +5,8 @@
 // Formatting conventions (from the design system): en-dash ranges, no cents
 // unless needed, dates as "Mon D, YYYY", sentence case, no exclamation marks.
 
+import { isSampledReviewEnabled } from "../../analysis/flags.mjs";
+
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export function fmtMoney(cents) {
@@ -157,8 +159,25 @@ export const SEVERITY_TIERS = {
 
 // ── Verbatim fixed blocks (ship exactly; avoid reserved accountancy terms) ──
 
+// DEFAULT (flag OFF) — the exact, current attestation. 100% analyst review.
+// Do NOT edit this string: when SAMPLED_REVIEW_ENABLED is off it must render
+// byte-identical to today.
 export const ATTESTATION = `Analyst's attestation
 I personally reviewed the calls, flags, and figures in this statement before it was issued. Each qualifying fact cited here is tied to a specific point in the call recording, and each estimated fee value is presented as a range under the methodology in Appendix A, not as a guarantee of outcome or recovery. This is an independent business analysis of intake performance. It is not an audit, an accounting engagement, a financial statement, or legal advice, and it should not be relied on as any of those.`;
+
+// TIERED (flag ON) — the narrowed attestation, honest under the sampled-review
+// model: the human personally reviews every high-value flag, every lower-confidence
+// flag, everything the citation guard flagged, and a random sample of the rest; the
+// remainder is engine-scored with every excerpt machine-checked against the audio
+// (the citation guard is the universal floor). Preserves the "not an audit / not a
+// guarantee" tail verbatim. Wording pending Yang's approval before any flip.
+export const ATTESTATION_SAMPLED_REVIEW = `Analyst's attestation
+Every figure and flag in this statement is produced by our calibrated engine and constrained by the citation guard: no claim appears here unless a specific point in the call recording supports it, checked automatically against the audio. I personally reviewed every high-value flag, every lower-confidence flag, everything the citation guard flagged, and a random sample of the remainder, before this statement was issued. Findings I reviewed are marked "Analyst-reviewed"; the rest are marked "Engine-scored, evidence-verified". Each estimated fee value is a range under the methodology in Appendix A, not a guarantee of outcome or recovery. This is an independent business analysis of intake performance. It is not an audit, an accounting engagement, a financial statement, or legal advice, and it should not be relied on as any of those.`;
+
+// Selector used by the document templates. Flag OFF => the exact current text.
+export function getAttestation(env = process.env) {
+  return isSampledReviewEnabled(env) ? ATTESTATION_SAMPLED_REVIEW : ATTESTATION;
+}
 
 export const FOOTNOTES = {
   fee: `¹ Estimated fee value. Ranges are estimates under the methodology in Appendix A. They use your firm's own historical outcomes first where available, and named published sources otherwise. Ranges exclude case-specific facts we cannot see (for example, policy limits, comparative fault, and prior injuries). They are not guarantees.`,

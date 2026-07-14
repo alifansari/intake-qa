@@ -10,6 +10,7 @@ import { SEAT_LINE } from "@/lib/cohort";
 import {
   CTA_PRIMARY,
   SUB_CTA_LINE,
+  HOME_DESK_SCORING_LINE,
   HONESTY_STRIP_LINE,
   INDEPENDENCE_LINE,
   WHO_DOES_THE_WORK,
@@ -21,17 +22,19 @@ import {
   FOUR_FAILURE_MODES,
   CHAMPION_LINE,
   CATEGORY_BOUNDARY_LINE,
+  ADDITIVE_LINE,
+  VOLUME_LINE,
 } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
-  title: "Intake QA: the independent intake desk for PI firms",
+  title: "Intake QA: the independent intake desk for high-volume PI firms",
   description:
-    "We read your firm’s intake calls, find the signable cases that walked, and show you what they cost, for a flat fee, never a share. Start with a free Leak Audit of 10 calls.",
+    "We read your firm’s intake calls, find the signable cases you already paid for and let walk, put an estimated dollar figure on each, and hand them back to your team to recover. A flat monthly fee, never a share. Sits on top of the CMS you already run. Start with a free Leak Audit.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "See the signable cases that walked out of your intake.",
+    title: "The signable cases you already paid for, found and handed back to recover.",
     description:
-      "The independent desk that checks every intake call against what actually got signed. Free Leak Audit of 10 calls; you keep the report.",
+      "The independent desk that checks every intake call against what actually got signed, then hands the walked cases back to your team. Sits on top of your CMS, no migration. Free Leak Audit; you keep the report.",
     images: ["/og?title=The+independent+intake+desk"],
   },
 };
@@ -50,16 +53,16 @@ const STATS = [
 // not the paper mill.)
 const THREE_STEPS = [
   {
-    title: "Send us 10 recorded intake calls",
-    body: "Free. Any channel: your team, your answering service, your AI receptionist. Five minutes to upload.",
+    title: "Point us at your recorded intake calls",
+    body: "Free to start. Any channel and any volume: your team, your answering service, your AI receptionist. It sits on top of the phones and the CMS you already run, so there’s nothing to migrate.",
   },
   {
-    title: "We show you what walked, in dollars",
-    body: "A real analyst scores every call and hands you a signed report: which signable callers didn’t convert, the evidence for each, and what they were likely worth.",
+    title: "We hand back the signable cases that walked, in dollars",
+    body: HOME_DESK_SCORING_LINE,
   },
   {
-    title: "Want it every month? Join the beta",
-    body: "Five founding firms run the full desk free during the beta: every call scored, misses flagged the same day, one monthly statement. Flat fee at launch, never a share.",
+    title: "Every month, on every office, one board",
+    body: "The full desk running continuously: every call scored, misses flagged the same day, one monthly statement across all your offices. A flat monthly fee, never a share.",
   },
 ];
 
@@ -100,16 +103,18 @@ export default function HomePage() {
     <>
       {/* HERO: what it is, what it costs you not to know, what to do next. */}
       <Section className="pt-16 pb-12 sm:pt-24">
-        <p className="eyebrow">The independent intake desk for personal injury firms</p>
-        <h1 className="mt-3 max-w-[22ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
-          See the signable cases that walked out of your intake, and what they cost you.
+        <p className="eyebrow">The independent intake desk for high-volume personal injury firms</p>
+        <h1 className="mt-3 max-w-[24ch] font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink text-balance sm:text-6xl">
+          The signable cases you already paid for and let walk, found and handed back to recover.
         </h1>
         <p className="mt-6 max-w-[66ch] text-lg text-ink-muted">
-          You spend real money to make the phone ring. What happens after it rings, which signable
-          callers didn’t sign and what they were worth, is the one number no one in your building
-          can see. We read your recorded intake calls, flag the signable callers who walked, put a
-          dollar on the misses, and publish how accurate we are. Independently, for a flat fee,
-          never a share. Start with a free audit of 10 calls.
+          You spend real money to make the phones ring across every office. What happens after they
+          ring, which signable callers you already paid to acquire didn’t sign and what that
+          walked-away fee was worth, is the one number no one in your building can see. We read your
+          recorded intake calls, flag the signable callers who walked, put an estimated dollar figure
+          on each one, and hand them back to your team to win back. It sits on top of the
+          case-management system you already run, so there’s nothing to migrate. A flat monthly fee,
+          never a share. Start with a free Leak Audit.
         </p>
         <div className="mt-8">
           <CTA />
@@ -184,6 +189,26 @@ export default function HomePage() {
           {CATEGORY_BOUNDARY_LINE} The number we own is the one after the phone gets answered: the
           signable caller who got through, and still didn’t sign.
         </p>
+      </Section>
+
+      {/* ADDITIVE + VOLUME — for the multi-office / intake-department buyer */}
+      <Section className="py-16 border-t border-hairline">
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div>
+            <p className="eyebrow">Sits on top of your stack</p>
+            <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">
+              Nothing to rip out. Nothing to migrate.
+            </h2>
+            <p className="mt-4 text-ink-muted">{ADDITIVE_LINE}</p>
+          </div>
+          <div>
+            <p className="eyebrow">Built for volume</p>
+            <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">
+              Every office on one board.
+            </h2>
+            <p className="mt-4 text-ink-muted">{VOLUME_LINE}</p>
+          </div>
+        </div>
       </Section>
 
       {/* INDEPENDENCE — the one differentiator that matters */}
@@ -274,9 +299,9 @@ export default function HomePage() {
       {/* THE CHAMPION — the user is the intake team; make them the hero, not the accused */}
       <Section className="py-14 border-t border-hairline">
         <div className="max-w-[70ch]">
-          <p className="eyebrow">For your intake team</p>
+          <p className="eyebrow">For your intake department</p>
           <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">
-            Built to make your intake team look good, not to grade them.
+            Built to make your intake department look good, not to grade any one coordinator.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">{CHAMPION_LINE}</p>
         </div>
@@ -315,7 +340,7 @@ export default function HomePage() {
         <div className="max-w-[70ch]">
           <p className="eyebrow">The founding beta</p>
           <h2 className="mt-2 font-display text-2xl font-semibold text-ink text-balance">
-            Five founding firms. Free during the beta. Flat fee at launch, never a share.
+            Get your firm on the desk. Free during the beta. Flat monthly fee at launch, never a share.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-muted">
             {WHO_DOES_THE_WORK}
@@ -377,7 +402,7 @@ export default function HomePage() {
       <Section className="py-20 border-t border-hairline">
         <div className="max-w-[68ch]">
           <h2 className="font-display text-4xl font-semibold leading-[1.1] text-ink text-balance">
-            A free Leak Audit. Five founding seats in the beta.
+            A free Leak Audit. A founding seat on the desk.
           </h2>
           <p className="mt-5 mb-7 text-lg leading-relaxed text-ink-muted">
             A signed report you keep, a say in what the desk becomes, and no obligation to continue.

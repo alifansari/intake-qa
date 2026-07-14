@@ -20,6 +20,8 @@ import {
   feeDerivationLine,
   falseAlarmFooter,
   ATTESTATION,
+  ATTESTATION_SAMPLED_REVIEW,
+  getAttestation,
   SAVE_STATUSES,
 } from "../src/pdf/doc-helpers.mjs";
 
@@ -113,6 +115,33 @@ test("attestation disclaims reserved terms and any recovery guarantee", () => {
   // and must frame estimates as NOT a guarantee of outcome or recovery.
   assert.match(ATTESTATION, /not an audit, an accounting engagement, a financial statement, or legal advice/);
   assert.match(ATTESTATION, /not as a guarantee of outcome or recovery/);
+});
+
+test("getAttestation: flag OFF is byte-identical to the current attestation", () => {
+  // The safety property: with the flag unset/off, the rendered attestation is
+  // exactly today's text — no sampled-review wording leaks in.
+  assert.equal(getAttestation({}), ATTESTATION);
+  assert.equal(getAttestation({ SAMPLED_REVIEW_ENABLED: "false" }), ATTESTATION);
+  assert.equal(getAttestation({ SAMPLED_REVIEW_ENABLED: "0" }), ATTESTATION);
+  // No sampled-review sentence in the OFF text.
+  assert.doesNotMatch(getAttestation({}), /random sample of the remainder/);
+  // OFF still carries the reserved-term + guarantee disclaimers.
+  assert.match(getAttestation({}), /not an audit, an accounting engagement, a financial statement, or legal advice/);
+  assert.match(getAttestation({}), /not as a guarantee of outcome or recovery/);
+});
+
+test("getAttestation: flag ON uses the narrowed sampled-review attestation", () => {
+  const on = getAttestation({ SAMPLED_REVIEW_ENABLED: "true" });
+  assert.equal(on, ATTESTATION_SAMPLED_REVIEW);
+  assert.equal(getAttestation({ SAMPLED_REVIEW_ENABLED: "1" }), ATTESTATION_SAMPLED_REVIEW);
+  // The new review-scope sentence is present.
+  assert.match(on, /I personally reviewed every high-value flag/);
+  assert.match(on, /random sample of the remainder/);
+  assert.match(on, /Analyst-reviewed/);
+  assert.match(on, /Engine-scored, evidence-verified/);
+  // The "not an audit" / "not a guarantee" disclaimers must survive in BOTH modes.
+  assert.match(on, /not an audit, an accounting engagement, a financial statement, or legal advice/);
+  assert.match(on, /not a guarantee of outcome or recovery/);
 });
 
 test("save-status vocabulary is the finalized fixed set", () => {

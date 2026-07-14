@@ -45,10 +45,38 @@ export type Leak = {
   phone: string | null;
   saveStatus: string | null; // canonical key from flag_status
   attempts: number; // logged touches from flag_status.attempts (B-011)
+  // Per-agent ownership (multi-user firms). `assigneeUserId` is the owning user
+  // (null = unclaimed); `assigneeLabel` is the already-resolved display name,
+  // "you" when it is the signed-in user. Absent on single-user/pilot firms.
+  assigneeUserId?: string | null;
+  assigneeLabel?: string | null;
   // B-013 — computed on the SERVER (one clock, no hydration drift) by
   // callUrgency() in lib/desk/queue-view.mjs. Elapsed time only, never a
   // statute deadline.
   urgency: { days: number; tone: "fresh" | "aging" | "urgent"; label: string } | null;
+  // Sampled-review provenance (tiered model). Set by the SERVER only when
+  // SAMPLED_REVIEW_ENABLED is on; the flag gating lives server-side (desk/page.tsx),
+  // so this is simply absent when the flag is off and no badge renders (byte-identical
+  // to today). "analyst_reviewed" = a human personally reviewed this flag and signed;
+  // "engine_scored" = calibrated engine + citation guard (every excerpt machine-checked
+  // against the recording), not individually human-reviewed. Never implies review that
+  // didn't happen (§IV).
+  provenance?: "analyst_reviewed" | "engine_scored";
+};
+
+// Firm-facing provenance badge copy (tiered model). Honest under §IV: the
+// engine_scored label never claims human review; it asserts only what the citation
+// guard guarantees — every quoted excerpt was machine-checked against the recording.
+const PROVENANCE: Record<string, { label: string; title: string }> = {
+  analyst_reviewed: {
+    label: "Analyst-reviewed",
+    title: "A human personally reviewed this flag and the analyst's signature covers it.",
+  },
+  engine_scored: {
+    label: "Engine-scored · evidence-verified",
+    title:
+      "Scored by the calibrated engine; every quoted excerpt was machine-checked against the recording (citation guard). Not individually human-reviewed.",
+  },
 };
 
 const CONFIDENCE_TEXT: Record<string, string> = {
@@ -123,6 +151,11 @@ export function LeakCard({
   const [attempts, setAttempts] = useState(Number(leak.attempts) || 0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Ownership: who is on this callback. Optimistic on claim; reverts on failure.
+  const [assignee, setAssignee] = useState<{ id: string | null; label: string | null }>({
+    id: leak.assigneeUserId ?? null,
+    label: leak.assigneeLabel ?? null,
+  });
   const terminal = TERMINAL.has(status);
   const badge = leak.tier ? (leak.tier === "strong" ? "Strong flag" : "Moderate flag") : "Needs a look";
   // The money this callback is worth — the reason to pick up the phone. A compact
@@ -164,6 +197,50 @@ export function LeakCard({
       setSaving(false);
     }
   }
+
+  // Claim this callback for the signed-in user (multi-user firms). Sends the
+  // current status unchanged plus assignee = "me"; the server resolves "me" to
+  // the caller's id and records ownership. Demo cards just flip the label.
+  async function claim() {
+    const prev = assignee;
+    setAssignee({ id: "me", label: "you" }); // optimistic
+    if (demo) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const r = await fetch("/api/desk/flag-status", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ flag_id: leak.id, status, assignee_user_id: "me" }),
+      });
+      if (!r.ok) throw new Error("claim failed");
+    } catch {
+      setAssignee(prev); // revert — never lie about ownership
+      setError("Couldn’t claim — try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // A compact ownership control shared by both card layouts.
+  const ownership = assignee.label ? (
+    <span
+      className="rounded-pill bg-canvas px-2.5 py-1 text-xs font-semibold text-ink-muted"
+      title="Who is on this callback."
+    >
+      {assignee.label === "you" ? "Yours" : `On it: ${assignee.label}`}
+    </span>
+  ) : (
+    <button
+      type="button"
+      disabled={saving}
+      onClick={claim}
+      className="rounded-pill border border-hairline px-3 py-1 text-xs font-semibold text-ink hover:border-accent disabled:opacity-60"
+      title="Take this callback so your team knows it’s covered."
+    >
+      Claim this callback
+    </button>
+  );
 
   // B-010 — the done pile renders slim: one line, status, Reopen. A reopened
   // card (status back to needs_callback) falls out of `terminal` and expands
@@ -236,6 +313,19 @@ export function LeakCard({
           >
             {badge}
           </span>
+          {/* Sampled-review provenance badge. Rendered ONLY when the server set
+              `provenance` (i.e. SAMPLED_REVIEW_ENABLED is on). Absent when the flag
+              is off → no badge → byte-identical to today. */}
+          {leak.provenance && PROVENANCE[leak.provenance] ? (
+            <span
+              title={PROVENANCE[leak.provenance].title}
+              className={`rounded-pill px-2.5 py-1 text-xs font-semibold ${
+                leak.provenance === "analyst_reviewed" ? "bg-surface text-accent" : "bg-canvas text-ink-muted"
+              }`}
+            >
+              {PROVENANCE[leak.provenance].label}
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -284,6 +374,7 @@ export function LeakCard({
         <span className="rounded-pill bg-canvas px-2.5 py-1 text-xs font-semibold text-ink">
           {STATUS_LABEL[status] ?? status}
         </span>
+        {!terminal ? ownership : null}
         {(NEXT[status] ?? []).map((n) => (
           <button
             key={`${n.to}:${n.label}`}

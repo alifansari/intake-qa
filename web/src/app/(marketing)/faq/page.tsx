@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FAQAccordion, type QA } from "@/components/marketing/FAQAccordion";
-import { COHORT_MAX, DELETION_HOURS, FIRM_RETENTION_DAYS, CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF, LIFT_LINE, FOUNDER_EMAIL } from "@/lib/site-constants";
+import { DELETION_HOURS, FIRM_RETENTION_DAYS, CTA_PRIMARY, CTA_SECONDARY, CTA_SECONDARY_HREF, LIFT_LINE, FOUNDER_EMAIL, FAQ_WHY_FREE_ANSWER } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "FAQ | Intake QA",
@@ -23,7 +23,7 @@ const ITEMS: QA[] = [
   },
   {
     q: "Why is the Leak Audit free?",
-    a: "Because we’re early and honest about it: I’d rather earn your trust with a real report than ask for money and trust at the same time. The Leak Audit is free for qualifying California PI firms. A real analyst scores up to 10 of your own recorded calls and walks you through the signable cases that slipped, live, and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. Ali",
+    a: FAQ_WHY_FREE_ANSWER,
   },
   {
     q: "I already have an AI receptionist / answering service / Lead Docket / a marketing agency that reports on this.",
@@ -34,8 +34,8 @@ const ITEMS: QA[] = [
     a: "The first audit finds the biggest leaks; after that the desk becomes your standing intake QA function. Every month your statement shows whether the leak is shrinking, your intake team gets credit for the improvement, and new leaks get caught as your marketing and staffing change. Some of that (trend view, scorecards, coaching clips) is rolling out with the founding cohort and we’ll tell you plainly what’s live versus in development. We don’t bill for what isn’t running.",
   },
   {
-    q: "Will my intake manager hate this?",
-    a: "She shouldn’t. It’s built to make her a champion, not a target. This isn’t a gotcha: high-volume intake means good cases slip, and that’s math, not a character flaw. The desk gives her proof of the workload (you’re not short on effort, you’re short on hours), coaching clips built from the team’s own best calls, and a monthly scorecard that shows improvement so credit lands where it’s earned. It catches what volume caused, not people.",
+    q: "Will our intake department push back on this?",
+    a: "They shouldn’t. It’s built to make the department look good, not to single anyone out. This isn’t a gotcha: at high volume good cases slip, and that’s math, not a character flaw. The desk gives your intake leadership proof of the workload (the team isn’t short on effort, it’s short on hours), coaching clips built from your own team’s best calls, and a monthly scorecard, per office, that shows improvement so credit lands where it’s earned. It catches what volume caused, not people.",
   },
   {
     q: "The AI could be wrong. Won’t it embarrass me?",
@@ -50,8 +50,8 @@ const ITEMS: QA[] = [
     a: `We treat every call as confidential prospective-client information (Cal. Rule 1.18). Call audio is deleted the moment it’s transcribed. Free Leak Audit transcripts and reports are purged within ${DELETION_HOURS} hours of your readout; for firms on the desk, transcripts are kept only while we serve you (so your team can check the evidence behind each flag), purged on a rolling ${FIRM_RETENTION_DAYS}-day window, and deleted immediately if you ask in writing. Your calls are handled by Intake QA: transcription and analysis run on specialist engines under our DPA (encrypted in transit and at rest, never used to train AI models, never sold or shared), and we’re the single party accountable to you. We’ll sign your NDA and a DPA. The full posture is on the security page.`,
   },
   {
-    q: "You’re a solo founder. Will this be around in a year?",
-    a: `Straight answer: it’s early, and I’m honest about it. No logos, no case studies yet. The product logic is complete and version-locked, so the scoring doesn’t drift under you. The founding cohort is capped at ${COHORT_MAX} firms on purpose, you get direct access to me, and the beta is free, so you can prove the value before you ever commit a dollar. When the beta ends, the fee is flat monthly and founding testers lock in preferred pricing. Your data is deletable on request at any point, so you’re never locked in. Ali`,
+    q: "Will this be reliable at our volume, and are we locked in?",
+    a: `Straight answer, without the sales gloss. The scoring logic is complete and version-locked, so a Tier 4 means the same thing across every office and every month; the score doesn’t drift under you. The desk runs on top of the phones and the case-management system you already use (Filevine, CasePeer, Litify, or your own stack), so there’s nothing to migrate and nothing that breaks if you leave. Your data is deletable on request at any point, and the fee is a flat monthly subscription, so you can prove the value on your own calls before you commit and walk away clean if it isn’t worth it. During the beta it’s free; at launch the fee is flat monthly, tiered by call volume, with a custom volume tier for high-call and multi-office firms, and founding firms lock in preferred pricing. Ali`,
   },
   {
     q: "Isn’t our fee to you basically fee-splitting?",

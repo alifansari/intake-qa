@@ -297,8 +297,9 @@ export default function AuditUploaderPage() {
             <p className="text-sm font-semibold text-ink">Here’s the deal, in plain terms</p>
             <p className="mt-2 text-sm font-medium text-ink">
               An outside read on your intake, from a desk paid the same flat fee whether it finds you
-              nothing or a fortune. Your recordings never train anyone’s AI. An NDA, and a BAA if
-              you want one, are available before you send a single file.
+              nothing or a fortune. Your recordings never train anyone’s AI, and the desk sits on top
+              of the case-management system you already run, with nothing to migrate. A mutual NDA is
+              available before you send a single file.
             </p>
             <p className="mt-2 text-sm text-ink-muted">
               You send up to 10 recorded intake calls. We score them and show you, in dollars, how

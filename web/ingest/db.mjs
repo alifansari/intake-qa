@@ -6,6 +6,7 @@
 // query-syntax tweaks here, no caller changes).
 
 import { encodeCallRailSecret } from "../integrations/crypto.mjs";
+import { firmStatementPeriodWindow, reduceFirmStatementSignals } from "../analysis/review-router.mjs";
 
 // Insert a call, or update the existing one when the same firm re-sends the
 // same external_call_id (CallRail `call_modified`). Manual rows have a null
@@ -1631,6 +1632,192 @@ export function listReviewableSessions(db) {
       "SELECT id, token, email, report_status, created_at FROM audit_sessions WHERE report_status IN ('draft','analyst_review') ORDER BY created_at DESC LIMIT 100"
     )
     .all();
+}
+
+// Aggregate the persisted per-call risk signals for ONE review session into the
+// shape analysis/review-router.mjs consumes. READ-ONLY: reuses already-persisted
+// engine output; never recomputes scoring, never writes.
+//
+// DATA-MODEL NOTE (important, flagged honestly): a review session is an
+// `audit_sessions` row (the Leak Audit world). Its per-call results are attached
+// through `audit_session_calls` -> `demo_calls`, and each demo call's engine
+// output lives as a JSON blob in `demo_calls.result_json` (fields: feeAtRisk in
+// DOLLARS, leaked, confidence tier when present, ...). The firm-pipeline signal
+// tables named in the brief — flag_confidence / citation_failures /
+// call_analyses.revenue_at_risk_cents — are keyed by the REAL `calls`/`flags`
+// pipeline, which is a SEPARATE, demo-isolated world with NO foreign-key path to
+// audit_sessions. So for these sessions the reachable, already-persisted signal
+// is result_json.feeAtRisk (the same dollar figure call_analyses would hold), and
+// confidence/citation inputs are read from the blob when present, else defaulted.
+// The classifier is source-agnostic and will consume real tiers/failures
+// unchanged the moment a firm-call review flow persists them per session.
+export function getSessionReviewSignals(db, sessionId) {
+  const rows = db
+    .prepare(
+      `SELECT dc.result_json FROM audit_session_calls ac
+         JOIN demo_calls dc ON dc.id = ac.demo_call_id
+        WHERE ac.session_id = ?`
+    )
+    .all(sessionId);
+  return aggregateReviewSignals(rows.map((r) => r.result_json));
+}
+
+// Pure reducer over raw result_json values (string | object | null). Exported for
+// reuse by the Postgres twin so the two backends can't drift.
+export function aggregateReviewSignals(resultJsons) {
+  let maxRevenueAtRiskCents = 0;
+  let worstConfidenceTier = null; // null until at least one tier is seen
+  let callCount = 0;
+  for (const raw of resultJsons ?? []) {
+    callCount += 1;
+    let result = raw;
+    if (typeof raw === "string") {
+      try {
+        result = JSON.parse(raw);
+      } catch {
+        result = null;
+      }
+    }
+    if (!result || typeof result !== "object") continue;
+
+    const fee = Number(result.feeAtRisk);
+    if (Number.isFinite(fee) && fee > 0) {
+      const cents = Math.round(fee * 100);
+      if (cents > maxRevenueAtRiskCents) maxRevenueAtRiskCents = cents;
+    }
+
+    // Only a string 'strong'|'moderate' counts as a tier (guard against numeric
+    // confidence blobs elsewhere in the codebase). moderate is the worst.
+    const tier = result.confidenceTier ?? result.confidence;
+    if (tier === "moderate") worstConfidenceTier = "moderate";
+    else if (tier === "strong" && worstConfidenceTier !== "moderate") worstConfidenceTier = "strong";
+  }
+  // citation_failures does not join to audit-session demo calls (see note above),
+  // so it is not reachable per session today; kept in the shape for the classifier.
+  return { worstConfidenceTier, citationFailureCount: 0, maxRevenueAtRiskCents, callCount };
+}
+
+// ── Firm-statement review gate (migration 0037) ───────────────────────────────
+// Unlike getSessionReviewSignals (demo-isolated audit_sessions), THIS reads the
+// REAL firm pipeline for one firm+period's leaked-signable flags, so the §IV
+// citation-guard signal is a genuine query — never a hard-coded 0. READ-ONLY:
+// reuses already-persisted engine output; never recomputes scoring, never writes.
+//
+// Signals per flag: worst flag_confidence.confidence_tier, the REAL COUNT of
+// citation_failures joined through flags.firm_id (this flag's dropped facts), and
+// call_analyses.revenue_at_risk_cents. The pure reducer (shared with the Postgres
+// twin) shapes these + classifies per-flag provenance.
+export function getFirmStatementReviewSignals(db, firmId, period) {
+  const win = firmStatementPeriodWindow(period);
+  if (!win) return { worstConfidenceTier: null, citationFailureCount: 0, maxRevenueAtRiskCents: 0, perFlag: [] };
+  const rows = db
+    .prepare(
+      `SELECT f.id AS flag_id,
+              fc.confidence_tier AS confidence_tier,
+              ca.revenue_at_risk_cents AS revenue_at_risk_cents,
+              -- REAL §IV floor: this flag's dropped-fact count, scoped through
+              -- flags.firm_id (f is already firm-filtered below). Never a literal 0.
+              (SELECT COUNT(*) FROM citation_failures cf WHERE cf.flag_id = f.id) AS citation_failure_count
+         FROM flags f
+         JOIN calls c ON c.id = f.call_id
+         LEFT JOIN flag_confidence fc ON fc.flag_id = f.id
+         LEFT JOIN call_analyses ca ON ca.call_id = f.call_id
+        WHERE f.firm_id = ? AND f.is_leaked_signable = 1
+          AND c.received_at >= ? AND c.received_at < ?`
+    )
+    .all(firmId, win.start, win.endExclusive);
+  return reduceFirmStatementSignals(rows);
+}
+
+export function getFirmStatementReview(db, firmId, period) {
+  return db
+    .prepare(
+      `SELECT firm_id, period, report_status, provenance, auto_count, force_review_count,
+              released_at, released_by, created_at, updated_at
+         FROM firm_statement_reviews WHERE firm_id = ? AND period = ?`
+    )
+    .get(firmId, period) ?? null;
+}
+
+// Upsert the computed review status for one firm+period (keyed by the UNIQUE
+// (firm_id, period)). Sets released_at when the status is 'released'.
+export function upsertFirmStatementReview(
+  db,
+  { firmId, period, reportStatus, provenance = null, autoCount = 0, forceReviewCount = 0, releasedBy = null, now = null }
+) {
+  const ts = now ?? new Date().toISOString();
+  const releasedAt = reportStatus === "released" ? ts : null;
+  db.prepare(
+    `INSERT INTO firm_statement_reviews
+       (firm_id, period, report_status, provenance, auto_count, force_review_count, released_at, released_by, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT (firm_id, period) DO UPDATE
+       SET report_status = excluded.report_status,
+           provenance = excluded.provenance,
+           auto_count = excluded.auto_count,
+           force_review_count = excluded.force_review_count,
+           released_at = excluded.released_at,
+           released_by = excluded.released_by,
+           updated_at = excluded.updated_at`
+  ).run(firmId, period, reportStatus, provenance, autoCount, forceReviewCount, releasedAt, releasedBy, ts);
+  return getFirmStatementReview(db, firmId, period);
+}
+
+// Firm statement reviews.
+//   * listFirmStatementReviews(db)         → INTERNAL analyst queue: every firm's
+//     draft/analyst_review rows (founder-only review console). Unchanged.
+//   * listFirmStatementReviews(db, firmId) → FIRM-FACING: ALL of ONE firm's rows
+//     (any status), newest first, so a firm sees its own statement history. The
+//     firm-facing download route still hard-gates on report_status === 'released'
+//     before serving any PDF; this listing only powers the on-screen row list.
+export function listFirmStatementReviews(db, firmId) {
+  if (firmId == null) {
+    return db
+      .prepare(
+        `SELECT firm_id, period, report_status, provenance, auto_count, force_review_count, created_at
+           FROM firm_statement_reviews
+          WHERE report_status IN ('draft', 'analyst_review')
+          ORDER BY created_at DESC LIMIT 100`
+      )
+      .all();
+  }
+  return db
+    .prepare(
+      `SELECT firm_id, period, report_status, provenance, auto_count, force_review_count,
+              released_at, released_by, created_at, updated_at
+         FROM firm_statement_reviews
+        WHERE firm_id = ?
+        ORDER BY period DESC, created_at DESC LIMIT 100`
+    )
+    .all(firmId);
+}
+
+// Analyst release/transition of a firm statement (mirrors setReportStatus for
+// audit_sessions, but keyed by firm+period). Provenance is set explicitly by the
+// caller (the report-status machine decides the label: analyst_reviewed on a
+// manual sign-off, engine_scored on an auto-release).
+export function setFirmStatementReviewStatus(
+  db,
+  { firmId, period, status, provenance = undefined, releasedBy = null, now = null }
+) {
+  const ts = now ?? new Date().toISOString();
+  const setProvenance = provenance !== undefined;
+  if (status === "released") {
+    db.prepare(
+      `UPDATE firm_statement_reviews
+          SET report_status = ?, released_at = ?, released_by = ?, updated_at = ?
+              ${setProvenance ? ", provenance = ?" : ""}
+        WHERE firm_id = ? AND period = ?`
+    ).run(...(setProvenance ? [status, ts, releasedBy, ts, provenance, firmId, period] : [status, ts, releasedBy, ts, firmId, period]));
+  } else {
+    db.prepare(
+      `UPDATE firm_statement_reviews
+          SET report_status = ?, updated_at = ?
+              ${setProvenance ? ", provenance = ?" : ""}
+        WHERE firm_id = ? AND period = ?`
+    ).run(...(setProvenance ? [status, ts, provenance, firmId, period] : [status, ts, firmId, period]));
+  }
+  return getFirmStatementReview(db, firmId, period);
 }
 
 // P0-2 — consent log. Write a ConsentEvent before any consent-relevant workflow

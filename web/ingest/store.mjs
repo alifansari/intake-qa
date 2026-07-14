@@ -165,6 +165,16 @@ export const upsertFirmTriageProfile = wrap("upsertFirmTriageProfile");
 export const getReportStatus = wrap("getReportStatus");
 export const setReportStatus = wrap("setReportStatus");
 export const listReviewableSessions = wrap("listReviewableSessions");
+// Read-only per-session risk-signal aggregation for the prioritized review queue.
+export const getSessionReviewSignals = wrap("getSessionReviewSignals");
+// Firm-statement tiered review (migration 0037 / 0045). Real firm-pipeline signals
+// (flag_confidence / citation_failures / call_analyses) drive auto-release vs
+// analyst sign-off per firm+period. All gated at the app layer by SAMPLED_REVIEW_ENABLED.
+export const getFirmStatementReviewSignals = wrap("getFirmStatementReviewSignals");
+export const getFirmStatementReview = wrap("getFirmStatementReview");
+export const upsertFirmStatementReview = wrap("upsertFirmStatementReview");
+export const listFirmStatementReviews = wrap("listFirmStatementReviews");
+export const setFirmStatementReviewStatus = wrap("setFirmStatementReviewStatus");
 export const logReportAccess = wrap("logReportAccess");
 export const countReportAccess = wrap("countReportAccess");
 export const setBillableEventStatus = wrap("setBillableEventStatus");

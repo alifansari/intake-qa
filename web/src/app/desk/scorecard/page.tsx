@@ -7,6 +7,7 @@ import Link from "next/link";
 import { fmtBigRange, fmtK } from "@/lib/desk/money.mjs";
 import { feeBandFromPoint } from "../../../../analysis/fee-value.mjs";
 import { resolveDeskFirm } from "@/lib/desk/firm";
+import { getUserRole, isManagerRole } from "@/lib/desk/roles";
 import { buildScorecard, isBlown, analyzedRows } from "@/lib/desk/analysis.mjs";
 import { sampleAnalysisRows } from "@/lib/desk/sample-analysis.mjs";
 
@@ -30,6 +31,10 @@ export default async function Scorecard({ searchParams }: { searchParams: Search
   let rows: Record<string, any>[] = [];
   let firmName: string | undefined;
   let isSample = false;
+  let gated = false;
+  // call_id -> the acting user (who last worked the callback). Used to attribute
+  // per-agent numbers when the scored call carries no `rep` (uploads never do).
+  const actingByCall = new Map<string, string>();
 
   if (forceDemo) {
     rows = sampleAnalysisRows();
@@ -41,14 +46,25 @@ export default async function Scorecard({ searchParams }: { searchParams: Search
       db = await store.openPipelineDb();
       const firm = await resolveDeskFirm(db, store.listFirms);
       if (firm) {
-        firmName = firm.name;
-        rows = (await store.listCallsWithAnalysis(db, firm.id)) as Record<string, any>[];
+        // Team dashboard = manager/admin only. A plain agent sees a gentle
+        // pointer back to their queue, never the firm-wide grade.
+        const role = await getUserRole(db, firm.id);
+        if (!isManagerRole(role)) {
+          gated = true;
+        } else {
+          firmName = firm.name;
+          rows = (await store.listCallsWithAnalysis(db, firm.id)) as Record<string, any>[];
+          for (const [callId, actor] of await actingUsersByCall(db, firm.id)) {
+            actingByCall.set(callId, actor);
+          }
+        }
       }
     } catch {
       rows = [];
     } finally {
       await store.closePipelineDb(db);
     }
+    if (gated) return <GatedForManagers />;
     if (analyzedRows(rows).length === 0) {
       rows = sampleAnalysisRows();
       isSample = true;
@@ -68,18 +84,22 @@ export default async function Scorecard({ searchParams }: { searchParams: Search
   }
   const onTable = highCents > 0 ? fmtBigRange(lowCents, highCents) : null;
 
-  // Per-rep rollup (only when we know the rep — uploads carry none).
+  // Per-rep rollup. Prefer the scored call's own `rep`; fall back to the acting
+  // user who worked the callback (flag_status), so uploads — which never carry a
+  // rep from the score worker — still attribute to a real person instead of
+  // silently dropping out of the team view. Sample rows keep their built-in rep.
   const reps = new Map<string, { calls: number; blown: number; winnable: number; scoreSum: number }>();
   for (const r of analyzedRows(rows)) {
-    if (!r.rep) continue;
-    const g = reps.get(r.rep) ?? { calls: 0, blown: 0, winnable: 0, scoreSum: 0 };
+    const person = r.rep || actingByCall.get(String(r.call_id)) || null;
+    if (!person) continue;
+    const g = reps.get(person) ?? { calls: 0, blown: 0, winnable: 0, scoreSum: 0 };
     g.calls += 1;
     g.scoreSum += Number(r.overall_score) || 0;
     if (r.lost_signable || r.case_signability === "signable" || r.case_signability === "possibly_signable") {
       g.winnable += 1;
       if (isBlown(r)) g.blown += 1;
     }
-    reps.set(r.rep, g);
+    reps.set(person, g);
   }
 
   return (
@@ -245,6 +265,66 @@ export default async function Scorecard({ searchParams }: { searchParams: Search
         slip. It grades what your team controls, not lead quality. Estimated fees are ranges under the methodology
         on the honesty page, not guarantees. Statute-of-limitations tracking stays with your attorneys.
       </p>
+    </div>
+  );
+}
+
+// Read the acting user (who last worked each callback) from flag_status, keyed
+// by call_id. Firm-scoped through the flags join. Prefers a real acting user id
+// label; falls back to the human-readable `updated_by` (email). Runs on either
+// backend and never throws — attribution is best-effort, it must not break the
+// grade if flag_status is empty or absent.
+type QueryDb = {
+  query?: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>;
+  prepare?: (sql: string) => { all: (...args: unknown[]) => Record<string, unknown>[] };
+};
+
+async function actingUsersByCall(db: QueryDb, firmId: string | number): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  const sql = (ph: string) =>
+    `SELECT f.call_id AS call_id,
+            fs.updated_by AS updated_by, fs.updated_by_user_id AS updated_by_user_id
+       FROM flags f
+       JOIN flag_status fs ON fs.flag_id = f.id
+      WHERE f.firm_id = ${ph}
+        AND (fs.updated_by IS NOT NULL OR fs.updated_by_user_id IS NOT NULL)`;
+  try {
+    let rows: Record<string, unknown>[] = [];
+    if (typeof db.query === "function") {
+      rows = (await db.query(sql("$1"), [firmId])).rows;
+    } else if (typeof db.prepare === "function") {
+      rows = db.prepare(sql("?")).all(firmId);
+    }
+    for (const r of rows) {
+      const label = (r.updated_by as string) || (r.updated_by_user_id as string) || null;
+      // 'pilot' is the local single-user fallback label — not a real intake
+      // person, so it never becomes an attributed rep.
+      if (!label || label === "pilot") continue;
+      if (r.call_id != null) out.set(String(r.call_id), label);
+    }
+  } catch {
+    // flag_status / columns absent (pre-migration) — no fallback attribution.
+  }
+  return out;
+}
+
+// A plain agent who lands on the team dashboard directly (the link is hidden for
+// them, but the URL is guessable): keep it graceful, never a 403 wall. Point
+// them back to the work they own.
+function GatedForManagers() {
+  return (
+    <div className="mx-auto max-w-[560px] rounded-card border border-hairline bg-surface p-8 text-center">
+      <h1 className="font-display text-xl font-semibold text-ink">The team scorecard is for managers</h1>
+      <p className="mt-2 text-sm text-ink-muted">
+        This view rolls up how the whole intake team is doing. Your manager or admin can see it. Your
+        job is the callback queue — the callers worth phoning back are waiting there.
+      </p>
+      <Link
+        href="/desk"
+        className="mt-5 inline-block rounded-pill bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
+      >
+        Back to your callbacks →
+      </Link>
     </div>
   );
 }

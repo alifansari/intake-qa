@@ -4,6 +4,7 @@
 // artifact — it is a review / diagnostic / independent diagnostic review.
 
 import { ANALYST, ANALYST_CONTACT } from "../analyst.mjs";
+import { isSampledReviewEnabled } from "../../../analysis/flags.mjs";
 
 // Page-one BLUF — three fixed labels (do not rename).
 export const PAGE_ONE_LABELS = {
@@ -41,7 +42,25 @@ export function methodologyAppendix({ low, high }) {
   return `How we estimated fee value. We use a conservative method. For each case we apply a value range, not a single number, and in the summary we quote the low end. Our sources, in order of preference: (1) your firm’s own average fee by case type, when you provide it at onboarding; (2) otherwise, published fee ranges by case type, which you approve before we use them. We exclude any case whose statute has expired. We exclude moderate-confidence flags from the totals. We do not predict outcomes and we do not guarantee recoveries. Worked example: a case with a value range of ${low} to ${high} contributes ${low} to the conservative headline total, and appears as one row in the fee-at-risk schedule.`;
 }
 
-export function analystSignoff({ contact = ANALYST_CONTACT } = {}) {
+// Analyst sign-off. Flag OFF => the exact current text (100% analyst review),
+// byte-identical to today. Flag ON => the narrowed sampled-review sign-off,
+// mirroring the statement attestation: the human personally reviews every
+// high-value flag, every lower-confidence flag, everything the citation guard
+// flagged, and a random sample of the rest; the citation guard (every excerpt
+// machine-checked against the recording) is the universal floor on the remainder.
+// The "independent diagnostic review / not a certified financial audit / not legal
+// advice" tail is preserved verbatim in both branches.
+//
+// NOTE (compliance flip-gate, §IV/§V): this sign-off renders on the free-Leak-Audit
+// "Intake Leak Report" (compose.mjs), which today is 100% hand-reviewed. Narrowing
+// it is gated behind SAMPLED_REVIEW_ENABLED (default OFF) so nothing changes in
+// production. At flip time Ali/Yang should confirm whether the FREE audit report
+// should narrow at all, or stay fully hand-reviewed (the wedge's trust proof) while
+// only the ongoing high-volume desk goes tiered. See the summary's flagged calls.
+export function analystSignoff({ contact = ANALYST_CONTACT, env = process.env } = {}) {
+  if (isSampledReviewEnabled(env)) {
+    return `Analyst of record: ${ANALYST.name}, ${ANALYST.org}. Former personal-injury paralegal; bilingual English/Spanish. Direct line: ${contact}. Every finding here is produced by our calibrated engine and every quoted excerpt was checked against the original call recording. I personally reviewed every high-value flag, every lower-confidence flag, everything the citation guard flagged, and a random sample of the remainder, before this report was released; findings I reviewed are marked "Analyst-reviewed" and the rest "Engine-scored, evidence-verified". The findings here reflect my own independent judgment. This is an independent diagnostic review. It is not a certified financial audit and it is not legal advice.`;
+  }
   return `Analyst of record: ${ANALYST.name}, ${ANALYST.org}. Former personal-injury paralegal; bilingual English/Spanish. Direct line: ${contact}. I personally reviewed this report before it was released. The findings here reflect my own independent judgment. Every quoted excerpt was checked against the original call recording. This is an independent diagnostic review. It is not a certified financial audit and it is not legal advice.`;
 }
 

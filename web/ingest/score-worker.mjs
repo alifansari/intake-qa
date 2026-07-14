@@ -83,22 +83,89 @@ const DEFAULT_FIRM_CONFIG = join(engineRoot(), "config", "test-firm.md");
 // (established business relationship). REQUIRED by the conversations schema.
 const CONSENT_BASIS = "inbound_call_inquiry_EBR";
 
+// Sampling gate for the Engine V2 shadow. Default 1.0 (run the shadow on every
+// call, preserving the full v1-vs-v2 validation corpus). Under high volume,
+// V2_SHADOW_SAMPLE_RATE can be lowered (e.g. 0.25) to quarter the shadow's LLM
+// cost without touching the firm-visible v1 path. Values outside [0,1] clamp; a
+// missing/non-numeric value keeps the 1.0 default.
+export function shadowSampleRate(env = process.env) {
+  const raw = env.V2_SHADOW_SAMPLE_RATE;
+  if (raw == null || raw === "") return 1;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return 1;
+  return Math.min(1, Math.max(0, n));
+}
+
+function shouldRunShadow(env = process.env, rand = Math.random) {
+  const rate = shadowSampleRate(env);
+  if (rate >= 1) return true;
+  if (rate <= 0) return false;
+  return rand() < rate;
+}
+
 // Default (production) scorer: the real calibrated engine. Writes its JSON to a
 // temp file per call (scoreCall requires an outPath) and returns the parsed obj.
 async function defaultScorer({ transcript, callId, firmConfigPath }) {
   const outDir = mkdtempSync(join(tmpdir(), "intakeqa-score-"));
   const { scoreCall } = await importEngine("score-call.js");
-  const scoring = await scoreCall({
+  // THROUGHPUT: run the firm-visible v1 scoring and the Engine V2 SHADOW
+  // CONCURRENTLY. They share the same transcript and never touch each other's
+  // data, so running them in parallel collapses per-call latency from
+  // (v1 + v2) to max(v1, v2) — the shadow's LLM round-trip no longer stacks in
+  // series onto every firm-visible score. Sampling (V2_SHADOW_SAMPLE_RATE) can
+  // additionally skip the shadow entirely for a fraction of calls at scale.
+  // runV2Shadow is failure-isolated (never throws), so if v1 rejects, Promise.all
+  // rejects on v1 (the outer per-call try/catch handles the retry) and the
+  // shadow promise simply resolves and is discarded — no unhandled rejection.
+  const v1Promise = scoreCall({
     transcript,
     callId,
     firmConfigPath,
     outPath: join(outDir, `${callId}.score.json`),
     rawOutPath: join(outDir, `${callId}.raw.txt`),
   });
+  const v2Promise = shouldRunShadow()
+    ? runV2Shadow({ transcript, callId })
+    : Promise.resolve({ shadow_skipped: true, reason: "sampled_out", engine: "scoring-v2" });
+  const [scoring, shadow] = await Promise.all([v1Promise, v2Promise]);
   // SHADOW: Engine V2 rides along under an internal key (never rendered,
   // failure-isolated). Accrues the v1-vs-v2 corpus on real ingested calls.
-  scoring._v2_shadow = await runV2Shadow({ transcript, callId });
+  // A skipped shadow leaves no v2 verdict, so downstream triageFromCall simply
+  // returns null (no blank triage) — safe by construction.
+  scoring._v2_shadow = shadow;
   return scoring;
+}
+
+// Bounded concurrency for the batch. Default 4; hard-capped at 12 to protect the
+// Anthropic rate limit and the Inngest step budget (route maxDuration=300). Each
+// call is fully independent — it writes its OWN flag/analysis/triage/citation
+// rows keyed by its own call_id, and getUnscoredCalls snapshots the batch up
+// front — so processing N in parallel is race-free; the only shared resource is
+// the DB, whose per-call writes are idempotent. Set SCORE_CONCURRENCY=1 to force
+// the old strictly-serial behavior.
+export function scoreConcurrency(env = process.env) {
+  const n = Number(env.SCORE_CONCURRENCY);
+  if (!Number.isFinite(n) || n < 1) return 4;
+  return Math.min(12, Math.floor(n));
+}
+
+// Minimal fixed-size promise pool: at most `limit` workers pull from a shared
+// cursor, so no more than `limit` calls are ever in flight at once. Preserves
+// input order in the returned results array. Kept tiny + dependency-free on
+// purpose (no p-limit dependency).
+async function runPool(items, limit, worker) {
+  const out = new Array(items.length);
+  let cursor = 0;
+  const runner = async () => {
+    for (;;) {
+      const i = cursor++;
+      if (i >= items.length) return;
+      out[i] = await worker(items[i], i);
+    }
+  };
+  const width = Math.max(1, Math.min(limit, items.length));
+  await Promise.all(Array.from({ length: width }, runner));
+  return out;
 }
 
 // Flatten the engine's full ScoredCall + the mapped flag into the durable
@@ -159,9 +226,13 @@ export async function scoreUnscored({
   now = new Date(),
 } = {}) {
   const calls = await getUnscoredCalls(db, firmId);
-  const results = [];
 
-  for (const call of calls) {
+  // THROUGHPUT: process the batch with BOUNDED CONCURRENCY instead of a strict
+  // serial loop. At ~95s/call a serial sweep is the pipeline's hard throughput
+  // ceiling; a small pool (SCORE_CONCURRENCY, default 4) runs several calls'
+  // transcribe+score in parallel while keeping DB writes per-call and idempotent.
+  // Each call's body is unchanged — only the outer scheduling differs.
+  const processCall = async (call) => {
     // P1(a): one poison call (bad transcript, scorer throw, draft failure) must
     // never abort the whole batch. Isolate each iteration: on failure, mark the
     // call failed with a reason, log it, and continue with the next call.
@@ -323,7 +394,7 @@ export async function scoreUnscored({
       });
     }
 
-    results.push({
+    return {
       flag_id: flagId,
       call_id: call.id,
       caller_name: call.caller_name,
@@ -333,7 +404,7 @@ export async function scoreUnscored({
       reason: mapped.reason,
       conversation_id: conversationId,
       message_id: messageId,
-    });
+    };
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
       // Bounded retry (2 attempts total). A transient blip (AssemblyAI/Anthropic
@@ -352,13 +423,13 @@ export async function scoreUnscored({
           message: `call ${call.id} failed to score (2 attempts): ${reason}`,
           firm_id: call.firm_id ?? null,
         }).catch(() => {});
-        results.push({ call_id: call.id, error: reason, failed: true });
-      } else {
-        await setCallStatus(db, call.id, "retry_scoring", reason).catch(() => {});
-        results.push({ call_id: call.id, error: reason, retry: true });
+        return { call_id: call.id, error: reason, failed: true };
       }
-      // continue with the next call — never abort the batch.
+      await setCallStatus(db, call.id, "retry_scoring", reason).catch(() => {});
+      return { call_id: call.id, error: reason, retry: true };
+      // never abort the batch — the pool continues with the remaining calls.
     }
-  }
-  return results;
+  };
+
+  return runPool(calls, scoreConcurrency(), processCall);
 }

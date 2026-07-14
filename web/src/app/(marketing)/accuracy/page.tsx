@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GUARANTEE_METHODOLOGY, CTA_PRIMARY, STAKE_LINE } from "@/lib/site-constants";
+import { GUARANTEE_METHODOLOGY, CTA_PRIMARY, STAKE_LINE, ACCURACY_REVIEW_LINE } from "@/lib/site-constants";
 import { ConfidenceTierTable } from "@/components/marketing/ConfidenceTierTable";
 
 // /accuracy — the track-record page (formerly /honesty). The single most
@@ -94,7 +94,7 @@ export default function AccuracyPage() {
           <li>Every recorded intake call is transcribed.</li>
           <li>The transcript is graded against a fixed rubric: the same rubric on every call, so grades don’t drift from one review to the next.</li>
           <li>A call is flagged as a signable case that walked when it grades above the threshold, wasn’t converted, and is still inside the callback window.</li>
-          <li>Every flag carries the transcript evidence behind it, so you can check the call yourself, and a former PI paralegal reviews every score before you see it.</li>
+          <li>{ACCURACY_REVIEW_LINE}</li>
         </ol>
       </section>
 

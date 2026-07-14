@@ -14,6 +14,8 @@
 // reads through the user-scoped, RLS-protected Supabase client.
 
 import { encodeCallRailSecret } from "../integrations/crypto.mjs";
+import { aggregateReviewSignals } from "./db.mjs";
+import { firmStatementPeriodWindow, reduceFirmStatementSignals } from "../analysis/review-router.mjs";
 
 // Insert a call, or update the existing one when the same firm re-sends the same
 // external_call_id. Returns { id, created }.
@@ -1478,6 +1480,133 @@ export async function listReviewableSessions(db) {
     "SELECT id, token, email, report_status, created_at FROM audit_sessions WHERE report_status IN ('draft','analyst_review') ORDER BY created_at DESC LIMIT 100"
   );
   return r.rows;
+}
+
+// Read-only per-session risk-signal aggregation (Postgres twin of db.mjs). See
+// the long DATA-MODEL NOTE in db.mjs getSessionReviewSignals: signals are read
+// from the session's demo_calls.result_json (feeAtRisk in dollars); the pure
+// reducer is shared to keep the two backends from drifting.
+export async function getSessionReviewSignals(db, sessionId) {
+  const r = await db.query(
+    `SELECT dc.result_json FROM audit_session_calls ac
+       JOIN demo_calls dc ON dc.id = ac.demo_call_id
+      WHERE ac.session_id = $1`,
+    [sessionId]
+  );
+  return aggregateReviewSignals(r.rows.map((row) => row.result_json));
+}
+
+// ── Firm-statement review gate (migration 0045) — Postgres twins. ─────────────
+// Reads the REAL firm pipeline for one firm+period's leaked flags (see the twin
+// in db.mjs for the full note). The §IV citation-guard signal is a genuine COUNT
+// joined through flags.firm_id, never a hard-coded 0. Pure reducer shared with
+// the SQLite twin so the two backends cannot drift.
+export async function getFirmStatementReviewSignals(db, firmId, period) {
+  const win = firmStatementPeriodWindow(period);
+  if (!win) return { worstConfidenceTier: null, citationFailureCount: 0, maxRevenueAtRiskCents: 0, perFlag: [] };
+  const r = await db.query(
+    `SELECT f.id AS flag_id,
+            fc.confidence_tier AS confidence_tier,
+            ca.revenue_at_risk_cents AS revenue_at_risk_cents,
+            (SELECT COUNT(*) FROM citation_failures cf WHERE cf.flag_id = f.id) AS citation_failure_count
+       FROM flags f
+       JOIN calls c ON c.id = f.call_id
+       LEFT JOIN flag_confidence fc ON fc.flag_id = f.id
+       LEFT JOIN call_analyses ca ON ca.call_id = f.call_id
+      WHERE f.firm_id = $1 AND f.is_leaked_signable = true
+        AND c.received_at >= $2 AND c.received_at < $3`,
+    [firmId, win.start, win.endExclusive]
+  );
+  return reduceFirmStatementSignals(r.rows);
+}
+
+export async function getFirmStatementReview(db, firmId, period) {
+  const r = await db.query(
+    `SELECT firm_id, period, report_status, provenance, auto_count, force_review_count,
+            released_at, released_by, created_at, updated_at
+       FROM firm_statement_reviews WHERE firm_id = $1 AND period = $2`,
+    [firmId, period]
+  );
+  return r.rows[0] ?? null;
+}
+
+export async function upsertFirmStatementReview(
+  db,
+  { firmId, period, reportStatus, provenance = null, autoCount = 0, forceReviewCount = 0, releasedBy = null, now = null }
+) {
+  const ts = now ?? new Date().toISOString();
+  const releasedAt = reportStatus === "released" ? ts : null;
+  await db.query(
+    `INSERT INTO firm_statement_reviews
+       (firm_id, period, report_status, provenance, auto_count, force_review_count, released_at, released_by, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     ON CONFLICT (firm_id, period) DO UPDATE
+       SET report_status = excluded.report_status,
+           provenance = excluded.provenance,
+           auto_count = excluded.auto_count,
+           force_review_count = excluded.force_review_count,
+           released_at = excluded.released_at,
+           released_by = excluded.released_by,
+           updated_at = excluded.updated_at`,
+    [firmId, period, reportStatus, provenance, autoCount, forceReviewCount, releasedAt, releasedBy, ts]
+  );
+  return getFirmStatementReview(db, firmId, period);
+}
+
+// Twin of db.mjs listFirmStatementReviews. No firmId → internal analyst queue
+// (all firms, draft/analyst_review). With firmId → ONE firm's full history (any
+// status), newest first, for the firm-facing documents page. RLS on
+// firm_statement_reviews is firm-scoped (migration 0045); the download route
+// still hard-gates on report_status === 'released' before serving a PDF.
+export async function listFirmStatementReviews(db, firmId) {
+  if (firmId == null) {
+    const r = await db.query(
+      `SELECT firm_id, period, report_status, provenance, auto_count, force_review_count, created_at
+         FROM firm_statement_reviews
+        WHERE report_status IN ('draft', 'analyst_review')
+        ORDER BY created_at DESC LIMIT 100`
+    );
+    return r.rows;
+  }
+  const r = await db.query(
+    `SELECT firm_id, period, report_status, provenance, auto_count, force_review_count,
+            released_at, released_by, created_at, updated_at
+       FROM firm_statement_reviews
+      WHERE firm_id = $1
+      ORDER BY period DESC, created_at DESC LIMIT 100`,
+    [firmId]
+  );
+  return r.rows;
+}
+
+export async function setFirmStatementReviewStatus(
+  db,
+  { firmId, period, status, provenance = undefined, releasedBy = null, now = null }
+) {
+  const ts = now ?? new Date().toISOString();
+  const setProvenance = provenance !== undefined;
+  if (status === "released") {
+    const params = setProvenance
+      ? [status, ts, releasedBy, ts, provenance, firmId, period]
+      : [status, ts, releasedBy, ts, firmId, period];
+    await db.query(
+      `UPDATE firm_statement_reviews
+          SET report_status = $1, released_at = $2, released_by = $3, updated_at = $4
+              ${setProvenance ? ", provenance = $5" : ""}
+        WHERE firm_id = $${setProvenance ? 6 : 5} AND period = $${setProvenance ? 7 : 6}`,
+      params
+    );
+  } else {
+    const params = setProvenance ? [status, ts, provenance, firmId, period] : [status, ts, firmId, period];
+    await db.query(
+      `UPDATE firm_statement_reviews
+          SET report_status = $1, updated_at = $2
+              ${setProvenance ? ", provenance = $3" : ""}
+        WHERE firm_id = $${setProvenance ? 4 : 3} AND period = $${setProvenance ? 5 : 4}`,
+      params
+    );
+  }
+  return getFirmStatementReview(db, firmId, period);
 }
 
 // ── Report access events (migration 0017) — Postgres twins. ───────────────────

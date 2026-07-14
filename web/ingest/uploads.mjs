@@ -19,11 +19,16 @@ import { setCallConsentStatus } from "../beta/store.mjs";
 //
 // * Storage mode (Supabase signed URL): the browser uploads DIRECTLY to the
 //   private bucket, bypassing Vercel's ~4.5MB request-body ceiling — a
-//   full-length 45-minute intake call fits comfortably under 200MB.
+//   full-length 45-minute intake call fits comfortably under 200MB. This is the
+//   DEFAULT path and the only one that handles real-length calls. It REQUIRES
+//   two env vars: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+//   (see storageUploadAvailable + isStudioStorageConfigured). Without them the
+//   product silently falls back to the 4MB direct trap below.
 // * Direct mode (no storage configured): the bytes travel through the Next
 //   route body. On Vercel that dies at ~4.5MB BEFORE our handler runs, so the
 //   honest advertised cap there is 4MB; on a long-lived local/pilot server
-//   25MB is fine.
+//   25MB is fine. A real intake call (10-50MB) CANNOT be handled in this mode —
+//   at scale that is a config error, not a "your file is too big" user error.
 // ---------------------------------------------------------------------------
 
 export const AUDIO_EXTENSIONS = new Set(["mp3", "m4a", "wav"]);
@@ -31,6 +36,32 @@ export const STORAGE_UPLOAD_MAX_BYTES = 200 * 1024 * 1024; // matches the studio
 
 export function directUploadMaxBytes(env = process.env) {
   return env.VERCEL ? 4 * 1024 * 1024 : 25 * 1024 * 1024;
+}
+
+// The signed-URL (200MB) path is available iff BOTH Supabase env vars are set.
+// This is the single source of truth for "can we accept a real-length call?" and
+// mirrors isStudioStorageConfigured() in src/lib/studio/storage.ts (kept in the
+// .mjs layer so ingest code that can't import server-only TS can gate on it too).
+// SUPABASE_SERVICE_ROLE_KEY is the load-bearing secret: set it in the host env or
+// every upload is stuck under the 4MB direct trap.
+export function storageUploadAvailable(env = process.env) {
+  return Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
+// LOUD operator diagnostic (for logError / server logs, NOT the firm-facing UI).
+// Returns a clear config-cause message when a file is too big for direct mode
+// AND the signed-URL path isn't configured — so the real fix (set the service-
+// role key) surfaces instead of the firm just seeing a polite "re-export" no.
+// Returns null when there's no config gap (storage available, or the file fits).
+export function largeUploadConfigWarning(size, env = process.env) {
+  if (storageUploadAvailable(env)) return null;
+  if (!Number.isFinite(size) || size <= directUploadMaxBytes(env)) return null;
+  return (
+    `Upload of ${toMb(size)}MB rejected: the 200MB signed-URL path is NOT configured ` +
+    `(missing SUPABASE_SERVICE_ROLE_KEY${env.NEXT_PUBLIC_SUPABASE_URL ? "" : " and NEXT_PUBLIC_SUPABASE_URL"}). ` +
+    `Set it in the host env so real-length calls (10-50MB) can be accepted; until then ` +
+    `the direct cap is only ${toMb(directUploadMaxBytes(env))}MB.`
+  );
 }
 
 export function toMb(bytes) {

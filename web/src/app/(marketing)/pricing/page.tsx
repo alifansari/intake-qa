@@ -12,6 +12,8 @@ import {
   STAKE_LINE,
   CTA_PRIMARY,
   FOUNDER_EMAIL,
+  ADDITIVE_LINE,
+  VOLUME_LINE,
 } from "@/lib/site-constants";
 
 // BETA WINDOW: no dollar figures in public copy. The underlying pricing objects
@@ -34,9 +36,10 @@ export default function PricingPage() {
       </h1>
       {/* The direct answer, first — no scrolling, no "call for pricing". */}
       <div className="mt-5 max-w-[72ch] space-y-1.5 text-lg text-ink">
-        <p>Free during the beta: all five founding firms run the full desk at no charge.</p>
-        <p>At launch: one flat monthly fee, set with the founding cohort before anyone pays.</p>
-        <p>Never a percentage, never a share of recoveries.</p>
+        <p>Free during the beta: the founding cohort runs the full desk at no charge.</p>
+        <p>At launch: one flat monthly fee, tiered by call volume, set with the founding cohort before anyone pays.</p>
+        <p>For high-volume and multi-office firms, a volume tier priced custom. Contact us for volume.</p>
+        <p>Never a percentage, never per case, never a share of recoveries.</p>
       </div>
       <p className="mt-5 max-w-[72ch] text-lg text-ink-muted">{BETA_WHO_LINE}</p>
       <p className="mt-5 max-w-[60ch] font-display text-2xl font-semibold text-ink">
@@ -96,14 +99,37 @@ export default function PricingPage() {
         </p>
       </section>
 
+      {/* Volume tier + additive framing — for the multi-office buyer. No dollar
+          figures published during the beta; the volume tier is stated as
+          "Custom", which is not a dollar figure. */}
+      <section className="mt-8 border-t border-hairline pt-8">
+        <p className="eyebrow">High volume and multiple offices</p>
+        <h2 className="mt-2 max-w-[40ch] font-display text-2xl font-semibold text-ink text-balance">
+          Over 800 calls a month, or intake across several offices? There’s a volume tier.
+        </h2>
+        <p className="mt-3 max-w-[72ch] text-ink-muted">{VOLUME_LINE}</p>
+        <p className="mt-3 max-w-[72ch] text-ink-muted">
+          Above the standard plans, the volume tier is priced custom, scoped to your call volume,
+          and stays a flat monthly subscription like every other plan. Never per case, never per
+          signed client, never a share of any recovery.{" "}
+          <a
+            href={`mailto:${FOUNDER_EMAIL}?subject=Volume%20pricing`}
+            className="font-semibold text-accent hover:text-accent-hover"
+          >
+            Contact us for volume.
+          </a>
+        </p>
+        <p className="mt-4 max-w-[72ch] text-sm text-ink-muted">{ADDITIVE_LINE}</p>
+      </section>
+
       {/* The free Leak Audit — value before any pricing conversation. */}
       <section className="mt-8 rounded-card border border-hairline bg-canvas p-7">
         <p className="eyebrow">Start here, free</p>
         <h2 className="mt-2 max-w-[30ch] font-display text-2xl font-semibold text-ink text-balance">
-          Send us 10 calls. We find what walked. Free.
+          Start with a free Leak Audit. We find what walked.
         </h2>
         <p className="mt-3 max-w-[72ch] text-sm text-ink-muted">
-          Send up to 10 of your own recorded intake calls. A real analyst scores them and walks you
+          Send a sample of your own recorded intake calls. A real analyst scores them and walks you
           through the signable cases that slipped, live and free, and you keep the written report
           whether or not we ever work together. No card, no obligation. Any pricing conversation
           happens after you’ve seen what the audit found in your own calls.

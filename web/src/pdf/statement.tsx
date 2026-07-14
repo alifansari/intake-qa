@@ -11,7 +11,7 @@ import {
   statementId,
   trendVerdict,
   falseAlarmFooter,
-  ATTESTATION,
+  getAttestation,
   FOOTNOTES,
   AGENCY_INTRO,
   COACHING_XREF,
@@ -158,7 +158,7 @@ export function StatementDoc({ d, falseAlarm }: { d: DocData; falseAlarm?: { rat
         </View>
 
         {/* Attestation */}
-        <AttestationBlock text={ATTESTATION} analystName={d.analystName} issuedDate={fmtDate(d.issuedDate)} />
+        <AttestationBlock text={getAttestation()} analystName={d.analystName} issuedDate={fmtDate(d.issuedDate)} />
       </DocPage>
     </Document>
   );

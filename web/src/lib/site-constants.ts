@@ -23,6 +23,18 @@
 // word "recovery" to mean the client’s settlement ("never a share of any
 // recovery") are LOAD-BEARING and deliberately left unchanged.
 
+import { isSampledReviewEnabled } from "./flags";
+
+// Tiered "sampled review" model flag, evaluated once at module load (server-side).
+// DEFAULT OFF. Every gated const below picks its OFF branch when the flag is off,
+// and each OFF branch is byte-identical to the string that shipped before this flag
+// existed — so flag-off output is unchanged. The gated constants here are rendered
+// ONLY by server components (the marketing pages), so a client bundle (where a
+// non-NEXT_PUBLIC env var is undefined and the flag reads off) never diverges
+// visibly, and there is no hydration hazard. Do NOT read this in a client component.
+// Flipping the flag is a novel regulated change (§IV/§V) — Ali's decision + Yang.
+const SAMPLED_REVIEW = isSampledReviewEnabled();
+
 // ─── Positioning: the independent intake desk ────────────────────────────────
 export const DESK_NAME = "the independent intake desk";
 // Certified forwardable Independence Statement (Round 7 Gold iii). Use verbatim.
@@ -88,6 +100,20 @@ export const WHO_DOES_THE_WORK =
 export const WHAT_WE_DO =
   "We measure what happens to a signable case after the phone rings: which qualified callers didn’t sign, across every channel, and what that walked-away fee revenue is worth.";
 
+// ─── Additive-to-your-stack (the load-bearing "no migration" line) ────────────
+// Names the CMS platforms as factual interoperability, not a comparative claim
+// (§V-safe). The point for a high-volume buyer: nothing to rip out, nothing to
+// re-train the department on.
+export const ADDITIVE_LINE =
+  "Intake QA sits on top of the case-management system you already run, whether that’s Filevine, CasePeer, Litify, or your own stack. There is nothing to rip out and nothing to migrate: we read the intake calls your phones already record, and hand the signable cases that walked back to the same team and the same CRM you use today.";
+
+// ─── Volume / multi-office framing (the buyer is a department, not a coordinator) ─
+// Directional, carries no stat. Speaks to the Director of Intake + COO, and frames
+// the fee against the value of a single recovered signable case (never per-case
+// PRICING — this is a value comparison, not a fee structure; see §I).
+export const VOLUME_LINE =
+  "Built for high-volume intake: multi-office firms and dedicated intake departments where the phones ring hundreds of times a week, and a single signable case that walks can outweigh a year of the flat subscription. One board covers every office, for the Director of Intake and the COO who answer for the number.";
+
 // The named "reason why" (copy-power-pass 2026-07-12): the four transcript-
 // observable failure modes. Actuarial, not vibes; blames the process, not a
 // person (matches CHAMPION_LINE). Directional, carries no stat.
@@ -107,8 +133,9 @@ export const CTA_SECONDARY = "Pricing & the beta →";
 export const CTA_SECONDARY_HREF = "/pricing";
 // Risk-reversal sub-CTA line, leads with what the buyer keeps. Flat-fee-safe:
 // no outcome promise, no card required to start.
-export const SUB_CTA_LINE =
-  "A real analyst reviews every call. You keep the report whether or not you continue. No card, no contract to start.";
+export const SUB_CTA_LINE = SAMPLED_REVIEW
+  ? "A real analyst reviews the flags that carry the dollars, and signs the report. You keep the report whether or not you continue. No card, no contract to start."
+  : "A real analyst reviews every call. You keep the report whether or not you continue. No card, no contract to start.";
 // One-line reassurance shown under each paid buy button.
 export const CHECKOUT_REASSURANCE =
   "Flat monthly, cancel anytime. You’ll get a login link by email and a kickoff with Ali before your first statement.";
@@ -121,14 +148,56 @@ export const LIFT_LINE =
 export const HONESTY_STRIP_LINE = "We publish how accurate we are, sample size and all.";
 // Reviewer line near buy buttons (role, not a named person — see compliance §V).
 // Matches WHO_DOES_THE_WORK: Ali is a former PI paralegal who sat in the intake seat.
-export const REVIEWER_LINE = "A former PI paralegal who sat in the intake seat reviews every score.";
+export const REVIEWER_LINE = SAMPLED_REVIEW
+  ? "A former PI paralegal who sat in the intake seat reviews the flags that matter most and signs off."
+  : "A former PI paralegal who sat in the intake seat reviews every score.";
 // The stake: free is not a discount, it is the wager. Anchor line, used verbatim.
 export const STAKE_LINE = "I charge nothing until the number survives your scrutiny.";
-export const AUDIT_FREE_LINE =
-  "Send us up to 10 of your own recorded intake calls. A real analyst, not just a model, scores every one against our calibrated PI rubric and walks you through the signable cases that slipped, live and free. You keep the written report whether or not we ever work together.";
+// The FREE Leak Audit (10 calls) is hand-reviewed end to end in BOTH modes — the
+// tiered model applies to the ongoing high-volume desk, not this wedge. The ON
+// branch therefore KEEPS the hand-review claim ("reviews every one"); it only adds
+// the "signs the report" provenance framing. (This deviates deliberately from the
+// proposal's weakening ON text, on §V grounds: the free audit really is 100%
+// hand-reviewed, so understating it would be less truthful. Flagged in the summary.)
+export const AUDIT_FREE_LINE = SAMPLED_REVIEW
+  ? "Send us up to 10 of your own recorded intake calls. A real analyst, not just a model, reviews every one against our calibrated PI rubric and signs the report that walks you through the signable cases that slipped, live and free. You keep the written report whether or not we ever work together."
+  : "Send us up to 10 of your own recorded intake calls. A real analyst, not just a model, scores every one against our calibrated PI rubric and walks you through the signable cases that slipped, live and free. You keep the written report whether or not we ever work together.";
 // Honest capacity, not fake scarcity. Confirmed by Ali (July 2026): 8/month.
 export const AUDIT_CAPACITY = 8;
+// NOT flag-gated: this renders on the CLIENT audit page (audit/page.tsx, "use
+// client"), where a server-evaluated flag would create a hydration mismatch when
+// flipped; and "a real analyst reviews every call" is TRUE for the free audit,
+// which stays 100% hand-reviewed in both modes. Kept byte-identical. Flagged.
 export const AUDIT_CAPACITY_LINE = `Because a real analyst reviews every call, we take on up to ${AUDIT_CAPACITY} audits each month.`;
+// ─── Sampled-review page copy (flag-gated; server-rendered only) ─────────────
+// Centralized OFF/ON variants for the marketing-page inline strings the tiered
+// model touches. OFF branch = the exact current text (byte-identical render); ON
+// branch = the honest tiered wording. Each of these renders inside a SERVER
+// component (marketing homepage / founder / faq / accuracy), so evaluating the
+// flag at module load is safe. Rendered whitespace is unchanged (JSX collapsed
+// the source line breaks to single spaces already).
+
+// Homepage step: the ONGOING desk ("we hand back the signable cases that walked").
+export const HOME_DESK_SCORING_LINE = SAMPLED_REVIEW
+  ? "The engine scores every call; a real analyst reviews the flags that matter and hands you a signed report: which signable callers you already paid for didn’t sign, the evidence for each, and an estimated dollar figure so your team can win them back."
+  : "A real analyst scores every call and hands you a signed report: which signable callers you already paid for didn’t sign, the evidence for each, and an estimated dollar figure so your team can win them back.";
+
+// Founder page: Ali's analyst-of-record paragraph (ongoing statements).
+export const FOUNDER_ANALYST_PARAGRAPH = SAMPLED_REVIEW
+  ? "I’m the analyst of record. The software does the listening at scale, but on every statement I review every high-value and lower-confidence flag, and a sample of the rest, and sign off on what you read, because I know what a signable case sounds like, and a QA function that doesn’t have a human who does isn’t worth much."
+  : "I’m the analyst of record. The software does the listening at scale, but I review every audit and every monthly statement and sign off on what you read, because I know what a signable case sounds like, and a QA function that doesn’t have a human who does isn’t worth much.";
+
+// FAQ "Why is the Leak Audit free?" — the free audit stays hand-reviewed; only the
+// capacity sentence changes to distinguish the ongoing desk from the free audit.
+export const FAQ_WHY_FREE_ANSWER = SAMPLED_REVIEW
+  ? "Because we’re early and honest about it: I’d rather earn your trust with a real report than ask for money and trust at the same time. The Leak Audit is free for qualifying California PI firms. A real analyst scores up to 10 of your own recorded calls and walks you through the signable cases that slipped, live, and hands you a written report you keep whether or not we ever work together. Your free audit is hand-reviewed; on the ongoing desk the engine reads everything and I review the flags that carry the dollars. Ali"
+  : "Because we’re early and honest about it: I’d rather earn your trust with a real report than ask for money and trust at the same time. The Leak Audit is free for qualifying California PI firms. A real analyst scores up to 10 of your own recorded calls and walks you through the signable cases that slipped, live, and hands you a written report you keep whether or not we ever work together. Because each audit takes real analyst hours, we take on up to 8 a month. Ali";
+
+// Accuracy page: the "how the grade is built" review step (ongoing desk).
+export const ACCURACY_REVIEW_LINE = SAMPLED_REVIEW
+  ? "Every flag carries the transcript evidence behind it, so you can check the call yourself; a former PI paralegal reviews the flags that carry real dollars or real doubt before you see them, and every finding, reviewed or not, is evidence-checked against the recording."
+  : "Every flag carries the transcript evidence behind it, so you can check the call yourself, and a former PI paralegal reviews every score before you see it.";
+
 export const AUDIT_DELIVERABLES: string[] = [
   "A per-call score on our frozen, calibrated PI rubric.",
   "The signable cases that didn’t sign, with the transcript evidence behind each flag.",
@@ -323,7 +392,7 @@ export const CONFIDENCE_TIERS_NOTE =
 // ─── What months 2–12 look like (retention story; STATUS-FLAGGED) ────────────
 // Presentation-only vs new-build must be labeled. Never market vaporware.
 export const MONTH_6_INTRO =
-  "The first audit finds the biggest leaks. After that, the desk becomes the one number on your intake that isn’t self-graded: an independent monthly scorecard your intake manager is measured against, the way you’d never drop your malpractice carrier. Every statement shows whether the leak is shrinking, your team gets credit for the improvement, and new leaks get caught as your marketing and staffing change.";
+  "The first audit finds the biggest leaks. After that, the desk becomes the one number on your intake that isn’t self-graded: an independent monthly scorecard your intake operation is measured against, across every office, the way you’d never drop your malpractice carrier. Every statement shows whether the leak is shrinking, your team gets credit for the improvement, and new leaks get caught as your marketing and staffing change.";
 export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = [
   {
     title: "A statement that trends over time",
@@ -354,7 +423,7 @@ export const MONTH_6_ITEMS: { title: string; body: string; status: string }[] = 
 
 // ─── Intake-manager champion framing ─────────────────────────────────────────
 export const CHAMPION_LINE =
-  "This isn’t a gotcha. High-volume intake means good cases slip. That’s math, not a character flaw. The desk gives your manager proof of the workload, coaching clips built from your team’s own best calls, and a monthly scorecard that shows the improvement so the credit lands where it’s earned.";
+  "This isn’t a gotcha, and it isn’t aimed at any one coordinator. At high volume, good cases slip; that’s math, not a character flaw. The desk gives your intake department proof of the workload, coaching clips built from your own team’s best calls, and a monthly scorecard, per office, that shows the improvement so the credit lands where it’s earned.";
 
 // ─── Pricing (outcome-decoupled: FLAT MONTHLY, tiered by capability/volume) ───
 // NEVER a per-recovered-case, per-signed-client, or percentage-of-recovery fee.
@@ -409,6 +478,23 @@ export const PRICING_TIERS: PricingTier[] = [
     sub: "Everything in Core at higher call volume. The lead win-back workflow is included once it is legally cleared (on the roadmap, not yet live).",
     featured: false,
     checkoutPlan: "pro",
+  },
+  {
+    // Volume tier for high-volume firms / multi-office intake departments above
+    // Pro’s 800-call cap. Priced PUBLICLY as "Custom" only, we never invent a
+    // dollar number for a volume deal, and it stays a FLAT monthly subscription
+    // scoped to call volume, never per case or per signed client (§I). No
+    // self-serve checkout: volume pricing is scoped on a call, so checkoutPlan
+    // is empty and the card links to a contact path.
+    name: "Enterprise",
+    planName: "enterprise",
+    price: "Custom",
+    priceCents: 0,
+    callCap: null,
+    volume: "over 800 calls/mo, multi-office intake",
+    sub: "For high-volume firms and multi-office intake departments above Pro’s call volume: every office on one board, a named analyst of record, and onboarding built around your Director of Intake. Flat monthly, scoped to your volume. Contact us for volume.",
+    featured: false,
+    checkoutPlan: "",
   },
 ];
 

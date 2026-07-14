@@ -17,6 +17,14 @@ import { publishedFalseAlarmRate } from "@/lib/calibration-snapshot";
 import { requireFounderRoute } from "@/lib/studio/guard";
 import { composeMonthlyStatement } from "@/lib/documents/from-firm-month.mjs";
 import { feeRangeFromRow } from "../../../../../analysis/fee-value.mjs";
+import { isSampledReviewEnabled } from "@/lib/flags";
+import { decideStatementReview as decideStatementReviewRaw } from "../../../../../analysis/statement-review.mjs";
+import { FOUNDER_NAME } from "@/lib/site-constants";
+
+// Pure release-logic signature (the module is plain JS).
+const decideStatementReview = decideStatementReviewRaw as (input: {
+  perFlag: Array<{ confidenceTier?: "strong" | "moderate" | null; citationFailureCount?: number; revenueAtRiskCents?: number }>;
+}) => { reportStatus: "draft" | "analyst_review" | "released"; provenance: "analyst_reviewed" | "engine_scored" | null; autoCount: number; forceReviewCount: number };
 
 type FirmFlag = {
   id?: unknown;
@@ -53,7 +61,7 @@ function parsePeriod(raw: string | null): {
   return { label, start, endExclusive, endLabel, year, seq: month };
 }
 
-async function renderPdf(doc: DocData, filename: string) {
+async function renderPdf(doc: DocData, filename: string, extraHeaders?: Record<string, string>) {
   const falseAlarm = await publishedFalseAlarmRate();
   const el = React.createElement(StatementDoc, { d: doc, falseAlarm }) as unknown as Parameters<typeof renderToBuffer>[0];
   const buffer = await renderToBuffer(el);
@@ -62,6 +70,9 @@ async function renderPdf(doc: DocData, filename: string) {
       "content-type": "application/pdf",
       "content-disposition": `inline; filename="${filename}"`,
       "cache-control": "no-store",
+      // extraHeaders is only ever passed when SAMPLED_REVIEW_ENABLED is ON, so the
+      // flag-OFF response is byte-identical (headers included) to today.
+      ...(extraHeaders ?? {}),
     },
   });
 }
@@ -130,7 +141,53 @@ export async function GET(request: Request) {
       issuedDate: new Date().toISOString().slice(0, 10),
     }) as unknown as DocData;
 
-    return renderPdf(doc, `missed-revenue-statement-${period.year}-${String(period.seq).padStart(2, "0")}.pdf`);
+    const periodStr = `${period.year}-${String(period.seq).padStart(2, "0")}`;
+
+    // Tiered "sampled review" release gate (flag-gated; DEFAULT OFF => this whole
+    // block is skipped and the PDF + response are byte-identical to today). When ON:
+    // classify this firm+period's REAL leaked-flag signals; if any flag is
+    // force_review the statement holds in analyst_review for human sign-off, else it
+    // auto-releases (engine_scored). The result is persisted to firm_statement_reviews
+    // and surfaced on the response headers (never inside the PDF). A statement already
+    // released (e.g. an analyst signed it off) is left exactly as-is — never downgraded.
+    let reviewHeaders: Record<string, string> | undefined;
+    if (isSampledReviewEnabled()) {
+      try {
+        const existing = await store.getFirmStatementReview(db, firm.id, periodStr);
+        if (existing?.report_status === "released") {
+          reviewHeaders = {
+            "x-review-status": String(existing.report_status),
+            "x-review-provenance": String(existing.provenance ?? ""),
+            "x-review-auto-count": String(existing.auto_count ?? 0),
+            "x-review-force-review-count": String(existing.force_review_count ?? 0),
+          };
+        } else {
+          const signals = await store.getFirmStatementReviewSignals(db, firm.id, periodStr);
+          const decision = decideStatementReview({ perFlag: signals.perFlag });
+          await store.upsertFirmStatementReview(db, {
+            firmId: firm.id,
+            period: periodStr,
+            reportStatus: decision.reportStatus,
+            provenance: decision.provenance,
+            autoCount: decision.autoCount,
+            forceReviewCount: decision.forceReviewCount,
+            releasedBy: decision.reportStatus === "released" ? `${FOUNDER_NAME} (auto: engine-scored)` : null,
+          });
+          reviewHeaders = {
+            "x-review-status": decision.reportStatus,
+            "x-review-provenance": decision.provenance ?? "",
+            "x-review-auto-count": String(decision.autoCount),
+            "x-review-force-review-count": String(decision.forceReviewCount),
+          };
+        }
+      } catch {
+        // A review-gate failure must never block the (founder-gated) statement or
+        // change the PDF; fall through with no review headers.
+        reviewHeaders = undefined;
+      }
+    }
+
+    return renderPdf(doc, `missed-revenue-statement-${periodStr}.pdf`, reviewHeaders);
   } finally {
     await store.closePipelineDb(db);
   }

@@ -6,13 +6,21 @@
 // Founder-only bridges (Analyst review, Studio) are the sole conditional items,
 // and they live to the right so a firm user never sees operator plumbing.
 // Access is gated by middleware (src/proxy.ts) — reaching here means signed in.
+//
+// ROLE GATING (migration 0044/0036): a plain `agent` works the callback queue +
+// their own calls, so the team dashboard (scorecard) and firm Settings are
+// hidden for them. Managers/admins see the full chrome. Role resolution is
+// crash-proof and defaults to admin for existing single-user firms, so this
+// never removes access from anyone who has it today.
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/supabase/server";
+import { resolveCurrentRole, isManagerRole } from "@/lib/desk/roles";
 
 export default async function DeskLayout({ children }: { children: React.ReactNode }) {
-  const user = await getCurrentUser();
+  const { role, email } = await resolveCurrentRole();
+  const user = email ? { email } : null;
   const founderEmail = process.env.FOUNDER_EMAIL?.trim().toLowerCase();
-  const isFounder = Boolean(founderEmail && user?.email?.trim().toLowerCase() === founderEmail);
+  const isFounder = Boolean(founderEmail && email?.trim().toLowerCase() === founderEmail);
+  const canSeeTeam = isManagerRole(role);
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -34,6 +42,16 @@ export default async function DeskLayout({ children }: { children: React.ReactNo
             <Link href="/desk/receipts" className="text-ink-muted hover:text-ink">
               Recovered
             </Link>
+            {canSeeTeam ? (
+              <>
+                <Link href="/desk/scorecard" className="text-ink-muted hover:text-ink">
+                  Scorecard
+                </Link>
+                <Link href="/desk/team" className="text-ink-muted hover:text-ink">
+                  Team
+                </Link>
+              </>
+            ) : null}
             {isFounder ? (
               <>
                 <Link href="/desk/review" className="text-faint hover:text-ink">
@@ -44,9 +62,11 @@ export default async function DeskLayout({ children }: { children: React.ReactNo
                 </Link>
               </>
             ) : null}
-            <Link href="/desk/settings" className="text-ink-muted hover:text-ink">
-              Settings
-            </Link>
+            {canSeeTeam ? (
+              <Link href="/desk/settings" className="text-ink-muted hover:text-ink">
+                Settings
+              </Link>
+            ) : null}
             {user?.email ? (
               <form action="/auth/signout" method="post" className="flex items-center gap-3">
                 <span className="hidden text-xs text-faint sm:inline">{user.email}</span>

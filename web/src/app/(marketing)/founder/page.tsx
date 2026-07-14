@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { PilotCohortBanner } from "@/components/marketing/PilotCohortBanner";
-import { CTA_PRIMARY } from "@/lib/site-constants";
+import { CTA_PRIMARY, FOUNDER_ANALYST_PARAGRAPH } from "@/lib/site-constants";
 
 export const metadata: Metadata = {
   title: "Why I built Intake QA | Plaintiff Ops",
@@ -50,12 +50,7 @@ export default function FounderPage() {
           the signable ones that didn’t sign, reconcile against who actually signed, put a dollar
           figure on what walked, and hand your staff a compliant play to win it back.
         </p>
-        <p>
-          I’m the analyst of record. The software does the listening at scale, but I review every
-          audit and every monthly statement and sign off on what you read, because I know what a
-          signable case sounds like, and a QA function that doesn’t have a human who does isn’t
-          worth much.
-        </p>
+        <p>{FOUNDER_ANALYST_PARAGRAPH}</p>
         <p>
           So here’s the deal: send me up to 10 of your own recorded intake calls and I’ll run
           a free Leak Audit. I score them, walk you through the signable cases that slipped, and charge

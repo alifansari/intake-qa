@@ -24,22 +24,39 @@ function requestOrigin(req: Request): string {
   return url.origin;
 }
 
-// BETA WINDOW: checkout is disabled — the desk is free for beta testers and no
-// public price is published. Delete this block to re-enable checkout at launch
-// (everything below is intact and unchanged).
-const CHECKOUT_DISABLED_DURING_BETA = true;
+// STAGED, not shipped. Checkout is re-enabled for NEW paid signups, but two
+// guards keep it safe:
+//
+//   1. BETA COHORT STAYS FREE. Founding/beta firms are never charged. Any email
+//      listed in BETA_FIRM_EMAILS (comma-separated, case-insensitive) is refused
+//      a checkout session with a plain "your desk is free" message. This is the
+//      gate that stops a beta firm from accidentally paying.
+//
+//   2. NO REAL CHARGE WITHOUT STRIPE CONFIG. With no STRIPE_SECRET_KEY (or
+//      TEST_MODE=true), createCheckoutSession runs in SIMULATION and never
+//      touches Stripe — no card is charged. See billing/checkout.mjs.
+//
+// TODO(ali): to actually charge a card, set in host env (NEVER in code):
+//   STRIPE_SECRET_KEY, plus the Stripe Price ids STRIPE_PRICE_CORE,
+//   STRIPE_PRICE_PRO, STRIPE_PRICE_CHARTER (see billing/checkout.mjs), and
+//   BETA_FIRM_EMAILS with every founding/beta firm's billing email so the gate
+//   below actually excludes them. Until STRIPE_SECRET_KEY is set, every checkout
+//   is simulated. Setting billing/secrets config is a human-only step
+//   (compliance-invariants §VII: agents never touch billing or secrets config).
+// NOTE: the Enterprise/volume tier is intentionally NOT self-serve — it is
+// scoped by contact ("Custom — contact us for volume"), so it never reaches
+// this route (the plan enum below only accepts core/pro/charter).
+
+function betaFirmEmails(env = process.env): Set<string> {
+  return new Set(
+    (env.BETA_FIRM_EMAILS ?? "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean),
+  );
+}
 
 export async function POST(req: Request) {
-  if (CHECKOUT_DISABLED_DURING_BETA) {
-    return Response.json(
-      {
-        error:
-          "Checkout is disabled during the beta. The desk is free for beta testers; start with the free Leak Audit at /audit.",
-      },
-      { status: 503 },
-    );
-  }
-
   let json: unknown;
   try {
     json = await req.json();
@@ -54,6 +71,19 @@ export async function POST(req: Request) {
     );
   }
   const { plan, auditToken, email } = parsed.data;
+
+  // GUARD 1 — beta/founding firms are free. Never route them to a charge.
+  const normalizedEmail = email?.trim().toLowerCase();
+  if (normalizedEmail && betaFirmEmails().has(normalizedEmail)) {
+    return Response.json(
+      {
+        betaFree: true,
+        message:
+          "Your firm is in the founding beta, so the desk is free. There’s nothing to check out. If something looks off, email ali@plaintiffops.com.",
+      },
+      { status: 200 },
+    );
+  }
 
   const db = await openPipelineDb();
   try {

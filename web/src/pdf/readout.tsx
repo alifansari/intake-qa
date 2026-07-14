@@ -10,7 +10,7 @@ import {
   statuteClock,
   readoutId,
   trendVerdict,
-  ATTESTATION,
+  getAttestation,
   FOOTNOTES,
   READOUT_LIMITS_INTRO,
   READOUT_NEXT_STEPS,
@@ -140,7 +140,7 @@ export function ReadoutDoc({ d }: { d: DocData }) {
           ))}
         </View>
 
-        <AttestationBlock text={ATTESTATION} analystName={d.analystName} issuedDate={fmtDate(d.issuedDate)} />
+        <AttestationBlock text={getAttestation()} analystName={d.analystName} issuedDate={fmtDate(d.issuedDate)} />
       </DocPage>
     </Document>
   );

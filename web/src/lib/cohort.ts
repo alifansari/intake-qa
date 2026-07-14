@@ -17,7 +17,7 @@ export const COHORT_FULL = SEATS_REMAINING === 0;
 export const SEAT_LINE = COHORT_FULL
   ? "The founding cohort is full. Join the list for the next opening."
   : SEATS_TAKEN === 0
-    ? `We’re taking only ${SEATS_TOTAL} founding firms.`
+    ? `The founding cohort is ${SEATS_TOTAL} firms, each onboarded hands-on.`
     : `${SEATS_REMAINING} of ${SEATS_TOTAL} founding seats remaining.`;
 
 // Canonical cohort CTA, waitlist-aware. Destination is the existing apply flow

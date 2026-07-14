@@ -15,18 +15,70 @@ import { LeakCard, type Leak } from "@/components/desk/LeakCard";
 import { MoneyHero } from "@/components/desk/MoneyHero";
 import { HowCallsArrive } from "@/components/desk/HowCallsArrive";
 import { resolveDeskFirm } from "@/lib/desk/firm";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { partitionLeaks, callUrgency } from "@/lib/desk/queue-view.mjs";
 import { summarizeMoney } from "@/lib/desk/money.mjs";
 import { sampleDesk } from "@/lib/desk/sample.mjs";
 import { recordEventOn } from "@/lib/events";
 import { fmtMoneyRange } from "@/pdf/doc-helpers.mjs";
 import { feeRangeFromRow } from "../../../analysis/fee-value.mjs";
+import { provenanceForFlag } from "../../../analysis/review-router.mjs";
+import { isSampledReviewEnabled } from "@/lib/flags";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Your desk — Intake QA" };
 
-type SearchParams = Promise<{ demo?: string; live?: string }>;
+type SearchParams = Promise<{ demo?: string; live?: string; mine?: string }>;
+
+// Per-flag callback ownership for the queue (multi-user firms). Firm-scoped
+// through the flags join; pg also resolves the assignee's email for a label.
+// Best-effort — pre-migration DBs (no assignee column) simply return an empty
+// map and the queue renders exactly as before.
+type QueryDb = {
+  query?: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>;
+  prepare?: (sql: string) => { all: (...args: unknown[]) => Record<string, unknown>[] };
+};
+
+async function assigneesByFlag(
+  db: QueryDb,
+  firmId: string | number,
+): Promise<Map<string, { id: string; email: string | null }>> {
+  const out = new Map<string, { id: string; email: string | null }>();
+  try {
+    if (typeof db.query === "function") {
+      const r = await db.query(
+        `select f.id as flag_id, fs.assignee_user_id as assignee_user_id, u.email as assignee_email
+           from flags f
+           join flag_status fs on fs.flag_id = f.id
+           left join auth.users u on u.id = fs.assignee_user_id
+          where f.firm_id = $1 and fs.assignee_user_id is not null`,
+        [firmId],
+      );
+      for (const row of r.rows) {
+        out.set(String(row.flag_id), {
+          id: String(row.assignee_user_id),
+          email: (row.assignee_email as string | null) ?? null,
+        });
+      }
+    } else if (typeof db.prepare === "function") {
+      const rows = db
+        .prepare(
+          `select f.id as flag_id, fs.assignee_user_id as assignee_user_id
+             from flags f
+             join flag_status fs on fs.flag_id = f.id
+            where f.firm_id = ? and fs.assignee_user_id is not null`,
+        )
+        .all(firmId);
+      for (const row of rows) {
+        out.set(String(row.flag_id), { id: String(row.assignee_user_id), email: null });
+      }
+    }
+  } catch {
+    // assignee column absent (pre-migration) — no ownership overlay.
+  }
+  return out;
+}
 
 // Human-friendly age for the heartbeat line ("2h ago", "3d ago").
 function relativeTime(iso: string): string {
@@ -57,6 +109,9 @@ export default async function DeskHome({ searchParams }: { searchParams: SearchP
   const sp = await searchParams;
   const forceDemo = sp?.demo === "1" || sp?.demo === "true";
   const forceLive = sp?.live === "1" || sp?.live === "true";
+  const mineOnly = sp?.mine === "1" || sp?.mine === "true";
+  const currentUser = await getCurrentUser();
+  const currentUserId = currentUser?.id ?? null;
 
   const store = await import("../../../ingest/store.mjs");
   let db;
@@ -73,6 +128,7 @@ export default async function DeskHome({ searchParams }: { searchParams: SearchP
     await recordEventOn(db, { event: "desk_view", firmId: firm.id, context: { page: "home" } });
 
     const flags = await store.listLeakedFlags(db, firm.id);
+    const assignees = await assigneesByFlag(db, firm.id);
 
     // Pipeline heartbeat: prove the whole thing is on, in the firm’s own nouns.
     let callsReceived = 0;
@@ -104,6 +160,9 @@ export default async function DeskHome({ searchParams }: { searchParams: SearchP
     }
 
     // Build the display leaks AND the money tally from the same source.
+    // Sampled-review provenance is derived per flag ONLY when the flag is on; when
+    // off, `provenance` is never set and the card renders exactly as today.
+    const sampledReview = isSampledReviewEnabled();
     const leaks: Leak[] = [];
     const moneyLeaks: { status: string | null; feeLowCents: number | null; feeHighCents: number | null }[] = [];
     for (const f of flags) {
@@ -111,6 +170,12 @@ export default async function DeskHome({ searchParams }: { searchParams: SearchP
       const fee = feeRangeFromRow(range);
       const shortId = String(f.id).replace(/[^a-zA-Z0-9]/g, "").slice(-4).toUpperCase();
       const status = f.save_status ?? "needs_callback";
+      const owner = assignees.get(String(f.id)) ?? null;
+      const ownerLabel = owner
+        ? currentUserId && owner.id === currentUserId
+          ? "you"
+          : owner.email ?? "a teammate"
+        : null;
       moneyLeaks.push({
         status,
         feeLowCents: fee ? fee.lowCents : null,
@@ -133,12 +198,30 @@ export default async function DeskHome({ searchParams }: { searchParams: SearchP
         phone: f.caller_phone ?? null,
         saveStatus: f.save_status ?? null,
         attempts: Number(f.attempts ?? 0),
+        assigneeUserId: owner?.id ?? null,
+        assigneeLabel: ownerLabel,
         urgency: callUrgency(f.received_at),
+        // Derived from THIS flag's own real signals (tier + citation count + fee
+        // range) via the shared classifier. Only set when the flag is on.
+        provenance: sampledReview
+          ? (provenanceForFlag({
+              tier: (f.confidence_tier as "strong" | "moderate" | null) ?? null,
+              citationCount: Number(f.citation_count ?? 0),
+              revenueCents: fee ? fee.highCents : 0,
+            }) as "analyst_reviewed" | "engine_scored")
+          : undefined,
       });
     }
 
     const { onTheTable, wonBack } = summarizeMoney(moneyLeaks);
-    const { active, done } = partitionLeaks(leaks);
+    const { active: allActive, done } = partitionLeaks(leaks);
+    // "My callbacks" vs "all" — a plain agent can focus the queue on what they
+    // own. Only meaningful when we know who is signed in and someone has claimed
+    // work; otherwise the toggle is hidden and the full queue shows as before.
+    const anyAssigned = leaks.some((l) => l.assigneeUserId);
+    const showMineToggle = Boolean(currentUserId) && anyAssigned;
+    const active =
+      mineOnly && currentUserId ? allActive.filter((l) => l.assigneeUserId === currentUserId) : allActive;
 
     return (
       <Shell firmName={firm.name}>
@@ -157,18 +240,52 @@ export default async function DeskHome({ searchParams }: { searchParams: SearchP
         ) : null}
 
         <div className="mt-6">
+          {showMineToggle ? (
+            <div className="mb-3 flex items-center gap-2 text-xs">
+              <span className="eyebrow">Show</span>
+              <a
+                href="/desk"
+                className={`rounded-pill px-3 py-1 font-semibold ${
+                  mineOnly ? "text-ink-muted hover:text-ink" : "bg-ink text-surface"
+                }`}
+              >
+                All callbacks
+              </a>
+              <a
+                href="/desk?mine=1"
+                className={`rounded-pill px-3 py-1 font-semibold ${
+                  mineOnly ? "bg-ink text-surface" : "text-ink-muted hover:text-ink"
+                }`}
+              >
+                My callbacks
+              </a>
+            </div>
+          ) : null}
           {active.length === 0 ? (
-            <QueueEmpty
-              callsReceived={callsReceived}
-              callsProcessing={callsProcessing}
-              callsFailed={callsFailed}
-            />
+            mineOnly ? (
+              <div className="rounded-card border border-hairline bg-surface p-6">
+                <h2 className="font-display text-lg font-semibold text-ink">None assigned to you right now.</h2>
+                <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
+                  Nothing is claimed under your name.{" "}
+                  <a href="/desk" className="font-semibold text-accent hover:text-accent-hover">
+                    See all callbacks
+                  </a>{" "}
+                  and claim the ones you’ll work.
+                </p>
+              </div>
+            ) : (
+              <QueueEmpty
+                callsReceived={callsReceived}
+                callsProcessing={callsProcessing}
+                callsFailed={callsFailed}
+              />
+            )
           ) : (
             <>
               <h2 className="mb-3 font-display text-lg font-semibold text-ink">
                 Call these back{" "}
                 <span className="text-ink-muted">
-                  · {active.length} to go
+                  · {active.length} to go{mineOnly ? " · yours" : ""}
                 </span>
               </h2>
               <div className="flex flex-col gap-3">

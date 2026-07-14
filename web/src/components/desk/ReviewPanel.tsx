@@ -6,8 +6,22 @@ import { useState } from "react";
 import { REVIEW_CHECKLIST } from "@/lib/leak-report/copy.mjs";
 
 type Session = { id: number | string; token: string; email: string | null; report_status: string };
+type Priority = { decision: "force_review" | "auto_eligible"; reasons: string[]; priorityScore: number };
+// When present, this panel governs a firm-pipeline statement (migration 0037/0045)
+// instead of an audit session; the release action posts the firm_statement branch.
+type StatementTarget = { firmId: number | string; period: string };
 
-export function ReviewPanel({ session }: { session: Session }) {
+export function ReviewPanel({
+  session,
+  priority,
+  statementTarget,
+  label,
+}: {
+  session: Session;
+  priority?: Priority;
+  statementTarget?: StatementTarget;
+  label?: string;
+}) {
   const [status, setStatus] = useState(session.report_status);
   const [checks, setChecks] = useState<boolean[]>(REVIEW_CHECKLIST.map(() => false));
   const [busy, setBusy] = useState(false);
@@ -19,10 +33,13 @@ export function ReviewPanel({ session }: { session: Session }) {
     setBusy(true);
     setErr(null);
     try {
+      const payload = statementTarget
+        ? { kind: "firm_statement", firmId: statementTarget.firmId, period: statementTarget.period, to, checklist }
+        : { sessionId: session.id, to, checklist };
       const r = await fetch("/api/admin/review", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ sessionId: session.id, to, checklist }),
+        body: JSON.stringify(payload),
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error ?? "Action failed.");
@@ -38,8 +55,24 @@ export function ReviewPanel({ session }: { session: Session }) {
     <div className="rounded-card border border-hairline bg-surface p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="font-display text-sm font-semibold text-ink">Session {String(session.id)}</p>
-          <p className="text-xs text-ink-muted">{session.email ?? "no email"} · token {session.token.slice(0, 8)}…</p>
+          <p className="font-display text-sm font-semibold text-ink">{label ?? `Session ${String(session.id)}`}</p>
+          <p className="text-xs text-ink-muted">
+            {statementTarget
+              ? `Monthly statement · ${statementTarget.period}`
+              : `${session.email ?? "no email"} · token ${session.token.slice(0, 8)}…`}
+          </p>
+          {priority && priority.reasons.length > 0 ? (
+            <p
+              className={`mt-1.5 inline-block rounded-pill px-2.5 py-0.5 text-xs font-semibold ${
+                priority.decision === "force_review"
+                  ? "bg-red/10 text-red"
+                  : "bg-canvas text-ink-muted"
+              }`}
+              title="Analyst triage priority — does not release the report"
+            >
+              {priority.decision === "force_review" ? "Review first" : "Low risk"} · {priority.reasons.join(" · ")}
+            </p>
+          ) : null}
         </div>
         <span className="rounded-pill bg-canvas px-2.5 py-1 text-xs font-semibold text-ink">{status.replace("_", " ")}</span>
       </div>
