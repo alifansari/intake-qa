@@ -29,6 +29,9 @@ export async function upsertCall(db, call) {
     caller_phone = null,
     caller_name = null,
     received_at = null,
+    lead_source = null,
+    lead_campaign = null,
+    attribution_json = null,
   } = call;
 
   if (external_call_id != null) {
@@ -40,13 +43,16 @@ export async function upsertCall(db, call) {
       const id = existing.rows[0].id;
       await db.query(
         `UPDATE calls
-           SET recording_url = COALESCE($1, recording_url),
-               transcript    = COALESCE($2, transcript),
-               caller_phone  = COALESCE($3, caller_phone),
-               caller_name   = COALESCE($4, caller_name),
-               received_at   = COALESCE($5, received_at)
-         WHERE id = $6`,
-        [recording_url, transcript, caller_phone, caller_name, received_at, id]
+           SET recording_url    = COALESCE($1, recording_url),
+               transcript       = COALESCE($2, transcript),
+               caller_phone     = COALESCE($3, caller_phone),
+               caller_name      = COALESCE($4, caller_name),
+               received_at      = COALESCE($5, received_at),
+               lead_source      = COALESCE($6, lead_source),
+               lead_campaign    = COALESCE($7, lead_campaign),
+               attribution_json = COALESCE($8, attribution_json)
+         WHERE id = $9`,
+        [recording_url, transcript, caller_phone, caller_name, received_at, lead_source, lead_campaign, attribution_json, id]
       );
       return { id, created: false };
     }
@@ -54,10 +60,10 @@ export async function upsertCall(db, call) {
 
   const info = await db.query(
     `INSERT INTO calls
-       (firm_id, source, external_call_id, recording_url, transcript, caller_phone, caller_name, received_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       (firm_id, source, external_call_id, recording_url, transcript, caller_phone, caller_name, received_at, lead_source, lead_campaign, attribution_json)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING id`,
-    [firm_id, source, external_call_id, recording_url, transcript, caller_phone, caller_name, received_at]
+    [firm_id, source, external_call_id, recording_url, transcript, caller_phone, caller_name, received_at, lead_source, lead_campaign, attribution_json]
   );
   return { id: info.rows[0].id, created: true };
 }

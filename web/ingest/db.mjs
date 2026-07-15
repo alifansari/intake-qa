@@ -22,6 +22,9 @@ export function upsertCall(db, call) {
     caller_phone = null,
     caller_name = null,
     received_at,
+    lead_source = null,
+    lead_campaign = null,
+    attribution_json = null,
   } = call;
 
   if (external_call_id != null) {
@@ -36,11 +39,14 @@ export function upsertCall(db, call) {
       // if the modified payload omits a field).
       db.prepare(
         `UPDATE calls
-           SET recording_url = COALESCE(?, recording_url),
-               transcript    = COALESCE(?, transcript),
-               caller_phone  = COALESCE(?, caller_phone),
-               caller_name   = COALESCE(?, caller_name),
-               received_at   = COALESCE(?, received_at)
+           SET recording_url    = COALESCE(?, recording_url),
+               transcript       = COALESCE(?, transcript),
+               caller_phone     = COALESCE(?, caller_phone),
+               caller_name      = COALESCE(?, caller_name),
+               received_at      = COALESCE(?, received_at),
+               lead_source      = COALESCE(?, lead_source),
+               lead_campaign    = COALESCE(?, lead_campaign),
+               attribution_json = COALESCE(?, attribution_json)
          WHERE id = ?`
       ).run(
         recording_url,
@@ -48,6 +54,9 @@ export function upsertCall(db, call) {
         caller_phone,
         caller_name,
         received_at ?? null,
+        lead_source,
+        lead_campaign,
+        attribution_json,
         existing.id
       );
       return { id: Number(existing.id), created: false };
@@ -57,8 +66,8 @@ export function upsertCall(db, call) {
   const info = db
     .prepare(
       `INSERT INTO calls
-         (firm_id, source, external_call_id, recording_url, transcript, caller_phone, caller_name, received_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+         (firm_id, source, external_call_id, recording_url, transcript, caller_phone, caller_name, received_at, lead_source, lead_campaign, attribution_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       firm_id,
@@ -68,7 +77,10 @@ export function upsertCall(db, call) {
       transcript,
       caller_phone,
       caller_name,
-      received_at
+      received_at,
+      lead_source,
+      lead_campaign,
+      attribution_json
     );
   return { id: Number(info.lastInsertRowid), created: true };
 }

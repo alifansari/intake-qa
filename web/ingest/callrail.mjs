@@ -127,6 +127,28 @@ export function parseCallRailPayload(payload) {
   const received_at =
     p.start_time ?? p.created_at ?? p.received_at ?? new Date().toISOString();
 
+  // Marketing attribution: CallRail sends these on the call payload; the mapper
+  // used to drop them. Kept so we can attribute SIGNABLE value to lead source.
+  // Marketing metadata only — no claimant PII (§VI).
+  const lead_source =
+    p.source_name ?? p.formatted_tracking_source ?? p.lead_source ?? p.utm_source ?? null;
+  const lead_campaign = p.campaign ?? p.utm_campaign ?? null;
+  const attribution = {
+    source_name: p.source_name ?? null,
+    tracking_source: p.formatted_tracking_source ?? null,
+    campaign: p.campaign ?? null,
+    utm_source: p.utm_source ?? null,
+    utm_medium: p.utm_medium ?? null,
+    utm_campaign: p.utm_campaign ?? null,
+    utm_term: p.utm_term ?? null,
+    keywords: p.keywords ?? null,
+    gclid: p.gclid ?? null,
+    tracking_number: p.tracking_phone_number ?? null,
+    landing_page: p.landing_page_url ?? null,
+    referrer: p.referrer ?? null,
+  };
+  const hasAttribution = Object.values(attribution).some((v) => v != null);
+
   return {
     source: "callrail",
     external_call_id: external_call_id != null ? String(external_call_id) : null,
@@ -135,6 +157,9 @@ export function parseCallRailPayload(payload) {
     caller_phone,
     caller_name,
     received_at,
+    lead_source: lead_source != null ? String(lead_source) : null,
+    lead_campaign: lead_campaign != null ? String(lead_campaign) : null,
+    attribution_json: hasAttribution ? JSON.stringify(attribution) : null,
   };
 }
 
