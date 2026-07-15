@@ -1315,6 +1315,17 @@ export async function listNonAnalyzedCalls(db, firmId) {
 // --- Per-call analysis (migration 0040) --------------------------------------
 // Postgres twins of the SQLite call_analyses functions. Same shapes.
 
+export async function listCallsWithSourceForSignal(db, firmId) {
+  const r = await db.query(
+    `SELECT c.lead_source, c.lead_campaign, ca.case_signability, ca.revenue_at_risk_cents
+       FROM calls c
+       JOIN call_analyses ca ON ca.call_id = c.id
+      WHERE c.firm_id = $1`,
+    [firmId]
+  );
+  return r.rows;
+}
+
 export async function upsertCallAnalysis(db, a) {
   await db.query(
     `INSERT INTO call_analyses (

@@ -47,6 +47,9 @@ export default async function DeskLayout({ children }: { children: React.ReactNo
                 <Link href="/desk/scorecard" className="text-ink-muted hover:text-ink">
                   Scorecard
                 </Link>
+                <Link href="/desk/signal" className="text-ink-muted hover:text-ink">
+                  Marketing
+                </Link>
                 <Link href="/desk/team" className="text-ink-muted hover:text-ink">
                   Team
                 </Link>

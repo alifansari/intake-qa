@@ -85,6 +85,22 @@ export function upsertCall(db, call) {
   return { id: Number(info.lastInsertRowid), created: true };
 }
 
+// Marketing Signal source: scored calls joined to their lead source. Marketing
+// metadata + signability only — no caller PII leaves the row.
+export function listCallsWithSourceForSignal(db, firmId) {
+  return db
+    .prepare(
+      `SELECT c.lead_source AS lead_source,
+              c.lead_campaign AS lead_campaign,
+              ca.case_signability AS case_signability,
+              ca.revenue_at_risk_cents AS revenue_at_risk_cents
+         FROM calls c
+         JOIN call_analyses ca ON ca.call_id = c.id
+        WHERE c.firm_id = ?`
+    )
+    .all(firmId);
+}
+
 // Persist a transcript onto an existing call (used after AssemblyAI runs).
 export function setTranscript(db, callId, transcript) {
   db.prepare("UPDATE calls SET transcript = ? WHERE id = ?").run(
