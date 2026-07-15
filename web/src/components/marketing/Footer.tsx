@@ -6,6 +6,7 @@ import { CARTA_READY, COPYRIGHT_YEAR, CTA_PRIMARY } from "@/lib/site-constants";
 // (CARTA_READY) — we never link a page that says "Próximamente".
 const LINKS = [
   { href: "/apply", label: "Apply for the beta" },
+  { href: "/insights", label: "Insights" },
   { href: "/letter", label: "The letter" },
   ...(CARTA_READY ? [{ href: "/carta", label: "La carta (español)" }] : []),
   { href: "/accuracy", label: "Accuracy" },

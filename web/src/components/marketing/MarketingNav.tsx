@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/pricing", label: "Pricing" },
   { href: "/compliance", label: "Compliance" },
   { href: "/faq", label: "FAQ" },
+  { href: "/insights", label: "Insights" },
 ];
 
 export function MarketingNav() {
