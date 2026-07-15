@@ -69,6 +69,11 @@ export function CoachClient() {
   // all-party consent AND a ConsentEvent is written server-side.
   const [consentChecked, setConsentChecked] = useState(false);
   const [consentBusy, setConsentBusy] = useState(false);
+  // Caller language: drives speech recognition AND the language of the line the
+  // specialist is coached to say. Set before the call starts.
+  const [lang, setLang] = useState<"en" | "es">("en");
+  const langRef = useRef(lang);
+  useEffect(() => { langRef.current = lang; }, [lang]);
 
   const CONSENT_STATEMENT =
     "All parties on this call have consented to recording and analysis under CA Penal Code §632";
@@ -106,7 +111,7 @@ export function CoachClient() {
       const res = await fetch("/api/coach", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "live", transcript: body, elapsed: mmss(elapsed) }),
+        body: JSON.stringify({ mode: "live", transcript: body, elapsed: mmss(elapsed), lang: langRef.current }),
       });
       const data = await res.json();
       if (!res.ok || data?.error) {
@@ -166,7 +171,7 @@ export function CoachClient() {
     const recog = new SR();
     recog.continuous = true;
     recog.interimResults = true;
-    recog.lang = "en-US";
+    recog.lang = langRef.current === "es" ? "es-US" : "en-US";
     recog.onresult = (ev: any) => {
       let interimText = "";
       for (let i = ev.resultIndex; i < ev.results.length; i++) {
@@ -210,7 +215,7 @@ export function CoachClient() {
       const res = await fetch("/api/coach", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "final", transcript: formatTranscript(rows), elapsed: mmss(elapsed) }),
+        body: JSON.stringify({ mode: "final", transcript: formatTranscript(rows), elapsed: mmss(elapsed), lang: langRef.current }),
       });
       const data = await res.json();
       if (res.ok && !data?.error) setFinalReport(data);
@@ -305,6 +310,25 @@ export function CoachClient() {
               {CONSENT_STATEMENT}.
             </span>
           </label>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 18 }}>
+            <span style={{ fontSize: 12, color: T.inkMuted }}>Caller speaks</span>
+            {(["en", "es"] as const).map((L) => (
+              <button
+                key={L}
+                type="button"
+                onClick={() => setLang(L)}
+                className="coach-btn"
+                style={{
+                  padding: "5px 12px", fontSize: 12, borderRadius: 8,
+                  background: lang === L ? T.navy : T.paper,
+                  color: lang === L ? "#fff" : T.ink,
+                  border: `1px solid ${lang === L ? T.navy : T.lineStrong}`, cursor: "pointer",
+                }}
+              >
+                {L === "en" ? "English" : "Español"}
+              </button>
+            ))}
+          </div>
           <div>
             <button className="coach-btn"
               style={{ background: consentChecked ? T.accent : T.lineStrong, color: "#fff",

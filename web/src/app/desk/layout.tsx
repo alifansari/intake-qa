@@ -36,6 +36,9 @@ export default async function DeskLayout({ children }: { children: React.ReactNo
             >
               Live triage
             </Link>
+            <Link href="/desk/coach" className="text-ink-muted hover:text-ink">
+              Coach
+            </Link>
             <Link href="/desk/calibration" className="text-ink-muted hover:text-ink">
               Our accuracy
             </Link>

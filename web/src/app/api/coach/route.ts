@@ -92,7 +92,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "analysis_unconfigured" }, { status: 503 });
   }
 
-  let payload: { mode?: string; transcript?: string; elapsed?: string };
+  let payload: { mode?: string; transcript?: string; elapsed?: string; lang?: string };
   try {
     payload = await req.json();
   } catch {
@@ -107,10 +107,19 @@ export async function POST(req: Request) {
     transcript = transcript.slice(-LIVE_TRANSCRIPT_CHARS);
   }
 
+  // Bilingual assist: when the caller is Spanish-speaking, the line the
+  // specialist says aloud (next_move.say / model_utterance) must be natural
+  // Spanish; the coaching rationale stays in the specialist's working language
+  // (English) so a bilingual or offshore agent can act on it instantly.
+  const isSpanish = payload.lang === "es";
+  const langNote = isSpanish
+    ? `\n\nThe CALLER is Spanish-speaking. Write the line the specialist says aloud (next_move.say, and model_utterance in the final scorecard) as a natural SPANISH line. Keep every other field — why, factor states, scores, all analysis — in English.`
+    : "";
+
   const system = isFinal ? FINAL_SYSTEM_PROMPT : LIVE_SYSTEM_PROMPT;
   const user = isFinal
-    ? `${GOLD_ANCHORS}\n\nFINAL TRANSCRIPT (duration ${elapsed}):\n\n${transcript}\n\nReturn the final scorecard JSON.`
-    : `${GOLD_ANCHORS}\n\nLIVE TRANSCRIPT SO FAR (call time ${elapsed}):\n\n${transcript}\n\nReturn the live state JSON now.`;
+    ? `${GOLD_ANCHORS}${langNote}\n\nFINAL TRANSCRIPT (duration ${elapsed}):\n\n${transcript}\n\nReturn the final scorecard JSON.`
+    : `${GOLD_ANCHORS}${langNote}\n\nLIVE TRANSCRIPT SO FAR (call time ${elapsed}):\n\n${transcript}\n\nReturn the live state JSON now.`;
 
   try {
     const client = new Anthropic({ apiKey });
