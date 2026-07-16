@@ -65,6 +65,10 @@ const WM_STUCK = "alerts.stuck_state";
 // the digest is the pulse of real activity, not every page view. apply_submitted
 // is excluded here because it already has its own richer dedicated section.
 const ACTIVITY_ORDER = [
+  // First on purpose: a missed inbound lead is the only activity line that is
+  // still winnable RIGHT NOW (most PI clients sign with whoever calls back
+  // first), so it leads the sweep.
+  "call_missed",
   "firm_created",
   "upload_completed",
   "score_completed",
@@ -72,6 +76,7 @@ const ACTIVITY_ORDER = [
   "audit_completed",
 ];
 const ACTIVITY_LABELS = {
+  call_missed: "MISSED CALL — call back now",
   firm_created: "New firm added",
   upload_completed: "New call uploaded",
   score_completed: "Call scored",
@@ -231,6 +236,14 @@ function activityLine(ev, { firmName, now }) {
   const who = ev.firm_id != null ? firmName(ev.firm_id) : "public";
   const age = ev.created_at ? ` (${ageFromIso(ev.created_at, now)} ago)` : "";
   switch (ev.event) {
+    case "call_missed": {
+      // The whole point is a human dialing back fast, so lead with the number.
+      const num = c.caller_phone ? esc(c.caller_phone) : "number unknown";
+      const name = c.caller_name ? ` (${esc(c.caller_name)})` : "";
+      const via = c.lead_source ? ` — via ${esc(c.lead_source)}` : "";
+      const kind = c.call_type ? ` [${esc(c.call_type)}]` : "";
+      return `${who} — ${num}${name}${via}${kind}${age}`;
+    }
     case "firm_created":
       return `${c.name ?? who}${age}`;
     case "score_completed": {

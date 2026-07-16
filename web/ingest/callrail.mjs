@@ -3,7 +3,7 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
-import { upsertCall } from "./store.mjs";
+import { upsertCall, recordEvent } from "./store.mjs";
 
 // P1(b): CallRail payloads are attacker-influencable (a spoofed webhook body, or
 // a benign but malformed one). Validate the shape after JSON.parse; a call that
@@ -149,6 +149,16 @@ export function parseCallRailPayload(payload) {
   };
   const hasAttribution = Object.values(attribution).some((v) => v != null);
 
+  // Answer status — the missed-call pager's signal. CallRail sends this on the
+  // post-call webhook (`answered: false`, `call_type: 'voicemail' | 'missed'`),
+  // so no pre_call configuration is needed to know a lead went unanswered.
+  const answered = typeof p.answered === "boolean" ? p.answered : null;
+  const call_type = p.call_type ?? null;
+  const direction = p.direction ?? null;
+  const durationRaw = p.duration;
+  const durationNum = durationRaw == null ? NaN : Number(durationRaw);
+  const duration_seconds = Number.isFinite(durationNum) ? Math.trunc(durationNum) : null;
+
   return {
     source: "callrail",
     external_call_id: external_call_id != null ? String(external_call_id) : null,
@@ -157,6 +167,10 @@ export function parseCallRailPayload(payload) {
     caller_phone,
     caller_name,
     received_at,
+    answered,
+    call_type: call_type != null ? String(call_type) : null,
+    direction: direction != null ? String(direction) : null,
+    duration_seconds,
     lead_source: lead_source != null ? String(lead_source) : null,
     lead_campaign: lead_campaign != null ? String(lead_campaign) : null,
     attribution_json: hasAttribution ? JSON.stringify(attribution) : null,
@@ -167,6 +181,13 @@ export function parseCallRailPayload(payload) {
 // can return 401 (the error carries `formatsTried` so routes can log loudly
 // which formats were attempted). Returns the upsertCall result ({ id, created })
 // plus `signature_format` (which format verified).
+// The pager's predicate, pure and testable: an INBOUND call CallRail reports as
+// unanswered is a lead that rang and nobody picked up. Outbound calls and calls
+// with an unknown answer status (manual uploads) are never "missed".
+export function isMissedInboundCall(fields = {}) {
+  return fields.direction === "inbound" && fields.answered === false;
+}
+
 export async function ingestCallRail({ db, rawBody, signature, secret, firmId }) {
   const signatureFormat = matchCallRailSignature(rawBody, signature, secret);
   if (!signatureFormat) {
@@ -199,5 +220,34 @@ export async function ingestCallRail({ db, rawBody, signature, secret, firmId })
   // Keep the raw value out of the DB when it can't be normalized (null instead).
   fields.caller_phone = normalizeE164(fields.caller_phone);
   const result = await upsertCall(db, { firm_id: firmId, ...fields });
-  return { ...result, signature_format: signatureFormat };
+
+  // MISSED-CALL PAGER: a lead rang and nobody picked up. Record it the moment we
+  // learn of it so the founder-activity sweep pings in minutes instead of the
+  // miss only surfacing in the next-morning digest. Only on FIRST ingest
+  // (`created`) so a later modified-call webhook can't re-page the same miss.
+  // Best-effort: a pager failure must never fail the webhook (CallRail would
+  // retry and re-ingest). This records an INTERNAL event for the firm's own
+  // staff — it contacts no claimant and is not outreach (§III).
+  if (result.created && isMissedInboundCall(fields)) {
+    try {
+      await recordEvent(db, {
+        event: "call_missed",
+        firm_id: firmId,
+        actor: "callrail",
+        context: {
+          call_id: result.id,
+          caller_phone: fields.caller_phone ?? null,
+          caller_name: fields.caller_name ?? null,
+          lead_source: fields.lead_source ?? null,
+          call_type: fields.call_type ?? null,
+          duration_seconds: fields.duration_seconds ?? null,
+        },
+      });
+    } catch {
+      // Swallow: the miss is still persisted on the call row and the daily
+      // digest remains the backstop.
+    }
+  }
+
+  return { ...result, missed: isMissedInboundCall(fields), signature_format: signatureFormat };
 }

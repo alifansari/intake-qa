@@ -25,7 +25,14 @@ export function upsertCall(db, call) {
     lead_source = null,
     lead_campaign = null,
     attribution_json = null,
+    answered = null,
+    call_type = null,
+    direction = null,
+    duration_seconds = null,
   } = call;
+
+  // SQLite has no boolean type and better-sqlite3 rejects JS booleans.
+  const answeredInt = answered == null ? null : answered ? 1 : 0;
 
   if (external_call_id != null) {
     const existing = db
@@ -46,7 +53,11 @@ export function upsertCall(db, call) {
                received_at      = COALESCE(?, received_at),
                lead_source      = COALESCE(?, lead_source),
                lead_campaign    = COALESCE(?, lead_campaign),
-               attribution_json = COALESCE(?, attribution_json)
+               attribution_json = COALESCE(?, attribution_json),
+               answered         = COALESCE(?, answered),
+               call_type        = COALESCE(?, call_type),
+               direction        = COALESCE(?, direction),
+               duration_seconds = COALESCE(?, duration_seconds)
          WHERE id = ?`
       ).run(
         recording_url,
@@ -57,6 +68,10 @@ export function upsertCall(db, call) {
         lead_source,
         lead_campaign,
         attribution_json,
+        answeredInt,
+        call_type,
+        direction,
+        duration_seconds,
         existing.id
       );
       return { id: Number(existing.id), created: false };
@@ -66,8 +81,8 @@ export function upsertCall(db, call) {
   const info = db
     .prepare(
       `INSERT INTO calls
-         (firm_id, source, external_call_id, recording_url, transcript, caller_phone, caller_name, received_at, lead_source, lead_campaign, attribution_json)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+         (firm_id, source, external_call_id, recording_url, transcript, caller_phone, caller_name, received_at, lead_source, lead_campaign, attribution_json, answered, call_type, direction, duration_seconds)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       firm_id,
@@ -80,7 +95,11 @@ export function upsertCall(db, call) {
       received_at,
       lead_source,
       lead_campaign,
-      attribution_json
+      attribution_json,
+      answeredInt,
+      call_type,
+      direction,
+      duration_seconds
     );
   return { id: Number(info.lastInsertRowid), created: true };
 }

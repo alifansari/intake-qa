@@ -28,6 +28,11 @@ export const EVENT_TYPES = Object.freeze([
   "apply_submitted",
   "firm_created",
   "score_completed",
+  // call_missed: recorded at ingest when CallRail reports an INBOUND call that
+  // went unanswered (answered=false / voicemail). Drives the missed-call pager —
+  // the founder-activity sweep turns it into a near-real-time ping instead of a
+  // next-morning digest line (SQLite 0039 / Postgres 0047).
+  "call_missed",
 ]);
 
 export function isEventType(name) {
