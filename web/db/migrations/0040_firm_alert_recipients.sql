@@ -1,0 +1,13 @@
+-- Per-firm alert recipients (SQLite dialect).
+--
+-- Postgres twin: web/supabase/migrations/0048_firm_alert_recipients.sql.
+--
+-- WHY: the missed-call pager and the daily digest need to reach the firm's OWN
+-- intake team, at an address they choose (a shared intake inbox / on-call
+-- address), not just whoever holds a login. Settings previously showed a
+-- notifications "promise" with no form because the old inputs persisted nowhere.
+-- This gives that control something real to write to.
+--
+-- Nullable by design: unset = fall back to member emails (existing behaviour).
+-- Stored as a normalized comma-separated list (see messaging/alert-recipients.mjs).
+ALTER TABLE firms ADD COLUMN alert_emails TEXT;

@@ -47,6 +47,7 @@ export const setConversationOptedOut = wrap("setConversationOptedOut");
 export const addInboundMessage = wrap("addInboundMessage");
 export const setFirmKillSwitch = wrap("setFirmKillSwitch");
 export const setFirmCallRailSecret = wrap("setFirmCallRailSecret");
+export const setFirmAlertEmails = wrap("setFirmAlertEmails");
 export const setConversationStatus = wrap("setConversationStatus");
 export const createHandoff = wrap("createHandoff");
 export const getHandoff = wrap("getHandoff");

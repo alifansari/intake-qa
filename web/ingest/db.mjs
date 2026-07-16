@@ -360,6 +360,16 @@ export function setFirmCallRailSecret(db, firmId, secret) {
 }
 
 // Flip the per-firm kill switch (operator halt). firmId=null flips ALL firms.
+// Who this firm's pager + digest reach. Store the normalized list (or null to
+// clear, which falls the firm back to member emails). Not a secret — these are
+// the firm's own staff addresses — so no encryption at rest.
+export function setFirmAlertEmails(db, firmId, emails) {
+  const info = db
+    .prepare("UPDATE firms SET alert_emails = ? WHERE id = ?")
+    .run(emails ?? null, firmId);
+  return Number(info.changes) > 0;
+}
+
 export function setFirmKillSwitch(db, firmId, on) {
   const val = on ? 1 : 0;
   if (firmId == null) {

@@ -276,6 +276,16 @@ export async function addInboundMessage(db, { conversation_id, body }) {
 
 // Per-firm CallRail signing secret (supabase migration 0034). Pass null to
 // clear (falls back to the shared env secret). Returns true when a row updated.
+// Who this firm's pager + digest reach. Null clears it (falls back to member
+// emails). Not a secret — the firm's own staff addresses — so no encryption.
+export async function setFirmAlertEmails(db, firmId, emails) {
+  const r = await db.query(
+    "UPDATE firms SET alert_emails = $1 WHERE id = $2",
+    [emails ?? null, firmId],
+  );
+  return (r.rowCount ?? 0) > 0;
+}
+
 export async function setFirmCallRailSecret(db, firmId, secret) {
   // Encrypt at rest — the signing key can forge valid webhook signatures, so it
   // must never be stored as plaintext where a DB dump would expose it.

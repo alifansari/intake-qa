@@ -6,7 +6,7 @@
 // CASCADE + receipt land with the security gate (item 10); the control
 // surfaces the promise honestly and does not fake a deletion.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HowCallsArrive, ForwardToPhonePerson } from "@/components/desk/HowCallsArrive";
 
 export function SettingsClient({
@@ -127,16 +127,15 @@ export function SettingsClient({
         <SetPassword />
       </section>
 
-      {/* Notifications — a promise, not a form. The old inputs here weren’t
-          persisted anywhere (a silent no-op is worse than no control); until
-          prefs are real, we state plainly what happens and how to change it. */}
+      {/* Notifications — now a real, persisted control (it used to be a promise
+          because the old inputs saved nowhere). */}
+      <AlertRecipients />
       <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
-        <h2 className="font-display text-lg font-semibold text-ink">Notifications</h2>
+        <h2 className="font-display text-lg font-semibold text-ink">Notification rhythm</h2>
         <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
-          You don’t need to check the desk. Once your calls are connected, a daily digest goes
-          to your sign-in email each morning &mdash; even on all-clear days, so silence never means
-          &ldquo;broken.&rdquo; Want a different address, more people on it, or a different rhythm?
-          Email{" "}
+          You don’t need to check the desk. A missed caller pages the addresses above within
+          minutes, and a daily digest goes out each morning &mdash; even on all-clear days, so
+          silence never means &ldquo;broken.&rdquo; Want a different rhythm? Email{" "}
           <a href="mailto:ali@plaintiffops.com" className="font-medium text-accent hover:text-accent-hover">
             ali@plaintiffops.com
           </a>{" "}
@@ -204,6 +203,82 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+
+// Who gets paged. Real and persisted — this control used to be a paragraph
+// because the old inputs saved nowhere.
+function AlertRecipients() {
+  const [raw, setRaw] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/desk/alert-recipients");
+        const data = await res.json();
+        if (alive && res.ok) setRaw(String(data.raw ?? ""));
+      } catch {
+        // Leave the box empty; saving still works.
+      } finally {
+        if (alive) setLoaded(true);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  async function save() {
+    setBusy(true); setMsg(null);
+    try {
+      const res = await fetch("/api/desk/alert-recipients", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emails: raw }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setMsg(data?.error ?? "Could not save."); return; }
+      setMsg(
+        data.emails?.length
+          ? `Saved ✓ — ${data.emails.length} address${data.emails.length === 1 ? "" : "es"} will be paged.`
+          : "Cleared ✓ — alerts fall back to your sign-in email.",
+      );
+    } catch {
+      setMsg("Could not save.");
+    } finally { setBusy(false); }
+  }
+
+  return (
+    <section className="mt-4 rounded-card border border-hairline bg-surface p-6">
+      <h2 className="font-display text-lg font-semibold text-ink">Who gets alerted</h2>
+      <p className="mt-2 max-w-[70ch] text-sm text-ink-muted">
+        When a caller rings and nobody picks up, we page these addresses within minutes &mdash;
+        because the firm that calls back first usually signs the case. Use a shared intake inbox
+        or your on-call address. Separate several with commas. Leave it empty and we&rsquo;ll fall
+        back to your sign-in email.
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <input
+          type="text"
+          value={raw}
+          onChange={(e) => setRaw(e.target.value)}
+          disabled={!loaded}
+          placeholder="intake@yourfirm.com, oncall@yourfirm.com"
+          className="w-96 max-w-full rounded-base border border-hairline bg-canvas px-3 py-1.5 text-sm text-ink disabled:opacity-60"
+        />
+        <button
+          type="button"
+          onClick={save}
+          disabled={busy || !loaded}
+          className="rounded-pill border border-hairline px-4 py-1.5 text-sm font-semibold text-ink hover:border-accent disabled:opacity-60"
+        >
+          {busy ? "Saving…" : "Save"}
+        </button>
+        {msg ? <span className="text-xs text-ink-muted">{msg}</span> : null}
+      </div>
+    </section>
+  );
+}
 
 function SetPassword() {
   const [pw, setPw] = useState("");

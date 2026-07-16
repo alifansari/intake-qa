@@ -18,6 +18,7 @@
 import { getCurrentUser } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { sendMissedDigest as sendMissedDigestUntyped } from "../../../../../messaging/missed-digest.mjs";
+import { resolveAlertRecipients } from "../../../../../messaging/alert-recipients.mjs";
 
 // The .mjs module carries no types; give the one call site an explicit shape.
 const sendMissedDigest = sendMissedDigestUntyped as unknown as (opts: {
@@ -104,7 +105,14 @@ async function run(req: Request) {
     const firms = await store.listFirms(db);
     for (const firm of firms ?? []) {
       try {
-        const recipients = await memberEmails(db, firm.id);
+        // The firm's chosen recipients win (a shared intake inbox / on-call
+        // address); fall back to whoever holds a login. memberEmails() is
+        // Postgres-only, so on SQLite the explicit list is the ONLY way a firm
+        // gets a digest at all.
+        const recipients = resolveAlertRecipients({
+          alertEmails: (firm as { alert_emails?: string | null }).alert_emails ?? null,
+          fallback: await memberEmails(db, firm.id),
+        });
         const res = await sendMissedDigest({ store, db, firm, recipients });
         results.push({ firm: firm.id, ...res });
         // First-party event log: a digest actually EMAILED (mode live) counts
