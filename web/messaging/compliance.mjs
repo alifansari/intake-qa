@@ -68,14 +68,65 @@ export function localHour(now, timezone) {
   }
 }
 
-// Opt-out keyword detection (FCC/CTIA standard set + Spanish equivalents, since
-// PI intake is often Spanish-speaking). Case-insensitive, matched as a standalone
-// word/phrase so "stopping by" does NOT trigger an opt-out. Spanish keywords:
-// ALTO (stop), CANCELAR (cancel), PARAR (stop), NO. We err toward honoring an
-// opt-out (a false positive just means we don't text — the compliance-safe side).
-const OPT_OUT_RE =
-  /(^|\W)(stop|unsubscribe|cancel|quit|end|revoke|opt\s*out|alto|cancelar|parar|no)(\W|$)/i;
+// Revocation detection — 47 C.F.R. § 64.1200(a)(10), IN FORCE NOW.
+//
+// The rule requires honoring revocation made "through any reasonable means" and
+// EXPRESSLY FORBIDS designating an exclusive means. Keyword-only matching is
+// therefore under-enforcement: it misses the revocations a reasonable person
+// plainly makes without ever typing a magic word — "leave me alone", "take me
+// off your list", "I have an attorney", "don't text me", "not interested".
+// FCC 24-24 ¶ 11 treats the seven per se words as "absolute proof"; ¶¶ 30-32 add
+// the reasonable-person catch-all for everything else.
+//
+// We err toward honoring: a false positive only means we don't text, which is
+// always the compliance-safe side. Matched as standalone words so "stopping by"
+// does not trigger.
 
+// The seven per se words (+ Spanish equivalents — PI intake is often
+// Spanish-speaking, and the rule is about what a reasonable person conveyed,
+// not about which language they conveyed it in).
+const PER_SE_RE =
+  /(^|\W)(stop|unsubscribe|cancel|quit|end|revoke|opt\s*out|alto|cancelar|parar|basta|no)(\W|$)/i;
+
+// The reasonable-person catch-all. Everything here is a revocation a court would
+// find obvious and a keyword matcher would miss entirely.
+const REASONABLE_PERSON_RE = new RegExp(
+  [
+    "leave me alone",
+    "take me off",
+    "remove me",
+    "delete my number",
+    "lose my number",
+    "(do ?n'?o?t|dont|stop) (call|text|contact|messag|bother|reach)",
+    "no more (calls|texts|messages|contact)",
+    "not interested",
+    "(i|we) (already )?(got|have|hired|retained) (a|an|another) (lawyer|attorney|firm)",
+    "(i'?m|i am) (already )?represented",
+    "wrong number",
+    // Spanish
+    "d[eé]jame en paz",
+    "no me (llamen?|escriban?|contacten?|moleste)",
+    "ya tengo (un )?abogado",
+  ].join("|"),
+  "i",
+);
+
+// Returns the full revocation read: whether it revoked, and on what basis, so
+// the ledger can record the BASIS and the VERBATIM text (the reasonable-person
+// test is applied to the person's actual words — a boolean cannot be defended).
+export function detectRevocation(text) {
+  const raw = String(text ?? "");
+  if (PER_SE_RE.test(raw)) {
+    return { revoked: true, basis: "per_se_keyword", verbatim: raw };
+  }
+  if (REASONABLE_PERSON_RE.test(raw)) {
+    return { revoked: true, basis: "reasonable_person", verbatim: raw };
+  }
+  return { revoked: false, basis: null, verbatim: raw };
+}
+
+// Back-compat boolean for existing callers. New code should prefer
+// detectRevocation() so the basis + verbatim survive into the record.
 export function detectOptOut(text) {
-  return OPT_OUT_RE.test(String(text ?? ""));
+  return detectRevocation(text).revoked;
 }
