@@ -104,6 +104,20 @@ export function triageQueueSort(rows) {
   });
 }
 
+// B-029 — the ASYMMETRIC OVERRIDE (cockpit-spec). A deterministic engine is only
+// trustworthy if a human can overrule it — but overruling toward a NO is where
+// accountability matters. Escalating toward caution (keep a marginal case alive,
+// send to attorney) is FREE; DECLINING/REFERRING a case the engine graded VIABLE
+// (sign_now / develop) is an OVERRIDE that must carry a logged reason. That
+// reason is both the accountability record and the "which of your no's went
+// against the engine" dataset (the decline-capture moat). Returns true when the
+// move needs the reason gate.
+export function isEngineOverride(disposition, toStatus) {
+  const viable = disposition === "sign_now" || disposition === "develop";
+  const declineDirection = toStatus === "declined" || toStatus === "referred";
+  return viable && declineDirection;
+}
+
 // A one-line "why call now" for a queue card.
 export function urgencyReason(row) {
   if (row.attorney_review) return "Attorney review flagged";

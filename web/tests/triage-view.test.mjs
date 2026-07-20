@@ -10,6 +10,7 @@ import {
   solTone,
   liveUrgency,
   withLiveUrgency,
+  isEngineOverride,
 } from "../src/lib/desk/triage-view.mjs";
 
 const row = (status, sol_urgency, extra = {}) => ({ status, sol_urgency, ...extra });
@@ -86,6 +87,22 @@ test("liveUrgency recomputes bands from the deadline date", () => {
   assert.equal(liveUrgency("2026-05-01", now), "expired"); // past
   assert.equal(liveUrgency(null, now), "unknown");
   assert.equal(liveUrgency("not-a-date", now), "unknown");
+});
+
+// ---- B-029: the asymmetric override gate --------------------------------
+
+test("isEngineOverride gates ONLY a decline-direction move on an engine-viable case", () => {
+  // Overruling toward a NO on a viable case -> gated (needs a logged reason).
+  assert.equal(isEngineOverride("sign_now", "declined"), true);
+  assert.equal(isEngineOverride("sign_now", "referred"), true);
+  assert.equal(isEngineOverride("develop", "declined"), true);
+  // Escalating toward caution is FREE (never gated).
+  assert.equal(isEngineOverride("sign_now", "callback"), false);
+  assert.equal(isEngineOverride("sign_now", "contacted"), false);
+  assert.equal(isEngineOverride("sign_now", "signed"), false);
+  // Declining a case the engine ALSO declined/referred = agreeing, not overriding.
+  assert.equal(isEngineOverride("decline_with_grace", "declined"), false);
+  assert.equal(isEngineOverride("refer_out", "referred"), false);
 });
 
 test("withLiveUrgency overrides a STALE stored urgency from the deadline", () => {

@@ -23,6 +23,7 @@ import {
   urgencyReason,
   dispositionPlain,
   valueTierPlain,
+  isEngineOverride,
 } from "@/lib/desk/triage-view.mjs";
 import { CALIBRATION_SAMPLES, calibrateProfile } from "@/lib/desk/calibration.mjs";
 
@@ -158,13 +159,23 @@ export function TriageConsole({
     }
   }
 
-  async function setStatus(id: unknown, status: string, signedWhere?: "us" | "elsewhere") {
+  async function setStatus(
+    id: unknown,
+    status: string,
+    signedWhere?: "us" | "elsewhere",
+    declineReason?: string | null,
+  ) {
     setQueue((q) => q.map((r) => (r.id === id ? { ...r, status } : r)));
     try {
       await fetch("/api/desk/triage", {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id, status, signed_where: signedWhere ?? null }),
+        body: JSON.stringify({
+          id,
+          status,
+          signed_where: signedWhere ?? null,
+          decline_reason: declineReason ?? null,
+        }),
       });
     } catch {
       /* optimistic */
@@ -507,11 +518,36 @@ function Verdict({ verdict }: { verdict: Record<string, unknown> }) {
   );
 }
 
-function QueueCard({ row, onStatus }: { row: QueueRow; onStatus: (id: unknown, s: string, signedWhere?: "us" | "elsewhere") => void }) {
+function QueueCard({
+  row,
+  onStatus,
+}: {
+  row: QueueRow;
+  onStatus: (id: unknown, s: string, signedWhere?: "us" | "elsewhere", declineReason?: string | null) => void;
+}) {
   const status = String(row.status || "new");
   const style = dispoStyle(String(row.disposition));
   const reason = urgencyReason(row);
   const st = solTone(String(row.sol_urgency));
+  // B-029 asymmetric override: overruling the engine toward a NO on a case it
+  // graded viable opens a REQUIRED one-line reason (logged); every other move
+  // stays one-tap. `pending` is the decline-direction status awaiting its reason.
+  const [pending, setPending] = useState<string | null>(null);
+  const [why, setWhy] = useState("");
+  const engineCall = dispositionPlain(String(row.disposition));
+  function move(to: string, signedWhere?: "us" | "elsewhere") {
+    if (isEngineOverride(String(row.disposition), to)) {
+      setPending(to);
+      return;
+    }
+    onStatus(row.id, to, signedWhere);
+  }
+  function confirmOverride() {
+    if (!pending || why.trim().length < 3) return;
+    onStatus(row.id, pending, undefined, why.trim());
+    setPending(null);
+    setWhy("");
+  }
   return (
     <div className="rounded-card border border-hairline bg-surface p-4">
       <div className="flex items-start gap-3">
@@ -539,13 +575,13 @@ function QueueCard({ row, onStatus }: { row: QueueRow; onStatus: (id: unknown, s
             // calibration loop needs to tell a real save from a case we lost.
             <span key={n.to} className="inline-flex overflow-hidden rounded-base border border-line-strong">
               <button
-                onClick={() => onStatus(row.id, "signed", "us")}
+                onClick={() => move("signed", "us")}
                 className="px-2.5 py-1 text-xs font-semibold text-accent hover:bg-canvas"
               >
                 Signed · with us
               </button>
               <button
-                onClick={() => onStatus(row.id, "signed", "elsewhere")}
+                onClick={() => move("signed", "elsewhere")}
                 className="border-l border-line-strong px-2.5 py-1 text-xs text-ink-muted hover:bg-canvas"
               >
                 elsewhere
@@ -554,7 +590,7 @@ function QueueCard({ row, onStatus }: { row: QueueRow; onStatus: (id: unknown, s
           ) : (
             <button
               key={n.to}
-              onClick={() => onStatus(row.id, n.to)}
+              onClick={() => move(n.to)}
               className="rounded-base border border-line-strong px-2.5 py-1 text-xs text-ink hover:bg-canvas"
             >
               {n.label}
@@ -562,6 +598,49 @@ function QueueCard({ row, onStatus }: { row: QueueRow; onStatus: (id: unknown, s
           ),
         )}
       </div>
+
+      {/* B-029 — the override gate: overruling the engine toward a NO on a case
+          it graded viable requires a one-line reason. The reason is logged
+          (decline_reason), trains calibration, and IS the "which of your no's
+          went against the engine" dataset. Escalating toward caution never gates. */}
+      {pending ? (
+        <div className="mt-3 rounded-base border border-amber bg-amber-tint p-3">
+          <p className="text-xs font-semibold text-ink">
+            You&rsquo;re overruling the engine&rsquo;s &ldquo;{engineCall}&rdquo; call.
+          </p>
+          <p className="mt-0.5 text-[11px] text-ink-muted">
+            One line on why &mdash; it&rsquo;s logged and trains your calibration.
+          </p>
+          <input
+            autoFocus
+            value={why}
+            onChange={(e) => setWhy(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") confirmOverride();
+            }}
+            placeholder="e.g. caller already has counsel"
+            className="mt-2 w-full rounded-base border border-line-strong px-2 py-1 text-sm"
+          />
+          <div className="mt-2 flex items-center gap-2">
+            <button
+              onClick={confirmOverride}
+              disabled={why.trim().length < 3}
+              className="rounded-base bg-navy px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-40"
+            >
+              Log override &amp; {pending === "declined" ? "decline" : "refer out"}
+            </button>
+            <button
+              onClick={() => {
+                setPending(null);
+                setWhy("");
+              }}
+              className="rounded-base border border-line-strong px-2.5 py-1 text-xs text-ink hover:bg-canvas"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
