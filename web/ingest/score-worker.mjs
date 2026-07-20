@@ -290,7 +290,7 @@ export async function scoreUnscored({
     // failure-isolated — it can never fail the flag or abort the batch.
     await (async () => {
       const { triageFromCall } = await import("../src/lib/desk/triage-from-call.mjs");
-      const t = triageFromCall({ score, call });
+      const t = triageFromCall({ score, call, now });
       if (!t || !t.source_call_id) return;
       const existing = await findTriageByCall(db, call.firm_id, t.source_call_id);
       if (!existing) await insertTriageCase(db, t);

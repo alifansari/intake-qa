@@ -11,10 +11,19 @@
 // no usable verdict (v2 errored or produced no disposition); the caller MUST
 // skip in that case and never insert a blank triage.
 //
-// Compliance (§IV): no dollar and no computed deadline are synthesized here —
-// v2 forbids both at intake. sol_urgency is "unknown" because a transcript has
-// no reliable incident date; the filing clock stays a human confirmation.
+// Compliance (§IV): no dollar is synthesized here — v2 forbids it at intake.
+// The FILING CLOCK (B-026 slice 2): when the v1 rubric CLEANLY captured the date
+// of loss as a cited field (qualification.statute_window.date_of_loss carries an
+// evidence quote) we compute the SAME deterministic SOL the live triage shows —
+// an ESTIMATE that always carries sol.mjs's disclaimer, never a guarantee. When no
+// date was captured we keep sol_urgency "unknown", so the case surfaces as a GAP
+// ("no clock yet — capture the incident date") rather than a guessed deadline:
+// understating a short government/MICRA clock is the one thing we must never do,
+// so the short-clock modifiers the engine identified are honored, and any doubt
+// leaves the clock unknown for a human to set.
 // ============================================================================
+
+import { computeSol } from "../../../analysis/sol.mjs";
 
 // Marks a triage as machine-created from a call (vs. a human-typed one). Also
 // used to dedupe: one auto-triage per source call.
@@ -40,12 +49,53 @@ export function gradeForDisposition(disposition) {
   return GRADE[disposition] || { letter: "?", color: "neutral", headline: "Needs a look" };
 }
 
+// Derive the filing-deadline clock from the v1 engine's transcript extraction.
+// Returns the four triage sol_* fields. The date of loss is a CITED v1 field
+// (qualification.statute_window.date_of_loss); the short-clock modifiers are the
+// engine's own determination (statute_window.clock_modifiers + high_value_
+// indicators). We compute only when a date is present; otherwise "unknown" (a
+// gap for a human, never a guessed deadline). The gov/med-mal detection leans
+// toward CATCHING a short clock — a false positive over-warns (safe), a false
+// negative would understate a deadline (the malpractice failure we must avoid).
+export function solFromCall(score, caseType, now) {
+  const empty = { incident_date: null, sol_deadline: null, sol_days_remaining: null, sol_urgency: "unknown" };
+  const q = score && typeof score.qualification === "object" ? score.qualification : null;
+  const sw = q && typeof q.statute_window === "object" ? q.statute_window : null;
+  const incidentDate = sw ? firstStr(sw.date_of_loss) : null;
+  if (!incidentDate) return empty;
+
+  const mods = sw && Array.isArray(sw.clock_modifiers) ? sw.clock_modifiers : [];
+  const hvi = score && Array.isArray(score.high_value_indicators) ? score.high_value_indicators : [];
+  const signal = [...mods, ...hvi, caseType || ""].map(String).join(" ").toLowerCase();
+  const governmentDefendant =
+    /government|public entity|public (bus|school|hospital|sidewalk|road|works)|municipal|\bcity\b|\bcounty\b|gov(?:ernment)?[ _-]?claim/.test(
+      signal,
+    );
+  const medMal = /med(?:ical)?[ _-]?mal|micra|malpractice/.test(signal);
+  const minor = /\bminor\b|under[ -]?18|child plaintiff/.test(signal);
+
+  const r = computeSol({
+    incidentDate,
+    caseType: medMal ? "medical_malpractice" : "unknown",
+    governmentDefendant,
+    minor,
+    state: "CA",
+    now,
+  });
+  return {
+    incident_date: incidentDate,
+    sol_deadline: r?.deadlineDate ?? null,
+    sol_days_remaining: typeof r?.daysRemaining === "number" ? r.daysRemaining : null,
+    sol_urgency: r?.urgency ?? "unknown",
+  };
+}
+
 /**
  * Build a triage_case-shaped record from a scored call's v2 shadow verdict.
- * @param {{ score?: object, call?: object }} args
+ * @param {{ score?: object, call?: object, now?: Date }} args
  * @returns {object|null} triage_case fields, or null when there's no verdict.
  */
-export function triageFromCall({ score, call } = {}) {
+export function triageFromCall({ score, call, now = new Date() } = {}) {
   const shadow = score && score._v2_shadow;
   if (!shadow || typeof shadow !== "object" || shadow.shadow_error) return null;
 
@@ -66,6 +116,11 @@ export function triageFromCall({ score, call } = {}) {
 
   const sourceCallId = call && call.id != null ? String(call.id) : null;
 
+  // B-026 slice 2: compute the filing clock from the v1 engine's cited date of
+  // loss when present; otherwise the fields stay null/"unknown" (a gap, never a
+  // guessed deadline). Always an estimate carrying sol.mjs's disclaimer at render.
+  const sol = solFromCall(score, case_type, now);
+
   return {
     firm_id: call ? call.firm_id ?? null : null,
     created_by: "auto",
@@ -74,7 +129,7 @@ export function triageFromCall({ score, call } = {}) {
     caller_name: call ? call.caller_name ?? null : null,
     caller_phone: call ? call.caller_phone ?? null : null,
     case_type,
-    incident_date: null,
+    incident_date: sol.incident_date,
     grade_letter: grade.letter,
     grade_color: grade.color,
     headline: grade.headline,
@@ -82,9 +137,9 @@ export function triageFromCall({ score, call } = {}) {
     value_tier,
     driving_reason,
     flip_fact: null, // the "one fact to confirm" is a live-call prompt, not a transcript read
-    sol_deadline: null,
-    sol_days_remaining: null,
-    sol_urgency: "unknown", // no reliable incident date from a transcript (§IV: no invented deadline)
+    sol_deadline: sol.sol_deadline,
+    sol_days_remaining: sol.sol_days_remaining,
+    sol_urgency: sol.sol_urgency,
     attorney_review: shadow.attorney_review_required === true, // boolean: both DB twins accept it
     input_json: JSON.stringify({ source: AUTO_TRIAGE_SOURCE, call_id: sourceCallId }),
     verdict_json: JSON.stringify({
