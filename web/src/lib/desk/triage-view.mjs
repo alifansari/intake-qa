@@ -113,3 +113,27 @@ export function urgencyReason(row) {
   if (row.sol_urgency === "soon") return "Filing deadline within 90 days";
   return null;
 }
+
+// B-026 — aggregate the OPEN queue into a filing-deadline WATCH for the safety-net
+// panel: how many open cases carry a computed clock, how many are pressing
+// (expired / within 30d / within 90d), and how many have NO clock yet (no incident
+// date captured → sol_urgency "unknown"). Pure; terminal cases (signed/declined/
+// referred) never count — a closed case can't have a deadline slip.
+const SOL_CLOCK_URGENCIES = new Set(["ok", "soon", "critical", "expired"]);
+export function deadlineWatch(rows) {
+  const out = { openTotal: 0, withClock: 0, expired: 0, critical: 0, soon: 0, noClock: 0 };
+  for (const r of Array.isArray(rows) ? rows : []) {
+    if (!OPEN_STATUSES.includes(String(r?.status ?? "new"))) continue;
+    out.openTotal += 1;
+    const u = String(r?.sol_urgency ?? "unknown");
+    if (SOL_CLOCK_URGENCIES.has(u)) {
+      out.withClock += 1;
+      if (u === "expired") out.expired += 1;
+      else if (u === "critical") out.critical += 1;
+      else if (u === "soon") out.soon += 1;
+    } else {
+      out.noClock += 1;
+    }
+  }
+  return out;
+}

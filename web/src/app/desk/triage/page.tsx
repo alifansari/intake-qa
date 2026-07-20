@@ -6,8 +6,10 @@
 //
 // Firm-scoped like every desk page. Degrades to a friendly panel with no DB.
 import { resolveDeskFirm } from "@/lib/desk/firm";
-import { triageQueueSort } from "@/lib/desk/triage-view.mjs";
+import { triageQueueSort, deadlineWatch } from "@/lib/desk/triage-view.mjs";
 import { TriageConsole } from "@/components/desk/TriageConsole";
+import { NothingSlips } from "@/components/desk/NothingSlips";
+import { SOL_DISCLAIMER } from "../../../../analysis/sol.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,8 +52,32 @@ export default async function TriagePage() {
       // tables not migrated yet — show the console empty rather than error.
     }
     const caseTypes = await loadCaseTypes();
+
+    // B-026 — the safety net: recorded-call COVERAGE + a filing-deadline WATCH
+    // over the open queue. Both computed server-side from data that already
+    // exists (getCallReconciliation + the triage rows' sol_urgency). Best-effort:
+    // a firm with no call pipeline simply shows the deadline watch, and vice
+    // versa; a failure here never breaks the console.
+    let coverage: { read: number; processing: number; failed: number } | null = null;
+    try {
+      const recon = (await store.getCallReconciliation(db, firm.id)) as Record<string, unknown> | null;
+      const read = Number(recon?.received ?? 0);
+      const failed = Number(recon?.failed ?? 0);
+      const processing = Math.max(
+        0,
+        read - Number(recon?.processed ?? 0) - Number(recon?.excluded ?? 0) - failed,
+      );
+      coverage = read > 0 ? { read, processing, failed } : null;
+    } catch {
+      coverage = null;
+    }
+    const deadlines = deadlineWatch(rows);
+
     return (
       <Shell>
+        <div className="mb-6">
+          <NothingSlips coverage={coverage} deadlines={deadlines} disclaimer={SOL_DISCLAIMER} />
+        </div>
         <TriageConsole
           caseTypes={caseTypes}
           profile={profile}
