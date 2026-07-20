@@ -4,7 +4,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { deadlineWatch, triageQueueSort, solTone } from "../src/lib/desk/triage-view.mjs";
+import {
+  deadlineWatch,
+  triageQueueSort,
+  solTone,
+  liveUrgency,
+  withLiveUrgency,
+} from "../src/lib/desk/triage-view.mjs";
 
 const row = (status, sol_urgency, extra = {}) => ({ status, sol_urgency, ...extra });
 
@@ -68,4 +74,29 @@ test("solTone maps urgency to tone + phrase", () => {
   assert.equal(solTone("soon").tone, "warn");
   assert.equal(solTone("ok").tone, "good");
   assert.equal(solTone("whatever").tone, "neutral");
+});
+
+// ---- B-026 slice 3: live urgency recompute (never stale) -----------------
+
+test("liveUrgency recomputes bands from the deadline date", () => {
+  const now = new Date("2026-06-01T00:00:00Z");
+  assert.equal(liveUrgency("2026-06-15", now), "critical"); // 14 days
+  assert.equal(liveUrgency("2026-08-15", now), "soon"); // ~75 days
+  assert.equal(liveUrgency("2027-06-01", now), "ok"); // ~1 year
+  assert.equal(liveUrgency("2026-05-01", now), "expired"); // past
+  assert.equal(liveUrgency(null, now), "unknown");
+  assert.equal(liveUrgency("not-a-date", now), "unknown");
+});
+
+test("withLiveUrgency overrides a STALE stored urgency from the deadline", () => {
+  const now = new Date("2026-06-01T00:00:00Z");
+  // stored "soon" but the deadline is 10 days out -> the case is really critical
+  const r = withLiveUrgency({ sol_deadline: "2026-06-11", sol_urgency: "soon" }, now);
+  assert.equal(r.sol_urgency, "critical");
+  // no deadline -> the stored value stands (usually "unknown")
+  assert.equal(withLiveUrgency({ sol_urgency: "unknown" }, now).sol_urgency, "unknown");
+  // never mutates the input
+  const input = { sol_deadline: "2026-06-11", sol_urgency: "soon" };
+  withLiveUrgency(input, now);
+  assert.equal(input.sol_urgency, "soon");
 });

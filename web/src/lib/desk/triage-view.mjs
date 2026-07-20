@@ -119,6 +119,34 @@ export function urgencyReason(row) {
 // (expired / within 30d / within 90d), and how many have NO clock yet (no incident
 // date captured → sol_urgency "unknown"). Pure; terminal cases (signed/declined/
 // referred) never count — a closed case can't have a deadline slip.
+// B-026 slice 3 — the persisted sol_urgency is a SNAPSHOT from score/entry time;
+// as days pass a "soon" case silently becomes "critical" (an under-warning that,
+// for a filing deadline, is the dangerous direction). The deadline DATE is
+// stable, so recompute urgency from it at render. Bands mirror analysis/sol.mjs
+// urgencyBand — kept inline so this file stays client-safe (TriageConsole, a
+// client component, imports from here).
+export function liveUrgency(solDeadline, now = new Date()) {
+  if (!solDeadline) return "unknown";
+  const s = String(solDeadline);
+  const dl = new Date(s.length <= 10 ? `${s}T00:00:00Z` : s);
+  if (Number.isNaN(dl.getTime())) return "unknown";
+  const days = Math.floor((dl.getTime() - now.getTime()) / 86_400_000);
+  if (days < 0) return "expired";
+  if (days <= 30) return "critical";
+  if (days <= 90) return "soon";
+  return "ok";
+}
+
+// Return a copy of a triage row with sol_urgency refreshed from its deadline.
+// Render-time ONLY — never writes the DB. When there's no deadline, the stored
+// value (usually "unknown") stands. Overlaying here means deadlineWatch,
+// triageQueueSort, and the card display all read a current value with no change.
+export function withLiveUrgency(row, now = new Date()) {
+  if (!row || typeof row !== "object") return row;
+  const u = row.sol_deadline ? liveUrgency(row.sol_deadline, now) : (row.sol_urgency ?? "unknown");
+  return { ...row, sol_urgency: u };
+}
+
 const SOL_CLOCK_URGENCIES = new Set(["ok", "soon", "critical", "expired"]);
 export function deadlineWatch(rows) {
   const out = { openTotal: 0, withClock: 0, expired: 0, critical: 0, soon: 0, noClock: 0 };

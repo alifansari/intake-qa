@@ -6,7 +6,7 @@
 //
 // Firm-scoped like every desk page. Degrades to a friendly panel with no DB.
 import { resolveDeskFirm } from "@/lib/desk/firm";
-import { triageQueueSort, deadlineWatch } from "@/lib/desk/triage-view.mjs";
+import { triageQueueSort, deadlineWatch, withLiveUrgency } from "@/lib/desk/triage-view.mjs";
 import { TriageConsole } from "@/components/desk/TriageConsole";
 import { NothingSlips } from "@/components/desk/NothingSlips";
 import { SOL_DISCLAIMER } from "../../../../analysis/sol.mjs";
@@ -52,6 +52,14 @@ export default async function TriagePage() {
       // tables not migrated yet — show the console empty rather than error.
     }
     const caseTypes = await loadCaseTypes();
+
+    // B-026 slice 3: refresh each row's sol_urgency from its (stable) deadline
+    // date at render, so a snapshot from score/entry time never goes stale — a
+    // "soon" that has since become "critical" must read critical. Render-time
+    // only (never writes the DB); downstream deadlineWatch / triageQueueSort /
+    // the card display all read this fresh value with no further change.
+    const now = new Date();
+    rows = rows.map((r) => withLiveUrgency(r, now));
 
     // B-026 — the safety net: recorded-call COVERAGE + a filing-deadline WATCH
     // over the open queue. Both computed server-side from data that already
