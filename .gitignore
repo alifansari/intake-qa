@@ -5,7 +5,10 @@
 node_modules/
 
 # Confidential recordings and generated output
-calls/
+# NOTE: leading slash anchors this to the repo root (the root audio dir only).
+# Without it, the pattern also matched web/src/app/desk/calls/ and silently
+# un-tracked the entire /desk/calls route.
+/calls/
 output/
 
 # macOS
