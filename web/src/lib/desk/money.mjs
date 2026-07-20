@@ -94,8 +94,51 @@ export function fmtK(cents) {
 }
 
 // A compact fee RANGE for a card chip: "$25k–$60k" (collapses when equal).
+// Retained for the Ledger (firm's own average fee) and any internal readout; per
+// B-022 the firm-facing callback surfaces show a value TIER, not this dollar.
 export function fmtKRange(lowCents, highCents) {
   const lo = fmtK(lowCents);
   const hi = fmtK(highCents);
   return lo === hi ? lo : `${lo}–${hi}`;
+}
+
+// Value TIER for a leaked case (B-022). On the firm-facing callback surfaces we
+// show a coarse, honest priority band instead of an estimated dollar: a $ figure
+// on a case that hasn't signed reads as inflated vendor math (attorney's-eyes
+// teardown, insights 2026-07-20) and §IV prefers tiers to point-ish estimates.
+// The band is derived from the HIGH end of the sourced fee range; the real dollar
+// survives only where the firm entered its OWN average fee (the Ledger).
+//
+// THRESHOLDS ARE TUNABLE — calibrate against a firm's own average fees. Defaults
+// map the PI fee bands from research: commercial/catastrophic/wrongful-death land
+// high (~$45k–$150k), standard MVA/premises/dog-bite mid (~$12k–$18k), minor low.
+export const VALUE_TIER = Object.freeze({
+  high: { key: "high", label: "High-value" },
+  standard: { key: "standard", label: "Standard-value" },
+  modest: { key: "modest", label: "Modest-value" },
+});
+const VALUE_TIER_HIGH_MIN_CENTS = 35_000 * 100;
+const VALUE_TIER_STANDARD_MIN_CENTS = 8_000 * 100;
+
+// Returns the tier object, or null when no fee value is sourced (no basis → no
+// claim; the card then shows confidence only, never a fabricated tier).
+export function valueTier(highCents) {
+  const hi = Number(highCents);
+  if (!Number.isFinite(hi) || hi <= 0) return null;
+  if (hi >= VALUE_TIER_HIGH_MIN_CENTS) return VALUE_TIER.high;
+  if (hi >= VALUE_TIER_STANDARD_MIN_CENTS) return VALUE_TIER.standard;
+  return VALUE_TIER.modest;
+}
+
+// Count on-the-table cases by value tier, for the hero's one-line summary.
+/** @param {MoneyLeak[]} leaks */
+export function tierBreakdown(leaks) {
+  const out = { high: 0, standard: 0, modest: 0 };
+  for (const leak of Array.isArray(leaks) ? leaks : []) {
+    const status = leak?.status ?? "needs_callback";
+    if (!ON_THE_TABLE_STATUSES.has(status)) continue;
+    const t = valueTier(leak?.feeHighCents);
+    if (t) out[t.key] += 1;
+  }
+  return out;
 }

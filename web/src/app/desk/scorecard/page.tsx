@@ -4,7 +4,7 @@
 // Board), and the four money-move rates. Grade the controllables, not raw sign
 // rate (which swings with lead quality). Brand-new firm → labeled SAMPLE.
 import Link from "next/link";
-import { fmtBigRange, fmtK } from "@/lib/desk/money.mjs";
+import { valueTier } from "@/lib/desk/money.mjs";
 import { feeBandFromPoint } from "../../../../analysis/fee-value.mjs";
 import { resolveDeskFirm } from "@/lib/desk/firm";
 import { getUserRole, isManagerRole } from "@/lib/desk/roles";
@@ -73,16 +73,22 @@ export default async function Scorecard({ searchParams }: { searchParams: Search
 
   const s = buildScorecard(rows);
 
-  // Money still on the table, as a RANGE (methodology: never a point estimate).
-  let lowCents = 0;
-  let highCents = 0;
+  // B-022 — the still-winnable book as a COUNT + value-tier mix, not an estimated
+  // dollar (a $ on cases that haven't signed reads as inflated vendor math; §IV
+  // prefers a coarse band). The firm's own average fee lives in the Ledger.
+  let onTableCount = 0;
+  const onTableTiers = { high: 0, standard: 0, modest: 0 };
   for (const r of analyzedRows(rows).filter(isBlown)) {
+    onTableCount += 1;
     if (!r.revenue_at_risk_cents) continue;
-    const b = feeBandFromPoint(r.revenue_at_risk_cents);
-    lowCents += b.feeLowCents ?? 0;
-    highCents += b.feeHighCents ?? 0;
+    const t = valueTier(feeBandFromPoint(r.revenue_at_risk_cents).feeHighCents);
+    if (t) onTableTiers[t.key as keyof typeof onTableTiers] += 1;
   }
-  const onTable = highCents > 0 ? fmtBigRange(lowCents, highCents) : null;
+  const onTableTierParts = [
+    onTableTiers.high ? `${onTableTiers.high} high-value` : null,
+    onTableTiers.standard ? `${onTableTiers.standard} standard-value` : null,
+    onTableTiers.modest ? `${onTableTiers.modest} modest-value` : null,
+  ].filter(Boolean);
 
   // Per-rep rollup. Prefer the scored call's own `rep`; fall back to the acting
   // user who worked the callback (flag_status), so uploads — which never carry a
@@ -115,7 +121,7 @@ export default async function Scorecard({ searchParams }: { searchParams: Search
           ) : null}
         </div>
         <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">
-          One grade for how your intake team turns winnable calls into signed cases, the money still on the table,
+          One grade for how your intake team turns winnable calls into signed cases, the cases still on the table,
           and the habits costing you the most — so you know exactly what to fix on Monday.
         </p>
       </div>
@@ -144,9 +150,12 @@ export default async function Scorecard({ searchParams }: { searchParams: Search
 
         <div className="rounded-card border border-hairline bg-surface p-5">
           <p className="eyebrow text-red">On the table now</p>
-          <p className="mt-2 font-display text-2xl font-bold text-red tnum">{onTable ?? "$0"}</p>
+          <p className="mt-2 font-display text-2xl font-bold text-red tnum">
+            {onTableCount} {onTableCount === 1 ? "caller" : "callers"}
+          </p>
           <p className="mt-1 text-xs text-ink-muted">
-            Estimated fees from signable calls your team let slip that are still winnable with a callback.<sup>1</sup>
+            Signable calls your team let slip that are still winnable with a callback
+            {onTableTierParts.length ? ` (${onTableTierParts.join(" · ")})` : ""}.<sup>1</sup>
           </p>
           <Link href={isSample ? "/desk?demo=1" : "/desk"} className="mt-3 inline-block text-xs font-semibold text-accent hover:text-accent-hover">
             See who to call back →
@@ -179,14 +188,13 @@ export default async function Scorecard({ searchParams }: { searchParams: Search
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <p className="font-semibold text-ink">{leak.behavior}</p>
                   <div className="flex shrink-0 items-center gap-2 text-xs">
+                    {/* B-022 — no per-miss dollar here: leak.dollarsCents is an
+                        AGGREGATE across calls, so per-case value tiers would
+                        misclassify it. The list stays ranked by cost (order); the
+                        call count carries the magnitude. */}
                     <span className="rounded-pill bg-surface px-2 py-0.5 font-semibold text-ink-muted">
                       {leak.count} call{leak.count === 1 ? "" : "s"}
                     </span>
-                    {leak.dollarsCents > 0 ? (
-                      <span className="rounded-pill bg-red-tint px-2 py-0.5 font-semibold text-red">
-                        {fmtK(leak.dollarsCents)} at risk
-                      </span>
-                    ) : null}
                   </div>
                 </div>
                 {leak.model ? (
@@ -262,8 +270,9 @@ export default async function Scorecard({ searchParams }: { searchParams: Search
 
       <p className="mt-6 max-w-[80ch] text-xs text-faint">
         <sup>1</sup> The grade is a Signable-Save Rate: of the calls worth taking, the share your team did not let
-        slip. It grades what your team controls, not lead quality. Estimated fees are ranges under the methodology
-        on the honesty page, not guarantees. Statute-of-limitations tracking stays with your attorneys.
+        slip. It grades what your team controls, not lead quality. Value bands (high / standard / modest) are an
+        estimate from typical fee values for the case type, a way to prioritize — not guarantees; your firm’s own
+        average fee lives in the Ledger. Statute-of-limitations tracking stays with your attorneys.
       </p>
     </div>
   );

@@ -12,6 +12,9 @@ import {
   fmtK,
   fmtKRange,
   ON_THE_TABLE_STATUSES,
+  valueTier,
+  tierBreakdown,
+  VALUE_TIER,
 } from "../src/lib/desk/money.mjs";
 
 const leak = (status, feeLowCents, feeHighCents) => ({ status, feeLowCents, feeHighCents });
@@ -85,4 +88,39 @@ test("fmtKRange collapses equal low/high", () => {
 test("status set is the winnable trio", () => {
   assert.ok(ON_THE_TABLE_STATUSES.has("needs_callback"));
   assert.ok(!ON_THE_TABLE_STATUSES.has("signed"));
+});
+
+// B-022 — value TIER replaces the estimated dollar on the callback surfaces.
+test("valueTier bands the fee-value high end (tunable thresholds)", () => {
+  assert.equal(valueTier(45_000_00).key, "high"); // commercial MVA / catastrophic
+  assert.equal(valueTier(150_000_00).key, "high"); // wrongful death
+  assert.equal(valueTier(35_000_00).key, "high"); // exactly at the high floor
+  assert.equal(valueTier(18_000_00).key, "standard"); // premises
+  assert.equal(valueTier(8_000_00).key, "standard"); // at the standard floor
+  assert.equal(valueTier(4_000_00).key, "modest"); // minor
+});
+
+test("valueTier returns null when no fee value is sourced (no basis, no claim)", () => {
+  assert.equal(valueTier(0), null);
+  assert.equal(valueTier(null), null);
+  assert.equal(valueTier(undefined), null);
+  assert.equal(valueTier(NaN), null);
+});
+
+test("VALUE_TIER labels are firm-facing and stable", () => {
+  assert.equal(VALUE_TIER.high.label, "High-value");
+  assert.equal(VALUE_TIER.standard.label, "Standard-value");
+  assert.equal(VALUE_TIER.modest.label, "Modest-value");
+});
+
+test("tierBreakdown counts ONLY on-the-table cases by tier; unsourced don't count", () => {
+  const leaks = [
+    leak("needs_callback", 20_000_00, 45_000_00), // high
+    leak("reached_out", 6_000_00, 18_000_00), // standard
+    leak("back_in_touch", 1_000_00, 4_000_00), // modest
+    leak("signed", 20_000_00, 45_000_00), // excluded (won-back, not on table)
+    leak("didnt_sign", 20_000_00, 45_000_00), // excluded (lost)
+    leak("needs_callback", null, null), // on table but unsourced → no tier
+  ];
+  assert.deepEqual(tierBreakdown(leaks), { high: 1, standard: 1, modest: 1 });
 });

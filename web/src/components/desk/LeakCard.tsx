@@ -24,7 +24,7 @@
 import { useState } from "react";
 import { fmtDate } from "@/pdf/doc-helpers.mjs";
 import { attemptNudge } from "@/lib/desk/queue-view.mjs";
-import { fmtKRange } from "@/lib/desk/money.mjs";
+import { valueTier } from "@/lib/desk/money.mjs";
 
 export type Leak = {
   id: number | string;
@@ -158,13 +158,15 @@ export function LeakCard({
   });
   const terminal = TERMINAL.has(status);
   const badge = leak.tier ? (leak.tier === "strong" ? "Strong flag" : "Moderate flag") : "Needs a look";
-  // The money this callback is worth — the reason to pick up the phone. A compact
-  // emerald chip in the header so the queue scans as dollars. Estimate only (¹).
-  // A dollar figure appears ONLY when a confidence tier backs it — never pair a
-  // money claim with an unrated card (compliance §IV: no basis, no claim).
-  const feeChip =
+  // B-022 — the reason to pick up the phone, as a value TIER not an estimated
+  // dollar: a $ on a case that hasn't signed reads as inflated vendor math, and
+  // §IV prefers a coarse band to a point-ish estimate. Gated exactly as the old
+  // dollar chip was — a tier shows ONLY when a confidence tier backs the flag AND
+  // a fee value is sourced (no basis, no claim). The firm's own-fee dollar lives
+  // in the Ledger, not here.
+  const valueBand =
     leak.tier && leak.feeLowCents != null && (leak.feeLowCents > 0 || (leak.feeHighCents ?? 0) > 0)
-      ? fmtKRange(leak.feeLowCents, leak.feeHighCents ?? leak.feeLowCents)
+      ? valueTier(leak.feeHighCents ?? leak.feeLowCents)
       : null;
   const urgency = leak.urgency;
   const nudge = attemptNudge(attempts, status);
@@ -296,13 +298,12 @@ export function LeakCard({
           ) : null}
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1.5">
-          {feeChip ? (
+          {valueBand ? (
             <span
-              title="Estimated fee if this case signs — a range under the methodology on the honesty page, not a guarantee."
-              className="rounded-pill bg-accent-tint px-3 py-1 font-display text-base font-semibold text-accent tnum"
+              title="Priority band from the estimated fee value — an estimate to help you prioritize callbacks, never a guarantee. Your firm's own average fee lives in the Ledger."
+              className="rounded-pill bg-accent-tint px-3 py-1 text-sm font-semibold text-accent"
             >
-              {feeChip}
-              <sup className="text-[0.55em]">1</sup>
+              {valueBand.label}
             </span>
           ) : null}
           <span

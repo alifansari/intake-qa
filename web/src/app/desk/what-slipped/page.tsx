@@ -17,7 +17,7 @@ import { HowCallsArrive } from "@/components/desk/HowCallsArrive";
 import { resolveDeskFirm } from "@/lib/desk/firm";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { partitionLeaks, callUrgency } from "@/lib/desk/queue-view.mjs";
-import { summarizeMoney } from "@/lib/desk/money.mjs";
+import { summarizeMoney, tierBreakdown } from "@/lib/desk/money.mjs";
 import { sampleDesk } from "@/lib/desk/sample.mjs";
 import { recordEventOn } from "@/lib/events";
 import { fmtMoneyRange } from "@/pdf/doc-helpers.mjs";
@@ -225,7 +225,12 @@ export default async function WhatSlipped({ searchParams }: { searchParams: Sear
 
     return (
       <Shell firmName={firm.name}>
-        <MoneyHero onTheTable={onTheTable} wonBack={wonBack} callsReceived={callsReceived} />
+        <MoneyHero
+          onTheTable={onTheTable}
+          wonBack={wonBack}
+          callsReceived={callsReceived}
+          tiers={tierBreakdown(moneyLeaks)}
+        />
 
         {callsReceived > 0 ? (
           <p className="mt-3 text-xs text-faint tnum">
@@ -390,7 +395,13 @@ function SampleDesk({ note }: { note: "connect" }) {
 
   return (
     <>
-      <MoneyHero onTheTable={onTheTable} wonBack={won} callsReceived={0} isSample />
+      <MoneyHero
+        onTheTable={onTheTable}
+        wonBack={won}
+        callsReceived={0}
+        isSample
+        tiers={tierBreakdown(moneyLeaks)}
+      />
 
       <div className="mt-6">
         <h2 className="mb-3 font-display text-lg font-semibold text-ink">
@@ -488,10 +499,10 @@ function ReadoutLinks({ demo = false }: { demo?: boolean }) {
 function Footnote() {
   return (
     <p className="mt-6 max-w-[80ch] text-xs text-faint">
-      <sup>1</sup> Estimated fee value is a range under the methodology on the honesty page — an
-      estimate of what walked, not a guarantee of recovery. The waiting time on each card counts from
-      the caller’s original call — it’s a callback reminder, not a legal deadline.
-      Statute-of-limitations tracking stays with your attorneys.
+      Value bands (high / standard / modest) are an estimate from typical fee values for the case
+      type — a way to prioritize callbacks, not a guarantee of recovery. Your firm’s own average fee
+      lives in the Ledger. The waiting time on each card counts from the caller’s original call — it’s
+      a callback reminder, not a legal deadline. Statute-of-limitations tracking stays with your attorneys.
     </p>
   );
 }
