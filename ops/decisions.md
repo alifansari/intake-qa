@@ -43,6 +43,31 @@
 
 ---
 
+## 2026-07-20 — FIX: over-broad `calls/` gitignore silently un-shipped the whole /desk/calls route  ·  agent: main session · lane: product/infra
+- **Change:** `.gitignore` line 8 was `calls/` (no leading slash), intended for the root
+  audio dir per CLAUDE.md. Without the anchor it *also* matched `web/src/app/desk/calls/`, so the
+  entire `/desk/calls` route — the "Every call we read" ledger + the per-call readout at
+  `calls/[id]` — was untracked and NOT in production (`git cat-file -e origin/main:.../calls/page.tsx`
+  failed). Two live consequences: (1) the nav / "What slipped" RecordsRow linked to `/desk/calls`,
+  which 404'd in prod; (2) the **B-022** dollar→value-tier conversion of `calls/[id]/page.tsx` was
+  done on disk but could never deploy — so the B-022 backlog note claiming that readout shipped was
+  wrong. Fix: anchor the rule to `/calls/` (root audio dir only) and commit the now-trackable route,
+  B-022 tier readout included. Shipped as a scoped 3-file commit (`.gitignore` + the two route pages),
+  isolated-worktree build green, 671/671 tests, pushed origin/main → Vercel (commit 6d40ac4).
+- **Hypothesis:** the desk's per-call readout and calls ledger are real navigable surfaces; a 404
+  behind a linked nav item erodes trust in a live demo. Shipping the route makes the links resolve
+  and lands the compliant value-tier readout (§IV) that B-022 intended.
+- **Expected effect:** `/desk/calls` and `/desk/calls/[id]` resolve in prod (no 404 from nav /
+  RecordsRow); per-call readout shows a value **band**, not an estimated dollar. No metric target —
+  correctness/trust fix.
+- **Guard for next time:** any new gitignore dir rule meant for the repo root MUST be anchored with a
+  leading slash (`/calls/`, not `calls/`), or it silently swallows same-named nested dirs.
+- **Status:** shipped
+- **Review date:** 2026-07-27
+- **Result:** (pending)
+
+---
+
 ## 2026-07-20 — BUILD B-021: cockpit/triage is the /desk default; retrospective money view → /desk/what-slipped  ·  agent: main session · lane: product
 - **Change (staged in working tree; NOT committed/deployed):** first implementation of the retired-scorer positioning (decisions.md 2026-07-20, above). Routing + nav only, no engine changes:
   - `/desk` now redirects to `/desk/triage` (the LIVE day-to-day queue) — was the retrospective money home.
