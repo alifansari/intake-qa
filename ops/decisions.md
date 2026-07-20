@@ -22,14 +22,17 @@
 - **Positioning: independent intake desk / independent scorer**, Ali as "Analyst of Record,"
   not a fee participant. (Renamed from "independent recovery desk" 2026-07-12 to drop the §I
   fee-participation optics of "recovery"; the compliance negations "never a share of any
-  recovery" are load-bearing and unchanged.)
-- **Scorer -> Closer is a SEQUENCE, not a switch** (2026-07-12): the independent scorer is the
-  wedge (free audit, low regulatory downside, best trust-fit); the bilingual voice "closer" is
-  a later, supervised, human-approved EXPANSION act sold only to already-trusting firms on their
-  own proven leak, never the hero, never "empathetic AI," and its per-signed-case pricing must
-  clear Yang against §I first. Falsifiable resequencing trigger: if beta firms take the free
-  audit and audit->paid stalls at the "great, now what?" gap, the scorer is under-delivering on
-  the emotion it manufactures and the closer moves up.
+  recovery" are load-bearing and unchanged.) **AMENDED 2026-07-20 → the *retrospective-scorer-as-
+  the-daily-face* is retired (see 2026-07-20 entry below); the flat-fee / "not a fee participant"
+  / independent-not-steering-clients compliance stance is UNCHANGED and still binds. The
+  "independent scorer" survives as a GTM *authority/benchmark* asset (B-006/B-001), not as the
+  product's daily-use face.**
+- **Scorer -> Closer is a SEQUENCE, not a switch** (2026-07-12). **AMENDED 2026-07-20:** the
+  "great, now what?" resequencing trigger has effectively fired (per the attorney's-eyes teardown,
+  insights 2026-07-20). The retrospective scorer recedes to *plumbing*; the daily face becomes the
+  **live intake cockpit + close-the-case actions + never-drop certainty**, and the product is built
+  around the decline-capture moat (B-016). The voice "closer" and any automated send/embedded-
+  routing leg still clear Yang against §I/§III (cockpit-spec slice 4; §VII) — unchanged.
 - **Wedge: free Leak Audit** leads every outreach.
 - **Owned newsletter + LinkedIn are the primary distribution rails**; Dream 25 dimensional mailer
   replaced the 150-firm generic blast.
@@ -39,6 +42,51 @@
   attestation block.
 
 ---
+
+## 2026-07-20 — BUILD B-021: cockpit/triage is the /desk default; retrospective money view → /desk/what-slipped  ·  agent: main session · lane: product
+- **Change (staged in working tree; NOT committed/deployed):** first implementation of the retired-scorer positioning (decisions.md 2026-07-20, above). Routing + nav only, no engine changes:
+  - `/desk` now redirects to `/desk/triage` (the LIVE day-to-day queue) — was the retrospective money home.
+  - The retrospective MoneyHero + leaked-callback queue moved verbatim to **`/desk/what-slipped`** (title/intro reframed as the "rear-view"; self-links + relative import depths fixed).
+  - `/desk/queue` stub now → `/desk/what-slipped` (preserves the "Missed cases" semantic); post-login fallbacks (`auth/callback`, `login`) now land on `/desk` (→ live triage), was `/desk/queue`.
+  - **Nav unified:** `src/lib/desk-nav.ts` is the single source of truth again, now with `visibility` (manager/founder) + `primary` metadata. `desk/layout.tsx` renders from it role-filtered (Cockpit = primary CTA); `components/nav.tsx` renders the public-only subset on /billing+/settings. This kills the stale `DESK_LINKS` (old "Missed cases/Upload/Documents/Calls" set that still 404-adjacent-pointed at `/desk/queue`).
+- **Files:** `desk-nav.ts`, `desk/layout.tsx`, `desk/page.tsx`, `desk/what-slipped/page.tsx` (new), `desk/queue/page.tsx`, `components/nav.tsx`, `auth/callback/route.ts`, `login/page.tsx`.
+- **Verification:** `next build` green (all routes compiled incl. `/desk/what-slipped`); `eslint` clean; `npm test` 670/670; dev-server boot smoke — no server errors, `/desk`, `/desk/what-slipped`, `/desk/triage`, `/desk/cockpit`, `/desk/queue` all resolve (auth-gate → `/login?next=…`, no 500s). Post-auth desk UI is gated so not browser-verified without a session — recommend a signed-in eyeball.
+- **Hypothesis / expected effect:** see decisions.md 2026-07-20 (positioning) — moves audit→pilot / daily retention by leading with the live surface. This is the enabling UI step.
+- **Status:** staged-for-approval (working tree). Not committed, not deployed. §VII allows autonomous deploy on green build + checklist, but holding for Ali since this is a visible positioning change and Ali asked for a staged PR.
+- **Review date:** 2026-08-20.
+- **Result:** —
+
+## 2026-07-20 — POSITIONING: retire the retrospective-scorer-as-the-face; the live cockpit + actions become the product  ·  agent: main session · lane: strategy/product/GTM
+- **Change:** Ali's explicit decision, on the attorney's-eyes product teardown (insights 2026-07-20).
+  The **retrospective call-QA scorer** — score the call after the fact, deliver a graded, dollar-
+  stamped "here's the signable case your team let slip" autopsy — is **formally retired as the
+  product's hero / daily-use face.** It recedes to *plumbing* (an internal, cited engine + the
+  authority/benchmark GTM asset). The **face becomes:** (1) the live intake cockpit that helps the
+  specialist save the signable case *in the moment*, (2) close-the-case actions (e-sign/book/follow-
+  up), (3) a "nothing slips" certainty + audit-trail surface, all built around (4) the survivorship-
+  free **decline-capture moat** ("which of your no's were signable" — B-016). Reframes product docs:
+  CLAUDE.md "What this is"/Mission one-liner, cockpit-spec open-note resolved, backlog re-sequenced
+  (B-021…B-032, product lane leads with cockpit-as-face).
+- **What did NOT change (explicit boundary, compliance-supreme):** §I flat-monthly outcome-agnostic
+  pricing; "not a fee participant"; "no citation, no claim" / tiered confidence / no guarantees
+  (§IV); the independent-not-steering-clients stance that clears Rule 5.4 / AB 931 / SB 37. This is a
+  **product-emphasis** change, not a fee/consent/solicitation change. Every downstream *regulated*
+  slice keeps its existing gate: automated SMS/e-sign-send to a prospect, embedded CRM write-back,
+  and any voice-closer leg are novel-regulated → **Yang first** (§VII; cockpit-spec slice 4). The
+  compliance-invariants skill file itself is UNTOUCHED (changing §I would be novel-regulated → Yang).
+- **Hypothesis:** the "great, now what?" gap (2026-07-12 resequencing trigger) is the whole reason a
+  pure scorer stalls at audit→paid; leading with save-the-case-live + real actions + certainty moves
+  audit→pilot and pilot→paid because it sells the *signed case and the calmed fear*, not a graded
+  autopsy (insights 2026-07-20; unmet-needs "so what, now what" wall; competitor QualifyAI already
+  owns in-CRM scoring).
+- **Expected effect:** audit→pilot and pilot→paid conversion (the two numbers that decide the $1M
+  model, insight 2026-07-07 B2) rise once beta firms experience an *acting* product; leading metric =
+  qualified-conversation→pilot. Watch for the opposite risk: cockpit/actions are heavier to build than
+  a report, so time-to-first-real-integration is the new critical path.
+- **Status:** adopted by Ali 2026-07-20; internal docs updated this session. Public/website copy
+  reflecting the new positioning is NOT yet changed — any such change runs the §V/§VII pre-ship gate.
+- **Review date:** 2026-08-20 (align with the validate-or-shelve GO/NO-GO).
+- **Result:** —
 
 ## 2026-07-12 — GOVERNANCE: agents may now deploy to production (§VII amended, "broad")  ·  agent: main session · lane: governance (§VII)
 - **Change:** Ali's explicit, informed decision (chose "broad" over the recommended "scoped"

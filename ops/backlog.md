@@ -41,6 +41,18 @@ paying-firm autopsy data later.
 12. **B-004** (240) — self-improving agent architecture [standing]
 13. **B-003** (210) — live in-call coaching hardening
 
+### RE-SEQUENCED 2026-07-20 — cockpit-as-the-face (retrospective scorer retired; decisions.md 2026-07-20)
+
+The attorney's-eyes teardown (insights 2026-07-20) retired the retrospective-scorer-as-hero. The
+**product lane** now leads with the cockpit/actions/certainty items below, built around the
+decline-capture moat (B-016). The **outreach lane's** authority track (B-006/B-001/B-002 independent
+benchmark) is unchanged — independence survives as a *GTM authority asset*, not the daily product
+face. New product priority order (by ICE): **B-021 (432) → B-022 (392) → B-026 (384) → B-016 (360) →
+B-029 (336) → B-023 (288) → B-025 (280) → B-028 (280) → B-024 (252) → B-031 (252) → B-030 (245) →
+B-032 (210) → B-027 (192).** Honest tension logged in decisions.md: independent-benchmark GTM vs
+embedded-acting product are now two identities; every regulated slice (send/write-back/voice) keeps
+its Yang gate (§VII).
+
 ---
 
 ### B-006 — Independent CIPA-safe NorCal PI intake benchmark (the one asset that does 4 jobs)  ·  ICE: 10×8×4 = 320  ·  lane: research→product→outreach
@@ -162,3 +174,77 @@ paying-firm autopsy data later.
 - **Hypothesis:** the piece is the authority-asset articulation of the develop-queue thesis; the DIY-audit sidebar is the product demo in prose. QC pass 1 applied; gates remaining: LACBA vendor-content policy check, Yang read (Packet #2 Q1–Q3), Ali posts (§VII).
 - **Deliverable:** posted piece + teaser once gates clear; free 20-call tally offered only in 1:1 follow-up with NDA/consent language.
 - **Status:** queued (BLOCKED on Yang read + Ali)
+
+<!-- 2026-07-20 — attorney's-eyes teardown items (insights 2026-07-20). Product lane, cockpit-as-face. -->
+
+### B-021 — Make the live cockpit/triage the default firm-facing face; demote the retrospective scorer to plumbing  ·  ICE: 9×8×6 = 432  ·  lane: product
+- **Hypothesis:** If the firm's first and default surface is the live cockpit/triage (save-the-case-in-the-moment) and the retrospective score is repositioned as an internal engine + a "what slipped last week" secondary tab, then audit→pilot and daily-use retention rise because the buyer values a saved case over a graded autopsy — the "so what, now what" wall (insights 2026-07-20; decisions.md 2026-07-20). Cockpit slices 1–2 already built; this is default/nav/emphasis + de-hero, plus killing the nav sediment (`desk-nav.ts` stale vs real layout).
+- **Deliverable:** PR — cockpit/triage as the `/desk` default; retrospective queue moved to a secondary "What slipped" view; nav unified; one-job-per-screen pass. No new engine work.
+- **Status:** staged-for-approval 2026-07-20 (working tree; not committed/deployed). `/desk` → live triage; retrospective money home moved to `/desk/what-slipped`; `/desk/queue` → what-slipped; post-login lands on `/desk`; nav unified through `src/lib/desk-nav.ts` (role-aware in layout, public-only in the /billing+/settings bar) — kills the stale `DESK_LINKS` drift. Build green, lint clean, 670/670 tests, all routes resolve (boot smoke). Files: `desk-nav.ts`, `desk/layout.tsx`, `desk/page.tsx`, `desk/what-slipped/page.tsx`, `desk/queue/page.tsx`, `components/nav.tsx`, `auth/callback/route.ts`, `login/page.tsx`. See decisions.md 2026-07-20.
+- **Result:** — (awaiting Ali review; desk UI is auth-gated so login-in eyeball recommended)
+
+### B-022 — Retire the firm-facing "$X at risk" dollar; show the v2 tier + flip-fact instead  ·  ICE: 7×8×7 = 392  ·  lane: product
+- **Hypothesis:** If every firm-facing surface replaces the v1 `revenue_at_risk` dollar with the v2 value-*tier* + driving-reason + one flip-fact, then trust rises (a $ on a lost case reads as inflated vendor math — 65% of B2B buyers distrust it) AND §IV compliance strengthens (tiers > point-estimate dollars). The dollar survives only in the firm's-own-fee Ledger, clearly labeled an estimate (insights 2026-07-20 dislike ⑥; §IV).
+- **Deliverable:** PR — swap LeakCard/desk/readout dollar → tier+reason+flip-fact; keep dollar only where the firm entered its own avg fee. Ties B-014 (unify fee source).
+- **Status:** queued
+- **Result:** —
+
+### B-026 — "Nothing slips" certainty surface: SOL clock + never-drop audit trail as the headline trust artifact  ·  ICE: 8×8×6 = 384  ·  lane: product
+- **Hypothesis:** If the desk leads with visible, cited deadline capture + a never-drop audit trail ("every call read, every clock captured, here's the proof"), then partner trust + retention rise because it targets his #1 emotion (SOL/malpractice terror) with *certainty*, not *insight* (insights 2026-07-20 want #5; SOL is the single highest malpractice exposure). Absorbs/supersedes B-013 (statute clock) by making it the headline, not a footnote.
+- **Deliverable:** incident-date capture in pipeline + SOL render (sol.mjs exists) + an append-only "nothing dropped" audit surface; PR. Ties B-013.
+- **Status:** queued
+- **Result:** —
+
+### B-029 — Explainability + override + calibration as the HEADLINE (the anti-QualifyAI wedge)  ·  ICE: 7×8×6 = 336  ·  lane: product
+- **Hypothesis:** If every verdict prominently shows *why* (cited reason), a one-tap *override*, and links to firm *calibration* (CalibrationDeck exists), then trust + differentiation rise vs black-box QualifyAI/LeadsAI — because "you can interrogate and overrule every call it makes" is exactly the trust component the category leader says lawyers demand (Spiegel: "see and feel and touch the things helping it decide"). Deterministic + human-only declines is our edge; surface it (insights 2026-07-20 want #8).
+- **Deliverable:** PR — per-verdict why/override/calibrate affordance on cockpit + readout; make the citation guard visible, not internal.
+- **Status:** queued
+- **Result:** —
+
+### B-023 — Native two-way CRM write-back (real), starting Lead Docket direct → CASEpeer/Filevine  ·  ICE: 9×8×4 = 288  ·  lane: product [PER-INTEGRATION → Ali/Yang §VII]
+- **Hypothesis:** If a flagged/triaged case writes back natively into the firm's CRM (status + note + create-matter) instead of a CSV round-trip, then adoption rises and the #1 integration grievance (double data entry) dies — CSV hand-back reads as *more* work, not less (insights 2026-07-20 dislike ⑤, want #3). Lead Docket is uniquely self-serve (per-firm API key, webhook rules — insights 2026-07-11); the connector seam + mock already exist.
+- **Deliverable:** real Lead Docket adapter behind the existing `connector.mjs` seam (create-only, consent-travels, review-then-write); per-integration sign-off staged for Ali (§VII). Then CASEpeer (Lead Docket→CASEpeer is the canonical template), Filevine.
+- **Status:** queued (each live credential = Ali sign-off; mock until then)
+- **Result:** —
+
+### B-025 — Marketing-source → SIGNED-case attribution loop  ·  ICE: 8×7×5 = 280  ·  lane: product
+- **Hypothesis:** If the desk joins call source × signability × outcome into a "which channel produced signed cases (and which fumbled signable calls)" view, then partner stickiness rises because it answers his loudest analytics pain — attribution blindness (~42% don't track ROI; "everything after the form is invisible"). Raw material already lives in `call_analyses` + call source (insights 2026-07-20 want #4).
+- **Deliverable:** PR — attribution view on the desk (source → qualified → signable-fumbled → signed → $), sourced from existing tables; labeled estimates per §IV.
+- **Status:** queued
+- **Result:** —
+
+### B-028 — Trust pack made real (Op-512 answer): SOC 2 in-progress, BAA, no-training attestation, right-to-audit, data-handling one-pager  ·  ICE: 7×8×5 = 280  ·  lane: product/compliance [BAA/claims → Yang]
+- **Hypothesis:** If the security/trust posture moves from roadmap-labeled to real artifacts a firm can hand its risk-averse partner (Op 512 made vendor-vetting HIS ethical duty), then late-stage deals stop stalling on "where does my data live / do you train on it / give me a BAA" (insights 2026-07-20 dislike ⑦). The design escape hatch: minimize client-confidential data ingested/retained.
+- **Deliverable:** SOC 2 roadmap→in-progress with dates; BAA template (Yang/human gate); no-training-on-client-data attestation; right-to-audit clause; a 1-page Op-512 data-handling explainer. Text staged, not auto-shipped.
+- **Status:** queued (BAA + any public compliance claim → Yang, §V/§VII)
+- **Result:** —
+
+### B-024 — Close-the-case terminal actions: e-sign on the call + book the appointment  ·  ICE: 9×7×4 = 252  ·  lane: product [SEND LEG → Yang §III/§VII]
+- **Hypothesis:** If the cockpit's wrap-up can send an e-sign retainer *while the caller is on the phone* (now industry baseline) and book the consult, then pilot→paid rises because the paid deliverable is a *signed retainer*, not a grade (insights 2026-07-20 want #2; cockpit slice 3–4). Dropbox Sign exists in test mode.
+- **Deliverable:** manual-press e-sign send + evidence-of-human-press record (TCPA manual-send defense) + calendar book; the automated-send leg is NOVEL REGULATED → Yang first; the manual-send button is safe (§III/§VII).
+- **Status:** queued (manual-send safe; automated leg blocked on Yang)
+- **Result:** —
+
+### B-031 — After-hours "which no's were signable" wedge surface  ·  ICE: 6×7×6 = 252  ·  lane: product
+- **Hypothesis:** If the desk isolates after-hours/voicemail calls and flags the signable ones ("3 signable cases hit voicemail Saturday"), then it opens a wedge distinct from the saturated 24/7-answering lane — 60%+ of PI calls are after-hours and most are new business (insights 2026-07-20 want #6). `after_hours_leak` already exists in the v1 schema.
+- **Deliverable:** PR — after-hours cut on the desk + digest line; reuses `after_hours_leak`.
+- **Status:** queued
+- **Result:** —
+
+### B-030 — Full Spanish intake + rescue productization (P2 interface → live)  ·  ICE: 7×7×5 = 245  ·  lane: product
+- **Hypothesis:** If the Spanish module goes from routing-interface to a live full-conversation intake + rescue path (not a language-switch greeting), then CA fit + a justice-framed differentiator land — <12% of firms have real bilingual intake, CA ~40% Hispanic, *confianza* = #1 driver (insights 2026-07-20 want #7; ties C4 + B-002/B-018). Mandatory-human-review gate stays (Spanglish accuracy).
+- **Deliverable:** PR — Spanish path live behind `firm_features['spanish_module']`, mandatory review retained; ties language-tag telemetry B-018.
+- **Status:** queued (rides B-018)
+- **Result:** —
+
+### B-032 — Name & own "live in-call guidance for the human PI intake specialist" (category whitespace)  ·  ICE: 7×6×5 = 210  ·  lane: product/outreach
+- **Hypothesis:** If we productize + name the gap between post-call scorecards (too late) and full-replacement AI voice bots (Eve/EvenUp), then we occupy unoccupied ground — 65% of contact-center agents want real-time help (Cresta 2024), and no legal product assists a *human* specialist live (insights 2026-07-20 want #1). Absorbs/reframes B-003 (in-call coaching hardening) under the cockpit.
+- **Deliverable:** cockpit live-guidance hardening (latency, false-positive rate, consent gate) + a positioning note; PR + outreach angle. Ties B-003.
+- **Status:** queued
+- **Result:** —
+
+### B-027 — Earn the v2 flip: measure the shadow false-alarm rate, then surface v2 to firms  ·  ICE: 8×6×4 = 192  ·  lane: product/compliance [§IV gate]
+- **Hypothesis:** If we compute v2's false-alarm rate from the accumulated v1-vs-v2 shadow corpus and it clears the bar, then flipping the (better, dollar-free, cited) v2 engine firm-visible improves trust — today the best engine is invisible (shadow-only). Blocked by §IV until the rate is measured/published (insights 2026-07-20 dislike ⑥; engine-v2 shadow status).
+- **Deliverable:** analysis of the shadow disagreement corpus + published false-alarm rate; if it clears, staged flip proposal. Compliance §IV gate.
+- **Status:** queued (blocked on measurement)
+- **Result:** —

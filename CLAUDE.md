@@ -14,12 +14,17 @@ database) without stopping first and asking for confirmation in **bold**.
 
 ## What this is
 
-**Intake QA** — a SaaS for solo / small California plaintiff personal-injury firms that
-scores intake calls AND recovers leaked signable cases via compliant, human-approved SMS
-re-engagement.
+**Intake QA** — a SaaS for solo / small California plaintiff personal-injury firms. **AMENDED
+2026-07-20 (decisions.md 2026-07-20):** the daily face is the **live intake cockpit** — it helps
+the specialist save the signable case *in the moment*, writes the file, and proves nothing (no
+case, no clock) slipped — built around the survivorship-free record of *which declines were wrong*.
+The retrospective call-scorer + compliant human-approved re-engagement still run *underneath* (an
+internal, cited engine + a GTM authority/benchmark asset), but they are no longer the hero.
 
-One line: *catch the signable calls your intake team let slip, then win them back — with a
-human approving every text.*
+One line: *save the signable case while the caller is still on the phone, write it to your CRM,
+and prove nothing slipped.*
+(Retired one-liner, kept for history: "catch the signable calls your intake team let slip, then
+win them back — with a human approving every text.")
 
 End users are non-technical law-firm staff, so UX and copy assume no technical knowledge.
 
@@ -174,10 +179,13 @@ status (warm contact, not retained). Follow it.
 
 ## Mission
 
-Intake QA is the **independent intake desk** for California personal-injury firms:
-we score intake calls and surface lost-case / lost-revenue leaks that firms can't see
-themselves. Positioning is the independent scorer — the Moody's / Michelin / J.D. Power of PI
-intake — not a vendor and not a fee participant.
+Intake QA is the **live intake desk** for California personal-injury firms: it helps the
+specialist save the signable case in the moment, writes the file, proves nothing slipped, and
+owns the survivorship-free record of which declines were wrong. **AMENDED 2026-07-20:** the
+"independent scorer — the Moody's / J.D. Power of PI intake" framing is retired as the *product's
+daily face* and survives only as a GTM **authority/benchmark** asset (B-006/B-001). The compliance
+stance is UNCHANGED and still binds: flat monthly fee, **not a fee participant**, does not steer
+clients, no share of any recovery (§I). Not a vendor of leads; not a fee participant.
 
 Business state: **pre-revenue**, hunting a founding cohort of **3–5 California PI
 firms** (LACBA/LA outreach live as of July 2026) via free pilots anchored by the free
