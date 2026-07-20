@@ -197,6 +197,21 @@ export function TriageConsole({
 
   const open = useMemo(() => queue.filter((r) => !isTerminalStatus(String(r.status))), [queue]);
 
+  // B-029 follow-up — the cases a human OVERRULED the engine on (declined/referred
+  // one it graded viable), with the reason they logged. Already in hand (the queue
+  // query is SELECT * and returns terminal cases too); this just surfaces it, so
+  // the override is a visible record instead of a buried column. It IS the
+  // decline-capture-moat data — which of your no's went against the engine.
+  const overrides = useMemo(
+    () =>
+      queue.filter(
+        (r) =>
+          isEngineOverride(String(r.disposition), String(r.status)) &&
+          String(r.decline_reason || "").trim().length > 0,
+      ),
+    [queue],
+  );
+
   return (
     <div>
       <header className="mb-6 flex items-start justify-between gap-4">
@@ -426,6 +441,39 @@ export function TriageConsole({
               </div>
             )}
           </section>
+
+          {overrides.length ? (
+            <details className="mt-8">
+              <summary className="cursor-pointer text-sm font-semibold text-ink-muted hover:text-ink">
+                Overruled the engine ({overrides.length}) — the reasons your team logged
+              </summary>
+              <p className="mt-2 max-w-2xl text-xs text-ink-muted">
+                Calls where someone declined or referred a case the engine graded viable, with the
+                reason on record — which of your no&rsquo;s went against the engine.
+              </p>
+              <div className="mt-3 space-y-2">
+                {overrides.map((r) => (
+                  <div key={String(r.id)} className="rounded-base border border-hairline bg-canvas p-3">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                      <span className="font-medium text-ink">{String(r.caller_name || "Unnamed caller")}</span>
+                      <span className="text-[11px] text-ink-muted">
+                        engine said{" "}
+                        <span className="font-semibold">{dispositionPlain(String(r.disposition))}</span>
+                        {" · human "}
+                        {String(r.status) === "declined" ? "declined" : "referred out"}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-ink">
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-faint">
+                        Reason:{" "}
+                      </span>
+                      {String(r.decline_reason)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </details>
+          ) : null}
         </>
       )}
     </div>
