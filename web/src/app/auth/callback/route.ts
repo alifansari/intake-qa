@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 // Only same-origin, path-only targets — never an absolute/protocol-relative URL
 // (an emailed sign-in link is a phishing vector otherwise).
 function safeNext(raw: string | null): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/desk/queue";
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/desk";
   return raw;
 }
 

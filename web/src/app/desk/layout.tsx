@@ -14,6 +14,7 @@
 // never removes access from anyone who has it today.
 import Link from "next/link";
 import { resolveCurrentRole, isManagerRole } from "@/lib/desk/roles";
+import { DESK_LINKS } from "@/lib/desk-nav";
 
 export default async function DeskLayout({ children }: { children: React.ReactNode }) {
   const { role, email } = await resolveCurrentRole();
@@ -21,6 +22,12 @@ export default async function DeskLayout({ children }: { children: React.ReactNo
   const founderEmail = process.env.FOUNDER_EMAIL?.trim().toLowerCase();
   const isFounder = Boolean(founderEmail && email?.trim().toLowerCase() === founderEmail);
   const canSeeTeam = isManagerRole(role);
+
+  // One source of truth (src/lib/desk-nav.ts), filtered by role here so labels
+  // and routes never drift from the /billing+/settings bar again (B-021).
+  const links = DESK_LINKS.filter((l) =>
+    l.visibility === "manager" ? canSeeTeam : l.visibility === "founder" ? isFounder : true,
+  );
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -30,49 +37,29 @@ export default async function DeskLayout({ children }: { children: React.ReactNo
             Intake QA · your desk
           </Link>
           <div className="flex items-center gap-x-5 text-sm">
-            <Link
-              href="/desk/triage"
-              className="rounded-lg bg-ink px-3 py-1.5 font-medium text-surface hover:opacity-90"
-            >
-              Live triage
-            </Link>
-            <Link href="/desk/coach" className="text-ink-muted hover:text-ink">
-              Coach
-            </Link>
-            <Link href="/desk/calibration" className="text-ink-muted hover:text-ink">
-              Our accuracy
-            </Link>
-            <Link href="/desk/receipts" className="text-ink-muted hover:text-ink">
-              Recovered
-            </Link>
-            {canSeeTeam ? (
-              <>
-                <Link href="/desk/scorecard" className="text-ink-muted hover:text-ink">
-                  Scorecard
+            {links.map((l) =>
+              l.primary ? (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="rounded-lg bg-ink px-3 py-1.5 font-medium text-surface hover:opacity-90"
+                >
+                  {l.label}
                 </Link>
-                <Link href="/desk/signal" className="text-ink-muted hover:text-ink">
-                  Marketing
+              ) : (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={
+                    l.visibility === "founder"
+                      ? "text-faint hover:text-ink"
+                      : "text-ink-muted hover:text-ink"
+                  }
+                >
+                  {l.label}
                 </Link>
-                <Link href="/desk/team" className="text-ink-muted hover:text-ink">
-                  Team
-                </Link>
-              </>
-            ) : null}
-            {isFounder ? (
-              <>
-                <Link href="/desk/review" className="text-faint hover:text-ink">
-                  Analyst review
-                </Link>
-                <Link href="/studio" className="text-faint hover:text-ink">
-                  Studio
-                </Link>
-              </>
-            ) : null}
-            {canSeeTeam ? (
-              <Link href="/desk/settings" className="text-ink-muted hover:text-ink">
-                Settings
-              </Link>
-            ) : null}
+              ),
+            )}
             {user?.email ? (
               <form action="/auth/signout" method="post" className="flex items-center gap-3">
                 <span className="hidden text-xs text-faint sm:inline">{user.email}</span>

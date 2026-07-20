@@ -13,7 +13,10 @@ import { DESK_LINKS } from "@/lib/desk-nav";
 // put it here on purpose.
 const SHOW_ON = ["/billing", "/settings"];
 
-const LINKS = DESK_LINKS;
+// This bar has no role context (client component), so it renders only the
+// public desk links — never the manager/founder-gated ones. The full,
+// role-aware nav lives in src/app/desk/layout.tsx.
+const LINKS = DESK_LINKS.filter((l) => !l.visibility);
 
 export function Nav() {
   const pathname = usePathname();
@@ -24,7 +27,7 @@ export function Nav() {
     <header className="no-print sticky top-0 z-30 bg-navy-deep text-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/desk/queue" className="font-display text-base font-semibold leading-none">
+          <Link href="/desk" className="font-display text-base font-semibold leading-none">
             Intake QA
             <span className="ml-2 font-sans text-xs font-normal text-white/60">the desk</span>
           </Link>

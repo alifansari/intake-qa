@@ -13,7 +13,7 @@ const inputClass =
 // Only allow same-origin, path-only redirect targets. An absolute or
 // protocol-relative `next` (e.g. //evil.com) would let a sign-in link phish.
 function safeNext(raw: string | null): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/desk/queue";
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/desk";
   return raw;
 }
 
@@ -98,7 +98,7 @@ function LoginForm() {
         {notAuthorized ? (
           <p className="mb-4 rounded-sm border border-line-strong bg-paper px-3 py-2 text-xs text-ink">
             The studio is limited to the founder account. Sign in with that account to continue,
-            or head to <a href="/desk/queue" className="underline">your desk</a>.
+            or head to <a href="/desk" className="underline">your desk</a>.
           </p>
         ) : null}
         {linkError ? (
