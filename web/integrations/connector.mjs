@@ -81,6 +81,11 @@ export async function dispatch({
   };
 
   switch (event) {
+    case "intake.created":
+      // The moat: create the intake matter with the facts written in.
+      return adapter.pushIntake
+        ? adapter.pushIntake(ctx, payload)
+        : { skipped: true, reason: "unsupported_event" };
     case "flag.created":
       return adapter.pushFlag(ctx, payload);
     case "outcome.recorded":
