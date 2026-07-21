@@ -68,6 +68,15 @@
 
 ---
 
+## 2026-07-20 — INTEGRATION B-023: real Lead Docket write-back adapter (dormant, live-gated) · agent: main session · lane: product [§VII per-integration]
+- **Change (shipped, dormant):** replaced the placeholder Lead Docket adapter (`web/integrations/leaddocket.mjs`) with the REAL, verified API contract behind the existing connector seam. Verified via web research (support/docs.leaddocket.com): per-instance base `https://{firm}.leaddocket.com/api` (no shared host), auth = `api_key` request HEADER (the placeholder wrongly used `Authorization: Bearer`), notes = `POST /opportunities/append-note` (placeholder wrongly guessed `/v1/leads/notes`). CREATE/APPEND-ONLY, consent-travels, field_map-overridable per instance. Added a connector-level **live-gate** (`INTEGRATIONS_LIVE`, default OFF → ctx.live): the adapter SIMULATES (shapes payload, no network) unless live. +3 integration tests (688/688), build+lint green.
+- **Ali sign-off:** Ali said "I sign off on everything" (2026-07-20) — recorded as the §VII per-integration approval to BUILD + ship the Lead Docket adapter. It does NOT extend to the human-gated go-live steps (§VII secrets/env): setting a real firm's API key or flipping `INTEGRATIONS_LIVE` — those stay with Ali/the firm, and I did neither. No real firm has an enabled Lead Docket integration, so the deploy transmits nothing.
+- **What did NOT change:** this is a CRM export of the firm's OWN lead data into the firm's OWN Lead Docket (their system of record), append-only, consent traveling — not claimant solicitation, not fee/consent-recording design. Webhook/Clio/Filevine adapter behavior unchanged (only Lead Docket honors the new live-gate).
+- **Go-live path (human, when a real firm is ready):** firm pastes its `{sub}.leaddocket.com/api` base + self-generated API key into the integration settings (encrypted into `firm_integrations`) → dry-run with `INTEGRATIONS_LIVE` off (inspect the simulated payload) → flip `INTEGRATIONS_LIVE=true`. Confirm exact per-instance field names against that firm's Swagger console.
+- **Status:** adapter shipped dormant; go-live pending Ali's env/secret steps.
+- **Review date:** 2026-08-20.
+- **Result:** —
+
 ## 2026-07-20 — BUILD B-021: cockpit/triage is the /desk default; retrospective money view → /desk/what-slipped  ·  agent: main session · lane: product
 - **Change (staged in working tree; NOT committed/deployed):** first implementation of the retired-scorer positioning (decisions.md 2026-07-20, above). Routing + nav only, no engine changes:
   - `/desk` now redirects to `/desk/triage` (the LIVE day-to-day queue) — was the retrospective money home.

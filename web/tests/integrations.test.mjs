@@ -117,7 +117,7 @@ test("dispatch routes provider=webhook through the signed webhook", async () => 
   assert.equal(f.calls[0].opts.headers["x-intakeqa-event"], "outcome.recorded");
 });
 
-test("dispatch routes to the Lead Docket adapter with decrypted creds (mock server)", async () => {
+test("Lead Docket adapter uses the REAL contract (api_key header + append-note) when live", async () => {
   const f = mockFetch();
   const encrypted = encryptSecret("ld_key_xyz", PASS);
   const res = await dispatch({
@@ -125,22 +125,67 @@ test("dispatch routes to the Lead Docket adapter with decrypted creds (mock serv
       provider: "leaddocket",
       enabled: 1,
       credentials_encrypted: encrypted,
-      webhook_url: "https://mock.leaddocket.local",
-      field_map: JSON.stringify({ office: "LA" }),
+      webhook_url: "https://acme.leaddocket.com/api", // the firm's per-instance base
+      field_map: JSON.stringify({ extra: { OfficeId: "LA" } }),
     },
     event: "flag.created",
-    payload: { call: { id: 42 }, flag: { qualification_score: 88, is_leaked_signable: 1, reason: "leaked" } },
+    payload: {
+      call: { id: 42 },
+      flag: { qualification_score: 88, is_leaked_signable: 1, reason: "no ask" },
+      consent: "recorded-w-consent",
+    },
     fetchImpl: f,
     decrypt: (blob) => decryptSecret(blob, PASS),
+    live: true,
   });
   assert.equal(res.delivered, true);
   assert.equal(res.provider, "leaddocket");
   const { url, opts } = f.calls[0];
-  assert.match(url, /mock\.leaddocket\.local\/v1\/leads\/notes/);
-  assert.equal(opts.headers.authorization, "Bearer ld_key_xyz");
+  // per-instance base + the VERIFIED append-note endpoint (create/append only)
+  assert.match(url, /acme\.leaddocket\.com\/api\/opportunities\/append-note/);
+  // VERIFIED auth: api_key HEADER, never Bearer
+  assert.equal(opts.headers.api_key, "ld_key_xyz");
+  assert.equal(opts.headers.authorization, undefined);
   const body = JSON.parse(opts.body);
-  assert.equal(body.lead_ref, 42);
-  assert.equal(body.office, "LA"); // field_map merged
+  assert.equal(body.Id, 42); // default opportunity-id field
+  assert.match(body.Note, /Handling score 88/);
+  assert.match(body.Note, /consent basis: recorded-w-consent/); // consent travels
+  assert.equal(body.OfficeId, "LA"); // field_map.extra merged
+});
+
+test("Lead Docket SIMULATES (no network) unless the live-gate is on", async () => {
+  const f = mockFetch();
+  const encrypted = encryptSecret("ld_key_xyz", PASS);
+  const res = await dispatch({
+    integration: {
+      provider: "leaddocket",
+      enabled: 1,
+      credentials_encrypted: encrypted,
+      webhook_url: "https://acme.leaddocket.com/api",
+    },
+    event: "flag.created",
+    payload: { call: { id: 42 }, flag: { qualification_score: 88, is_leaked_signable: 1, reason: "no ask" } },
+    fetchImpl: f,
+    decrypt: (blob) => decryptSecret(blob, PASS),
+    live: false,
+  });
+  assert.equal(res.simulated, true);
+  assert.equal(res.delivered, false);
+  assert.equal(f.calls.length, 0, "no HTTP call when simulating");
+  assert.match(res.url, /opportunities\/append-note/); // still shows what WOULD be sent
+});
+
+test("Lead Docket skips without the firm's base URL (never guesses a host)", async () => {
+  const encrypted = encryptSecret("ld_key_xyz", PASS);
+  const res = await dispatch({
+    integration: { provider: "leaddocket", enabled: 1, credentials_encrypted: encrypted },
+    event: "flag.created",
+    payload: { call: { id: 1 }, flag: {} },
+    decrypt: (blob) => decryptSecret(blob, PASS),
+    live: true,
+  });
+  assert.equal(res.skipped, true);
+  assert.equal(res.reason, "no_base_url");
 });
 
 test("dispatch routes to the Clio adapter with decrypted creds (mock server)", async () => {

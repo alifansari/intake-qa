@@ -42,6 +42,11 @@ export async function dispatch({
   now,
   fetchImpl,
   decrypt = decryptSecret,
+  // Export live-gate (default OFF): provider adapters that honor ctx.live only
+  // transmit when this is true. INTEGRATIONS_LIVE=true is the deliberate go-live
+  // flip; absent it, adapters SIMULATE (shape the payload, send nothing) so a
+  // deploy can never write to a real firm's CRM by accident.
+  live = process.env.INTEGRATIONS_LIVE === "true",
 }) {
   if (!integration || !integration.enabled) return { skipped: true, reason: "disabled" };
 
@@ -72,6 +77,7 @@ export async function dispatch({
     fieldMap: parseFieldMap(integration.field_map),
     baseUrl: integration.webhook_url || undefined, // optional per-provider base URL
     fetchImpl,
+    live, // adapters that honor it (Lead Docket) simulate unless true
   };
 
   switch (event) {
